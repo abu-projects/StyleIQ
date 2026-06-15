@@ -123,6 +123,168 @@ StyleIQ is a high-end fashion intelligence platform characterized by a minimalis
 - **Status Icons**: Every selection state is indicated by both a visual border change and a checkmark icon to support color-blind users.
 - **Touch Targets**: All interactive selection cards and buttons are at least 48px in height.
 
+Brand Positioning Rules
+
+StyleIQ Should Feel Like
+
+* Quiet luxury
+* Editorial fashion
+* Premium lifestyle assistant
+* Personal stylist experience
+* Warm wardrobe companion
+* Calm confidence builder
+
+StyleIQ Should Not Feel Like
+
+* AI startup
+* SaaS dashboard
+* Technology platform
+* Futuristic product
+* Generic fashion catalog
+* Cold wardrobe management tool
+
+AI Usage Rule
+
+StyleIQ is NOT an AI-first product.
+
+AI exists as a hidden intelligence layer behind recommendations.
+
+Avoid:
+
+* AI-first messaging
+* Neural network graphics
+* Futuristic gradients
+* Blue/purple tech glows
+* AI particles
+* AI sparkles as brand identity
+* Robotic or synthetic imagery
+
+Allowed:
+
+* Personalization cues
+* Recommendation feedback
+* Style profile synthesis
+* Calm intelligent assistance
+
+⸻
+
+Photography Direction
+
+Photography is one of the most important parts of the StyleIQ experience.
+
+Global Image Mood
+
+Use:
+
+* Warm natural daylight
+* Morning routine moments
+* Quiet luxury styling
+* Editorial fashion photography
+* Beige, ivory, camel, taupe, cream, and soft brown tones
+* Real people in real environments
+* Premium wardrobe moments
+* Natural poses
+* Personal stylist feeling
+
+Avoid:
+
+* Cold blue-toned photography
+* Generic stock photos
+* Broken image placeholders
+* Futuristic visuals
+* AI-looking imagery
+* Product-only closet shots
+* Runway-only fashion
+* Overly posed studio imagery
+
+Preferred Lifestyle Scenes
+
+* Woman holding a blazer and taking a mirror selfie
+* Morning dressing routine
+* Looking in a mirror before work
+* Coffee shop lifestyle
+* Office arrival moments
+* Packing for a trip
+* Outfit planning moments
+* Wardrobe rediscovery moments
+
+Image Quality Rule
+
+Every image should tell a story about:
+
+* Confidence
+* Getting dressed
+* Feeling put together
+* Rediscovering style
+* Making better wardrobe decisions
+
+⸻
+
+Selection State Rules
+
+Selected cards must NOT use full black backgrounds.
+
+Default State
+
+Background:
+#FFFFFF
+
+Border:
+#ECE7E1
+
+Text:
+#1B1716
+
+Selected State
+
+Background:
+#F8F6F3
+
+Border:
+#C89B45
+
+Border Width:
+2px
+
+Check Icon:
+#C89B45
+
+Text:
+#1B1716
+
+Important
+
+Do NOT:
+
+* Turn selected cards black
+* Hide thumbnails
+* Darken selected images
+
+Selected items should remain easy to compare visually.
+
+Gold border + gold checkmark should be the primary selected state pattern throughout StyleIQ.
+
+⸻
+
+Screen 09 Special Rule
+
+Prefer visual card grids over text-only lists.
+
+Users choose style visually, not verbally.
+
+Recommended:
+
+* 2-column card layout
+* Large image thumbnails
+* Style name underneath
+* Gold border when selected
+
+Avoid:
+
+* Large black list rows
+* Text-heavy style selection
+* Hidden imagery after selection
+
 ## Assets
 - **Tailwind CSS**: `https://cdn.tailwindcss.com`
 - **Icons**: `https://unpkg.com/lucide@latest` (Lucide Icons)

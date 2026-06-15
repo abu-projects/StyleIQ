@@ -27,6 +27,17 @@ body {
 </style>
 </head>
 <body class="p-8 md:p-16 min-h-screen">
+  <!-- Top Logo & Phase Headline -->
+  <header class="w-full max-w-5xl mx-auto mb-16 flex flex-col items-center justify-center text-center">
+    <div class="flex items-center gap-3 mb-2">
+      <span class="font-serif text-4xl font-medium tracking-tight text-[#1B1716]">StyleIQ</span>
+    </div>
+    <div class="h-[1px] w-12 bg-[#C89B45] mb-3"></div>
+    <p class="font-sans text-[11px] font-semibold uppercase tracking-[0.25em] text-[#6F675F]">
+      Phase 1 &mdash; Onboarding &amp; Style DNA
+    </p>
+  </header>
+
   <div class="flex flex-wrap justify-center gap-16 md:gap-24">
 
     <!-- SCREEN 06 — WHAT IS STYLEIQ -->
@@ -338,65 +349,65 @@ body {
             
             <div class="grid grid-cols-2 gap-3">
               <!-- Zendaya (Selected) -->
-              <div class="relative rounded-2xl overflow-hidden h-32 border-2 border-[#C89B45] cursor-pointer">
-                <img src="images/cel_zendaya.png" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                <div class="absolute bottom-2 left-3 text-white font-sans text-xs font-semibold">
-                  Zendaya
-                </div>
-                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
-                  <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+              <div class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                <img src="images/cel_zendaya.png" class="w-full h-28 rounded-xl object-cover" alt="Zendaya">
+                <div class="flex flex-col items-center pt-2 pb-1">
+                  <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Zendaya</span>
+                  <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                    <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                  </div>
                 </div>
               </div>
               
               <!-- Meghan Markle (Selected) -->
-              <div class="relative rounded-2xl overflow-hidden h-32 border-2 border-[#C89B45] cursor-pointer">
-                <img src="images/cel_meghan.png" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                <div class="absolute bottom-2 left-3 text-white font-sans text-xs font-semibold">
-                  Meghan Markle
-                </div>
-                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
-                  <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+              <div class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                <img src="images/cel_meghan.png" class="w-full h-28 rounded-xl object-cover" alt="Meghan Markle">
+                <div class="flex flex-col items-center pt-2 pb-1">
+                  <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Meghan Markle</span>
+                  <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                    <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                  </div>
                 </div>
               </div>
 
               <!-- Rosie Huntington-Whiteley (Unselected) -->
-              <div class="relative rounded-2xl overflow-hidden h-32 border border-[#ECE7E1] cursor-pointer hover:border-[#C89B45] transition-colors">
-                <img src="images/cel_rosie.png" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                <div class="absolute bottom-2 left-3 text-white font-sans text-xs font-semibold">
-                  Rosie H-W
+              <div class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                <img src="images/cel_rosie.png" class="w-full h-28 rounded-xl object-cover" alt="Rosie H-W">
+                <div class="flex flex-col items-center pt-2 pb-1">
+                  <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Rosie H-W</span>
+                  <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
                 </div>
               </div>
 
               <!-- David Beckham (Selected) -->
-              <div class="relative rounded-2xl overflow-hidden h-32 border-2 border-[#C89B45] cursor-pointer">
-                <img src="images/cel_beckham.png" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                <div class="absolute bottom-2 left-3 text-white font-sans text-xs font-semibold">
-                  David Beckham
-                </div>
-                <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
-                  <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+              <div class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                <img src="images/cel_beckham.png" class="w-full h-28 rounded-xl object-cover" alt="David Beckham">
+                <div class="flex flex-col items-center pt-2 pb-1">
+                  <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">David Beckham</span>
+                  <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                    <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                  </div>
                 </div>
               </div>
 
               <!-- Ryan Reynolds (Unselected) -->
-              <div class="relative rounded-2xl overflow-hidden h-32 border border-[#ECE7E1] cursor-pointer hover:border-[#C89B45] transition-colors">
-                <img src="images/cel_reynolds.png" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                <div class="absolute bottom-2 left-3 text-white font-sans text-xs font-semibold">
-                  Ryan Reynolds
+              <div class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                <img src="images/cel_reynolds.png" class="w-full h-28 rounded-xl object-cover" alt="Ryan Reynolds">
+                <div class="flex flex-col items-center pt-2 pb-1">
+                  <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Ryan Reynolds</span>
+                  <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
                 </div>
               </div>
 
               <!-- Other (Unselected) -->
-              <div class="relative rounded-2xl overflow-hidden h-32 border border-[#ECE7E1] bg-white cursor-pointer hover:border-[#C89B45] transition-colors flex flex-col justify-center items-center gap-1.5">
-                <div class="w-7 h-7 rounded-full bg-[#F8F6F3] flex items-center justify-center text-[#6F675F]">
-                  <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+              <div class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                <div class="w-full h-28 rounded-xl bg-[#F8F6F3] flex items-center justify-center text-[#6F675F]">
+                  <i data-lucide="more-horizontal" class="w-6 h-6"></i>
                 </div>
-                <span class="text-[#6F675F] font-sans text-xs font-semibold tracking-wide">Other</span>
+                <div class="flex flex-col items-center pt-2 pb-1">
+                  <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Other</span>
+                  <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -444,46 +455,66 @@ body {
             <p class="font-sans text-sm text-[#6F675F] mb-6">
               Select at least 5 looks.
             </p>
-                <div class="flex gap-4">
+            <div class="flex gap-4">
               <!-- Column 1 -->
               <div class="flex flex-col gap-4 flex-1">
                 <!-- Outfit 1 (Selected) -->
-                <div class="relative rounded-2xl overflow-hidden border-2 border-[#C89B45] h-40 cursor-pointer">
-                  <img src="images/style_classic.png" class="w-full h-full object-cover">
-                  <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
-                    <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                <div class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                  <img src="images/style_classic.png" class="w-full h-32 rounded-xl object-cover" alt="Look 1">
+                  <div class="flex flex-col items-center pt-2 pb-1">
+                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look 1</span>
+                    <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                      <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                    </div>
                   </div>
                 </div>
                 <!-- Outfit 2 (Unselected) -->
-                <div class="relative rounded-2xl overflow-hidden border border-[#ECE7E1] h-48 cursor-pointer hover:border-[#C89B45] transition-colors">
-                  <img src="images/style_minimal.png" class="w-full h-full object-cover">
+                <div class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                  <img src="images/style_minimal.png" class="w-full h-32 rounded-xl object-cover" alt="Look 2">
+                  <div class="flex flex-col items-center pt-2 pb-1">
+                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look 2</span>
+                    <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                  </div>
                 </div>
                 <!-- Outfit 3 (Selected) -->
-                <div class="relative rounded-2xl overflow-hidden border-2 border-[#C89B45] h-40 cursor-pointer">
-                  <img src="images/style_smart_casual.png" class="w-full h-full object-cover">
-                  <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
-                    <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                <div class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                  <img src="images/style_smart_casual.png" class="w-full h-32 rounded-xl object-cover" alt="Look 3">
+                  <div class="flex flex-col items-center pt-2 pb-1">
+                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look 3</span>
+                    <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                      <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                    </div>
                   </div>
                 </div>
               </div>
               <!-- Column 2 -->
               <div class="flex flex-col gap-4 flex-1">
                 <!-- Outfit 4 (Selected) -->
-                <div class="relative rounded-2xl overflow-hidden border-2 border-[#C89B45] h-48 cursor-pointer">
-                  <img src="images/style_modern_prof.png" class="w-full h-full object-cover">
-                  <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
-                    <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                <div class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                  <img src="images/style_modern_prof.png" class="w-full h-32 rounded-xl object-cover" alt="Look 4">
+                  <div class="flex flex-col items-center pt-2 pb-1">
+                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look 4</span>
+                    <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                      <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                    </div>
                   </div>
                 </div>
                 <!-- Outfit 5 (Unselected) -->
-                <div class="relative rounded-2xl overflow-hidden border border-[#ECE7E1] h-36 cursor-pointer hover:border-[#C89B45] transition-colors">
-                  <img src="images/style_elevated_everyday.png" class="w-full h-full object-cover">
+                <div class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                  <img src="images/style_elevated_everyday.png" class="w-full h-32 rounded-xl object-cover" alt="Look 5">
+                  <div class="flex flex-col items-center pt-2 pb-1">
+                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look 5</span>
+                    <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                  </div>
                 </div>
                 <!-- Outfit 6 (Selected) -->
-                <div class="relative rounded-2xl overflow-hidden border-2 border-[#C89B45] h-42 cursor-pointer">
-                  <img src="images/style_creative.png" class="w-full h-full object-cover">
-                  <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
-                    <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                <div class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                  <img src="images/style_creative.png" class="w-full h-32 rounded-xl object-cover" alt="Look 6">
+                  <div class="flex flex-col items-center pt-2 pb-1">
+                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look 6</span>
+                    <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                      <i data-lucide="check" class="w-3.5 h-3.5" stroke-width="2.5"></i>
+                    </div>
                   </div>
                 </div>
               </div>

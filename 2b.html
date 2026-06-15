@@ -1,0 +1,2715 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleIQ — Phase 1A Screens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Import a sophisticated serif for headings to simulate Canela/Noe Display */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EFECE7;
+            /* Canvas background to let the Ivory screens pop */
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Hide scrollbar for cleaner mockup appearance */
+        .mockup-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mockup-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+    <style>
+        *,
+        ::before,
+        ::after {
+            --tw-border-spacing-x: 0;
+            --tw-border-spacing-y: 0;
+            --tw-translate-x: 0;
+            --tw-translate-y: 0;
+            --tw-rotate: 0;
+            --tw-skew-x: 0;
+            --tw-skew-y: 0;
+            --tw-scale-x: 1;
+            --tw-scale-y: 1;
+            --tw-pan-x: ;
+            --tw-pan-y: ;
+            --tw-pinch-zoom: ;
+            --tw-scroll-snap-strictness: proximity;
+            --tw-gradient-from-position: ;
+            --tw-gradient-via-position: ;
+            --tw-gradient-to-position: ;
+            --tw-ordinal: ;
+            --tw-slashed-zero: ;
+            --tw-numeric-figure: ;
+            --tw-numeric-spacing: ;
+            --tw-numeric-fraction: ;
+            --tw-ring-inset: ;
+            --tw-ring-offset-width: 0px;
+            --tw-ring-offset-color: #fff;
+            --tw-ring-color: rgb(59 130 246 / 0.5);
+            --tw-ring-offset-shadow: 0 0 #0000;
+            --tw-ring-shadow: 0 0 #0000;
+            --tw-shadow: 0 0 #0000;
+            --tw-shadow-colored: 0 0 #0000;
+            --tw-blur: ;
+            --tw-brightness: ;
+            --tw-contrast: ;
+            --tw-grayscale: ;
+            --tw-hue-rotate: ;
+            --tw-invert: ;
+            --tw-saturate: ;
+            --tw-sepia: ;
+            --tw-drop-shadow: ;
+            --tw-backdrop-blur: ;
+            --tw-backdrop-brightness: ;
+            --tw-backdrop-contrast: ;
+            --tw-backdrop-grayscale: ;
+            --tw-backdrop-hue-rotate: ;
+            --tw-backdrop-invert: ;
+            --tw-backdrop-opacity: ;
+            --tw-backdrop-saturate: ;
+            --tw-backdrop-sepia: ;
+            --tw-contain-size: ;
+            --tw-contain-layout: ;
+            --tw-contain-paint: ;
+            --tw-contain-style:
+        }
+
+        ::backdrop {
+            --tw-border-spacing-x: 0;
+            --tw-border-spacing-y: 0;
+            --tw-translate-x: 0;
+            --tw-translate-y: 0;
+            --tw-rotate: 0;
+            --tw-skew-x: 0;
+            --tw-skew-y: 0;
+            --tw-scale-x: 1;
+            --tw-scale-y: 1;
+            --tw-pan-x: ;
+            --tw-pan-y: ;
+            --tw-pinch-zoom: ;
+            --tw-scroll-snap-strictness: proximity;
+            --tw-gradient-from-position: ;
+            --tw-gradient-via-position: ;
+            --tw-gradient-to-position: ;
+            --tw-ordinal: ;
+            --tw-slashed-zero: ;
+            --tw-numeric-figure: ;
+            --tw-numeric-spacing: ;
+            --tw-numeric-fraction: ;
+            --tw-ring-inset: ;
+            --tw-ring-offset-width: 0px;
+            --tw-ring-offset-color: #fff;
+            --tw-ring-color: rgb(59 130 246 / 0.5);
+            --tw-ring-offset-shadow: 0 0 #0000;
+            --tw-ring-shadow: 0 0 #0000;
+            --tw-shadow: 0 0 #0000;
+            --tw-shadow-colored: 0 0 #0000;
+            --tw-blur: ;
+            --tw-brightness: ;
+            --tw-contrast: ;
+            --tw-grayscale: ;
+            --tw-hue-rotate: ;
+            --tw-invert: ;
+            --tw-saturate: ;
+            --tw-sepia: ;
+            --tw-drop-shadow: ;
+            --tw-backdrop-blur: ;
+            --tw-backdrop-brightness: ;
+            --tw-backdrop-contrast: ;
+            --tw-backdrop-grayscale: ;
+            --tw-backdrop-hue-rotate: ;
+            --tw-backdrop-invert: ;
+            --tw-backdrop-opacity: ;
+            --tw-backdrop-saturate: ;
+            --tw-backdrop-sepia: ;
+            --tw-contain-size: ;
+            --tw-contain-layout: ;
+            --tw-contain-paint: ;
+            --tw-contain-style:
+        }
+
+        /* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */
+        *,
+        ::after,
+        ::before {
+            box-sizing: border-box;
+            border-width: 0;
+            border-style: solid;
+            border-color: #e5e7eb
+        }
+
+        ::after,
+        ::before {
+            --tw-content: ''
+        }
+
+        :host,
+        html {
+            line-height: 1.5;
+            -webkit-text-size-adjust: 100%;
+            -moz-tab-size: 4;
+            tab-size: 4;
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            font-feature-settings: normal;
+            font-variation-settings: normal;
+            -webkit-tap-highlight-color: transparent
+        }
+
+        body {
+            margin: 0;
+            line-height: inherit
+        }
+
+        hr {
+            height: 0;
+            color: inherit;
+            border-top-width: 1px
+        }
+
+        abbr:where([title]) {
+            -webkit-text-decoration: underline dotted;
+            text-decoration: underline dotted
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-size: inherit;
+            font-weight: inherit
+        }
+
+        a {
+            color: inherit;
+            text-decoration: inherit
+        }
+
+        b,
+        strong {
+            font-weight: bolder
+        }
+
+        code,
+        kbd,
+        pre,
+        samp {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-feature-settings: normal;
+            font-variation-settings: normal;
+            font-size: 1em
+        }
+
+        small {
+            font-size: 80%
+        }
+
+        sub,
+        sup {
+            font-size: 75%;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline
+        }
+
+        sub {
+            bottom: -.25em
+        }
+
+        sup {
+            top: -.5em
+        }
+
+        table {
+            text-indent: 0;
+            border-color: inherit;
+            border-collapse: collapse
+        }
+
+        button,
+        input,
+        optgroup,
+        select,
+        textarea {
+            font-family: inherit;
+            font-feature-settings: inherit;
+            font-variation-settings: inherit;
+            font-size: 100%;
+            font-weight: inherit;
+            line-height: inherit;
+            letter-spacing: inherit;
+            color: inherit;
+            margin: 0;
+            padding: 0
+        }
+
+        button,
+        select {
+            text-transform: none
+        }
+
+        button,
+        input:where([type=button]),
+        input:where([type=reset]),
+        input:where([type=submit]) {
+            -webkit-appearance: button;
+            background-color: transparent;
+            background-image: none
+        }
+
+        :-moz-focusring {
+            outline: auto
+        }
+
+        :-moz-ui-invalid {
+            box-shadow: none
+        }
+
+        progress {
+            vertical-align: baseline
+        }
+
+        ::-webkit-inner-spin-button,
+        ::-webkit-outer-spin-button {
+            height: auto
+        }
+
+        [type=search] {
+            -webkit-appearance: textfield;
+            outline-offset: -2px
+        }
+
+        ::-webkit-search-decoration {
+            -webkit-appearance: none
+        }
+
+        ::-webkit-file-upload-button {
+            -webkit-appearance: button;
+            font: inherit
+        }
+
+        summary {
+            display: list-item
+        }
+
+        blockquote,
+        dd,
+        dl,
+        figure,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        hr,
+        p,
+        pre {
+            margin: 0
+        }
+
+        fieldset {
+            margin: 0;
+            padding: 0
+        }
+
+        legend {
+            padding: 0
+        }
+
+        menu,
+        ol,
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0
+        }
+
+        dialog {
+            padding: 0
+        }
+
+        textarea {
+            resize: vertical
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            opacity: 1;
+            color: #9ca3af
+        }
+
+        [role=button],
+        button {
+            cursor: pointer
+        }
+
+        :disabled {
+            cursor: default
+        }
+
+        audio,
+        canvas,
+        embed,
+        iframe,
+        img,
+        object,
+        svg,
+        video {
+            display: block;
+            vertical-align: middle
+        }
+
+        img,
+        video {
+            max-width: 100%;
+            height: auto
+        }
+
+        [hidden]:where(:not([hidden=until-found])) {
+            display: none
+        }
+
+        .absolute {
+            position: absolute
+        }
+
+        .relative {
+            position: relative
+        }
+
+        .sticky {
+            position: sticky
+        }
+
+        .inset-0 {
+            inset: 0px
+        }
+
+        .left-6 {
+            left: 1.5rem
+        }
+
+        .top-0 {
+            top: 0px
+        }
+
+        .top-14 {
+            top: 3.5rem
+        }
+
+        .z-10 {
+            z-index: 10
+        }
+
+        .z-50 {
+            z-index: 50
+        }
+
+        .mx-auto {
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        .-ml-2 {
+            margin-left: -0.5rem
+        }
+
+        .-mt-12 {
+            margin-top: -3rem
+        }
+
+        .mb-1 {
+            margin-bottom: 0.25rem
+        }
+
+        .mb-1\.5 {
+            margin-bottom: 0.375rem
+        }
+
+        .mb-16 {
+            margin-bottom: 4rem
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem
+        }
+
+        .mb-2\.5 {
+            margin-bottom: 0.625rem
+        }
+
+        .mb-3 {
+            margin-bottom: 0.75rem
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem
+        }
+
+        .mb-6 {
+            margin-bottom: 1.5rem
+        }
+
+        .mb-8 {
+            margin-bottom: 2rem
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem
+        }
+
+        .mt-4 {
+            margin-top: 1rem
+        }
+
+        .mt-6 {
+            margin-top: 1.5rem
+        }
+
+        .mt-8 {
+            margin-top: 2rem
+        }
+
+        .block {
+            display: block
+        }
+
+        .flex {
+            display: flex
+        }
+
+        .inline-flex {
+            display: inline-flex
+        }
+
+        .grid {
+            display: grid
+        }
+
+        .h-1\.5 {
+            height: 0.375rem
+        }
+
+        .h-12 {
+            height: 3rem
+        }
+
+        .h-14 {
+            height: 3.5rem
+        }
+
+        .h-20 {
+            height: 5rem
+        }
+
+        .h-28 {
+            height: 7rem
+        }
+
+        .h-3\.5 {
+            height: 0.875rem
+        }
+
+        .h-32 {
+            height: 8rem
+        }
+
+        .h-4 {
+            height: 1rem
+        }
+
+        .h-5 {
+            height: 1.25rem
+        }
+
+        .h-6 {
+            height: 1.5rem
+        }
+
+        .h-8 {
+            height: 2rem
+        }
+
+        .h-9 {
+            height: 2.25rem
+        }
+
+        .h-\[1px\] {
+            height: 1px
+        }
+
+        .h-\[55\%\] {
+            height: 55%
+        }
+
+        .h-\[812px\] {
+            height: 812px
+        }
+
+        .h-full {
+            height: 100%
+        }
+
+        .min-h-screen {
+            min-height: 100vh
+        }
+
+        .w-1\.5 {
+            width: 0.375rem
+        }
+
+        .w-1\/3 {
+            width: 33.333333%
+        }
+
+        .w-12 {
+            width: 3rem
+        }
+
+        .w-20 {
+            width: 5rem
+        }
+
+        .w-3\.5 {
+            width: 0.875rem
+        }
+
+        .w-4 {
+            width: 1rem
+        }
+
+        .w-5 {
+            width: 1.25rem
+        }
+
+        .w-6 {
+            width: 1.5rem
+        }
+
+        .w-8 {
+            width: 2rem
+        }
+
+        .w-\[375px\] {
+            width: 375px
+        }
+
+        .w-full {
+            width: 100%
+        }
+
+        .min-w-0 {
+            min-width: 0px
+        }
+
+        .max-w-5xl {
+            max-width: 64rem
+        }
+
+        .max-w-\[290px\] {
+            max-width: 290px
+        }
+
+        .max-w-\[300px\] {
+            max-width: 300px
+        }
+
+        .flex-1 {
+            flex: 1 1 0%
+        }
+
+        .flex-shrink-0 {
+            flex-shrink: 0
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .animate-\[spin_3s_linear_infinite\] {
+            animation: spin 3s linear infinite
+        }
+
+        .cursor-pointer {
+            cursor: pointer
+        }
+
+        .select-none {
+            -webkit-user-select: none;
+            user-select: none
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr))
+        }
+
+        .flex-col {
+            flex-direction: column
+        }
+
+        .flex-wrap {
+            flex-wrap: wrap
+        }
+
+        .items-center {
+            align-items: center
+        }
+
+        .justify-center {
+            justify-content: center
+        }
+
+        .justify-between {
+            justify-content: space-between
+        }
+
+        .gap-1\.5 {
+            gap: 0.375rem
+        }
+
+        .gap-16 {
+            gap: 4rem
+        }
+
+        .gap-2 {
+            gap: 0.5rem
+        }
+
+        .gap-2\.5 {
+            gap: 0.625rem
+        }
+
+        .gap-3 {
+            gap: 0.75rem
+        }
+
+        .gap-4 {
+            gap: 1rem
+        }
+
+        .gap-5 {
+            gap: 1.25rem
+        }
+
+        .gap-6 {
+            gap: 1.5rem
+        }
+
+        .overflow-hidden {
+            overflow: hidden
+        }
+
+        .overflow-y-auto {
+            overflow-y: auto
+        }
+
+        .rounded-2xl {
+            border-radius: 1rem
+        }
+
+        .rounded-\[48px\] {
+            border-radius: 48px
+        }
+
+        .rounded-full {
+            border-radius: 9999px
+        }
+
+        .rounded-lg {
+            border-radius: 0.5rem
+        }
+
+        .rounded-md {
+            border-radius: 0.375rem
+        }
+
+        .rounded-xl {
+            border-radius: 0.75rem
+        }
+
+        .border {
+            border-width: 1px
+        }
+
+        .border-2 {
+            border-width: 2px
+        }
+
+        .border-\[12px\] {
+            border-width: 12px
+        }
+
+        .border-\[\#1B1716\] {
+            --tw-border-opacity: 1;
+            border-color: rgb(27 23 22 / var(--tw-border-opacity, 1))
+        }
+
+        .border-\[\#C89B45\] {
+            --tw-border-opacity: 1;
+            border-color: rgb(200 155 69 / var(--tw-border-opacity, 1))
+        }
+
+        .border-\[\#C89B45\]\/20 {
+            border-color: rgb(200 155 69 / 0.2)
+        }
+
+        .border-\[\#D6CCC2\] {
+            --tw-border-opacity: 1;
+            border-color: rgb(214 204 194 / var(--tw-border-opacity, 1))
+        }
+
+        .border-\[\#ECE7E1\] {
+            --tw-border-opacity: 1;
+            border-color: rgb(236 231 225 / var(--tw-border-opacity, 1))
+        }
+
+        .border-t-transparent {
+            border-top-color: transparent
+        }
+
+        .bg-\[\#000080\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(0 0 128 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#191970\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(25 25 112 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#1B1716\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(27 23 22 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#3F2A1D\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(63 42 29 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#4A4A4A\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(74 74 74 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#556B2F\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(85 107 47 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#808080\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(128 128 128 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#8B4513\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(139 69 19 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#A0522D\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(160 82 45 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#C19A6B\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(193 154 107 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#C89B45\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(200 155 69 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#C89B45\]\/10 {
+            background-color: rgb(200 155 69 / 0.1)
+        }
+
+        .bg-\[\#CCCCCC\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(204 204 204 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#CD853F\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(205 133 63 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#D2B48C\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(210 180 140 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#D3D3D3\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(211 211 211 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#D8BFD8\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(216 191 216 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#E6E0D8\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(230 224 216 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#E6E6FA\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(230 230 250 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#F5F5DC\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(245 245 220 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#F8F6F3\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(248 246 243 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#F8F6F3\]\/80 {
+            background-color: rgb(248 246 243 / 0.8)
+        }
+
+        .bg-\[\#F8F8FF\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(248 248 255 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#FFE4E1\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(255 228 225 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#FFF5EE\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(255 245 238 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-\[\#FFFFFF\] {
+            --tw-bg-opacity: 1;
+            background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-white {
+            --tw-bg-opacity: 1;
+            background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1))
+        }
+
+        .bg-gradient-to-t {
+            background-image: linear-gradient(to top, var(--tw-gradient-stops))
+        }
+
+        .from-\[\#F8F6F3\] {
+            --tw-gradient-from: #F8F6F3 var(--tw-gradient-from-position);
+            --tw-gradient-to: rgb(248 246 243 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to)
+        }
+
+        .via-\[\#F8F6F3\]\/10 {
+            --tw-gradient-to: rgb(248 246 243 / 0) var(--tw-gradient-to-position);
+            --tw-gradient-stops: var(--tw-gradient-from), rgb(248 246 243 / 0.1) var(--tw-gradient-via-position), var(--tw-gradient-to)
+        }
+
+        .to-transparent {
+            --tw-gradient-to: transparent var(--tw-gradient-to-position)
+        }
+
+        .object-cover {
+            object-fit: cover
+        }
+
+        .object-center {
+            object-position: center
+        }
+
+        .p-2 {
+            padding: 0.5rem
+        }
+
+        .p-3 {
+            padding: 0.75rem
+        }
+
+        .p-5 {
+            padding: 1.25rem
+        }
+
+        .p-8 {
+            padding: 2rem
+        }
+
+        .px-1 {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem
+        }
+
+        .px-3 {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem
+        }
+
+        .px-5 {
+            padding-left: 1.25rem;
+            padding-right: 1.25rem
+        }
+
+        .px-6 {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem
+        }
+
+        .py-1 {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem
+        }
+
+        .py-1\.5 {
+            padding-top: 0.375rem;
+            padding-bottom: 0.375rem
+        }
+
+        .py-3 {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem
+        }
+
+        .pb-1 {
+            padding-bottom: 0.25rem
+        }
+
+        .pb-8 {
+            padding-bottom: 2rem
+        }
+
+        .pt-2 {
+            padding-top: 0.5rem
+        }
+
+        .pt-4 {
+            padding-top: 1rem
+        }
+
+        .text-center {
+            text-align: center
+        }
+
+        .font-sans {
+            font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"
+        }
+
+        .font-serif {
+            font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif
+        }
+
+        .text-3xl {
+            font-size: 1.875rem;
+            line-height: 2.25rem
+        }
+
+        .text-4xl {
+            font-size: 2.25rem;
+            line-height: 2.5rem
+        }
+
+        .text-\[10px\] {
+            font-size: 10px
+        }
+
+        .text-\[11px\] {
+            font-size: 11px
+        }
+
+        .text-\[28px\] {
+            font-size: 28px
+        }
+
+        .text-\[30px\] {
+            font-size: 30px
+        }
+
+        .text-\[35px\] {
+            font-size: 35px
+        }
+
+        .text-\[9px\] {
+            font-size: 9px
+        }
+
+        .text-base {
+            font-size: 1rem;
+            line-height: 1.5rem
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem
+        }
+
+        .text-xl {
+            font-size: 1.25rem;
+            line-height: 1.75rem
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+            line-height: 1rem
+        }
+
+        .font-bold {
+            font-weight: 700
+        }
+
+        .font-medium {
+            font-weight: 500
+        }
+
+        .font-semibold {
+            font-weight: 600
+        }
+
+        .uppercase {
+            text-transform: uppercase
+        }
+
+        .leading-\[1\.15\] {
+            line-height: 1.15
+        }
+
+        .leading-\[1\.1\] {
+            line-height: 1.1
+        }
+
+        .leading-relaxed {
+            line-height: 1.625
+        }
+
+        .leading-tight {
+            line-height: 1.25
+        }
+
+        .tracking-\[0\.25em\] {
+            letter-spacing: 0.25em
+        }
+
+        .tracking-tight {
+            letter-spacing: -0.025em
+        }
+
+        .tracking-wide {
+            letter-spacing: 0.025em
+        }
+
+        .tracking-wider {
+            letter-spacing: 0.05em
+        }
+
+        .tracking-widest {
+            letter-spacing: 0.1em
+        }
+
+        .text-\[\#1B1716\] {
+            --tw-text-opacity: 1;
+            color: rgb(27 23 22 / var(--tw-text-opacity, 1))
+        }
+
+        .text-\[\#6F675F\] {
+            --tw-text-opacity: 1;
+            color: rgb(111 103 95 / var(--tw-text-opacity, 1))
+        }
+
+        .text-\[\#9F9387\] {
+            --tw-text-opacity: 1;
+            color: rgb(159 147 135 / var(--tw-text-opacity, 1))
+        }
+
+        .text-\[\#C89B45\] {
+            --tw-text-opacity: 1;
+            color: rgb(200 155 69 / var(--tw-text-opacity, 1))
+        }
+
+        .text-\[\#FFFFFF\] {
+            --tw-text-opacity: 1;
+            color: rgb(255 255 255 / var(--tw-text-opacity, 1))
+        }
+
+        .text-white {
+            --tw-text-opacity: 1;
+            color: rgb(255 255 255 / var(--tw-text-opacity, 1))
+        }
+
+        .opacity-100 {
+            opacity: 1
+        }
+
+        .mix-blend-difference {
+            mix-blend-mode: difference
+        }
+
+        .shadow-sm {
+            --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
+        }
+
+        .shadow-xl {
+            --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
+            box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)
+        }
+
+        .backdrop-blur-md {
+            --tw-backdrop-blur: blur(12px);
+            -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+            backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)
+        }
+
+        .transition-all {
+            transition-property: all;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms
+        }
+
+        .transition-colors {
+            transition-property: color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms
+        }
+
+        .transition-opacity {
+            transition-property: opacity;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms
+        }
+
+        .duration-300 {
+            transition-duration: 300ms
+        }
+
+        .hover\:border-\[\#1B1716\]:hover {
+            --tw-border-opacity: 1;
+            border-color: rgb(27 23 22 / var(--tw-border-opacity, 1))
+        }
+
+        .hover\:bg-\[\#1B1716\]\/90:hover {
+            background-color: rgb(27 23 22 / 0.9)
+        }
+
+        .hover\:bg-black\/5:hover {
+            background-color: rgb(0 0 0 / 0.05)
+        }
+
+        .active\:scale-\[0\.98\]:active {
+            --tw-scale-x: 0.98;
+            --tw-scale-y: 0.98;
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))
+        }
+
+        @media (min-width: 768px) {
+            .md\:gap-24 {
+                gap: 6rem
+            }
+
+            .md\:p-16 {
+                padding: 4rem
+            }
+        }
+    </style>
+</head>
+
+<body class="p-8 md:p-16 min-h-screen">
+    <!-- Top Logo & Phase Headline -->
+    <header class="w-full max-w-5xl mx-auto mb-16 flex flex-col items-center justify-center text-center">
+        <div class="flex items-center gap-3 mb-2">
+            <span class="font-serif text-4xl font-medium tracking-tight text-[#1B1716]">StyleIQ</span>
+        </div>
+        <div class="h-[1px] w-12 bg-[#C89B45] mb-3"></div>
+        <p class="font-sans text-[11px] font-semibold uppercase tracking-[0.25em] text-[#6F675F]">
+            Phase 1 — Onboarding &amp; Style DNA
+        </p>
+    </header>
+
+    <div class="flex flex-wrap justify-center gap-16 md:gap-24">
+
+        <!-- SCREEN 06 — WHAT IS STYLEIQ -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 06 — What Is StyleIQ
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 absolute top-0">
+                    <span class="text-xs font-medium text-white mix-blend-difference">9:41</span>
+                    <div class="flex gap-1.5 items-center text-white mix-blend-difference">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true" class="lucide lucide-battery w-5 h-5">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col bg-[#F8F6F3]">
+                    <div class="h-[55%] w-full relative">
+                        <img src="images/screen_06_hero.png" class="w-full h-full object-cover object-center"
+                            alt="Personal Style Intelligence">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3]/10 to-transparent">
+                        </div>
+                        <!-- Logo overlay -->
+                        <div class="absolute top-14 left-6">
+                            <span class="font-serif text-xl font-medium tracking-tight text-[#1B1716]">StyleIQ</span>
+                        </div>
+                    </div>
+                    <div class="flex-1 px-6 pb-8 flex flex-col justify-between -mt-12 relative z-10">
+                        <div class="text-center">
+                            <h2 class="font-serif text-[35px] tracking-tight leading-[1.1] text-[#1B1716]">
+                                Your Personal
+                                <br>
+                                Style Intelligence
+                            </h2>
+                            <p class="font-sans text-sm text-[#6F675F] leading-relaxed mt-4 max-w-[290px] mx-auto">
+                                Get outfit recommendations, unlock more value from your wardrobe, and dress confidently
+                                every day.
+                            </p>
+                        </div>
+                        <div>
+                            <!-- Pager Dots -->
+                            <div class="flex justify-center gap-2 mb-6">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#C89B45]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                            </div>
+                            <button
+                                class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                                Continue
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                    class="lucide lucide-arrow-right w-5 h-5">
+                                    <path d="M5 12h14"></path>
+                                    <path d="m12 5 7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 07 — SAVE TIME EVERY MORNING -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 07 — Save Time Every Morning
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 absolute top-0">
+                    <span class="text-xs font-medium text-white mix-blend-difference">9:41</span>
+                    <div class="flex gap-1.5 items-center text-white mix-blend-difference">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true" class="lucide lucide-battery w-5 h-5">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col bg-[#F8F6F3]">
+                    <div class="h-[55%] w-full relative">
+                        <img src="images/screen_07_hero.png" class="w-full h-full object-cover object-center"
+                            alt="Morning Routine">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3]/10 to-transparent">
+                        </div>
+                    </div>
+                    <div class="flex-1 px-6 pb-8 flex flex-col justify-between -mt-12 relative z-10">
+                        <div class="text-center">
+                            <h2 class="font-serif text-[35px] tracking-tight leading-[1.1] text-[#1B1716]">
+                                Stop Wondering
+                                <br>
+                                What To Wear
+                            </h2>
+                            <p class="font-sans text-sm text-[#6F675F] leading-relaxed mt-4 max-w-[290px] mx-auto">
+                                StyleIQ prepares outfit recommendations based on your style, schedule, and lifestyle.
+                            </p>
+                        </div>
+                        <div>
+                            <!-- Pager Dots -->
+                            <div class="flex justify-center gap-2 mb-6">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#C89B45]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                            </div>
+                            <button
+                                class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                                Continue
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                    class="lucide lucide-arrow-right w-5 h-5">
+                                    <path d="M5 12h14"></path>
+                                    <path d="m12 5 7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 08 — UNLOCK YOUR CLOSET -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 08 — Unlock Your Closet
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 absolute top-0">
+                    <span class="text-xs font-medium text-white mix-blend-difference">9:41</span>
+                    <div class="flex gap-1.5 items-center text-white mix-blend-difference">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true" class="lucide lucide-battery w-5 h-5">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col bg-[#F8F6F3]">
+                    <div class="h-[55%] w-full relative">
+                        <img src="images/screen_08_hero.png" class="w-full h-full object-cover object-center"
+                            alt="Confidence styled look">
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3]/10 to-transparent">
+                        </div>
+                    </div>
+                    <div class="flex-1 px-6 pb-8 flex flex-col justify-between -mt-12 relative z-10">
+                        <div class="text-center">
+                            <h2 class="font-serif text-[28px] tracking-tight leading-[1.15] text-[#1B1716]">
+                                Most Closets Are Full.
+                                <br>
+                                Most Outfits Are Forgotten.
+                            </h2>
+                            <p class="font-sans text-sm text-[#6F675F] leading-relaxed mt-4 max-w-[300px] mx-auto">
+                                StyleIQ helps you rediscover pieces you already own and create more looks from your
+                                wardrobe.
+                            </p>
+                        </div>
+                        <div>
+                            <!-- Pager Dots -->
+                            <div class="flex justify-center gap-2 mb-6">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#C89B45]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#E6E0D8]"></span>
+                            </div>
+                            <button
+                                class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                                Continue
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                    class="lucide lucide-arrow-right w-5 h-5">
+                                    <path d="M5 12h14"></path>
+                                    <path d="m12 5 7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 09 — STYLE PREFERENCE SELECTION -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 09 — Style Preference Selection
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div
+                    class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+                    <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+                    <div class="flex gap-1.5 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4 text-[#1B1716]">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4 text-[#1B1716]">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true"
+                            class="lucide lucide-battery w-5 h-5 text-[#1B1716]">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Navigation Header -->
+                <div class="px-6 pt-2 pb-1 bg-[#F8F6F3]">
+                    <button
+                        class="w-8 h-8 -ml-2 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="arrow-left" aria-hidden="true"
+                            class="lucide lucide-arrow-left w-5 h-5 text-[#1B1716]">
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                    </button>
+                    <div class="text-[11px] font-sans font-semibold uppercase tracking-widest text-[#C89B45] mt-2">
+                        Step 1 of 5
+                    </div>
+                </div>
+
+                <div class="flex-1 px-6 pb-8 flex flex-col justify-between bg-[#F8F6F3]">
+                    <div class="mt-2">
+                        <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] leading-[1.15] mb-1">
+                            Which styles feel
+                            <br>
+                            most like you?
+                        </h1>
+
+                        <!-- Selection Status Badge -->
+                        <div
+                            class="inline-flex items-center px-3 py-1 rounded-full bg-[#C89B45]/10 border border-[#C89B45]/20 mb-4">
+                            <span class="text-[11px] font-sans font-semibold text-[#C89B45] uppercase tracking-wider">
+                                3 of 6 selected
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Classic (Selected) -->
+                            <div
+                                class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                <img src="images/style_classic.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Classic">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Classic</span>
+                                    <div
+                                        class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                            aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                            <path d="M20 6 9 17l-5-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Minimal (Selected) -->
+                            <div
+                                class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                <img src="images/style_minimal.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Minimal">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Minimal</span>
+                                    <div
+                                        class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                            aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                            <path d="M20 6 9 17l-5-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Smart Casual (Unselected) -->
+                            <div
+                                class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                                <img src="images/style_smart_casual.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Smart Casual">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Smart
+                                        Casual</span>
+                                    <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                                </div>
+                            </div>
+
+                            <!-- Modern Professional (Selected) -->
+                            <div
+                                class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                <img src="images/style_modern_prof.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Modern Professional">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Modern
+                                        Professional</span>
+                                    <div
+                                        class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                            aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                            <path d="M20 6 9 17l-5-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Elevated Everyday (Selected) -->
+                            <div
+                                class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                <img src="images/style_elevated_everyday.png"
+                                    class="w-full h-28 rounded-xl object-cover" alt="Elevated Everyday">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Elevated
+                                        Everyday</span>
+                                    <div
+                                        class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                            aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                            <path d="M20 6 9 17l-5-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Creative (Unselected) -->
+                            <div
+                                class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                                <img src="images/style_creative.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Creative">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Creative</span>
+                                    <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button
+                            class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                            Continue
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                class="lucide lucide-arrow-right w-5 h-5">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 10 — CELEBRITY STYLE SELECTION -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 10 — Celebrity Style Selection
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div
+                    class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+                    <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+                    <div class="flex gap-1.5 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4 text-[#1B1716]">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4 text-[#1B1716]">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true"
+                            class="lucide lucide-battery w-5 h-5 text-[#1B1716]">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Navigation Header -->
+                <div class="px-6 pt-2 pb-1 bg-[#F8F6F3]">
+                    <button
+                        class="w-8 h-8 -ml-2 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="arrow-left" aria-hidden="true"
+                            class="lucide lucide-arrow-left w-5 h-5 text-[#1B1716]">
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                    </button>
+                    <div class="text-[11px] font-sans font-semibold uppercase tracking-widest text-[#C89B45] mt-2">
+                        Step 2 of 5
+                    </div>
+                </div>
+
+                <div class="flex-1 px-6 pb-8 flex flex-col justify-between bg-[#F8F6F3]">
+                    <div class="mt-2">
+                        <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-2 leading-tight">
+                            Whose style inspires you?
+                        </h1>
+                        <p class="font-sans text-sm text-[#6F675F] mb-6">
+                            Select your favorites.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Zendaya (Selected) -->
+                            <div
+                                class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                <img src="images/cel_zendaya.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Zendaya">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Zendaya</span>
+                                    <div
+                                        class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                            aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                            <path d="M20 6 9 17l-5-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Meghan Markle (Selected) -->
+                            <div
+                                class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                <img src="images/cel_meghan.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Meghan Markle">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Meghan
+                                        Markle</span>
+                                    <div
+                                        class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                            aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                            <path d="M20 6 9 17l-5-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rosie Huntington-Whiteley (Unselected) -->
+                            <div
+                                class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                                <img src="images/cel_rosie.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Rosie H-W">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Rosie H-W</span>
+                                    <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                                </div>
+                            </div>
+
+                            <!-- David Beckham (Selected) -->
+                            <div
+                                class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                <img src="images/cel_beckham.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="David Beckham">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">David
+                                        Beckham</span>
+                                    <div
+                                        class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                            stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                            aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                            <path d="M20 6 9 17l-5-5"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ryan Reynolds (Unselected) -->
+                            <div
+                                class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                                <img src="images/cel_reynolds.png" class="w-full h-28 rounded-xl object-cover"
+                                    alt="Ryan Reynolds">
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Ryan
+                                        Reynolds</span>
+                                    <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                                </div>
+                            </div>
+
+                            <!-- Other (Unselected) -->
+                            <div
+                                class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                                <div
+                                    class="w-full h-28 rounded-xl bg-[#F8F6F3] flex items-center justify-center text-[#6F675F]">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" data-lucide="more-horizontal" aria-hidden="true"
+                                        class="lucide lucide-more-horizontal w-6 h-6">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="19" cy="12" r="1"></circle>
+                                        <circle cx="5" cy="12" r="1"></circle>
+                                    </svg>
+                                </div>
+                                <div class="flex flex-col items-center pt-2 pb-1">
+                                    <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Other</span>
+                                    <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button
+                            class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                            Continue
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                class="lucide lucide-arrow-right w-5 h-5">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 11 — OUTFIT PREFERENCE SELECTION -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 11 — Outfit Preference Selection
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div
+                    class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+                    <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+                    <div class="flex gap-1.5 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4 text-[#1B1716]">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4 text-[#1B1716]">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true"
+                            class="lucide lucide-battery w-5 h-5 text-[#1B1716]">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Navigation Header -->
+                <div class="px-6 pt-2 pb-1 bg-[#F8F6F3]">
+                    <button
+                        class="w-8 h-8 -ml-2 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="arrow-left" aria-hidden="true"
+                            class="lucide lucide-arrow-left w-5 h-5 text-[#1B1716]">
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                    </button>
+                    <div class="text-[11px] font-sans font-semibold uppercase tracking-widest text-[#C89B45] mt-2">
+                        Step 3 of 5
+                    </div>
+                </div>
+
+                <div class="flex-1 px-6 pb-8 flex flex-col justify-between bg-[#F8F6F3]">
+                    <div class="mt-2">
+                        <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-2 leading-tight">
+                            Choose the looks you would wear.
+                        </h1>
+                        <p class="font-sans text-sm text-[#6F675F] mb-6">
+                            Select at least 5 looks.
+                        </p>
+                        <div class="flex gap-4">
+                            <!-- Column 1 -->
+                            <div class="flex flex-col gap-4 flex-1">
+                                <!-- Outfit 1 (Selected) -->
+                                <div
+                                    class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                    <img src="images/style_classic.png" class="w-full h-32 rounded-xl object-cover"
+                                        alt="Look 1">
+                                    <div class="flex flex-col items-center pt-2 pb-1">
+                                        <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look
+                                            1</span>
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                                aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                                <path d="M20 6 9 17l-5-5"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Outfit 2 (Unselected) -->
+                                <div
+                                    class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                                    <img src="images/style_minimal.png" class="w-full h-32 rounded-xl object-cover"
+                                        alt="Look 2">
+                                    <div class="flex flex-col items-center pt-2 pb-1">
+                                        <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look
+                                            2</span>
+                                        <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                                    </div>
+                                </div>
+                                <!-- Outfit 3 (Selected) -->
+                                <div
+                                    class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                    <img src="images/style_smart_casual.png" class="w-full h-32 rounded-xl object-cover"
+                                        alt="Look 3">
+                                    <div class="flex flex-col items-center pt-2 pb-1">
+                                        <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look
+                                            3</span>
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                                aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                                <path d="M20 6 9 17l-5-5"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Column 2 -->
+                            <div class="flex flex-col gap-4 flex-1">
+                                <!-- Outfit 4 (Selected) -->
+                                <div
+                                    class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                    <img src="images/style_modern_prof.png" class="w-full h-32 rounded-xl object-cover"
+                                        alt="Look 4">
+                                    <div class="flex flex-col items-center pt-2 pb-1">
+                                        <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look
+                                            4</span>
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                                aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                                <path d="M20 6 9 17l-5-5"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Outfit 5 (Unselected) -->
+                                <div
+                                    class="bg-white border border-[#ECE7E1] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer hover:border-[#1B1716] transition-all">
+                                    <img src="images/style_elevated_everyday.png"
+                                        class="w-full h-32 rounded-xl object-cover" alt="Look 5">
+                                    <div class="flex flex-col items-center pt-2 pb-1">
+                                        <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look
+                                            5</span>
+                                        <div class="w-5 h-5 rounded-full border border-[#D6CCC2]"></div>
+                                    </div>
+                                </div>
+                                <!-- Outfit 6 (Selected) -->
+                                <div
+                                    class="bg-[#F8F6F3] border-2 border-[#C89B45] rounded-2xl overflow-hidden p-2 flex flex-col items-center justify-between cursor-pointer transition-all">
+                                    <img src="images/style_creative.png" class="w-full h-32 rounded-xl object-cover"
+                                        alt="Look 6">
+                                    <div class="flex flex-col items-center pt-2 pb-1">
+                                        <span class="font-sans text-xs font-semibold text-[#1B1716] mb-1.5">Look
+                                            6</span>
+                                        <div
+                                            class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                stroke-linecap="round" stroke-linejoin="round" data-lucide="check"
+                                                aria-hidden="true" class="lucide lucide-check w-3.5 h-3.5">
+                                                <path d="M20 6 9 17l-5-5"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex flex-col gap-3">
+                        <div class="text-center font-sans text-sm text-[#1B1716] font-medium">
+                            You selected 4 of 5
+                        </div>
+                        <button
+                            class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                            Continue
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                class="lucide lucide-arrow-right w-5 h-5">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 12 — COLOR PREFERENCE SELECTION -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 12 — Color Preference Selection
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div
+                    class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+                    <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+                    <div class="flex gap-1.5 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4 text-[#1B1716]">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4 text-[#1B1716]">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true"
+                            class="lucide lucide-battery w-5 h-5 text-[#1B1716]">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Navigation Header -->
+                <div class="px-6 pt-2 pb-1 bg-[#F8F6F3]">
+                    <button
+                        class="w-8 h-8 -ml-2 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="arrow-left" aria-hidden="true"
+                            class="lucide lucide-arrow-left w-5 h-5 text-[#1B1716]">
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                    </button>
+                    <div class="text-[11px] font-sans font-semibold uppercase tracking-widest text-[#C89B45] mt-2">
+                        Step 4 of 5
+                    </div>
+                </div>
+
+                <div class="flex-1 px-6 pb-8 flex flex-col justify-between bg-[#F8F6F3]">
+                    <div class="mt-2">
+                        <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-2 leading-tight">
+                            Which color palettes feel right for you?
+                        </h1>
+                        <p class="font-sans text-sm text-[#6F675F] mb-6">
+                            Select your favorites.
+                        </p>
+
+                        <div class="flex flex-col gap-3">
+                            <!-- Warm Neutrals (Selected) -->
+                            <div
+                                class="rounded-xl border border-[#1B1716] bg-white p-3 flex items-center gap-3 cursor-pointer select-none">
+                                <img src="images/color_warm_neutrals.png"
+                                    class="w-12 h-12 rounded-lg object-cover flex-shrink-0" alt="Warm Neutrals Preview">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-sans font-semibold text-xs text-[#1B1716] mb-1.5">Warm Neutrals
+                                    </div>
+                                    <div class="flex h-3.5 rounded-md overflow-hidden">
+                                        <div class="flex-1 bg-[#F5F5DC]"></div>
+                                        <div class="flex-1 bg-[#D2B48C]"></div>
+                                        <div class="flex-1 bg-[#8B4513]"></div>
+                                        <div class="flex-1 bg-[#1B1716]"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-[#C89B45] text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                        class="lucide lucide-check w-3.5 h-3.5">
+                                        <path d="M20 6 9 17l-5-5"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Cool & Crisp (Unselected) -->
+                            <div
+                                class="rounded-xl border border-[#ECE7E1] bg-white p-3 flex items-center gap-3 cursor-pointer select-none hover:border-[#1B1716] transition-colors">
+                                <img src="images/color_cool_crisp.png"
+                                    class="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                    alt="Cool &amp; Crisp Preview">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-sans font-semibold text-xs text-[#1B1716] mb-1.5">Cool &amp; Crisp
+                                    </div>
+                                    <div class="flex h-3.5 rounded-md overflow-hidden">
+                                        <div class="flex-1 bg-[#F8F8FF]"></div>
+                                        <div class="flex-1 bg-[#D3D3D3]"></div>
+                                        <div class="flex-1 bg-[#808080]"></div>
+                                        <div class="flex-1 bg-[#191970]"></div>
+                                    </div>
+                                </div>
+                                <div class="w-5 h-5 rounded-full flex-shrink-0 border border-[#D6CCC2]"></div>
+                            </div>
+
+                            <!-- Earthy Tones (Selected) -->
+                            <div
+                                class="rounded-xl border border-[#1B1716] bg-white p-3 flex items-center gap-3 cursor-pointer select-none">
+                                <img src="images/color_earthy.png"
+                                    class="w-12 h-12 rounded-lg object-cover flex-shrink-0" alt="Earthy Tones Preview">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-sans font-semibold text-xs text-[#1B1716] mb-1.5">Earthy Tones
+                                    </div>
+                                    <div class="flex h-3.5 rounded-md overflow-hidden">
+                                        <div class="flex-1 bg-[#556B2F]"></div>
+                                        <div class="flex-1 bg-[#CD853F]"></div>
+                                        <div class="flex-1 bg-[#A0522D]"></div>
+                                        <div class="flex-1 bg-[#3F2A1D]"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-[#C89B45] text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                        class="lucide lucide-check w-3.5 h-3.5">
+                                        <path d="M20 6 9 17l-5-5"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Soft Pastels (Unselected) -->
+                            <div
+                                class="rounded-xl border border-[#ECE7E1] bg-white p-3 flex items-center gap-3 cursor-pointer select-none hover:border-[#1B1716] transition-colors">
+                                <img src="images/color_pastels.png"
+                                    class="w-12 h-12 rounded-lg object-cover flex-shrink-0" alt="Soft Pastels Preview">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-sans font-semibold text-xs text-[#1B1716] mb-1.5">Soft Pastels
+                                    </div>
+                                    <div class="flex h-3.5 rounded-md overflow-hidden">
+                                        <div class="flex-1 bg-[#FFF5EE]"></div>
+                                        <div class="flex-1 bg-[#FFE4E1]"></div>
+                                        <div class="flex-1 bg-[#E6E6FA]"></div>
+                                        <div class="flex-1 bg-[#D8BFD8]"></div>
+                                    </div>
+                                </div>
+                                <div class="w-5 h-5 rounded-full flex-shrink-0 border border-[#D6CCC2]"></div>
+                            </div>
+
+                            <!-- Classic Navy (Selected) -->
+                            <div
+                                class="rounded-xl border border-[#1B1716] bg-white p-3 flex items-center gap-3 cursor-pointer select-none">
+                                <img src="images/color_navy.png" class="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                    alt="Classic Navy Preview">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-sans font-semibold text-xs text-[#1B1716] mb-1.5">Classic Navy
+                                    </div>
+                                    <div class="flex h-3.5 rounded-md overflow-hidden">
+                                        <div class="flex-1 bg-[#000080]"></div>
+                                        <div class="flex-1 bg-[#FFFFFF]"></div>
+                                        <div class="flex-1 bg-[#F5F5DC]"></div>
+                                        <div class="flex-1 bg-[#C19A6B]"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center bg-[#C89B45] text-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                        class="lucide lucide-check w-3.5 h-3.5">
+                                        <path d="M20 6 9 17l-5-5"></path>
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Modern Contrast (Unselected) -->
+                            <div
+                                class="rounded-xl border border-[#ECE7E1] bg-white p-3 flex items-center gap-3 cursor-pointer select-none hover:border-[#1B1716] transition-colors">
+                                <img src="images/color_contrast.png"
+                                    class="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                    alt="Modern Contrast Preview">
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-sans font-semibold text-xs text-[#1B1716] mb-1.5">Modern Contrast
+                                    </div>
+                                    <div class="flex h-3.5 rounded-md overflow-hidden">
+                                        <div class="flex-1 bg-[#FFFFFF]"></div>
+                                        <div class="flex-1 bg-[#1B1716]"></div>
+                                        <div class="flex-1 bg-[#4A4A4A]"></div>
+                                        <div class="flex-1 bg-[#CCCCCC]"></div>
+                                    </div>
+                                </div>
+                                <div class="w-5 h-5 rounded-full flex-shrink-0 border border-[#D6CCC2]"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button
+                            class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                            Continue
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                class="lucide lucide-arrow-right w-5 h-5">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 13 — LIFESTYLE & OCCASION SELECTION -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 13 — Lifestyle &amp; Occasion Selection
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div
+                    class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+                    <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+                    <div class="flex gap-1.5 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4 text-[#1B1716]">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4 text-[#1B1716]">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true"
+                            class="lucide lucide-battery w-5 h-5 text-[#1B1716]">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Navigation Header -->
+                <div class="px-6 pt-2 pb-1 bg-[#F8F6F3]">
+                    <button
+                        class="w-8 h-8 -ml-2 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="arrow-left" aria-hidden="true"
+                            class="lucide lucide-arrow-left w-5 h-5 text-[#1B1716]">
+                            <path d="m12 19-7-7 7-7"></path>
+                            <path d="M19 12H5"></path>
+                        </svg>
+                    </button>
+                    <div class="text-[11px] font-sans font-semibold uppercase tracking-widest text-[#C89B45] mt-2">
+                        Step 5 of 5
+                    </div>
+                </div>
+
+                <div class="flex-1 px-6 pb-8 flex flex-col justify-between bg-[#F8F6F3]">
+                    <div class="mt-2">
+                        <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-2 leading-tight">
+                            What does your typical week look like?
+                        </h1>
+                        <p class="font-sans text-sm text-[#6F675F] mb-8">
+                            This helps us recommend outfits for your life.
+                        </p>
+
+                        <div class="flex flex-wrap gap-2.5">
+                            <!-- Office (Unselected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#ECE7E1] bg-white text-[#1B1716] font-sans text-sm font-medium hover:border-[#1B1716] transition-colors">
+                                Office
+                            </button>
+                            <!-- Remote Work (Unselected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#ECE7E1] bg-white text-[#1B1716] font-sans text-sm font-medium hover:border-[#1B1716] transition-colors">
+                                Remote Work
+                            </button>
+                            <!-- Hybrid Work (Selected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#1B1716] bg-[#1B1716] text-[#FFFFFF] font-sans text-sm font-medium transition-colors flex items-center gap-1.5">
+                                Hybrid Work
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                    class="lucide lucide-check w-3.5 h-3.5">
+                                    <path d="M20 6 9 17l-5-5"></path>
+                                </svg>
+                            </button>
+                            <!-- Client Meetings (Unselected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#ECE7E1] bg-white text-[#1B1716] font-sans text-sm font-medium hover:border-[#1B1716] transition-colors">
+                                Client Meetings
+                            </button>
+                            <!-- Business Travel (Unselected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#ECE7E1] bg-white text-[#1B1716] font-sans text-sm font-medium hover:border-[#1B1716] transition-colors">
+                                Business Travel
+                            </button>
+                            <!-- Casual Weekends (Selected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#1B1716] bg-[#1B1716] text-[#FFFFFF] font-sans text-sm font-medium transition-colors flex items-center gap-1.5">
+                                Casual Weekends
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                    class="lucide lucide-check w-3.5 h-3.5">
+                                    <path d="M20 6 9 17l-5-5"></path>
+                                </svg>
+                            </button>
+                            <!-- Events (Unselected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#ECE7E1] bg-white text-[#1B1716] font-sans text-sm font-medium hover:border-[#1B1716] transition-colors">
+                                Events
+                            </button>
+                            <!-- Date Nights (Selected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#1B1716] bg-[#1B1716] text-[#FFFFFF] font-sans text-sm font-medium transition-colors flex items-center gap-1.5">
+                                Date Nights
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                    stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                    class="lucide lucide-check w-3.5 h-3.5">
+                                    <path d="M20 6 9 17l-5-5"></path>
+                                </svg>
+                            </button>
+                            <!-- Fitness (Unselected) -->
+                            <button
+                                class="px-5 py-3 rounded-full border border-[#ECE7E1] bg-white text-[#1B1716] font-sans text-sm font-medium hover:border-[#1B1716] transition-colors">
+                                Fitness
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-8">
+                        <button
+                            class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
+                            Continue
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                class="lucide lucide-arrow-right w-5 h-5">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 14 — CREATING YOUR STYLE DNA -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 14 — Building Your Style DNA
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 absolute top-0">
+                    <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+                    <div class="flex gap-1.5 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4 text-[#1B1716]">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4 text-[#1B1716]">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true"
+                            class="lucide lucide-battery w-5 h-5 text-[#1B1716]">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col bg-[#F8F6F3] items-center justify-center px-6">
+                    <!-- Premium Loading Spinner -->
+                    <div class="relative w-20 h-20 mb-8 flex items-center justify-center">
+                        <div class="absolute inset-0 border-2 border-[#ECE7E1] rounded-full"></div>
+                        <div
+                            class="absolute inset-0 border-2 border-[#C89B45] rounded-full border-t-transparent animate-[spin_3s_linear_infinite]">
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="sparkles" aria-hidden="true"
+                            class="lucide lucide-sparkles w-6 h-6 text-[#C89B45]">
+                            <path
+                                d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z">
+                            </path>
+                            <path d="M20 2v4"></path>
+                            <path d="M22 4h-4"></path>
+                            <circle cx="4" cy="20" r="2"></circle>
+                        </svg>
+                    </div>
+
+                    <h2 class="font-serif text-3xl tracking-tight text-[#1B1716] mb-6 text-center">
+                        Creating Your
+                        <br>
+                        Style DNA
+                    </h2>
+
+                    <div class="h-12 flex items-center justify-center">
+                        <p id="style-dna-loading-text"
+                            class="font-sans text-sm text-[#1B1716] font-medium transition-opacity duration-300 opacity-100 text-center"
+                            style="opacity: 0;">Reviewing your favorite looks…</p>
+                    </div>
+
+                    <p class="font-sans text-xs text-[#9F9387] mt-8 text-center">
+                        This will only take a moment.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 15 — YOUR STYLE DNA -->
+        <div class="flex flex-col items-center gap-6">
+            <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+                Screen 15 — Your Style DNA
+            </h2>
+            <div
+                class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+                <!-- Status Bar -->
+                <div
+                    class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+                    <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+                    <div class="flex gap-1.5 items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="signal" aria-hidden="true" class="lucide lucide-signal w-4 h-4 text-[#1B1716]">
+                            <path d="M2 20h.01"></path>
+                            <path d="M7 20v-4"></path>
+                            <path d="M12 20v-8"></path>
+                            <path d="M17 20V8"></path>
+                            <path d="M22 4v16"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="wifi" aria-hidden="true" class="lucide lucide-wifi w-4 h-4 text-[#1B1716]">
+                            <path d="M12 20h.01"></path>
+                            <path d="M2 8.82a15 15 0 0 1 20 0"></path>
+                            <path d="M5 12.859a10 10 0 0 1 14 0"></path>
+                            <path d="M8.5 16.429a5 5 0 0 1 7 0"></path>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+                            data-lucide="battery" aria-hidden="true"
+                            class="lucide lucide-battery w-5 h-5 text-[#1B1716]">
+                            <path d="M 22 14 L 22 10"></path>
+                            <rect x="2" y="6" width="16" height="12" rx="2"></rect>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex-1 px-6 pt-4 pb-8 flex flex-col bg-[#F8F6F3]">
+                    <div class="text-center mb-6">
+                        <span
+                            class="font-sans text-[10px] font-semibold uppercase tracking-widest text-[#C89B45] mb-1.5 block">
+                            Your Personal Style Profile
+                        </span>
+                        <h1 class="font-serif text-3xl tracking-tight text-[#1B1716]">
+                            The Elevated Minimalist
+                        </h1>
+                    </div>
+
+                    <div class="flex flex-col gap-5 flex-1">
+                        <!-- Style Summary -->
+                        <div class="bg-white p-5 rounded-2xl border border-[#ECE7E1] shadow-sm">
+                            <h3 class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider mb-2.5">
+                                Style Summary
+                            </h3>
+                            <p class="font-sans text-sm text-[#1B1716] leading-relaxed">
+                                Your style blends luxury minimalism with modern functionality. You value clean lines,
+                                neutral tones, and versatile pieces that make you feel confident and put together.
+                            </p>
+                        </div>
+
+                        <!-- Color DNA -->
+                        <div class="bg-white p-5 rounded-2xl border border-[#ECE7E1] shadow-sm">
+                            <h3 class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider mb-3">
+                                Your Color DNA
+                            </h3>
+                            <div class="flex h-9 rounded-lg overflow-hidden mb-1.5">
+                                <div class="flex-1 bg-[#F5F5DC]"></div>
+                                <div class="flex-1 bg-[#D2B48C]"></div>
+                                <div class="flex-1 bg-[#8B4513]"></div>
+                                <div class="flex-1 bg-[#1B1716]"></div>
+                            </div>
+                            <div class="flex justify-between text-[9px] text-[#9F9387] font-sans px-1">
+                                <span>Cream</span>
+                                <span>Camel</span>
+                                <span>Espresso</span>
+                                <span>Charcoal</span>
+                            </div>
+                        </div>
+
+                        <!-- Style Inspiration -->
+                        <div class="bg-white p-5 rounded-2xl border border-[#ECE7E1] shadow-sm">
+                            <h3 class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider mb-3">
+                                Your Style Inspiration
+                            </h3>
+                            <div class="flex gap-2">
+                                <img src="images/style_classic.png" class="w-1/3 h-20 rounded-lg object-cover"
+                                    alt="Inspiration 1">
+                                <img src="images/style_smart_casual.png" class="w-1/3 h-20 rounded-lg object-cover"
+                                    alt="Inspiration 2">
+                                <img src="images/style_elevated_everyday.png" class="w-1/3 h-20 rounded-lg object-cover"
+                                    alt="Inspiration 3">
+                            </div>
+                        </div>
+
+                        <!-- What We Learned -->
+                        <div class="bg-white p-5 rounded-2xl border border-[#ECE7E1] shadow-sm">
+                            <h3 class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider mb-3">
+                                What We Learned
+                            </h3>
+                            <ul class="flex flex-col gap-2 text-sm text-[#1B1716] font-sans">
+                                <li class="flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                        class="lucide lucide-check w-4 h-4 text-[#C89B45] flex-shrink-0">
+                                        <path d="M20 6 9 17l-5-5"></path>
+                                    </svg>
+                                    <span>You prefer neutral colors</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                        class="lucide lucide-check w-4 h-4 text-[#C89B45] flex-shrink-0">
+                                        <path d="M20 6 9 17l-5-5"></path>
+                                    </svg>
+                                    <span>You like polished silhouettes</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                        stroke-linejoin="round" data-lucide="check" aria-hidden="true"
+                                        class="lucide lucide-check w-4 h-4 text-[#C89B45] flex-shrink-0">
+                                        <path d="M20 6 9 17l-5-5"></path>
+                                    </svg>
+                                    <span>You choose smart everyday looks</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Style Words -->
+                        <div class="bg-white p-5 rounded-2xl border border-[#ECE7E1] shadow-sm">
+                            <h3 class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider mb-3">
+                                Style Words
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                <span
+                                    class="px-3 py-1.5 rounded-full border border-[#ECE7E1] bg-[#F8F6F3] text-xs font-semibold text-[#1B1716]">Minimal</span>
+                                <span
+                                    class="px-3 py-1.5 rounded-full border border-[#ECE7E1] bg-[#F8F6F3] text-xs font-semibold text-[#1B1716]">Polished</span>
+                                <span
+                                    class="px-3 py-1.5 rounded-full border border-[#ECE7E1] bg-[#F8F6F3] text-xs font-semibold text-[#1B1716]">Timeless</span>
+                                <span
+                                    class="px-3 py-1.5 rounded-full border border-[#ECE7E1] bg-[#F8F6F3] text-xs font-semibold text-[#1B1716]">Confident</span>
+                                <span
+                                    class="px-3 py-1.5 rounded-full border border-[#ECE7E1] bg-[#F8F6F3] text-xs font-semibold text-[#1B1716]">Refined</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                        <button
+                            class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98] shadow-sm">
+                            Build My Closet
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true"
+                                class="lucide lucide-arrow-right w-5 h-5">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Rotate loading messages on Screen 14
+        const messages = [
+            "Analyzing your style preferences…",
+            "Reviewing your favorite looks…",
+            "Understanding your lifestyle…",
+            "Building your personal style profile…"
+        ];
+        let msgIndex = 0;
+        const msgElement = document.getElementById("style-dna-loading-text");
+        if (msgElement) {
+            setInterval(() => {
+                msgIndex = (msgIndex + 1) % messages.length;
+                msgElement.style.opacity = 0;
+                setTimeout(() => {
+                    msgElement.innerText = messages[msgIndex];
+                    msgElement.style.opacity = 1;
+                }, 300);
+            }, 2500);
+        }
+    </script>
+
+</body>
+
+</html>
