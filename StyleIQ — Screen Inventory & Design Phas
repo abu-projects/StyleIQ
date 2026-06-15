@@ -1,0 +1,371 @@
+StyleIQ — Screen Inventory & Design Phases
+
+Overview
+
+This document defines the screen inventory for StyleIQ based on:
+
+* Product Vision
+* UX Brief
+* Product Deep-Dive
+* Current Feature List
+
+The screens are grouped into implementation and design phases to allow iterative execution.
+
+⸻
+
+Phase 0 — Foundation
+
+Authentication & Entry
+
+Screen 01 — Splash Screen
+
+Screen 02 — Welcome Screen
+
+Screen 03 — Login
+
+Screen 04 — Sign Up
+
+Screen 05 — Forgot Password
+
+⸻
+
+Phase 1 — Onboarding & Style DNA
+
+Onboarding Introduction
+
+Screen 06 — What is StyleIQ
+
+Screen 07 — Save Time Every Morning
+
+Screen 08 — Unlock Your Closet
+
+⸻
+
+Style DNA Quiz
+
+Screen 09 — Style Preference Selection
+
+Screen 10 — Celebrity Style Selection
+
+Screen 11 — Outfit Preference Selection
+
+Screen 12 — Color Preference Selection
+
+Screen 13 — Lifestyle & Occasion Selection
+
+Screen 14 — Generating Your Style DNA
+
+Screen 15 — Style DNA Results
+
+⸻
+
+Wardrobe Acquisition
+
+Screen 16 — Choose How To Start
+
+⸻
+
+Method A — Personal Photos & Looks
+
+Screen 17 — Upload Mirror Selfies
+
+Screen 18 — Upload Outfit Photos
+
+Screen 19 — Import Instagram / Pinterest Inspiration
+
+⸻
+
+Method B — Shopping History Import
+
+Screen 20 — Connect Retail Accounts
+
+Screen 21 — Import Email Receipts
+
+⸻
+
+Method C — Direct Wardrobe Capture
+
+Screen 22 — Video Closet Scan
+
+Screen 23 — Single Item Capture
+
+Screen 24 — Barcode / Tag Scan
+
+⸻
+
+Method D — Manual Add
+
+Screen 25 — Manual Wardrobe Entry
+
+⸻
+
+First Value Moment
+
+Screen 26 — Building Your Style Profile
+
+Screen 27 — Your First 3 Looks
+
+Screen 28 — Outfit Feedback (Love / Not Today / Never)
+
+⸻
+
+Phase 2 — Core Daily Experience (MVP)
+
+Home Experience
+
+Screen 29 — Home Dashboard
+
+⸻
+
+Morning Card Flow
+
+Screen 30 — Today’s Look
+
+Screen 31 — Look Details
+
+Screen 32 — Alternative Looks
+
+Screen 33 — Wear This Look Confirmation
+
+⸻
+
+Outfit History
+
+Screen 34 — Outfit Timeline
+
+Screen 35 — Outfit Details
+
+⸻
+
+Notifications
+
+Screen 36 — Notification Center
+
+Screen 37 — Morning Reminder Details
+
+⸻
+
+Phase 3 — Closet
+
+Closet
+
+Screen 38 — Closet Dashboard
+
+Screen 39 — All Items
+
+Screen 40 — Category View
+
+Screen 41 — Item Details
+
+Screen 42 — Edit Item
+
+Screen 43 — Add New Item
+
+⸻
+
+Phase 4 — Style Studio & Inspiration
+
+Style Studio
+
+Screen 44 — Style Studio Dashboard
+
+Screen 45 — Create Outfit
+
+Screen 46 — Edit Outfit
+
+Screen 47 — Save Outfit
+
+⸻
+
+Inspiration
+
+Screen 48 — Inspiration Feed
+
+Screen 49 — Inspiration Details
+
+Screen 50 — Recreate This Look
+
+⸻
+
+Phase 5 — Wardrobe Intelligence
+
+Insights
+
+Screen 51 — Wardrobe Insights Dashboard
+
+Screen 52 — Sleeping Items
+
+Screen 53 — Hero Pieces
+
+Screen 54 — Wardrobe Health
+
+⸻
+
+Style Score
+
+Screen 55 — Style Score Overview
+
+Screen 56 — Style Score Breakdown
+
+⸻
+
+Phase 6 — Savings Engine
+
+Savings
+
+Screen 57 — Savings Dashboard
+
+Screen 58 — Duplicate Detection
+
+Screen 59 — Cost Per Wear Dashboard
+
+⸻
+
+Style Budget
+
+Screen 60 — Style Budget Dashboard
+
+Screen 61 — Savings History
+
+⸻
+
+Wishlist & Smart Shopping
+
+Screen 62 — Wishlist
+
+Screen 63 — Wishlist Item Details
+
+Screen 64 — Price Drop Alert
+
+⸻
+
+Phase 7 — Travel & Packing
+
+Trips
+
+Screen 65 — Trips Dashboard
+
+Screen 66 — Create Trip
+
+Screen 67 — Trip Details
+
+Screen 68 — Packing List
+
+Screen 69 — Travel Outfit Suggestions
+
+⸻
+
+Phase 8 — Resale & Donation
+
+Closet Optimization
+
+Screen 70 — Dead Inventory
+
+Screen 71 — Sell This Item
+
+Screen 72 — Donation Suggestions
+
+Screen 73 — Resale Earnings Dashboard
+
+⸻
+
+Phase 9 — Style Circle
+
+Community
+
+Screen 74 — Community Feed
+
+Screen 75 — Challenges
+
+Screen 76 — Challenge Details
+
+Screen 77 — Friends
+
+Screen 78 — User Profile
+
+⸻
+
+Phase 10 — Muse AI Assistant
+
+Muse
+
+Screen 79 — Muse Chat
+
+Screen 80 — Conversation
+
+Screen 81 — AI Recommendation Result
+
+⸻
+
+Phase 11 — Profile & Settings
+
+Profile
+
+Screen 82 — Profile Dashboard
+
+Screen 83 — Edit Profile
+
+Screen 84 — Style DNA Overview
+
+⸻
+
+Settings
+
+Screen 85 — Settings
+
+Screen 86 — Subscription
+
+Screen 87 — Privacy & Data
+
+⸻
+
+Design Execution Order
+
+Batch 1
+
+Foundation + Onboarding
+
+Screens:
+01 → 28
+
+⸻
+
+Batch 2
+
+Core Daily Experience
+
+Screens:
+29 → 37
+
+⸻
+
+Batch 3
+
+Closet + Style Studio + Inspiration
+
+Screens:
+38 → 50
+
+⸻
+
+Batch 4
+
+Intelligence + Savings Engine
+
+Screens:
+51 → 64
+
+⸻
+
+Batch 5
+
+Travel + Resale + Social + Muse + Profile
+
+Screens:
+65 → 87
+
+⸻
+
+Total Screens
+
+87 Screens
