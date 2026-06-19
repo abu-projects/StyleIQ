@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StyleIQ — Phase 2B Screens</title>
+  <meta name="description" content="StyleIQ Phase 2B — Closet Intelligence & Wardrobe Management screens 41–56.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --ink: #1B1716;
+      --ivory: #F8F6F3;
+      --canvas: #EFECE7;
+      --muted: #6F675F;
+      --soft: #9F9387;
+      --gold: #C89B45;
+      --line: #ECE7E1;
+      --line-strong: #D6CCC2;
+      --white: #FFFFFF;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--canvas);
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+    }
+
+    .font-serif { font-family: 'Playfair Display', serif; }
+
+    .phone {
+      width: 375px;
+      height: 812px;
+      min-height: 812px;
+      max-height: 812px;
+      border: 12px solid var(--line);
+      border-radius: 48px;
+      background: var(--ivory);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 50px -18px rgba(27,23,22,0.25);
+      display: flex;
+      flex-direction: column;
+      isolation: isolate;
+    }
+
+    section { scroll-margin-top: 24px; }
+    button { cursor: pointer; }
+    button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    .status-bar {
+      height: 48px; min-height: 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: max(8px, env(safe-area-inset-top)) 24px 0;
+      position: relative; z-index: 20;
+      background: var(--ivory); flex-shrink: 0;
+    }
+
+    .app-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .app-content::-webkit-scrollbar { display: none; }
+
+    .shell-bar {
+      height: 38px; min-height: 38px; padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(236,231,225,0.82);
+      background: var(--ivory); flex-shrink: 0; z-index: 20;
+    }
+
+    .shell-brand { font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1; color: var(--ink); }
+
+    .shell-location {
+      display: inline-flex; align-items: center; gap: 7px;
+      color: var(--muted); font-size: 9px; line-height: 1;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    }
+    .shell-location::before {
+      content: ""; width: 5px; height: 5px;
+      border-radius: 999px; background: var(--gold);
+    }
+
+    .small-caps { font-size: 9px; line-height: 1; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; }
+    .section-label { font-size: 10px; line-height: 1; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--gold); }
+
+    .primary-btn, .secondary-btn, .chip, .icon-btn {
+      transition: opacity 180ms ease-out, transform 180ms ease-out, border-color 180ms ease-out;
+    }
+    .primary-btn:active, .secondary-btn:active, .chip:active, .icon-btn:active { transform: scale(0.98); }
+
+    .primary-btn {
+      height: 56px; border-radius: 16px; background: var(--ink); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; font-size: 15px; font-weight: 600;
+    }
+
+    .secondary-btn {
+      height: 44px; border-radius: 14px; background: var(--white);
+      border: 1px solid var(--line); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      gap: 7px; font-size: 12px; font-weight: 700;
+    }
+
+    .chip {
+      min-height: 38px; padding: 0 13px; border-radius: 999px;
+      background: var(--white); border: 1px solid var(--line);
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; color: var(--ink);
+    }
+    .chip.active { background: var(--ivory); border: 2px solid var(--gold); color: var(--ink); }
+
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: 24px; }
+
+    .muse-card {
+      background: var(--white); border: 1px solid var(--line);
+      border-left: 3px solid var(--gold); border-radius: 24px;
+    }
+
+    .muse-portrait {
+      width: 42px; height: 42px; border-radius: 999px;
+      object-fit: cover; border: 2px solid rgba(200,155,69,0.28);
+    }
+
+    .image-card { overflow: hidden; border-radius: 24px; border: 1px solid var(--line); background: var(--white); }
+
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--white);
+      display: flex; align-items: center; justify-content: center; color: var(--ink);
+    }
+
+    .title { color: var(--muted); letter-spacing: 0.08em; }
+
+    .masonry { columns: 2; column-gap: 12px; }
+    .masonry-item { break-inside: avoid; margin-bottom: 12px; }
+
+    .gallery-card { position: relative; overflow: hidden; border-radius: 24px; border: 1px solid var(--line); background: var(--white); }
+    .gallery-card .overlay { position: absolute; inset: auto 10px 10px 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+    .success-ring {
+      position: absolute; inset: -10px; border-radius: 999px;
+      border: 1px solid rgba(200,155,69,0.34);
+      animation: successPulse 1800ms ease-out infinite;
+    }
+    @keyframes successPulse {
+      0% { opacity: 0.62; transform: scale(0.86); }
+      100% { opacity: 0; transform: scale(1.16); }
+    }
+    @media (prefers-reduced-motion: reduce) { .success-ring { animation: none; } }
+
+    .phone[data-nav] .app-content > div { padding-bottom: 112px; }
+
+    .bottom-nav {
+      position: absolute; left: 14px; right: 14px;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      height: 68px; padding: 7px 8px 8px;
+      background: rgba(248,246,243,0.92);
+      border: 1px solid rgba(214,204,194,0.72);
+      border-radius: 28px;
+      box-shadow: 0 12px 28px rgba(27,23,22,0.14), inset 0 1px 0 rgba(255,255,255,0.86);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      display: grid; grid-template-columns: 1fr 1fr 1.18fr 1fr 1fr; gap: 1px; z-index: 30;
+    }
+
+    .nav-item {
+      position: relative; border: 0; background: transparent; border-radius: 18px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 3px; color: var(--soft); font-size: 8px; line-height: 1; font-weight: 700;
+      min-width: 0; padding: 0; transition: color 180ms ease-out, transform 180ms ease-out;
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item:active { transform: scale(0.96); }
+
+    .nav-icon {
+      width: 30px; height: 30px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .nav-item.active .nav-icon::after {
+      content: ""; position: absolute; bottom: -1px;
+      width: 14px; height: 2px; border-radius: 999px; background: var(--gold);
+    }
+
+    .nav-item.looks { color: var(--ink); transform: translateY(-8px); }
+    .nav-item.looks:active { transform: translateY(-8px) scale(0.96); }
+    .nav-item.looks .nav-icon {
+      width: 44px; height: 44px; background: var(--ink); color: var(--white);
+      border: 3px solid var(--ivory); box-shadow: 0 6px 14px rgba(27,23,22,0.2);
+    }
+    .nav-item.looks.active .nav-icon { border-color: var(--gold); }
+    .nav-item.looks .nav-icon::after { display: none; }
+    .nav-item.looks span { margin-top: -1px; white-space: nowrap; }
+    .nav-item > span { max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .flow-note {
+      min-height: 32px; padding: 0 12px; border-radius: 999px;
+      background: var(--white); border: 1px solid var(--line);
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 10px; font-weight: 700; color: var(--muted);
+    }
+
+    /* Phase 2B specifics */
+    .stat-block { text-align: center; padding: 16px 8px; }
+    .stat-num { font-family: 'Playfair Display', serif; font-size: 30px; line-height: 1; color: var(--ink); }
+    .stat-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-top: 4px; }
+
+    .wear-badge {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(27,23,22,0.76); color: #fff;
+      font-size: 9px; font-weight: 700; border-radius: 999px;
+      padding: 3px 8px; backdrop-filter: blur(6px);
+    }
+
+    .cal-grid {
+      display: grid; grid-template-columns: repeat(7,1fr); gap: 3px;
+    }
+    .cal-day {
+      aspect-ratio: 1; border-radius: 12px; overflow: hidden;
+      position: relative; background: var(--white); border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cal-day.has-outfit { border-color: var(--line-strong); }
+    .cal-day.today { border: 2px solid var(--gold); }
+    .cal-day-num { font-size: 9px; font-weight: 700; color: var(--muted); }
+    .cal-mood {
+      position: absolute; top: 3px; right: 3px;
+      width: 12px; height: 12px; border-radius: 999px;
+      background: rgba(248,246,243,0.92);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink);
+    }
+    .cal-tag {
+      position: absolute; left: 2px; right: 2px; bottom: 2px;
+      min-height: 10px; padding: 1px 2px; border-radius: 4px;
+      background: rgba(27,23,22,0.72); color: var(--white);
+      font-size: 5px; line-height: 1.1; font-weight: 700;
+      text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+
+    .bar-row { display: flex; align-items: center; gap: 8px; }
+    .bar-track { flex: 1; height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: var(--ink); }
+    .bar-fill.gold { background: var(--gold); }
+
+    .camera-frame {
+      background: #111; border-radius: 20px; overflow: hidden; position: relative;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .detect-box {
+      position: absolute; border: 2px solid var(--gold); border-radius: 8px;
+      animation: detectPulse 2s ease-in-out infinite;
+    }
+    @keyframes detectPulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+    }
+    .detect-label {
+      position: absolute; top: -20px; left: 0; background: var(--gold);
+      color: #fff; font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .progress-pill {
+      height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; flex: 1;
+    }
+    .progress-fill {
+      height: 100%; border-radius: 999px; background: var(--gold);
+      animation: progressGrow 2.4s ease-out forwards;
+    }
+    @keyframes progressGrow { from { width: 0%; } to { width: var(--w, 75%); } }
+
+    .gap-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(200,155,69,0.12); border: 1px solid rgba(200,155,69,0.3);
+      color: var(--gold); font-size: 9px; font-weight: 700;
+      padding: 3px 9px; border-radius: 999px;
+    }
+
+    .score-ring {
+      width: 100px; height: 100px; border-radius: 999px;
+      border: 4px solid var(--gold); display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+
+    .day-col {
+      flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .day-col-img {
+      width: 100%; aspect-ratio: 0.65; border-radius: 16px; object-fit: cover; object-position: top;
+      border: 1px solid var(--line);
+    }
+
+    .trip-day {
+      display: grid; grid-template-columns: 48px 80px 1fr; gap: 10px; align-items: center;
+    }
+
+    .stat-num,
+    .stat-label,
+    .wear-badge,
+    .cal-day-num,
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .planner-day[draggable="true"] { cursor: grab; }
+    .planner-day[draggable="true"]:active { cursor: grabbing; }
+    .planner-day.is-dragging { opacity: 0.45; }
+  </style>
+</head>
+<body class="p-8 md:p-16">
+  <header class="w-full max-w-7xl mx-auto mb-16 flex flex-col items-center text-center">
+    <span class="font-serif text-4xl font-medium text-[#1B1716]">StyleIQ</span>
+    <div class="h-px w-12 bg-[#C89B45] mt-3 mb-3"></div>
+    <p class="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#6F675F]">
+      Phase 2B — Closet Intelligence &amp; Wardrobe Management
+    </p>
+  </header>
+
+  <main class="flex flex-wrap justify-center gap-16 md:gap-24">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 41 — MY CLOSET DASHBOARD                        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-41" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 41 — My Closet Dashboard</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <!-- Header -->
+          <div class="flex items-center justify-between pt-3 mb-5">
+            <div>
+              <p class="section-label mb-2">My Closet</p>
+              <h1 class="font-serif text-[34px] leading-none">Wardrobe</h1>
+            </div>
+            <button class="primary-btn px-4 h-10 text-sm rounded-2xl" data-target="screen-44">
+              <i data-lucide="plus" class="w-4 h-4" stroke-width="1.5"></i>Add Items
+            </button>
+          </div>
+
+          <!-- Stats row -->
+          <div class="card grid grid-cols-4 divide-x divide-[#ECE7E1] mb-5">
+            <div class="stat-block">
+              <p class="stat-num">247</p>
+              <p class="stat-label">Total</p>
+            </div>
+            <div class="stat-block">
+              <p class="stat-num">18</p>
+              <p class="stat-label">Worn</p>
+            </div>
+            <div class="stat-block">
+              <p class="stat-num">34</p>
+              <p class="stat-label">Unused</p>
+            </div>
+            <div class="stat-block">
+              <p class="stat-num">£4.2</p>
+              <p class="stat-label">Avg/Wear</p>
+            </div>
+          </div>
+
+          <!-- Muse card -->
+          <div class="muse-card p-3 mb-5">
+            <div class="flex items-center gap-3">
+              <img src="images/profile_woman.png" alt="Muse stylist" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">You haven't touched 34 items in over 60 days. I found some great ways to use them this week.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category grid -->
+          <p class="section-label mb-3">Browse by Category</p>
+          <div class="grid grid-cols-4 gap-2 mb-5">
+            <button class="card p-3 flex flex-col items-center gap-2 border-2 border-[#C89B45]" data-target="screen-42">
+              <i data-lucide="shirt" class="w-5 h-5 text-[#C89B45]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold text-[#1B1716]">Clothing</span>
+              <span class="text-[9px] text-[#6F675F]">142</span>
+            </button>
+            <button class="card p-3 flex flex-col items-center gap-2" data-target="screen-42">
+              <i data-lucide="footprints" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold">Shoes</span>
+              <span class="text-[9px] text-[#6F675F]">28</span>
+            </button>
+            <button class="card p-3 flex flex-col items-center gap-2" data-target="screen-42">
+              <i data-lucide="shopping-bag" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold">Bags</span>
+              <span class="text-[9px] text-[#6F675F]">14</span>
+            </button>
+            <button class="card p-3 flex flex-col items-center gap-2" data-target="screen-42">
+              <i data-lucide="gem" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold">Jewelry</span>
+              <span class="text-[9px] text-[#6F675F]">31</span>
+            </button>
+            <button class="card p-3 flex flex-col items-center gap-2" data-target="screen-42">
+              <i data-lucide="watch" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold">Watches</span>
+              <span class="text-[9px] text-[#6F675F]">6</span>
+            </button>
+            <button class="card p-3 flex flex-col items-center gap-2" data-target="screen-42">
+              <i data-lucide="glasses" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold">Sunglasses</span>
+              <span class="text-[9px] text-[#6F675F]">8</span>
+            </button>
+            <button class="card p-3 flex flex-col items-center gap-2" data-target="screen-42">
+              <i data-lucide="backpack" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold">Accessories</span>
+              <span class="text-[9px] text-[#6F675F]">18</span>
+            </button>
+            <button class="card p-3 flex flex-col items-center gap-2" data-target="screen-51">
+              <i data-lucide="bar-chart-2" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+              <span class="text-[9px] font-bold">Analytics</span>
+              <span class="text-[9px] text-[#6F675F]">Report</span>
+            </button>
+          </div>
+
+          <!-- Most worn -->
+          <p class="section-label mb-3">Most Worn This Month</p>
+          <div class="flex gap-3 mb-5">
+            <div class="image-card flex-1 relative">
+              <img src="images/screen_23_item.png" alt="Camel blazer" class="w-full h-[120px] object-cover object-top">
+              <span class="wear-badge">14×</span>
+              <div class="p-2"><p class="font-serif text-sm leading-tight">Camel Blazer</p><p class="text-[9px] text-[#6F675F] mt-0.5">Most worn</p></div>
+            </div>
+            <div class="image-card flex-1 relative">
+              <img src="images/style_minimal.png" alt="Ivory trousers" class="w-full h-[120px] object-cover object-top">
+              <span class="wear-badge">11×</span>
+              <div class="p-2"><p class="font-serif text-sm leading-tight">Ivory Trousers</p><p class="text-[9px] text-[#6F675F] mt-0.5">Second most</p></div>
+            </div>
+          </div>
+
+          <!-- Recently added and least worn -->
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <article class="card p-3">
+              <p class="section-label mb-2">Recently Added</p>
+              <div class="flex items-center gap-2">
+                <img src="images/style_creative_man.png" alt="Recently added charcoal overshirt" class="size-12 rounded-2xl object-cover object-top">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold truncate">Charcoal Overshirt</p>
+                  <p class="text-[9px] text-[#6F675F] mt-1">Added yesterday</p>
+                </div>
+              </div>
+            </article>
+            <article class="card p-3">
+              <p class="section-label mb-2">Least Worn</p>
+              <div class="flex items-center gap-2">
+                <img src="images/style_creative.png" alt="Least worn black merino top" class="size-12 rounded-2xl object-cover object-top">
+                <div class="min-w-0">
+                  <p class="text-xs font-bold truncate">Black Merino</p>
+                  <p class="text-[9px] text-[#C89B45] mt-1 font-bold">Never worn</p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Quick actions -->
+          <div class="grid grid-cols-2 gap-3">
+            <button class="secondary-btn" data-parent-target="screen-36"><i data-lucide="bookmark" class="w-4 h-4"
+                stroke-width="1.5"></i>Saved Looks</button>
+            <button class="secondary-btn" data-target="screen-52"><i data-lucide="search-x" class="w-4 h-4" stroke-width="1.5"></i>Closet Gaps</button>
+            <button class="secondary-btn" data-target="screen-53"><i data-lucide="copy" class="w-4 h-4" stroke-width="1.5"></i>Duplicates</button>
+            <button class="secondary-btn" data-target="screen-51"><i data-lucide="activity" class="w-4 h-4"
+                stroke-width="1.5"></i>Wardrobe Health</button>
+            <button class="secondary-btn col-span-2" data-target="screen-50"><i data-lucide="layers" class="w-4 h-4"
+                stroke-width="1.5"></i>Capsule Builder</button>
+          </div>
+
+          <button class="primary-btn w-full mt-5" data-target="screen-42">View All Items<i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 42 — CLOSET CATEGORY                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-42" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 42 — Closet Category</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" aria-label="Back to Closet" data-target="screen-41"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+            <p class="small-caps text-[#6F675F]">Clothing — Tops</p>
+            <button class="icon-btn" aria-label="Search"><i data-lucide="search" class="w-4 h-4" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="shirt" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Clothing / Tops</div>
+
+          <!-- Filters -->
+          <div class="flex gap-2 flex-wrap mb-5">
+            <button class="chip active" data-filter>All (42)</button>
+            <button class="chip" data-filter>Spring</button>
+            <button class="chip" data-filter>Neutrals</button>
+            <button class="chip" data-filter>Office</button>
+            <button class="chip" data-filter>Evening</button>
+          </div>
+
+          <!-- Item grid -->
+          <div class="grid grid-cols-2 gap-3">
+            <article class="image-card relative cursor-pointer" role="button" tabindex="0" data-target="screen-43">
+              <img src="images/style_modern_prof.png" alt="Ivory silk shell" class="w-full h-[190px] object-cover object-top">
+              <span class="wear-badge">14×</span>
+              <div class="p-3">
+                <p class="font-serif text-[15px] leading-tight">Ivory Silk Shell</p>
+                <p class="text-[9px] text-[#6F675F] mt-1">Last worn: 2 days ago</p>
+              </div>
+            </article>
+            <article class="image-card relative cursor-pointer mt-8" role="button" tabindex="0" data-target="screen-43">
+              <img src="images/style_elevated_everyday.png" alt="Cream linen shirt" class="w-full h-[165px] object-cover object-top">
+              <span class="wear-badge">9×</span>
+              <div class="p-3">
+                <p class="font-serif text-[15px] leading-tight">Cream Linen Shirt</p>
+                <p class="text-[9px] text-[#6F675F] mt-1">Last worn: 1 week ago</p>
+              </div>
+            </article>
+            <article class="image-card relative cursor-pointer" role="button" tabindex="0" data-target="screen-43">
+              <img src="images/style_minimal.png" alt="White poplin top" class="w-full h-[175px] object-cover object-top">
+              <span class="wear-badge">6×</span>
+              <div class="p-3">
+                <p class="font-serif text-[15px] leading-tight">White Poplin Top</p>
+                <p class="text-[9px] text-[#6F675F] mt-1">Last worn: 3 weeks ago</p>
+              </div>
+            </article>
+            <article class="image-card relative cursor-pointer -mt-3" role="button" tabindex="0" data-target="screen-43">
+              <img src="images/style_smart_casual.png" alt="Oat knit top" class="w-full h-[210px] object-cover object-top">
+              <span class="wear-badge">2×</span>
+              <div class="p-3">
+                <p class="font-serif text-[15px] leading-tight">Oat Knit Top</p>
+                <p class="text-[9px] text-[#6F675F] mt-1">Last worn: 6 weeks ago</p>
+                <span class="gap-badge mt-2">Underused</span>
+              </div>
+            </article>
+            <article class="image-card relative cursor-pointer" role="button" tabindex="0" data-target="screen-43">
+              <img src="images/style_smart_casual_man.png" alt="Slate crewneck" class="w-full h-[180px] object-cover object-top">
+              <span class="wear-badge">5×</span>
+              <div class="p-3">
+                <p class="font-serif text-[15px] leading-tight">Slate Crewneck</p>
+                <p class="text-[9px] text-[#6F675F] mt-1">Last worn: 2 weeks ago</p>
+              </div>
+            </article>
+            <article class="image-card relative cursor-pointer mt-5" role="button" tabindex="0" data-target="screen-43">
+              <img src="images/style_creative.png" alt="Black merino" class="w-full h-[160px] object-cover object-top">
+              <span class="wear-badge">0×</span>
+              <div class="p-3">
+                <p class="font-serif text-[15px] leading-tight">Black Merino</p>
+                <p class="text-[9px] text-[#C89B45] mt-1 font-bold">Never worn</p>
+                <span class="gap-badge mt-2">New</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 43 — ITEM DETAILS                               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-43" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 43 — Item Details</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" aria-label="Back to Category" data-target="screen-42"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+            <p class="small-caps text-[#6F675F]">Item Details</p>
+            <button class="icon-btn" aria-label="More options"><i data-lucide="more-horizontal" class="w-4 h-4" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="shirt" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Clothing / Item Detail</div>
+
+          <!-- Item image -->
+          <div class="image-card relative">
+            <img src="images/screen_23_item.png" alt="Camel blazer item" class="w-full h-[290px] object-cover object-top">
+            <span class="absolute bottom-3 left-3 chip bg-white/95"><i data-lucide="shirt" class="w-3.5 h-3.5" stroke-width="1.5"></i>Jacket</span>
+          </div>
+
+          <!-- Item info -->
+          <div class="mt-4">
+            <p class="section-label mb-1">Arket</p>
+            <h1 class="font-serif text-[28px] leading-tight">Camel Oversized Blazer</h1>
+          </div>
+
+          <!-- Specs -->
+          <div class="card p-4 mt-4">
+            <div class="divide-y divide-[#ECE7E1]">
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Category</span><span class="font-bold">Jacket / Blazer</span></div>
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Colour</span><span class="font-bold">Warm Camel</span></div>
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Purchased</span><span class="font-bold">Mar 2024</span></div>
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Cost</span><span class="font-bold">£185</span></div>
+            </div>
+          </div>
+
+          <!-- Wear stats -->
+          <div class="grid grid-cols-3 gap-3 mt-4">
+            <div class="card p-3 text-center">
+              <p class="font-serif text-2xl tabular">2</p>
+              <p class="text-[9px] text-[#6F675F] mt-1 font-bold uppercase tracking-wider">Wears</p>
+            </div>
+            <div class="card p-3 text-center">
+              <p class="font-serif text-2xl tabular">£92.50</p>
+              <p class="text-[9px] text-[#6F675F] mt-1 font-bold uppercase tracking-wider">/ Wear</p>
+            </div>
+            <div class="card p-3 text-center">
+              <p class="font-serif text-2xl tabular">6mo</p>
+              <p class="text-[9px] text-[#6F675F] mt-1 font-bold uppercase tracking-wider">Last Worn</p>
+            </div>
+          </div>
+
+          <!-- Muse insight -->
+          <div class="muse-card p-4 mt-4">
+            <div class="flex items-start gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-2">Muse Insight</p>
+                <p class="text-sm text-[#1B1716] leading-relaxed">"You've only worn this item twice in the last six months. Try it with your ivory trousers and loafers before deciding whether to keep it."</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTAs -->
+          <button class="primary-btn w-full mt-5" data-parent-target="screen-30"><i data-lucide="sparkles" class="w-5 h-5" stroke-width="1.5"></i>Create Outfit With This</button>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <button class="secondary-btn" data-parent-target="screen-37"><i data-lucide="calendar-plus" class="w-4 h-4" stroke-width="1.5"></i>Add To Planner</button>
+            <button class="secondary-btn text-[#6F675F]"><i data-lucide="archive" class="w-4 h-4" stroke-width="1.5"></i>Archive Item</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 44 — UPLOAD WARDROBE                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-44" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 44 — Upload Wardrobe</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center pt-2 mb-4">
+            <button class="icon-btn mr-4" aria-label="Back to Closet" data-target="screen-41"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="shirt" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Add New Items</div>
+          <p class="section-label mb-2">Add to Wardrobe</p>
+          <h1 class="font-serif text-[32px] leading-[1.06] mb-2">How would you like to add items?</h1>
+          <p class="text-xs text-[#6F675F] leading-relaxed mb-6">StyleIQ can detect clothing automatically — or you can enter items manually.</p>
+
+          <div class="space-y-3">
+            <!-- Upload Photos -->
+            <button class="card p-4 w-full text-left border-2 border-[#C89B45] bg-[#F8F6F3]" data-target="screen-45">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-[#1B1716] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="camera" class="w-5 h-5 text-white" stroke-width="1.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm">Upload Photos</p>
+                  <p class="text-xs text-[#6F675F] mt-1">AI detects items from your camera roll. Fastest method.</p>
+                </div>
+                <i data-lucide="arrow-right" class="w-4 h-4 text-[#C89B45] flex-shrink-0" stroke-width="1.5"></i>
+              </div>
+            </button>
+
+            <!-- Record Video -->
+            <button class="card p-4 w-full text-left" data-target="screen-45">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="video" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm">Record Video</p>
+                  <p class="text-xs text-[#6F675F] mt-1">Scan your wardrobe with your camera. Captures multiple items at once.</p>
+                </div>
+                <i data-lucide="arrow-right" class="w-4 h-4 text-[#6F675F] flex-shrink-0" stroke-width="1.5"></i>
+              </div>
+            </button>
+
+            <!-- Import Inspiration -->
+            <button class="card p-4 w-full text-left" data-target="screen-45">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="image" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm">Import Inspiration</p>
+                  <p class="text-xs text-[#6F675F] mt-1">Add looks from Pinterest, Instagram, or saved photos.</p>
+                </div>
+                <i data-lucide="arrow-right" class="w-4 h-4 text-[#6F675F] flex-shrink-0" stroke-width="1.5"></i>
+              </div>
+            </button>
+
+            <!-- Manual Entry -->
+            <button class="card p-4 w-full text-left" data-target="screen-46">
+              <div class="flex items-center gap-4">
+                <div class="w-11 h-11 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="pencil-line" class="w-5 h-5 text-[#6F675F]" stroke-width="1.5"></i>
+                </div>
+                <div class="min-w-0">
+                  <p class="font-bold text-sm">Manual Entry</p>
+                  <p class="text-xs text-[#6F675F] mt-1">Enter brand, category, colour, and cost yourself. Best for detailed records.</p>
+                </div>
+                <i data-lucide="arrow-right" class="w-4 h-4 text-[#6F675F] flex-shrink-0" stroke-width="1.5"></i>
+              </div>
+            </button>
+          </div>
+
+          <!-- Tip -->
+          <div class="muse-card p-3 mt-5">
+            <div class="flex items-start gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse Tip</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">Most wardrobes upload in under 10 minutes using the video method. I'll identify each piece automatically.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 45 — CAMERA CAPTURE                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-45" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 45 — Camera Capture</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar" style="background:#111;color:#fff;">
+          <span class="text-xs font-medium text-white">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4 text-white" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4 text-white" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5 text-white" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div style="background:#111;flex:1;padding:0 0 16px;" class="flex flex-col">
+          <!-- Camera area -->
+          <div class="camera-frame mx-4 mt-2 flex-1 relative" style="min-height:480px;">
+            <img src="images/screen_22_closet.png" alt="Wardrobe scan in progress" class="w-full h-full object-cover" style="opacity:0.7;">
+            <!-- Detection boxes -->
+            <div class="detect-box" style="left:12%;top:8%;width:34%;height:54%;">
+              <span class="detect-label">Blazer detected</span>
+            </div>
+            <div class="detect-box" style="right:10%;top:18%;width:32%;height:42%; animation-delay:0.6s;">
+              <span class="detect-label" style="top:auto;bottom:-20px;left:0;">Trousers detected</span>
+            </div>
+            <!-- HUD overlay -->
+            <div class="absolute top-3 right-3 flex flex-col items-end gap-2">
+              <span class="chip bg-[#C89B45]/90 text-white border-transparent text-[9px] min-h-6 px-2"><i data-lucide="scan-line" class="size-3" stroke-width="1.5"></i>Smart Scan</span>
+              <span class="chip bg-black/60 text-white border-transparent text-[9px] min-h-6 px-2">2 items found</span>
+            </div>
+            <div class="absolute bottom-3 left-3 right-3">
+              <div class="flex items-center gap-2">
+                <div class="progress-pill"><div class="progress-fill" style="--w:65%;"></div></div>
+                <span class="text-white text-[9px] font-bold">Scanning…</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex items-center justify-between px-8 pt-4">
+            <button class="icon-btn w-10 h-10" style="background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.18);" data-target="screen-44">
+              <i data-lucide="x" class="w-5 h-5 text-white" stroke-width="1.5"></i>
+            </button>
+            <button class="w-16 h-16 rounded-full border-4 border-white flex items-center justify-center" style="background:rgba(255,255,255,0.15);" data-target="screen-46">
+              <div class="w-10 h-10 rounded-full bg-white"></div>
+            </button>
+            <button class="icon-btn w-10 h-10" style="background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.18);">
+              <i data-lucide="flip-horizontal-2" class="w-5 h-5 text-white" stroke-width="1.5"></i>
+            </button>
+          </div>
+
+          <!-- Detected preview strip -->
+          <div class="px-4 pt-4">
+            <p class="text-white text-[9px] font-bold uppercase tracking-wider mb-2">Detected Items</p>
+            <div class="flex gap-2">
+              <div class="image-card w-14 h-14 relative flex-shrink-0">
+                <img src="images/screen_23_item.png" alt="Blazer" class="w-full h-full object-cover">
+                <span class="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <i data-lucide="check-circle" class="w-4 h-4 text-[#C89B45]" stroke-width="2"></i>
+                </span>
+              </div>
+              <div class="image-card w-14 h-14 relative flex-shrink-0">
+                <img src="images/style_minimal.png" alt="Trousers" class="w-full h-full object-cover">
+                <span class="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <i data-lucide="check-circle" class="w-4 h-4 text-[#C89B45]" stroke-width="2"></i>
+                </span>
+              </div>
+              <button class="w-14 h-14 rounded-3xl border border-dashed border-white/30 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="plus" class="w-5 h-5 text-white/50" stroke-width="1.5"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Bottom action -->
+        <div class="px-6 py-4" style="background:#111;">
+          <button class="primary-btn w-full" data-target="screen-46" style="background:var(--gold);color:#fff;">Analyse These Items<i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 46 — ITEM PROCESSING                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-46" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 46 — Item Processing</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flow-note mt-3 mb-5"><i data-lucide="sparkles" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / AI Processing</div>
+
+          <div class="muse-card p-4 mb-5">
+            <div class="flex items-start gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-2">Muse</p>
+                <p class="font-serif text-[20px] leading-tight">Analysing your items now.</p>
+                <p class="text-xs text-[#6F675F] mt-2 leading-relaxed">I'm identifying category, colour, fabric weight, and occasion fit for each piece.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items being processed -->
+          <div class="space-y-3 mb-5">
+            <article class="card p-3">
+              <div class="flex items-center gap-3">
+                <img src="images/screen_23_item.png" alt="Camel blazer" class="w-14 h-14 rounded-2xl object-cover">
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-sm">Item 1 of 2</p>
+                  <p class="text-xs text-[#6F675F] mt-0.5">Camel Oversized Blazer</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <div class="progress-pill"><div class="progress-fill" style="--w:100%;"></div></div>
+                    <span class="text-[9px] font-bold text-[#C89B45]">Done</span>
+                  </div>
+                </div>
+                <i data-lucide="check-circle" class="w-5 h-5 text-[#C89B45] flex-shrink-0" stroke-width="1.5"></i>
+              </div>
+              <!-- Detected attributes -->
+              <div class="flex flex-wrap gap-1.5 mt-3">
+                <span class="chip min-h-6 px-2 text-[9px]">Jacket</span>
+                <span class="chip min-h-6 px-2 text-[9px]">Warm Camel</span>
+                <span class="chip min-h-6 px-2 text-[9px]">Office</span>
+                <span class="chip min-h-6 px-2 text-[9px]">Evening</span>
+                <span class="chip min-h-6 px-2 text-[9px]">Autumn</span>
+              </div>
+            </article>
+            <article class="card p-3">
+              <div class="flex items-center gap-3">
+                <img src="images/style_minimal.png" alt="Ivory trousers" class="w-14 h-14 rounded-2xl object-cover">
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-sm">Item 2 of 2</p>
+                  <p class="text-xs text-[#6F675F] mt-0.5">Ivory Wide-Leg Trouser</p>
+                  <div class="flex items-center gap-2 mt-2">
+                    <div class="progress-pill"><div class="progress-fill" style="--w:68%;"></div></div>
+                    <span class="text-[9px] font-bold text-[#6F675F]">Analysing…</span>
+                  </div>
+                </div>
+                <i data-lucide="loader" class="w-5 h-5 text-[#6F675F] flex-shrink-0" stroke-width="1.5"></i>
+              </div>
+              <div class="flex flex-wrap gap-1.5 mt-3">
+                <span class="chip min-h-6 px-2 text-[9px]">Trousers</span>
+                <span class="chip min-h-6 px-2 text-[9px]">Ivory</span>
+                <span class="chip active min-h-6 px-2 text-[9px]">Detecting…</span>
+              </div>
+            </article>
+          </div>
+
+          <!-- Overall progress -->
+          <div class="card p-4 mb-5">
+            <div class="flex justify-between items-center mb-2">
+              <p class="text-sm font-bold">Overall Progress</p>
+              <p class="text-sm font-bold text-[#C89B45]">1 / 2</p>
+            </div>
+            <div class="progress-pill"><div class="progress-fill" style="--w:50%;"></div></div>
+            <p class="text-[10px] text-[#6F675F] mt-2">StyleIQ will notify you when all items are ready.</p>
+          </div>
+
+          <button class="primary-btn w-full" data-target="screen-41">Done — View My Closet<i data-lucide="shirt" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 47 — OUTFIT CALENDAR                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-47" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 47 — Outfit Calendar</h2>
+      <div class="phone" data-nav="planner">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <div>
+              <p class="section-label mb-2">History</p>
+              <h1 class="font-serif text-[34px] leading-none">Style Calendar</h1>
+            </div>
+            <button class="icon-btn" aria-label="Search history"><i data-lucide="search" class="w-4 h-4" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="calendar" class="w-3.5 h-3.5" stroke-width="1.5"></i>Home / Style Calendar</div>
+
+          <!-- Month nav -->
+          <div class="flex items-center justify-between mb-4">
+            <button class="icon-btn" aria-label="Previous month"><i data-lucide="chevron-left" class="w-4 h-4" stroke-width="1.5"></i></button>
+            <p class="font-bold text-sm">June 2026</p>
+            <button class="icon-btn" aria-label="Next month"><i data-lucide="chevron-right" class="w-4 h-4" stroke-width="1.5"></i></button>
+          </div>
+
+          <!-- Day headers -->
+          <div class="cal-grid mb-1">
+            <div class="text-center text-[8px] font-bold text-[#9F9387]">M</div>
+            <div class="text-center text-[8px] font-bold text-[#9F9387]">T</div>
+            <div class="text-center text-[8px] font-bold text-[#9F9387]">W</div>
+            <div class="text-center text-[8px] font-bold text-[#9F9387]">T</div>
+            <div class="text-center text-[8px] font-bold text-[#9F9387]">F</div>
+            <div class="text-center text-[8px] font-bold text-[#9F9387]">S</div>
+            <div class="text-center text-[8px] font-bold text-[#9F9387]">S</div>
+          </div>
+
+          <!-- Calendar days -->
+          <div class="cal-grid gap-1.5">
+            <!-- Row 1: June 1–7 -->
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 1, work outfit, felt good"><img src="images/style_modern_prof.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">1</span><span class="cal-mood"><i data-lucide="smile" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Work</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 2, dinner outfit, favorite"><img src="images/style_elevated_everyday.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">2</span><span class="cal-mood"><i data-lucide="star" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Dinner</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 3, client outfit, neutral mood"><img src="images/style_minimal.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">3</span><span class="cal-mood"><i data-lucide="minus" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Client</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 4, office outfit, felt good"><img src="images/style_classic_man.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">4</span><span class="cal-mood"><i data-lucide="smile" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Office</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 5, casual outfit, felt good"><img src="images/style_smart_casual.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">5</span><span class="cal-mood"><i data-lucide="smile" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Casual</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">6</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">7</span></button>
+            <!-- Row 2: 8–14 -->
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 8, creative meeting outfit, favorite"><img src="images/style_creative.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">8</span><span class="cal-mood"><i data-lucide="star" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Meeting</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 9, studio outfit, felt good"><img src="images/style_minimal_man.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">9</span><span class="cal-mood"><i data-lucide="smile" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Studio</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 10, work outfit, felt good"><img src="images/style_modern_prof.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">10</span><span class="cal-mood"><i data-lucide="smile" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Work</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 11, commute outfit, neutral mood"><img src="images/style_smart_casual_man.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">11</span><span class="cal-mood"><i data-lucide="minus" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Commute</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 12, dinner outfit, favorite"><img src="images/style_elevated_everyday.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">12</span><span class="cal-mood"><i data-lucide="star" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Dinner</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">13</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">14</span></button>
+            <!-- Row 3: 15–21 -->
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 15, event outfit, felt good"><img src="images/style_classic.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">15</span><span class="cal-mood"><i data-lucide="smile" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Event</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 16, office outfit, favorite"><img src="images/style_minimal.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">16</span><span class="cal-mood"><i data-lucide="star" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Office</span></button>
+            <button class="cal-day has-outfit" data-target="screen-48" aria-label="June 17, client lunch outfit, felt good"><img src="images/style_modern_prof.png" alt="" class="w-full h-full object-cover object-top opacity-80"><span class="absolute top-0.5 left-1 text-[7px] font-bold text-white drop-shadow">17</span><span class="cal-mood"><i data-lucide="smile" class="size-2" stroke-width="1.5"></i></span><span class="cal-tag">Client</span></button>
+            <button class="cal-day today" data-target="screen-48" aria-label="June 18, today, no outfit logged"><span class="cal-day-num text-[#C89B45]">18</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">19</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">20</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">21</span></button>
+            <!-- Row 4: 22–28 -->
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">22</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">23</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">24</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">25</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">26</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">27</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">28</span></button>
+            <!-- Row 5: 29–30 -->
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">29</span></button>
+            <button class="cal-day" data-target="screen-48"><span class="cal-day-num">30</span></button>
+            <div></div><div></div><div></div><div></div><div></div>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex gap-4 mt-4">
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full border border-[#D6CCC2] bg-white inline-block"></span><span class="text-[9px] text-[#6F675F]">No outfit logged</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-[#D6CCC2] inline-block"></span><span class="text-[9px] text-[#6F675F]">Look worn</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full border-2 border-[#C89B45] inline-block"></span><span class="text-[9px] text-[#6F675F]">Today</span></div>
+          </div>
+
+          <!-- Month summary -->
+          <div class="card p-4 mt-4">
+            <p class="section-label mb-3">June Summary</p>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div><p class="font-serif text-xl">13</p><p class="text-[9px] text-[#6F675F] mt-1">Days Logged</p></div>
+              <div><p class="font-serif text-xl">8</p><p class="text-[9px] text-[#6F675F] mt-1">Unique Looks</p></div>
+              <div><p class="font-serif text-xl">4.2</p><p class="text-[9px] text-[#6F675F] mt-1">Avg Rating</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 48 — DAY OUTFIT DETAILS                         -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-48" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 48 — Day Outfit Details</h2>
+      <div class="phone" data-nav="planner">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" aria-label="Back to Calendar" data-target="screen-47"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+            <p class="small-caps text-[#6F675F]">Wednesday, 3 Jun</p>
+            <button class="icon-btn" aria-label="Edit outfit"><i data-lucide="pencil" class="w-4 h-4" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="calendar" class="w-3.5 h-3.5" stroke-width="1.5"></i>Home / Style Calendar / June 3</div>
+
+          <div class="image-card">
+            <img src="images/style_modern_prof.png" alt="Outfit worn June 3" class="w-full h-[300px] object-cover object-top">
+          </div>
+
+          <div class="mt-4">
+            <p class="section-label mb-1">Soft Tailoring</p>
+            <h1 class="font-serif text-[28px] leading-tight">Client Lunch — Wednesday</h1>
+          </div>
+
+          <!-- Context tags -->
+          <div class="flex flex-wrap gap-2 mt-3">
+            <span class="chip min-h-7 text-[9px] px-2"><i data-lucide="briefcase" class="w-3 h-3" stroke-width="1.5"></i>Client Lunch</span>
+            <span class="chip min-h-7 text-[9px] px-2"><i data-lucide="cloud-sun" class="w-3 h-3" stroke-width="1.5"></i>72° Sunny</span>
+            <span class="chip min-h-7 text-[9px] px-2"><i data-lucide="smile" class="w-3 h-3" stroke-width="1.5"></i>Felt Great</span>
+            <span class="chip min-h-7 text-[9px] px-2 active"><i data-lucide="star" class="size-3" stroke-width="1.5"></i>Favourite</span>
+          </div>
+
+          <!-- Outfit pieces -->
+          <div class="card p-4 mt-4">
+            <p class="section-label mb-3">Outfit Pieces</p>
+            <div class="divide-y divide-[#ECE7E1]">
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Jacket</span><span class="font-bold">Camel Oversized Blazer</span></div>
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Top</span><span class="font-bold">Ivory Silk Shell</span></div>
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Bottom</span><span class="font-bold">Cream Wide Trouser</span></div>
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Shoes</span><span class="font-bold">Taupe Loafer</span></div>
+              <div class="py-2 flex justify-between text-sm"><span class="text-[#6F675F]">Accessories</span><span class="font-bold">Gold Hoops, Tan Tote</span></div>
+            </div>
+          </div>
+
+          <!-- Feedback -->
+          <div class="card p-4 mt-4">
+            <p class="section-label mb-3">Your Feedback</p>
+            <div class="flex gap-1">
+              <div class="w-7 h-7 rounded-full bg-[#C89B45] flex items-center justify-center"><i data-lucide="star" class="w-3.5 h-3.5 text-white" stroke-width="2"></i></div>
+              <div class="w-7 h-7 rounded-full bg-[#C89B45] flex items-center justify-center"><i data-lucide="star" class="w-3.5 h-3.5 text-white" stroke-width="2"></i></div>
+              <div class="w-7 h-7 rounded-full bg-[#C89B45] flex items-center justify-center"><i data-lucide="star" class="w-3.5 h-3.5 text-white" stroke-width="2"></i></div>
+              <div class="w-7 h-7 rounded-full bg-[#C89B45] flex items-center justify-center"><i data-lucide="star" class="w-3.5 h-3.5 text-white" stroke-width="2"></i></div>
+              <div class="w-7 h-7 rounded-full bg-[#C89B45] flex items-center justify-center"><i data-lucide="star" class="w-3.5 h-3.5 text-white" stroke-width="2"></i></div>
+            </div>
+            <p class="text-xs text-[#6F675F] mt-2 leading-relaxed">"Felt polished and comfortable all day. Blazer was the right call."</p>
+          </div>
+
+          <!-- CTAs -->
+          <button class="primary-btn w-full mt-5" data-parent-target="screen-30"><i data-lucide="repeat" class="w-5 h-5" stroke-width="1.5"></i>Wear This Again</button>
+          <div class="grid grid-cols-2 gap-3 mt-3">
+            <button class="secondary-btn" data-parent-target="screen-39"><i data-lucide="bookmark" class="w-4 h-4" stroke-width="1.5"></i>Save Favourite</button>
+            <button class="secondary-btn" data-parent-target="screen-31"><i data-lucide="sparkles" class="w-4 h-4" stroke-width="1.5"></i>Create Similar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 49 — WEEKLY OUTFIT PLANNER                      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-49" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 49 — Weekly Outfit Planner</h2>
+      <div class="phone" data-nav="planner">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-3 mb-4">
+            <div>
+              <p class="section-label mb-2">Planner</p>
+              <h1 class="font-serif text-[32px] leading-none">Week Planner</h1>
+            </div>
+            <button class="primary-btn px-4 h-10 text-sm rounded-2xl" data-target="screen-50">
+              <i data-lucide="wand" class="w-4 h-4" stroke-width="1.5"></i>Auto-plan
+            </button>
+          </div>
+          <div class="flow-note mb-5"><i data-lucide="calendar-days" class="w-3.5 h-3.5" stroke-width="1.5"></i>Planner / Weekly Planner</div>
+
+          <!-- Muse note -->
+          <div class="muse-card p-3 mb-5">
+            <div class="flex items-center gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">I've planned a full week using only 9 pieces from your closet. No repeats.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column layout: Mon–Sun -->
+          <div class="flex gap-2 overflow-x-auto pb-2" style="scrollbar-width:none;">
+            <!-- Mon -->
+            <div class="day-col planner-day flex-shrink-0 w-[46px]" draggable="true">
+              <p class="text-[8px] font-bold text-[#C89B45] uppercase text-center">Mon</p>
+              <p class="text-[9px] font-bold text-center text-[#1B1716]">17</p>
+              <img src="images/style_modern_prof.png" alt="Monday" class="day-col-img">
+              <p class="text-[7px] text-[#6F675F] text-center leading-tight">Client Lunch</p>
+              <p class="text-[7px] text-center">72°</p>
+            </div>
+            <!-- Tue -->
+            <div class="day-col planner-day flex-shrink-0 w-[46px]" draggable="true">
+              <p class="text-[8px] font-bold text-[#6F675F] uppercase text-center">Tue</p>
+              <p class="text-[9px] font-bold text-center text-[#1B1716]">18</p>
+              <img src="images/style_minimal.png" alt="Tuesday" class="day-col-img">
+              <p class="text-[7px] text-[#6F675F] text-center leading-tight">Studio Day</p>
+              <p class="text-[7px] text-center">69°</p>
+            </div>
+            <!-- Wed -->
+            <div class="day-col planner-day flex-shrink-0 w-[46px]" draggable="true">
+              <p class="text-[8px] font-bold text-[#6F675F] uppercase text-center">Wed</p>
+              <p class="text-[9px] font-bold text-center text-[#1B1716]">19</p>
+              <img src="images/style_elevated_everyday.png" alt="Wednesday" class="day-col-img">
+              <p class="text-[7px] text-[#6F675F] text-center leading-tight">Flexible</p>
+              <p class="text-[7px] text-center">71°</p>
+            </div>
+            <!-- Thu -->
+            <div class="day-col planner-day flex-shrink-0 w-[46px]" draggable="true">
+              <p class="text-[8px] font-bold text-[#6F675F] uppercase text-center">Thu</p>
+              <p class="text-[9px] font-bold text-center text-[#1B1716]">20</p>
+              <img src="images/style_classic_man.png" alt="Thursday" class="day-col-img">
+              <p class="text-[7px] text-[#6F675F] text-center leading-tight">Dinner</p>
+              <p class="text-[7px] text-center">74°</p>
+            </div>
+            <!-- Fri -->
+            <div class="day-col planner-day flex-shrink-0 w-[46px]" draggable="true">
+              <p class="text-[8px] font-bold text-[#6F675F] uppercase text-center">Fri</p>
+              <p class="text-[9px] font-bold text-center text-[#1B1716]">21</p>
+              <img src="images/style_smart_casual_man.png" alt="Friday" class="day-col-img">
+              <p class="text-[7px] text-[#6F675F] text-center leading-tight">Casual</p>
+              <p class="text-[7px] text-center">76°</p>
+            </div>
+            <!-- Sat -->
+            <div class="day-col planner-day flex-shrink-0 w-[46px]" draggable="true">
+              <p class="text-[8px] font-bold text-[#6F675F] uppercase text-center">Sat</p>
+              <p class="text-[9px] font-bold text-center text-[#1B1716]">22</p>
+              <img src="images/style_smart_casual.png" alt="Saturday" class="day-col-img">
+              <p class="text-[7px] text-[#6F675F] text-center leading-tight">Weekend</p>
+              <p class="text-[7px] text-center">78°</p>
+            </div>
+            <!-- Sun -->
+            <div class="day-col planner-day flex-shrink-0 w-[46px]" draggable="true">
+              <p class="text-[8px] font-bold text-[#6F675F] uppercase text-center">Sun</p>
+              <p class="text-[9px] font-bold text-center text-[#1B1716]">23</p>
+              <img src="images/style_creative.png" alt="Sunday" class="day-col-img">
+              <p class="text-[7px] text-[#6F675F] text-center leading-tight">Travel Prep</p>
+              <p class="text-[7px] text-center">70°</p>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="card grid grid-cols-3 divide-x divide-[#ECE7E1] mt-5">
+            <div class="stat-block"><p class="stat-num">9</p><p class="stat-label">Pieces</p></div>
+            <div class="stat-block"><p class="stat-num">7</p><p class="stat-label">Outfits</p></div>
+            <div class="stat-block"><p class="stat-num">0</p><p class="stat-label">Repeats</p></div>
+          </div>
+
+          <!-- Day detail action -->
+          <p class="section-label mt-5 mb-3">Monday — Client Lunch</p>
+          <article class="card p-3">
+            <div class="grid grid-cols-[56px_1fr] gap-3 items-center">
+              <img src="images/style_modern_prof.png" alt="Monday look" class="w-14 h-[70px] rounded-2xl object-cover object-top">
+              <div>
+                <p class="font-bold text-sm">Soft Tailoring</p>
+                <p class="text-[11px] text-[#6F675F] mt-1">72° · Client Lunch · Blazer + Trouser</p>
+                <div class="flex gap-2 mt-2">
+                  <button class="chip h-7 min-h-7 px-3 text-[9px]" data-target="screen-48">View Details</button>
+                  <button class="chip h-7 min-h-7 px-3 text-[9px]" data-target="screen-41">Change Outfit</button>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="grid grid-cols-2 gap-3 mt-4">
+            <button class="secondary-btn" data-target="screen-47"><i data-lucide="calendar-days" class="w-4 h-4"
+                stroke-width="1.5"></i>Calendar</button>
+            <button class="secondary-btn" data-target="screen-54"><i data-lucide="plane" class="w-4 h-4"
+                stroke-width="1.5"></i>Travel Plan</button>
+          </div>
+          <button class="secondary-btn w-full h-12 mt-3" data-parent-target="screen-29"><i data-lucide="home" class="w-4 h-4" stroke-width="1.5"></i>Return Home</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 50 — CAPSULE WARDROBE BUILDER                   -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-50" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 50 — Capsule Wardrobe Builder</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center pt-2 mb-4">
+            <button class="icon-btn mr-4" aria-label="Back" data-target="screen-41"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="layers" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Capsule Builder</div>
+          <p class="section-label mb-2">Capsule Builder</p>
+          <h1 class="font-serif text-[32px] leading-[1.06] mb-2">10 pieces.<br>24 outfits.</h1>
+
+          <!-- Muse insight -->
+          <div class="muse-card p-4 mb-5">
+            <div class="flex items-start gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-2">Muse</p>
+                <p class="text-sm text-[#1B1716] leading-relaxed">"These 10 pieces create 24 unique outfits that work across all your weekly occasions — no shopping required."</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Piece grid (10 selected pieces) -->
+          <p class="section-label mb-3">Selected Pieces</p>
+          <div class="grid grid-cols-5 gap-2 mb-5">
+            <div class="image-card relative"><img src="images/screen_23_item.png" alt="Camel blazer" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Blazer</span></span></div>
+            <div class="image-card relative"><img src="images/style_modern_prof.png" alt="Silk shell" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Shell</span></span></div>
+            <div class="image-card relative"><img src="images/style_minimal.png" alt="Wide trouser" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Trouser</span></span></div>
+            <div class="image-card relative"><img src="images/style_elevated_everyday.png" alt="Linen shirt" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Shirt</span></span></div>
+            <div class="image-card relative"><img src="images/style_smart_casual.png" alt="Knit top" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Knit</span></span></div>
+            <div class="image-card relative"><img src="images/style_classic.png" alt="Midi dress" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Dress</span></span></div>
+            <div class="image-card relative"><img src="images/style_minimal_man.png" alt="Loafers" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Loafers</span></span></div>
+            <div class="image-card relative"><img src="images/style_classic_man.png" alt="Navy jacket" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Jacket</span></span></div>
+            <div class="image-card relative"><img src="images/style_creative.png" alt="Tonal set" class="w-full h-[62px] object-cover object-top"><span class="absolute inset-0 flex items-end justify-center pb-1"><span class="text-[6px] font-bold text-white bg-black/40 px-1 rounded">Set</span></span></div>
+            <button class="image-card flex items-center justify-center h-[62px] border-dashed" data-target="screen-42">
+              <i data-lucide="plus" class="w-5 h-5 text-[#9F9387]" stroke-width="1.5"></i>
+            </button>
+          </div>
+
+          <!-- Output number -->
+          <div class="card p-6 flex flex-col items-center text-center mb-5">
+            <p class="font-serif text-[64px] leading-none text-[#C89B45]">24</p>
+            <p class="section-label mt-1">Unique Outfits Generated</p>
+            <p class="text-xs text-[#6F675F] mt-3 leading-relaxed max-w-[220px]">Covering work, weekend, evening, and travel occasions — all from your existing closet.</p>
+          </div>
+
+          <!-- Sample combos -->
+          <p class="section-label mb-3">Sample Combinations</p>
+          <div class="space-y-2">
+            <div class="card p-3 flex items-center gap-3">
+              <div class="flex -space-x-2">
+                <img src="images/screen_23_item.png" alt="" class="w-9 h-9 rounded-full object-cover border-2 border-white">
+                <img src="images/style_modern_prof.png" alt="" class="w-9 h-9 rounded-full object-cover border-2 border-white">
+                <img src="images/style_minimal.png" alt="" class="w-9 h-9 rounded-full object-cover border-2 border-white">
+              </div>
+              <div>
+                <p class="text-sm font-bold">Office Polish</p>
+                <p class="text-[10px] text-[#6F675F]">Blazer + Shell + Trouser</p>
+              </div>
+              <span class="chip ml-auto min-h-6 px-2 text-[9px]">Work</span>
+            </div>
+            <div class="card p-3 flex items-center gap-3">
+              <div class="flex -space-x-2">
+                <img src="images/style_elevated_everyday.png" alt="" class="w-9 h-9 rounded-full object-cover border-2 border-white">
+                <img src="images/style_smart_casual.png" alt="" class="w-9 h-9 rounded-full object-cover border-2 border-white">
+                <img src="images/style_minimal_man.png" alt="" class="w-9 h-9 rounded-full object-cover border-2 border-white">
+              </div>
+              <div>
+                <p class="text-sm font-bold">Relaxed Saturday</p>
+                <p class="text-[10px] text-[#6F675F]">Shirt + Knit + Loafers</p>
+              </div>
+              <span class="chip ml-auto min-h-6 px-2 text-[9px]">Weekend</span>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full mt-5" data-target="screen-49">Build Week Plan With These<i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 51 — OUTFIT USAGE ANALYTICS                     -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-51" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 51 — Outfit Usage Analytics</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" aria-label="Back to Closet" data-target="screen-41"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+            <p class="small-caps text-[#6F675F]">Analytics</p>
+            <div class="w-9"></div>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Usage Analytics</div>
+          <p class="section-label mb-2">Wardrobe Analytics</p>
+          <h1 class="font-serif text-[30px] leading-[1.06] mb-5">How your closet is performing.</h1>
+
+          <!-- Top metrics -->
+          <div class="card grid grid-cols-2 divide-x divide-y divide-[#ECE7E1] mb-5">
+            <div class="stat-block"><p class="stat-num">486</p><p class="stat-label">Total Wears</p></div>
+            <div class="stat-block"><p class="stat-num">£4.20</p><p class="stat-label">Avg Cost/Wear</p></div>
+            <div class="stat-block"><p class="stat-num">34</p><p class="stat-label">Never Worn</p></div>
+            <div class="stat-block"><p class="stat-num">83%</p><p class="stat-label">Utilisation</p></div>
+          </div>
+
+          <!-- Most worn chart -->
+          <p class="section-label mb-3">Most Worn Items</p>
+          <div class="card p-4 mb-5 space-y-3">
+            <div class="bar-row">
+              <div class="image-card w-8 h-8 flex-shrink-0 overflow-hidden"><img src="images/screen_23_item.png" alt="Camel blazer" class="w-full h-full object-cover"></div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold truncate">Camel Blazer</p>
+                <div class="bar-track mt-1"><div class="bar-fill gold" style="width:93%"></div></div>
+              </div>
+              <span class="text-xs font-bold flex-shrink-0">14×</span>
+            </div>
+            <div class="bar-row">
+              <div class="image-card w-8 h-8 flex-shrink-0 overflow-hidden"><img src="images/style_minimal.png" alt="Ivory trouser" class="w-full h-full object-cover"></div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold truncate">Ivory Trouser</p>
+                <div class="bar-track mt-1"><div class="bar-fill gold" style="width:73%"></div></div>
+              </div>
+              <span class="text-xs font-bold flex-shrink-0">11×</span>
+            </div>
+            <div class="bar-row">
+              <div class="image-card w-8 h-8 flex-shrink-0 overflow-hidden"><img src="images/style_modern_prof.png" alt="Silk shell" class="w-full h-full object-cover"></div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold truncate">Ivory Silk Shell</p>
+                <div class="bar-track mt-1"><div class="bar-fill" style="width:60%"></div></div>
+              </div>
+              <span class="text-xs font-bold flex-shrink-0">9×</span>
+            </div>
+            <div class="bar-row">
+              <div class="image-card w-8 h-8 flex-shrink-0 overflow-hidden"><img src="images/style_elevated_everyday.png" alt="Linen shirt" class="w-full h-full object-cover"></div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold truncate">Linen Shirt</p>
+                <div class="bar-track mt-1"><div class="bar-fill" style="width:40%"></div></div>
+              </div>
+              <span class="text-xs font-bold flex-shrink-0">6×</span>
+            </div>
+            <div class="bar-row">
+              <div class="image-card w-8 h-8 flex-shrink-0 overflow-hidden"><img src="images/style_classic_man.png" alt="Navy jacket" class="w-full h-full object-cover"></div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold truncate">Navy Jacket</p>
+                <div class="bar-track mt-1"><div class="bar-fill" style="width:27%"></div></div>
+              </div>
+              <span class="text-xs font-bold flex-shrink-0">4×</span>
+            </div>
+          </div>
+
+          <!-- Never worn -->
+          <p class="section-label mb-3">Never Worn — 34 Items</p>
+          <div class="card p-4 mb-5">
+            <div class="flex gap-2 mb-3">
+              <div class="image-card flex-1 overflow-hidden"><img src="images/style_creative.png" alt="" class="w-full h-[80px] object-cover object-top"></div>
+              <div class="image-card flex-1 overflow-hidden"><img src="images/style_creative_man.png" alt="" class="w-full h-[80px] object-cover object-top"></div>
+              <div class="image-card flex-1 overflow-hidden"><img src="images/style_minimal_man.png" alt="" class="w-full h-[80px] object-cover object-top"></div>
+            </div>
+            <button class="secondary-btn w-full h-10" data-target="screen-52"><i data-lucide="search-x" class="w-4 h-4" stroke-width="1.5"></i>Review Unused Items</button>
+          </div>
+
+          <!-- Cost per wear -->
+          <p class="section-label mb-3">Cost Per Wear</p>
+          <div class="card p-4">
+            <div class="flex items-end gap-2">
+              <div class="flex-1 text-center">
+                <div class="w-full bg-[#ECE7E1] rounded-t" style="height:90px;"></div>
+                <p class="text-[8px] font-bold mt-1">£14</p>
+                <p class="text-[7px] text-[#6F675F]">3 months<br>ago</p>
+              </div>
+              <div class="flex-1 text-center">
+                <div class="w-full bg-[#D6CCC2] rounded-t" style="height:74px;"></div>
+                <p class="text-[8px] font-bold mt-1">£11</p>
+                <p class="text-[7px] text-[#6F675F]">2 months<br>ago</p>
+              </div>
+              <div class="flex-1 text-center">
+                <div class="w-full bg-[#C89B45]/60 rounded-t" style="height:58px;"></div>
+                <p class="text-[8px] font-bold mt-1 text-[#C89B45]">£8</p>
+                <p class="text-[7px] text-[#6F675F]">Last<br>month</p>
+              </div>
+              <div class="flex-1 text-center">
+                <div class="w-full bg-[#C89B45] rounded-t" style="height:34px;"></div>
+                <p class="text-[8px] font-bold mt-1 text-[#C89B45]">£4.20</p>
+                <p class="text-[7px] text-[#6F675F]">This<br>month</p>
+              </div>
+            </div>
+            <p class="text-[10px] text-[#6F675F] mt-3 text-center">Cost per wear has improved 70% since you started StyleIQ.</p>
+          </div>
+
+          <button class="primary-btn w-full mt-5" data-target="screen-56">View Full Report<i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 52 — CLOSET GAPS                                -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-52" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 52 — Closet Gaps</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" aria-label="Back to Closet" data-target="screen-41"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+            <p class="small-caps text-[#6F675F]">Closet Gaps</p>
+            <div class="w-9"></div>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="search-x" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Wardrobe Gaps</div>
+          <p class="section-label mb-2">What's Missing</p>
+          <h1 class="font-serif text-[30px] leading-[1.06] mb-2">Gaps in your wardrobe.</h1>
+
+          <div class="muse-card p-3 mb-5">
+            <div class="flex items-center gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">Based on your style profile and how you actually dress, I found 5 pieces that would complete your wardrobe.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gap items -->
+          <div class="space-y-3">
+            <!-- Gap 1 -->
+            <article class="card p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="footprints" class="w-6 h-6 text-[#9F9387]" stroke-width="1.5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="font-bold text-sm">White Sneakers</p>
+                    <span class="gap-badge">High Priority</span>
+                  </div>
+                  <p class="text-xs text-[#6F675F] leading-relaxed">You build 12 casual outfits a month but have no clean white trainer. This single piece would unlock 8 more outfit combinations.</p>
+                  <div class="flex gap-2 mt-3">
+                    <button class="chip min-h-7 px-3 text-[9px]" data-parent-target="screen-36"><i data-lucide="bookmark" class="w-3 h-3" stroke-width="1.5"></i>Save Recommendation</button>
+                    <button class="chip min-h-7 px-3 text-[9px]" data-target="screen-50">Complete This Look</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <!-- Gap 2 -->
+            <article class="card p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="shirt" class="w-6 h-6 text-[#9F9387]" stroke-width="1.5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="font-bold text-sm">Formal Black Blazer</p>
+                    <span class="gap-badge">Medium</span>
+                  </div>
+                  <p class="text-xs text-[#6F675F] leading-relaxed">Your camel blazer covers most occasions, but you have 3 upcoming evening events where a darker option would give you more flexibility.</p>
+                  <div class="flex gap-2 mt-3">
+                    <button class="chip min-h-7 px-3 text-[9px]" data-parent-target="screen-36"><i data-lucide="bookmark" class="w-3 h-3" stroke-width="1.5"></i>Save Recommendation</button>
+                    <button class="chip min-h-7 px-3 text-[9px]" data-target="screen-50">Complete This Look</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <!-- Gap 3 -->
+            <article class="card p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="wind" class="w-6 h-6 text-[#9F9387]" stroke-width="1.5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="font-bold text-sm">Light Summer Layer</p>
+                    <span class="gap-badge">Seasonal</span>
+                  </div>
+                  <p class="text-xs text-[#6F675F] leading-relaxed">You have 14 summer tops but no lightweight layer for evening transitions. A linen duster would close this gap perfectly.</p>
+                  <div class="flex gap-2 mt-3">
+                    <button class="chip min-h-7 px-3 text-[9px]" data-parent-target="screen-36"><i data-lucide="bookmark" class="w-3 h-3" stroke-width="1.5"></i>Save Recommendation</button>
+                    <button class="chip min-h-7 px-3 text-[9px]" data-target="screen-50">Complete This Look</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <!-- Gap 4 -->
+            <article class="card p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-14 h-14 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="shopping-bag" class="w-6 h-6 text-[#9F9387]" stroke-width="1.5"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 mb-1">
+                    <p class="font-bold text-sm">Structured Day Bag</p>
+                    <span class="gap-badge">Medium</span>
+                  </div>
+                  <p class="text-xs text-[#6F675F] leading-relaxed">Your current bags skew casual or formal — you're missing a mid-range structured tote for your daily routine.</p>
+                  <div class="flex gap-2 mt-3">
+                    <button class="chip min-h-7 px-3 text-[9px]" data-parent-target="screen-36"><i data-lucide="bookmark" class="w-3 h-3" stroke-width="1.5"></i>Save Recommendation</button>
+                    <button class="chip min-h-7 px-3 text-[9px]" data-target="screen-50">Complete This Look</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 53 — DUPLICATE DETECTION                        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-53" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 53 — Duplicate Detection</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" aria-label="Back to Closet" data-target="screen-41"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+            <p class="small-caps text-[#6F675F]">Duplicates</p>
+            <div class="w-9"></div>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="copy" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Duplicate Detection</div>
+          <p class="section-label mb-2">Redundant Pieces</p>
+          <h1 class="font-serif text-[30px] leading-[1.06] mb-2">Similar items detected.</h1>
+
+          <div class="muse-card p-3 mb-5">
+            <div class="flex items-center gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">I found 3 groups of very similar pieces. Archiving the least-worn items could free up space and clarity.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Duplicate Group 1: 3 black blazers -->
+          <div class="card p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <p class="font-bold text-sm">3 Black / Dark Blazers</p>
+              <span class="gap-badge">Review</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 mb-3">
+              <div class="image-card relative">
+                <img src="images/style_classic_man.png" alt="Black blazer 1" class="w-full h-[95px] object-cover object-top">
+                <span class="absolute bottom-1 left-0 right-0 text-center"><span class="text-[7px] font-bold text-white bg-black/50 px-1 rounded">14 wears</span></span>
+              </div>
+              <div class="image-card relative">
+                <img src="images/style_creative.png" alt="Black blazer 2" class="w-full h-[95px] object-cover object-top">
+                <span class="absolute bottom-1 left-0 right-0 text-center"><span class="text-[7px] font-bold text-white bg-black/50 px-1 rounded">2 wears</span></span>
+              </div>
+              <div class="image-card relative">
+                <img src="images/style_minimal_man.png" alt="Dark blazer 3" class="w-full h-[95px] object-cover object-top">
+                <span class="absolute bottom-1 left-0 right-0 text-center"><span class="text-[7px] font-bold text-white bg-black/50 px-1 rounded">0 wears</span></span>
+              </div>
+            </div>
+            <p class="text-xs text-[#6F675F] leading-relaxed mb-3">You already own a highly-worn black blazer. The other two are rarely used and serve the same purpose.</p>
+            <div class="grid grid-cols-3 gap-2">
+              <button class="secondary-btn h-10 text-[10px]"><i data-lucide="check" class="w-3.5 h-3.5" stroke-width="1.5"></i>Keep</button>
+              <button class="secondary-btn h-10 text-[10px]"><i data-lucide="archive" class="w-3.5 h-3.5" stroke-width="1.5"></i>Archive</button>
+              <button class="secondary-btn h-10 text-[10px] text-[#C89B45]"><i data-lucide="star" class="w-3.5 h-3.5" stroke-width="1.5"></i>Favorite</button>
+            </div>
+          </div>
+
+          <!-- Duplicate Group 2: White shirts -->
+          <div class="card p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <p class="font-bold text-sm">4 White / Ivory Tops</p>
+              <span class="gap-badge">Review</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mb-3">
+              <div class="image-card relative"><img src="images/style_modern_prof.png" alt="White top 1" class="w-full h-[70px] object-cover object-top"><span class="absolute bottom-1 left-0 right-0 text-center"><span class="text-[7px] font-bold text-white bg-black/50 px-1 rounded">9×</span></span></div>
+              <div class="image-card relative"><img src="images/style_elevated_everyday.png" alt="White top 2" class="w-full h-[70px] object-cover object-top"><span class="absolute bottom-1 left-0 right-0 text-center"><span class="text-[7px] font-bold text-white bg-black/50 px-1 rounded">6×</span></span></div>
+              <div class="image-card relative"><img src="images/style_minimal.png" alt="White top 3" class="w-full h-[70px] object-cover object-top"><span class="absolute bottom-1 left-0 right-0 text-center"><span class="text-[7px] font-bold text-white bg-black/50 px-1 rounded">2×</span></span></div>
+              <div class="image-card relative"><img src="images/style_smart_casual.png" alt="White top 4" class="w-full h-[70px] object-cover object-top"><span class="absolute bottom-1 left-0 right-0 text-center"><span class="text-[7px] font-bold text-white bg-black/50 px-1 rounded">0×</span></span></div>
+            </div>
+            <p class="text-xs text-[#6F675F] leading-relaxed mb-3">Your top two are earning regular wear. Consider archiving the two underused variants.</p>
+            <div class="grid grid-cols-3 gap-2">
+              <button class="secondary-btn h-10 text-[10px]"><i data-lucide="check" class="w-3.5 h-3.5" stroke-width="1.5"></i>Keep</button>
+              <button class="secondary-btn h-10 text-[10px]"><i data-lucide="archive" class="w-3.5 h-3.5" stroke-width="1.5"></i>Archive</button>
+              <button class="secondary-btn h-10 text-[10px] text-[#C89B45]"><i data-lucide="star" class="w-3.5 h-3.5" stroke-width="1.5"></i>Favorite</button>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full" data-target="screen-41">Done — Return to Closet<i data-lucide="shirt" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 54 — PACKING ASSISTANT                          -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-54" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 54 — Packing Assistant</h2>
+      <div class="phone" data-nav="planner">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center pt-2 mb-4">
+            <button class="icon-btn mr-4" aria-label="Back to Closet" data-target="screen-41"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="plane" class="w-3.5 h-3.5" stroke-width="1.5"></i>Planner / Packing Assistant</div>
+          <p class="section-label mb-2">Packing Assistant</p>
+          <h1 class="font-serif text-[32px] leading-[1.06] mb-2">Where are you going?</h1>
+          <p class="text-xs text-[#6F675F] leading-relaxed mb-5">Tell me about your trip. I'll build a smart packing plan from your closet — nothing redundant, nothing missing.</p>
+
+          <!-- Destination -->
+          <p class="section-label mb-2">Destination</p>
+          <div class="card p-4 mb-4 flex items-center gap-3">
+            <i data-lucide="map-pin" class="w-5 h-5 text-[#C89B45]" stroke-width="1.5"></i>
+            <div class="flex-1">
+              <p class="text-sm font-bold">Milan, Italy</p>
+              <p class="text-[10px] text-[#6F675F]">Tap to change destination</p>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-[#9F9387]" stroke-width="1.5"></i>
+          </div>
+
+          <!-- Dates -->
+          <p class="section-label mb-2">Travel Dates</p>
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="card p-3">
+              <p class="text-[9px] text-[#6F675F] mb-1 font-bold uppercase tracking-wider">Departure</p>
+              <p class="font-bold text-sm">22 June 2026</p>
+            </div>
+            <div class="card p-3">
+              <p class="text-[9px] text-[#6F675F] mb-1 font-bold uppercase tracking-wider">Return</p>
+              <p class="font-bold text-sm">27 June 2026</p>
+            </div>
+          </div>
+
+          <!-- Weather -->
+          <p class="section-label mb-2">Expected Weather</p>
+          <div class="flex gap-2 mb-4">
+            <button class="chip active" data-filter><i data-lucide="sun" class="w-3.5 h-3.5" stroke-width="1.5"></i>Warm 24–28°</button>
+            <button class="chip" data-filter><i data-lucide="cloud" class="w-3.5 h-3.5" stroke-width="1.5"></i>Mild</button>
+            <button class="chip" data-filter><i data-lucide="cloud-rain" class="w-3.5 h-3.5" stroke-width="1.5"></i>Rainy</button>
+          </div>
+
+          <!-- Trip type -->
+          <p class="section-label mb-2">Trip Type</p>
+          <div class="grid grid-cols-2 gap-2 mb-5">
+            <button class="card p-3 text-left border-2 border-[#C89B45]" data-choice>
+              <i data-lucide="briefcase" class="w-4 h-4 text-[#C89B45] mb-2" stroke-width="1.5"></i>
+              <p class="text-xs font-bold">Business</p>
+            </button>
+            <button class="card p-3 text-left" data-choice>
+              <i data-lucide="umbrella" class="w-4 h-4 text-[#6F675F] mb-2" stroke-width="1.5"></i>
+              <p class="text-xs font-bold">Leisure</p>
+            </button>
+            <button class="card p-3 text-left" data-choice>
+              <i data-lucide="mountain" class="w-4 h-4 text-[#6F675F] mb-2" stroke-width="1.5"></i>
+              <p class="text-xs font-bold">Adventure</p>
+            </button>
+            <button class="card p-3 text-left" data-choice>
+              <i data-lucide="heart" class="w-4 h-4 text-[#6F675F] mb-2" stroke-width="1.5"></i>
+              <p class="text-xs font-bold">Special Event</p>
+            </button>
+          </div>
+
+          <!-- Muse -->
+          <div class="muse-card p-3 mb-5">
+            <div class="flex items-center gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">Milan in June is warm and stylish. I'll build your plan around your existing neutrals with room for evening looks.</p>
+              </div>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full" data-target="screen-55">Build My Packing Plan<i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 55 — TRAVEL WARDROBE PLAN                       -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-55" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 55 — Travel Wardrobe Plan</h2>
+      <div class="phone" data-nav="planner">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" aria-label="Back to Packing Assistant" data-target="screen-54"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+            <p class="small-caps text-[#6F675F]">Milan · Jun 22–27</p>
+            <button class="icon-btn" aria-label="Share plan"><i data-lucide="send" class="w-4 h-4" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="plane" class="w-3.5 h-3.5" stroke-width="1.5"></i>Planner / Travel Plan</div>
+          <p class="section-label mb-2">Your Milan Plan</p>
+          <h1 class="font-serif text-[30px] leading-[1.06] mb-4">5 days. 11 pieces. 9 outfits.</h1>
+
+          <!-- Stats strip -->
+          <div class="card grid grid-cols-4 divide-x divide-[#ECE7E1] mb-5">
+            <div class="stat-block"><p class="stat-num">11</p><p class="stat-label">Pieces</p></div>
+            <div class="stat-block"><p class="stat-num">9</p><p class="stat-label">Outfits</p></div>
+            <div class="stat-block"><p class="stat-num text-[#C89B45]">1</p><p class="stat-label">Missing</p></div>
+            <div class="stat-block"><p class="stat-num">38%</p><p class="stat-label">Space Saved</p></div>
+          </div>
+
+          <!-- Muse note -->
+          <div class="muse-card p-3 mb-5">
+            <div class="flex items-center gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">Everything is from your existing closet. I've packed light but covered all occasions — including two evening options.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day-by-day plan -->
+          <p class="section-label mb-3">Day-by-Day Plan</p>
+          <div class="space-y-3">
+            <article class="card p-3">
+              <div class="trip-day">
+                <div class="text-center"><p class="small-caps text-[#C89B45]">Mon</p><p class="font-serif text-2xl">22</p></div>
+                <img src="images/style_modern_prof.png" alt="Day 1 outfit" class="w-full h-[90px] rounded-2xl object-cover object-top">
+                <div>
+                  <p class="text-xs font-bold">Travel Day</p>
+                  <p class="text-[10px] text-[#6F675F] mt-1">Soft Tailoring · 26°</p>
+                  <p class="text-[9px] text-[#6F675F] mt-1">Blazer, Shell, Trouser</p>
+                  <button class="chip min-h-6 px-2 text-[8px] mt-2" data-target="screen-41">Change</button>
+                </div>
+              </div>
+            </article>
+            <article class="card p-3">
+              <div class="trip-day">
+                <div class="text-center"><p class="small-caps text-[#6F675F]">Tue</p><p class="font-serif text-2xl">23</p></div>
+                <img src="images/style_elevated_everyday.png" alt="Day 2 outfit" class="w-full h-[90px] rounded-2xl object-cover object-top">
+                <div>
+                  <p class="text-xs font-bold">Client Meetings</p>
+                  <p class="text-[10px] text-[#6F675F] mt-1">Relaxed Structure · 27°</p>
+                  <p class="text-[9px] text-[#6F675F] mt-1">Shirt, Trouser, Loafer</p>
+                  <button class="chip min-h-6 px-2 text-[8px] mt-2" data-target="screen-41">Change</button>
+                </div>
+              </div>
+            </article>
+            <article class="card p-3">
+              <div class="trip-day">
+                <div class="text-center"><p class="small-caps text-[#6F675F]">Wed</p><p class="font-serif text-2xl">24</p></div>
+                <img src="images/style_classic.png" alt="Day 3 outfit" class="w-full h-[90px] rounded-2xl object-cover object-top">
+                <div>
+                  <p class="text-xs font-bold">Gallery & Dinner</p>
+                  <p class="text-[10px] text-[#6F675F] mt-1">Dinner Classic · 24°</p>
+                  <p class="text-[9px] text-[#6F675F] mt-1">Dress, Blazer, Loafer</p>
+                  <button class="chip min-h-6 px-2 text-[8px] mt-2" data-target="screen-41">Change</button>
+                </div>
+              </div>
+            </article>
+            <article class="card p-3">
+              <div class="trip-day">
+                <div class="text-center"><p class="small-caps text-[#6F675F]">Thu</p><p class="font-serif text-2xl">25</p></div>
+                <img src="images/style_minimal_man.png" alt="Day 4 outfit" class="w-full h-[90px] rounded-2xl object-cover object-top">
+                <div>
+                  <p class="text-xs font-bold">Day Exploring</p>
+                  <p class="text-[10px] text-[#6F675F] mt-1">Neutral Travel · 28°</p>
+                  <p class="text-[9px] text-[#6F675F] mt-1">Linen, Knit, Sneaker</p>
+                  <button class="chip min-h-6 px-2 text-[8px] mt-2" data-target="screen-41">Change</button>
+                </div>
+              </div>
+            </article>
+            <article class="card p-3">
+              <div class="trip-day">
+                <div class="text-center"><p class="small-caps text-[#6F675F]">Fri</p><p class="font-serif text-2xl">26</p></div>
+                <img src="images/style_smart_casual_man.png" alt="Day 5 outfit" class="w-full h-[90px] rounded-2xl object-cover object-top">
+                <div>
+                  <p class="text-xs font-bold">Last Day + Flight</p>
+                  <p class="text-[10px] text-[#6F675F] mt-1">Coffee Meeting · 25°</p>
+                  <p class="text-[9px] text-[#6F675F] mt-1">Knit, Trouser, Loafer</p>
+                  <button class="chip min-h-6 px-2 text-[8px] mt-2" data-target="screen-41">Change</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <!-- Packing checklist summary -->
+          <p class="section-label mt-5 mb-3">Packing Checklist</p>
+          <div class="card p-4">
+            <div class="space-y-2">
+              <div class="flex items-center gap-3"><div class="w-5 h-5 rounded-full border-2 border-[#C89B45] flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-[#C89B45]" stroke-width="2"></i></div><p class="text-sm">Camel Oversized Blazer</p></div>
+              <div class="flex items-center gap-3"><div class="w-5 h-5 rounded-full border-2 border-[#C89B45] flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-[#C89B45]" stroke-width="2"></i></div><p class="text-sm">Ivory Silk Shell (×2)</p></div>
+              <div class="flex items-center gap-3"><div class="w-5 h-5 rounded-full border-2 border-[#C89B45] flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-[#C89B45]" stroke-width="2"></i></div><p class="text-sm">Cream Wide Trouser</p></div>
+              <div class="flex items-center gap-3"><div class="w-5 h-5 rounded-full border-2 border-[#C89B45] flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-[#C89B45]" stroke-width="2"></i></div><p class="text-sm">Linen Shirt</p></div>
+              <div class="flex items-center gap-3"><div class="w-5 h-5 rounded-full border-2 border-[#C89B45] flex items-center justify-center"><i data-lucide="check" class="w-3 h-3 text-[#C89B45]" stroke-width="2"></i></div><p class="text-sm">Midi Dress</p></div>
+              <div class="flex items-center gap-3"><div class="w-5 h-5 rounded-full border border-[#ECE7E1]"></div><p class="text-sm text-[#9F9387]">White Sneaker (not in closet)</p><span class="gap-badge ml-auto">Gap</span></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mt-5">
+            <button class="primary-btn w-full" data-target="screen-49">Add To Planner<i data-lucide="calendar-plus"
+                class="w-5 h-5" stroke-width="1.5"></i></button>
+            <button class="secondary-btn h-14" data-parent-target="screen-29">Return Home<i data-lucide="home"
+                class="w-4 h-4" stroke-width="1.5"></i></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 56 — CLOSET INTELLIGENCE SUMMARY                -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-56" class="flex flex-col items-center gap-6">
+      <h2 class="title text-sm font-medium uppercase">Screen 56 — Closet Intelligence Summary</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        <div class="px-6 pb-8">
+          <div class="flex items-center pt-2 mb-4">
+            <button class="icon-btn mr-4" aria-label="Back to Analytics" data-target="screen-51"><i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i></button>
+          </div>
+          <div class="flow-note mb-4"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5" stroke-width="1.5"></i>Closet / Intelligence Summary</div>
+
+          <!-- Muse report -->
+          <div class="muse-card p-4 mb-5">
+            <div class="flex items-start gap-3">
+              <img src="images/profile_woman.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-2">Muse Wardrobe Report</p>
+                <p class="font-serif text-[22px] leading-tight">"You're getting more from your wardrobe every week."</p>
+                <p class="text-xs text-[#6F675F] mt-2 leading-relaxed">Your closet is performing better than it has in months. Here's what's changed since you started.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wardrobe score -->
+          <div class="flex items-center justify-center mb-5">
+            <div class="score-ring">
+              <p class="font-serif text-[34px] leading-none text-[#C89B45]">87</p>
+              <p class="text-[9px] font-bold text-[#6F675F] mt-1">Wardrobe Score</p>
+            </div>
+          </div>
+
+          <!-- Metrics -->
+          <p class="section-label mb-3">What's Improved</p>
+          <div class="space-y-3 mb-5">
+            <div class="card p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                <i data-lucide="pound-sterling" class="w-5 h-5 text-[#C89B45]" stroke-width="1.5"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-bold text-sm">£340 Saved</p>
+                <p class="text-[10px] text-[#6F675F] mt-0.5">Avoided unnecessary purchases this month</p>
+              </div>
+              <span class="text-[#C89B45] font-bold text-sm">↑</span>
+            </div>
+            <div class="card p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                <i data-lucide="refresh-cw" class="w-5 h-5 text-[#C89B45]" stroke-width="1.5"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-bold text-sm">14 Items Rediscovered</p>
+                <p class="text-[10px] text-[#6F675F] mt-0.5">Items you hadn't worn in over 60 days, now active</p>
+              </div>
+              <span class="text-[#C89B45] font-bold text-sm">↑</span>
+            </div>
+            <div class="card p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                <i data-lucide="trending-down" class="w-5 h-5 text-[#C89B45]" stroke-width="1.5"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-bold text-sm">Cost Per Wear Down 70%</p>
+                <p class="text-[10px] text-[#6F675F] mt-0.5">From £14 / wear → £4.20 / wear</p>
+              </div>
+              <span class="text-[#C89B45] font-bold text-sm">↓</span>
+            </div>
+            <div class="card p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                <i data-lucide="archive-x" class="w-5 h-5 text-[#C89B45]" stroke-width="1.5"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-bold text-sm">Unused Items −47%</p>
+                <p class="text-[10px] text-[#6F675F] mt-0.5">From 64 unused → 34 unused items</p>
+              </div>
+              <span class="text-[#C89B45] font-bold text-sm">↓</span>
+            </div>
+            <div class="card p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-2xl bg-[#F8F6F3] border border-[#ECE7E1] flex items-center justify-center flex-shrink-0">
+                <i data-lucide="sparkles" class="w-5 h-5 text-[#C89B45]" stroke-width="1.5"></i>
+              </div>
+              <div class="flex-1">
+                <p class="font-bold text-sm">Outfit Variety Score 9.1</p>
+                <p class="text-[10px] text-[#6F675F] mt-0.5">Average unique outfits per week, up from 4.2</p>
+              </div>
+              <span class="text-[#C89B45] font-bold text-sm">↑</span>
+            </div>
+          </div>
+
+          <!-- Next steps -->
+          <p class="section-label mb-3">Next Steps</p>
+          <div class="space-y-2 mb-5">
+            <button class="card p-3 w-full text-left flex items-center gap-3" data-target="screen-52">
+              <i data-lucide="search-x" class="w-4 h-4 text-[#C89B45]" stroke-width="1.5"></i>
+              <p class="text-xs font-bold flex-1">Close 5 closet gaps</p>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-[#9F9387]" stroke-width="1.5"></i>
+            </button>
+            <button class="card p-3 w-full text-left flex items-center gap-3" data-target="screen-53">
+              <i data-lucide="copy" class="w-4 h-4 text-[#C89B45]" stroke-width="1.5"></i>
+              <p class="text-xs font-bold flex-1">Archive 5 duplicate items</p>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-[#9F9387]" stroke-width="1.5"></i>
+            </button>
+            <button class="card p-3 w-full text-left flex items-center gap-3" data-target="screen-50">
+              <i data-lucide="layers" class="w-4 h-4 text-[#C89B45]" stroke-width="1.5"></i>
+              <p class="text-xs font-bold flex-1">Build your autumn capsule</p>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-[#9F9387]" stroke-width="1.5"></i>
+            </button>
+          </div>
+
+          <button class="primary-btn w-full" data-parent-target="screen-29">Continue To StyleIQ Home<i data-lucide="home" class="w-5 h-5" stroke-width="1.5"></i></button>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- /main -->
+
+  <script>
+    const navigationItems = [
+      { id: "home",        label: "Home",        icon: "home",       parentTarget: "screen-29" },
+      { id: "closet",      label: "Closet",      icon: "shirt",      target: "screen-41" },
+      { id: "looks",       label: "Looks",       icon: "sparkles",   parentTarget: "screen-31" },
+      { id: "planner",     label: "Planner",     icon: "calendar-days", target: "screen-49" },
+      { id: "muse",        label: "Muse",        icon: "message-circle-heart", parentTarget: "screen-38" }
+    ];
+
+    const screenLocations = {
+      "screen-41": "Closet · Dashboard",
+      "screen-42": "Closet · Category",
+      "screen-43": "Closet · Item Detail",
+      "screen-44": "Closet · Add Items",
+      "screen-45": "Closet · Camera",
+      "screen-46": "Closet · Processing",
+      "screen-47": "Planner · Calendar",
+      "screen-48": "Planner · Day Detail",
+      "screen-49": "Planner · Week Plan",
+      "screen-50": "Closet · Capsule",
+      "screen-51": "Closet · Analytics",
+      "screen-52": "Closet · Gaps",
+      "screen-53": "Closet · Duplicates",
+      "screen-54": "Planner · Packing",
+      "screen-55": "Planner · Travel Plan",
+      "screen-56": "Closet · Summary"
+    };
+
+    // Inject shell bar + app-content wrapper + bottom nav
+    document.querySelectorAll(".phone[data-nav]").forEach((phone) => {
+      const activeDestination = phone.dataset.nav;
+      const sectionId = phone.closest("section")?.id;
+      const statusBar = phone.querySelector(":scope > .status-bar");
+      const contentNodes = Array.from(phone.children).filter((child) => child !== statusBar);
+
+      const contentViewport = document.createElement("div");
+      contentViewport.className = "app-content";
+      contentNodes.forEach((node) => contentViewport.appendChild(node));
+
+      const shellBar = document.createElement("div");
+      shellBar.className = "shell-bar";
+      shellBar.innerHTML = `
+        <span class="shell-brand">StyleIQ</span>
+        <span class="shell-location">${screenLocations[sectionId] || "StyleIQ"}</span>
+      `;
+
+      phone.appendChild(shellBar);
+      phone.appendChild(contentViewport);
+
+      const navigation = document.createElement("nav");
+      navigation.className = "bottom-nav";
+      navigation.setAttribute("aria-label", "Primary navigation");
+      navigation.innerHTML = navigationItems.map((item) => `
+        <button
+          class="nav-item${item.id === activeDestination ? " active" : ""}${item.id === "looks" ? " looks" : ""}"
+          aria-label="Open ${item.label}"
+          ${item.target ? `data-target="${item.target}"` : ""}
+          ${item.parentTarget ? `data-parent-target="${item.parentTarget}"` : ""}
+          ${item.externalTarget ? `data-external-target="${item.externalTarget}"` : ""}
+        >
+          <span class="nav-icon">
+            <i data-lucide="${item.icon}" class="${item.id === "looks" ? "w-5 h-5" : "w-[18px] h-[18px]"}" stroke-width="1.5"></i>
+          </span>
+          <span>${item.label}</span>
+        </button>
+      `).join("");
+
+      phone.appendChild(navigation);
+    });
+
+    // Navigation helpers
+    function openScreen(screenId) {
+      const screen = document.getElementById(screenId);
+      if (!screen) return;
+      screen.scrollIntoView({ behavior: "smooth", block: "start" });
+      history.replaceState(null, "", `#${screenId}`);
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: "styleiq-child-offset", offsetTop: screen.offsetTop }, "*");
+      }
+    }
+
+    function openParentScreen(screenId) {
+      window.parent.postMessage({ type: "styleiq-open-screen", screenId }, "*");
+    }
+
+    window.addEventListener("message", (event) => {
+      if (event.data?.type === "styleiq-open-screen" && event.data.screenId) {
+        openScreen(event.data.screenId);
+      }
+    });
+
+    // Global click handler
+    document.addEventListener("click", (event) => {
+      const parentTrigger = event.target.closest("[data-parent-target]");
+      if (parentTrigger) {
+        openParentScreen(parentTrigger.dataset.parentTarget);
+        return;
+      }
+
+      const externalTrigger = event.target.closest("[data-external-target]");
+      if (externalTrigger) {
+        window.location.href = externalTrigger.dataset.externalTarget;
+        return;
+      }
+
+      const screenTrigger = event.target.closest("[data-target]");
+      if (screenTrigger) {
+        openScreen(screenTrigger.dataset.target);
+        return;
+      }
+
+      // Filter chip toggle
+      const filter = event.target.closest("[data-filter]");
+      if (filter) {
+        filter.parentElement.querySelectorAll("[data-filter]").forEach((o) => o.classList.remove("active"));
+        filter.classList.add("active");
+        return;
+      }
+
+      // Choice / selection toggle
+      const choice = event.target.closest("[data-choice]");
+      if (choice) {
+        choice.parentElement.querySelectorAll("[data-choice]").forEach((o) => {
+          o.classList.remove("border-2", "border-[#C89B45]", "bg-[#F8F6F3]");
+        });
+        choice.classList.add("border-2", "border-[#C89B45]", "bg-[#F8F6F3]");
+        return;
+      }
+    });
+
+    // Reorder weekly looks with native drag-and-drop.
+    let draggedPlannerDay = null;
+    document.querySelectorAll(".planner-day").forEach((day) => {
+      day.addEventListener("dragstart", () => {
+        draggedPlannerDay = day;
+        day.classList.add("is-dragging");
+      });
+      day.addEventListener("dragend", () => {
+        day.classList.remove("is-dragging");
+        draggedPlannerDay = null;
+      });
+      day.addEventListener("dragover", (event) => event.preventDefault());
+      day.addEventListener("drop", (event) => {
+        event.preventDefault();
+        if (!draggedPlannerDay || draggedPlannerDay === day) return;
+        const planner = day.parentElement;
+        const days = Array.from(planner.children);
+        const draggedIndex = days.indexOf(draggedPlannerDay);
+        const targetIndex = days.indexOf(day);
+        planner.insertBefore(draggedPlannerDay, targetIndex > draggedIndex ? day.nextSibling : day);
+      });
+    });
+
+    lucide.createIcons();
+  </script>
+</body>
+</html>
