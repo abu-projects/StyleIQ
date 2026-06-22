@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StyleIQ — Phase 3B Social &amp; Resale Platform</title>
+  <meta name="description" content="StyleIQ Phase 3B — Collaborative Style Boards, Shared Wardrobe Collections, Outfit Voting &amp; Resale Marketplace.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --ink: #1B1716;
+      --ivory: #F8F6F3;
+      --canvas: #EFECE7;
+      --muted: #6F675F;
+      --soft: #9F9387;
+      --gold: #C89B45;
+      --line: #ECE7E1;
+      --line-strong: #D6CCC2;
+      --white: #FFFFFF;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--canvas);
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+    }
+
+    .font-serif { font-family: 'Playfair Display', serif; }
+
+    /* Phone Shell Styling */
+    .phone {
+      width: 375px;
+      height: 812px;
+      min-height: 812px;
+      max-height: 812px;
+      border: 12px solid var(--line);
+      border-radius: 48px;
+      background: var(--ivory);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 50px -18px rgba(27,23,22,0.25);
+      display: flex;
+      flex-direction: column;
+      isolation: isolate;
+      transition: outline 0.3s ease;
+    }
+    
+    .phone.highlighted-shell {
+      outline: 4px solid var(--gold);
+    }
+
+    section { scroll-margin-top: 100px; }
+    button { cursor: pointer; }
+    button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    .status-bar {
+      height: 48px; min-height: 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: max(8px, env(safe-area-inset-top)) 24px 0;
+      position: relative; z-index: 20;
+      background: var(--ivory); flex-shrink: 0;
+    }
+
+    .app-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .app-content::-webkit-scrollbar { display: none; }
+
+    .shell-bar {
+      height: 38px; min-height: 38px; padding: 0 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(236,231,225,0.82);
+      background: var(--ivory); flex-shrink: 0; z-index: 20;
+    }
+
+    .shell-brand { font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1; color: var(--ink); }
+
+    .shell-location {
+      display: inline-flex; align-items: center; gap: 7px;
+      color: var(--muted); font-size: 9px; line-height: 1;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+    }
+    .shell-location::before {
+      content: ""; width: 5px; height: 5px;
+      border-radius: 999px; background: var(--gold);
+    }
+
+    .small-caps { font-size: 9px; line-height: 1; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; }
+    .section-label { font-size: 10px; line-height: 1; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--gold); }
+
+    /* Interactive Buttons */
+    .primary-btn, .secondary-btn, .chip, .icon-btn {
+      transition: opacity 180ms ease-out, transform 180ms ease-out, border-color 180ms ease-out, background-color 180ms ease-out;
+    }
+    .primary-btn:active, .secondary-btn:active, .chip:active, .icon-btn:active { transform: scale(0.98); }
+
+    .primary-btn {
+      height: 52px; border-radius: 16px; background: var(--ink); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; font-size: 14px; font-weight: 600;
+    }
+    .primary-btn:hover { opacity: 0.9; }
+
+    .secondary-btn {
+      height: 44px; border-radius: 14px; background: var(--white);
+      border: 1px solid var(--line); color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      gap: 7px; font-size: 12px; font-weight: 700;
+    }
+    .secondary-btn:hover { background-color: var(--ivory); border-color: var(--line-strong); }
+
+    .chip {
+      min-height: 38px; padding: 0 13px; border-radius: 999px;
+      background: var(--white); border: 1px solid var(--line);
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; color: var(--ink);
+    }
+    .chip.active { background: var(--ivory); border: 2px solid var(--gold); color: var(--ink); }
+
+    .card { background: var(--white); border: 1px solid var(--line); border-radius: 24px; transition: border-color 180ms; }
+    .card:hover { border-color: var(--line-strong); }
+
+    .muse-card {
+      background: var(--white); border: 1px solid var(--line);
+      border-left: 3px solid var(--gold); border-radius: 24px;
+    }
+
+    .muse-portrait {
+      width: 42px; height: 42px; border-radius: 999px;
+      object-fit: cover; border: 2px solid rgba(200,155,69,0.28);
+    }
+
+    .image-card { overflow: hidden; border-radius: 24px; border: 1px solid var(--line); background: var(--white); }
+
+    .icon-btn {
+      width: 36px; height: 36px; border-radius: 999px;
+      border: 1px solid var(--line); background: var(--white);
+      display: flex; align-items: center; justify-content: center; color: var(--ink);
+    }
+    .icon-btn:hover { border-color: var(--line-strong); }
+
+    .title { color: var(--muted); letter-spacing: 0.08em; }
+
+    .wear-badge {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(27,23,22,0.76); color: #fff;
+      font-size: 9px; font-weight: 700; border-radius: 999px;
+      padding: 3px 8px; backdrop-filter: blur(6px);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .phone[data-nav] .app-content > div { padding-bottom: 96px; }
+
+    /* Bottom Nav Bar */
+    .bottom-nav {
+      position: absolute; left: 14px; right: 14px;
+      bottom: 12px;
+      height: 64px; padding: 6px 8px;
+      background: rgba(248, 246, 243, 0.92);
+      border: 1px solid rgba(214, 204, 194, 0.72);
+      border-radius: 24px;
+      box-shadow: 0 12px 28px rgba(27, 23, 22, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      display: grid; grid-template-columns: 1fr 1fr 1.18fr 1fr 1fr; gap: 1px; z-index: 30;
+    }
+
+    .nav-item {
+      position: relative; border: 0; background: transparent; border-radius: 18px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 2px; color: var(--soft); font-size: 8px; line-height: 1; font-weight: 700;
+      min-width: 0; padding: 0; transition: color 180ms ease-out, transform 180ms ease-out;
+    }
+    .nav-item.active { color: var(--ink); }
+    .nav-item:active { transform: scale(0.96); }
+
+    .nav-icon {
+      width: 26px; height: 26px; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center; position: relative;
+    }
+    .nav-item.active .nav-icon::after {
+      content: ""; position: absolute; bottom: -1px;
+      width: 14px; height: 2px; border-radius: 999px; background: var(--gold);
+    }
+
+    .nav-item.looks { color: var(--ink); transform: translateY(-6px); }
+    .nav-item.looks:active { transform: translateY(-6px) scale(0.96); }
+    .nav-item.looks .nav-icon {
+      width: 40px; height: 40px; background: var(--ink); color: var(--white);
+      border: 3px solid var(--ivory); box-shadow: 0 6px 14px rgba(27, 23, 22, 0.2);
+    }
+    .nav-item.looks.active .nav-icon { border-color: var(--gold); }
+    .nav-item.looks .nav-icon::after { display: none; }
+    .nav-item.looks span { margin-top: -1px; white-space: nowrap; }
+    .nav-item > span { max-width: 58px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .flow-note {
+      min-height: 30px; padding: 0 12px; border-radius: 999px;
+      background: var(--white); border: 1px solid var(--line);
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 10px; font-weight: 700; color: var-[#6F675F];
+    }
+
+    /* Accents & custom transitions */
+    .bar-row { display: flex; align-items: center; gap: 8px; }
+    .bar-track { flex: 1; height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: var(--ink); }
+    .bar-fill.gold { background: var(--gold); }
+
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cal-day {
+      aspect-ratio: 1; border-radius: 12px; overflow: hidden;
+      position: relative; background: var(--white); border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cal-day.has-outfit { border-color: var(--line-strong); }
+    .cal-day.today { border: 2px solid var(--gold); }
+    .cal-day-num { font-size: 10px; font-weight: 700; color: var(--muted); }
+    .cal-badge {
+      position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
+      width: 4px; height: 4px; border-radius: 999px; background: var(--gold);
+    }
+
+    /* Scanning line */
+    @keyframes scanMove {
+      0%, 100% { top: 0%; }
+      50% { top: 100%; }
+    }
+    .scanner-line {
+      position: absolute; left: 0; right: 0; height: 3px;
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      animation: scanMove 2.5s ease-in-out infinite;
+    }
+
+    /* Fixed Top Index Selector Bar */
+    .top-index-bar {
+      position: fixed; top: 0; left: 0; right: 0; height: 64px;
+      background: rgba(248, 246, 243, 0.95);
+      border-bottom: 1px solid var(--line);
+      z-index: 100; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; backdrop-filter: blur(8px);
+    }
+    
+    /* Toast Notification */
+    #toast-notification {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--ink); color: var(--white);
+      padding: 16px 24px; border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(27,23,22,0.3);
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 600;
+      transform: translateY(120%); opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      z-index: 1000;
+    }
+    #toast-notification.show {
+      transform: translateY(0); opacity: 1;
+    }
+
+    /* Hide scrollbar for all scrollable containers inside the phone mockups */
+    .phone *::-webkit-scrollbar {
+      display: none;
+    }
+    .phone * {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="pt-24 pb-16 px-8 md:px-16">
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-notification">
+    <i data-lucide="check-circle" class="w-5 h-5 text-[#C89B45]" stroke-width="2"></i>
+    <span id="toast-text">Toast Message</span>
+  </div>
+
+  <!-- FIXED TOP INDEX SELECTOR -->
+  <header class="top-index-bar">
+    <div class="flex items-center gap-4">
+      <span class="font-serif text-2xl font-bold tracking-tight">StyleIQ</span>
+      <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C89B45] border border-[#C89B45] px-2 py-0.5 rounded">Phase 3B</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <label for="screen-selector" class="text-xs font-bold text-[#6F675F] uppercase tracking-wider hidden md:inline">Jump to Screen:</label>
+      <select id="screen-selector" class="bg-white border border-[#ECE7E1] rounded-xl px-3 py-1.5 text-xs font-bold focus:outline-none focus:border-[#C89B45]" onchange="scrollToScreen(this.value)">
+        <option value="">-- Choose Screen --</option>
+        <optgroup label="Style Identity & Timeline">
+          <option value="screen-62">Screen 62 — Style DNA Deep Profile</option>
+          <option value="screen-72">Screen 72 — Style Story</option>
+          <option value="screen-74">Screen 74 — Style Wrapped</option>
+        </optgroup>
+        <optgroup label="Wardrobe ROI & Decisions">
+          <option value="screen-63">Screen 63 — Cost Per Wear Analytics</option>
+          <option value="screen-64">Screen 64 — Item Recommendation Detail</option>
+          <option value="screen-65">Screen 65 — Before You Buy</option>
+        </optgroup>
+        <optgroup label="Automated Imports">
+          <option value="screen-66">Screen 66 — Shopping Imports</option>
+          <option value="screen-67">Screen 67 — Receipt Scanner</option>
+          <option value="screen-68">Screen 68 — Retail Connections</option>
+        </optgroup>
+        <optgroup label="Transition, Lifecycle & Resale">
+          <option value="screen-69">Screen 69 — Seasonal Audit</option>
+          <option value="screen-70">Screen 70 — Resell / Donate Item</option>
+          <option value="screen-71">Screen 71 — Item Lifecycle Detail</option>
+          <option value="screen-83">Screen 83 / 85 — Marketplace Dashboard</option>
+        </optgroup>
+        <optgroup label="Outfit History & Private Circle">
+          <option value="screen-73">Screen 73 — Outfit History</option>
+          <option value="screen-75">Screen 75 — Trusted Circle Hub</option>
+          <option value="screen-76">Screen 76 / 82 — Create Poll</option>
+          <option value="screen-77">Screen 77 / 83 — Poll Results</option>
+        </optgroup>
+        <optgroup label="Muse AI Stylist">
+          <option value="screen-78">Screen 78 — Ask Muse (Personality Card &amp; Check-ins)</option>
+          <option value="screen-79">Screen 79 — Muse Conversation</option>
+          <option value="screen-80">Screen 80 — Muse Recommendation Plan</option>
+        </optgroup>
+        <optgroup label="Collaborative Features">
+          <option value="screen-81">Screen 81 — Style Boards Hub</option>
+          <option value="screen-82">Screen 82 / 84 — Share Collection</option>
+        </optgroup>
+      </select>
+    </div>
+  </header>
+
+  <!-- INTRO HEADER -->
+  <div class="w-full max-w-5xl mx-auto mb-12 flex flex-col items-center text-center">
+    <h1 class="font-serif text-5xl font-medium text-[#1B1716] tracking-tight">StyleIQ — Phase 3B Ecosystem</h1>
+    <div class="h-px w-16 bg-[#C89B45] mt-4 mb-4"></div>
+    <p class="text-[12px] font-semibold uppercase tracking-[0.25em] text-[#6F675F] max-w-xl leading-relaxed">
+      A collaborative style and resale marketplace platform powered by social sharing and styling intelligence.
+    </p>
+  </div>
+
+  <!-- SCROLLABLE MOCKUP VIEWER -->
+  <main class="flex flex-wrap justify-center gap-16 md:gap-24">
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 62 — STYLE DNA DEEP PROFILE                      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-62" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 62 — Style DNA Deep Profile</h2>
+      <div class="phone" data-nav="home">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center gap-4 pt-2 mb-6">
+            <img src="images/profile_woman.png" alt="Profile" class="w-14 h-14 rounded-full object-cover border border-[#ECE7E1]">
+            <div>
+              <p class="section-label mb-0.5">Amelia Chen</p>
+              <h1 class="font-serif text-2xl leading-none">Your Style DNA</h1>
+            </div>
+          </div>
+
+          <div class="card p-4 mb-4">
+            <p class="small-caps text-[#C89B45] mb-3">Style Archetypes</p>
+            <div class="space-y-3">
+              <div>
+                <div class="flex justify-between text-xs font-medium mb-1">
+                  <span>Minimal Tailoring</span><span>40%</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width: 40%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-medium mb-1">
+                  <span>Modern Classic</span><span>35%</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width: 35%"></div></div>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs font-medium mb-1">
+                  <span>Creative Tonal</span><span>25%</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width: 25%"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-4 mb-4">
+            <div class="flex justify-between items-center mb-3">
+              <p class="small-caps text-[#C89B45]">Color Palette</p>
+              <span class="text-xs font-medium text-[#6F675F]">Warm Autumn</span>
+            </div>
+            <div class="grid grid-cols-4 gap-2 h-10 rounded-xl overflow-hidden">
+              <div style="background-color: #F5EBE0" title="Ivory Cream" class="h-full"></div>
+              <div style="background-color: #D4A373" title="Camel" class="h-full"></div>
+              <div style="background-color: #E07A5F" title="Terracotta" class="h-full"></div>
+              <div style="background-color: #81B29A" title="Sage Olive" class="h-full"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="card p-3">
+              <p class="small-caps text-[#C89B45] mb-1">Body Shape</p>
+              <p class="text-xs font-bold">Neat Hourglass</p>
+              <p class="text-[9px] text-[#6F675F] mt-1">Structured shoulders, defined waist</p>
+            </div>
+            <div class="card p-3">
+              <p class="small-caps text-[#C89B45] mb-1">Fit Preference</p>
+              <p class="text-xs font-bold">Relaxed Oversized</p>
+              <p class="text-[9px] text-[#6F675F] mt-1">High-rise silhouettes preferred</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full relative" onclick="triggerDNASynthesis()">
+              <span id="dna-btn-text">Retake Style DNA</span>
+              <i data-lucide="refresh-cw" class="w-4 h-4 ml-1" id="dna-btn-icon"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn" data-target="screen-72">View Timeline</button>
+              <button class="secondary-btn" data-target="screen-74">Annual Wrapped</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 63 — COST PER WEAR ANALYTICS                     -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-63" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 63 — Cost Per Wear Analytics</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <p class="section-label">Wardrobe ROI</p>
+            <h1 class="font-serif text-lg font-bold">Cost Per Wear</h1>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="card p-3 text-center">
+              <p class="text-2xl font-serif text-[#C89B45] font-bold">£847</p>
+              <p class="text-[9px] uppercase tracking-wider text-[#6F675F] font-bold">Total Saved</p>
+            </div>
+            <div class="card p-3 text-center">
+              <p class="text-2xl font-serif text-[#1B1716] font-bold">£312</p>
+              <p class="text-[9px] uppercase tracking-wider text-[#6F675F] font-bold">Value Recovered</p>
+            </div>
+          </div>
+
+          <p class="small-caps text-[#C89B45] mb-2">Highest ROI Items</p>
+          <div class="space-y-2 mb-4">
+            <div class="card p-3 flex items-center justify-between cursor-pointer" data-target="screen-71">
+              <div class="flex items-center gap-3">
+                <img src="images/screen_23_item.png" class="w-10 h-10 object-cover rounded-lg">
+                <div>
+                  <p class="text-xs font-bold">Arket Camel Blazer</p>
+                  <p class="text-[9px] text-[#6F675F]">Worn 42× · Cost £185</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-bold text-green-700">£4.40 / wear</p>
+              </div>
+            </div>
+            <div class="card p-3 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img src="images/item_silk_shell.png" class="w-10 h-10 object-cover rounded-lg">
+                <div>
+                  <p class="text-xs font-bold">Ivory Silk Shell</p>
+                  <p class="text-[9px] text-[#6F675F]">Worn 38× · Cost £95</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-bold text-green-700">£2.50 / wear</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="small-caps text-red-600 mb-2">Lowest ROI / Sleeping Items</p>
+          <div class="space-y-2 mb-5">
+            <div class="card p-3 flex items-center justify-between cursor-pointer" data-target="screen-70">
+              <div class="flex items-center gap-3">
+                <img src="images/style_creative.png" class="w-10 h-10 object-cover rounded-lg">
+                <div>
+                  <p class="text-xs font-bold">Zara Sequin Dress</p>
+                  <p class="text-[9px] text-[#6F675F]">Worn 1× · Cost £120</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-bold text-red-600">£120.00 / wear</p>
+                <p class="text-[9px] text-[#C89B45] font-bold">Resell Recommendation</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" data-target="screen-71">
+              <span>View Item Lifecycle Journey</span>
+              <i data-lucide="history" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn" data-target="screen-79">Ask Muse styling</button>
+              <button class="secondary-btn" data-target="screen-83">Sell Unworn Items</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 64 — ITEM RECOMMENDATION DETAIL                  -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-64" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 64 — Item Recommendation Detail</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-62"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Recommendation Detail</p>
+            <button class="icon-btn" onclick="toggleHeart(this)"><i data-lucide="heart" class="w-4 h-4 text-gray-400"></i></button>
+          </div>
+
+          <div class="image-card relative mb-4">
+            <img src="images/style_minimal_man.png" class="w-full h-44 object-cover object-top">
+            <div class="p-3">
+              <p class="section-label mb-0.5">Arket</p>
+              <h3 class="font-serif text-lg font-bold">Charcoal Wool Trousers</h3>
+              <p class="text-xs text-[#6F675F]">Price: £115.00</p>
+            </div>
+            <div class="absolute top-3 right-3 w-12 h-12 rounded-full bg-white border border-[#ECE7E1] flex flex-col items-center justify-center shadow-md">
+              <span class="text-xs font-bold leading-none">96%</span>
+              <span class="text-[6px] uppercase tracking-wider text-[#C89B45]">Match</span>
+            </div>
+          </div>
+
+          <div class="card p-4 mb-4">
+            <p class="small-caps text-[#C89B45] mb-2">Closet compatibility</p>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between border-b border-[#ECE7E1] pb-1.5">
+                <span>Color Synergy (Autumn)</span>
+                <span class="font-bold">Perfect Match</span>
+              </div>
+              <div class="flex justify-between border-b border-[#ECE7E1] pb-1.5">
+                <span>Closet Integration</span>
+                <span class="font-bold">Pairs with 14 owned tops</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Gap fulfillment score</span>
+                <span class="font-bold text-[#C89B45]">100% (Resolves grey trousers gap)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="muse-card p-3 mb-5">
+            <p class="section-label mb-1">Outfit suggestion</p>
+            <p class="text-xs text-[#6F675F] leading-relaxed">"Pairs perfectly with your **Arket Camel Blazer** (owned) and **Ivory Silk Shell** (owned)."</p>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" data-target="screen-65">
+              <span>Try On / Compare Options</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn" data-target="screen-76">Ask Circle Advice</button>
+              <button class="secondary-btn" data-target="screen-81">Add to Style Board</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 65 — BEFORE YOU BUY                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-65" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 65 — Before You Buy</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-3">
+            <button class="icon-btn" data-target="screen-64"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Before You Buy</p>
+            <i data-lucide="alert-triangle" class="w-5 h-5 text-[#C89B45]"></i>
+          </div>
+          
+          <div class="flow-note mb-3 w-full justify-center bg-yellow-500/10 border-yellow-500/30 text-[#C89B45] font-bold">
+            Possible Duplicate Flagged!
+          </div>
+
+          <div class="card p-3 border-2 border-[#C89B45] bg-[#F8F6F3] mb-3">
+            <p class="text-[9px] uppercase tracking-wider text-[#6F675F] font-bold">Proposed Purchase</p>
+            <div class="flex items-center gap-3 mt-1">
+              <img src="images/item_blazer.png" class="w-10 h-10 object-cover rounded-lg">
+              <div>
+                <p class="text-xs font-bold">Zara Navy Blazer</p>
+                <p class="text-[10px] text-[#6F675F]">Price: £89.00 · Size M</p>
+              </div>
+            </div>
+          </div>
+
+          <p class="small-caps text-[#C89B45] mb-2">Similar Owned Items</p>
+          <div class="space-y-2 mb-4">
+            <div class="card p-3 flex items-center justify-between bg-white">
+              <div class="flex items-center gap-3">
+                <img src="images/screen_23_item.png" class="w-10 h-10 object-cover rounded-lg">
+                <div>
+                  <p class="text-xs font-bold">Arket Camel Blazer</p>
+                  <p class="text-[9px] text-[#6F675F]">92% Similar style · Worn 42×</p>
+                </div>
+              </div>
+            </div>
+            <div class="card p-3 flex items-center justify-between bg-white">
+              <div class="flex items-center gap-3">
+                <img src="images/style_modern_prof.png" class="w-10 h-10 object-cover rounded-lg">
+                <div>
+                  <p class="text-xs font-bold">Massimo Dutti Blazer</p>
+                  <p class="text-[9px] text-[#6F675F]">96% Match · Double Breasted</p>
+                </div>
+              </div>
+              <span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded">Duplicate</span>
+            </div>
+          </div>
+
+          <div class="card p-3 bg-white mb-4 text-xs space-y-1">
+            <div class="flex justify-between"><span>Est. Wear Frequency:</span><span class="font-bold">1.4×/wk</span></div>
+            <div class="flex justify-between"><span>Cost-Per-Wear Projection:</span><span class="font-bold text-green-700">£3.20</span></div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" onclick="triggerSmartSave()">
+              <span>Use Existing Item Instead</span>
+              <i data-lucide="piggy-bank" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn text-red-600" onclick="showToast('Override: Buy Anyway logged.')">Buy Anyway</button>
+              <button class="secondary-btn" data-target="screen-76">Create Advice Poll</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 66 — SHOPPING HISTORY IMPORT                     -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-66" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 66 — Shopping History Import</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <p class="section-label">Imports</p>
+            <h1 class="font-serif text-lg font-bold">Purchase History</h1>
+          </div>
+
+          <div class="space-y-2.5 mb-4">
+            <div class="card p-3 flex items-center justify-between bg-white">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+                  <i data-lucide="mail" class="w-4 h-4" stroke-width="2"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-bold">Email Receipt Sync</p>
+                  <p class="text-[9px] text-green-600 font-bold">Gmail Active (Synced 1h ago)</p>
+                </div>
+              </div>
+              <i data-lucide="check" class="w-4 h-4 text-[#C89B45]"></i>
+            </div>
+            
+            <div class="card p-3 border-dashed border-[#line-strong] flex flex-col items-center justify-center py-4 bg-white text-center cursor-pointer" onclick="showToast('Opening File Browser...')">
+              <i data-lucide="upload-cloud" class="w-5 h-5 text-[#6F675F] mb-1.5"></i>
+              <p class="text-xs font-bold">Upload CSV Statement</p>
+              <p class="text-[9px] text-[#9F9387]">Drag and drop bank statement files</p>
+            </div>
+          </div>
+
+          <p class="small-caps text-[#C89B45] mb-2">Purchase timeline</p>
+          <div class="space-y-2 mb-5">
+            <div class="card p-2 flex justify-between items-center text-xs">
+              <div>
+                <p class="font-bold">Arket</p>
+                <p class="text-[8px] text-[#6F675F]">Linen Shirt · Imported June 20</p>
+              </div>
+              <span class="font-bold text-[#1B1716]">£79.00</span>
+            </div>
+            <div class="card p-2 flex justify-between items-center text-xs">
+              <div>
+                <p class="font-bold">Aritzia</p>
+                <p class="text-[8px] text-[#6F675F]">Linen Trousers · Imported June 18</p>
+              </div>
+              <span class="font-bold text-[#1B1716]">£148.00</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button class="primary-btn" data-target="screen-67">Receipt Scanner</button>
+            <button class="secondary-btn" data-target="screen-68">Connect Retailer</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 67 — RECEIPT SCANNER                             -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-67" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 67 — Receipt Scanner</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar" style="background:#111;color:#fff;">
+          <span class="text-xs font-medium text-white">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4 text-white" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4 text-white" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5 text-white" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div style="background:#111;flex:1;padding:0 0 16px;" class="flex flex-col">
+          <div class="flex justify-between items-center px-6 pt-3 pb-2 text-white">
+            <button class="icon-btn bg-white/10 border-transparent text-white" data-target="screen-66"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Scanner Viewfinder</span>
+            <div class="w-9 h-9"></div>
+          </div>
+
+          <div class="mx-4 mt-2 flex-1 relative rounded-3xl overflow-hidden border border-white/20 bg-neutral-900 flex items-center justify-center" id="scan-viewfinder" style="min-height: 420px;">
+            <div class="w-60 h-80 bg-neutral-100/90 text-neutral-800 p-4 font-mono text-[9px] shadow-2xl relative select-none">
+              <p class="text-center font-bold text-xs mb-4">ARKET LONDON</p>
+              <p>DATE: 22/06/2026</p>
+              <p>TIME: 14:24</p>
+              <div class="border-b border-dashed border-neutral-400 my-2"></div>
+              <div class="flex justify-between"><span>Oat Blazer</span><span>£198.00</span></div>
+              <div class="flex justify-between"><span>TAX 20%</span><span>£39.60</span></div>
+              <div class="border-b border-dashed border-neutral-400 my-2"></div>
+              <div class="flex justify-between font-bold"><span>TOTAL PAID</span><span>£198.00</span></div>
+            </div>
+            
+            <div class="scanner-line hidden" id="scanner-line-node"></div>
+          </div>
+
+          <div class="px-6 pt-4 flex flex-col items-center">
+            <div class="w-full bg-white text-neutral-900 rounded-2xl p-3 mb-4 hidden" id="scanned-result-card">
+              <div class="flex items-center gap-3">
+                <i data-lucide="check" class="w-5 h-5 text-green-600 bg-green-100 rounded-full p-0.5"></i>
+                <div>
+                  <p class="text-xs font-bold">Arket Oat Blazer detected</p>
+                  <p class="text-[9px] text-[#6F675F]">Estimated value: £198.00</p>
+                </div>
+              </div>
+            </div>
+
+            <button class="primary-btn w-full bg-white text-neutral-900" id="scan-trigger-btn" onclick="startScannerScan()">
+              <span>Scan Paper Receipt</span>
+              <i data-lucide="aperture" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 68 — RETAIL CONNECTIONS                          -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-68" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 68 — Retail Connections</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-66"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Integrations</p>
+            <button class="icon-btn" data-target="screen-69"><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+          </div>
+          
+          <h1 class="font-serif text-2xl leading-tight mb-2">Retail Connections</h1>
+          <p class="text-xs text-[#6F675F] leading-relaxed mb-4">Connect favorite retailers to synchronize your purchases, track prices, and empower recommendations.</p>
+
+          <div class="grid grid-cols-2 gap-3 mb-5">
+            <div class="card p-3 flex flex-col justify-between h-20">
+              <span class="text-xs font-bold">Zara</span>
+              <span class="text-[9px] text-green-600 font-bold">Synced</span>
+            </div>
+            <div class="card p-3 flex flex-col justify-between h-20">
+              <span class="text-xs font-bold">Arket</span>
+              <span class="text-[9px] text-green-600 font-bold">Synced</span>
+            </div>
+            <div class="card p-3 flex flex-col justify-between h-20">
+              <span class="text-xs font-bold">Aritzia</span>
+              <span class="text-[9px] text-green-600 font-bold">Synced</span>
+            </div>
+            <div class="card p-3 flex flex-col justify-between h-20 opacity-60">
+              <span class="text-xs font-bold">Revolve</span>
+              <button class="text-[9px] text-[#C89B45] font-bold text-left" onclick="showToast('Connecting Revolve...')">Tap to connect</button>
+            </div>
+          </div>
+
+          <div class="muse-card p-4">
+            <p class="section-label mb-1">Synergies Connected</p>
+            <ul class="text-xs text-[#6F675F] space-y-1">
+              <li>✓ Purchase sync for all connected retailers</li>
+              <li>✓ Price tracking alerts for items in gaps</li>
+              <li>✓ Recommendation engine matches</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 69 — Seasonal Audit                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-69" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 69 — Seasonal Audit</h2>
+      <div class="phone" data-nav="planner">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <p class="section-label">Seasonal Audit</p>
+            <h1 class="font-serif text-lg font-bold">Wardrobe Transition</h1>
+          </div>
+
+          <div class="card p-4 text-center mb-4">
+            <span class="text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">Seasonal Readiness Score</span>
+            <p class="text-4xl font-serif text-[#C89B45] my-1" id="readiness-score-node">84%</p>
+            <div class="bar-track mx-auto max-w-[200px]"><div class="bar-fill gold" id="readiness-bar-node" style="width: 84%"></div></div>
+          </div>
+
+          <div class="space-y-2 mb-5">
+            <div class="card p-2.5 flex justify-between items-center text-xs">
+              <span class="font-bold">Store (24 Summer Items)</span>
+              <span class="text-[#6F675F]">Move to storage box</span>
+            </div>
+            <div class="card p-2.5 flex justify-between items-center text-xs">
+              <span class="font-bold">Keep (42 Transitional)</span>
+              <span class="text-[#6F675F]">Retain in closet</span>
+            </div>
+            <div class="card p-2.5 flex justify-between items-center text-xs">
+              <span class="font-bold">Donate / Recycle (5 Items)</span>
+              <span class="text-[#6F675F]">Salvation Army labels</span>
+            </div>
+            <div class="card p-2.5 flex justify-between items-center text-xs cursor-pointer" data-target="screen-70">
+              <span class="font-bold text-[#C89B45]">Resell (8 Sleeping Items)</span>
+              <span class="text-[#C89B45] font-bold">£312 potential value</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" onclick="runSeasonalTransitionAnimation()">
+              <span>Apply Seasonal Transition</span>
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+            <button class="secondary-btn w-full" data-target="screen-70">Review Resale items</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 70 — RESELL / DONATE ITEM                        -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-70" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 70 — Resell / Donate Item</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-69"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Lifecycle Extender</p>
+            <button class="icon-btn" data-target="screen-83"><i data-lucide="layout-grid" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="card p-3 mb-4">
+            <p class="text-[9px] uppercase tracking-wider text-[#6F675F] font-bold">Item Detail Listing Preview</p>
+            <div class="flex items-center gap-3 mt-1.5">
+              <img src="images/style_creative.png" class="w-12 h-12 object-cover rounded-lg">
+              <div>
+                <p class="text-xs font-bold">Massimo Dutti Ribbed Knit Vest</p>
+                <p class="text-[9px] text-[#6F675F]">Size M · Beige Melange · Excellent Condition</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-4 mb-4">
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold">Suggested Resale Price</span>
+              <span class="text-xs font-bold text-green-700">£45.00 — £52.00</span>
+            </div>
+            <div class="space-y-2 text-xs">
+              <div class="flex justify-between border-b border-[#ECE7E1] pb-1.5">
+                <span>Vinted Compatibility</span>
+                <span class="font-bold text-green-700">98% (Quickest turnaround)</span>
+              </div>
+              <div class="flex justify-between border-b border-[#ECE7E1] pb-1.5">
+                <span>Vestiaire Collective</span>
+                <span class="font-bold text-green-700">90% (Premium channel)</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Donation Suggestions</span>
+                <span class="font-bold text-[#6F675F]">Salvation Army courier pickup</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" onclick="resellItemFromScreen70()">
+              <span>Resell Item Instantly</span>
+              <i data-lucide="tag" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn" onclick="showToast('Courier scheduled for Donation!')">Donate Item</button>
+              <button class="secondary-btn" onclick="showToast('Item archived to storage logs')">Archive Item</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 71 — ITEM LIFECYCLE DETAIL                       -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-71" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 71 — Item Lifecycle Detail</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-63"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Item Journey</p>
+            <button class="icon-btn" data-target="screen-82"><i data-lucide="share-2" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="image-card relative mb-3">
+            <img src="images/screen_23_item.png" class="w-full h-40 object-cover object-top">
+            <div class="p-3">
+              <p class="section-label mb-0.5">Arket</p>
+              <h3 class="font-serif text-lg font-bold">Camel Oversized Blazer</h3>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="card p-3 text-center">
+              <span class="text-[9px] uppercase tracking-wider text-[#6F675F]">Total Wears</span>
+              <p class="text-base font-bold mt-1">42 Wears</p>
+            </div>
+            <div class="card p-3 text-center">
+              <span class="text-[9px] uppercase tracking-wider text-[#6F675F]">Cost per Wear</span>
+              <p class="text-base font-bold text-green-700 mt-1">£4.40 / wear</p>
+            </div>
+          </div>
+
+          <div class="card p-4 mb-4 text-xs space-y-2">
+            <div class="flex justify-between border-b border-[#ECE7E1] pb-1">
+              <span>Purchase Date</span><span class="font-bold">March 2024</span>
+            </div>
+            <div class="flex justify-between border-b border-[#ECE7E1] pb-1">
+              <span>Purchase Price</span><span class="font-bold">£185.00</span>
+            </div>
+            <div class="flex justify-between border-b border-[#ECE7E1] pb-1">
+              <span>Outfit Appearances</span><span class="font-bold">12 Outfits</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Resale Value</span><span class="font-bold text-green-700">£85.00</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" data-target="screen-73">Build Look / Calendar</button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn" data-target="screen-82">Share Item Capsule</button>
+              <button class="secondary-btn" data-target="screen-70">Resell Blazer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 72 — STYLE STORY                                 -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-72" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 72 — Style Story</h2>
+      <div class="phone" data-nav="home">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-62"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Style Story</p>
+            <button class="icon-btn" data-target="screen-74"><i data-lucide="award" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="relative pl-6 border-l-2 border-[#ECE7E1] space-y-6 mt-4">
+            <div class="relative">
+              <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white bg-[#C89B45] flex items-center justify-center"></div>
+              <p class="text-[10px] font-bold text-[#C89B45] uppercase tracking-wider">June 2026</p>
+              <h3 class="font-serif text-base font-bold">Summer Linen Pivot</h3>
+              <p class="text-xs text-[#6F675F] leading-relaxed mt-1">Acquired linen separates. Logged 12 times with 94% average wear satisfaction.</p>
+              <div class="flex gap-2 mt-2">
+                <img src="images/outfit_soft_tailoring.png" class="w-12 h-14 object-cover rounded-lg border border-[#ECE7E1]">
+                <img src="images/style_elevated_everyday.png" class="w-12 h-14 object-cover rounded-lg border border-[#ECE7E1]">
+              </div>
+            </div>
+            
+            <div class="relative">
+              <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white bg-[#1B1716] flex items-center justify-center"></div>
+              <p class="text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">May 2026</p>
+              <h3 class="font-serif text-base font-bold">Earthy Tones Adjustment</h3>
+              <p class="text-xs text-[#6F675F] leading-relaxed mt-1">Refined palette codes to Autumn tones. Excluded cool pastels.</p>
+            </div>
+            
+            <div class="relative">
+              <div class="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 border-white bg-[#1B1716] flex items-center justify-center"></div>
+              <p class="text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">April 2026</p>
+              <h3 class="font-serif text-base font-bold">Milestone: 85% Active</h3>
+              <p class="text-xs text-[#6F675F] leading-relaxed mt-1">Reached milestone for active wear frequency. Recycled 3 duplicate items.</p>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full mt-6" data-target="screen-74">Explore Style Wrapped<i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 73 — OUTFIT HISTORY                              -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-73" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 73 — Outfit History</h2>
+      <div class="phone" data-nav="looks">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-3">
+            <p class="section-label">Wardrobe Diary</p>
+            <h1 class="font-serif text-lg font-bold">Outfit History</h1>
+          </div>
+
+          <div class="flex justify-between items-center mb-3 text-xs font-bold uppercase tracking-wider text-[#6F675F]">
+            <button class="icon-btn w-6 h-6"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+            <span>June 2026</span>
+            <button class="icon-btn w-6 h-6"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          </div>
+
+          <div class="cal-grid mb-4">
+            <div class="cal-day"><span class="cal-day-num">1</span></div>
+            <div class="cal-day"><span class="cal-day-num">2</span></div>
+            <div class="cal-day has-outfit"><span class="cal-day-num text-[#1B1716]">3</span><div class="cal-badge"></div></div>
+            <div class="cal-day"><span class="cal-day-num">4</span></div>
+            <div class="cal-day"><span class="cal-day-num">5</span></div>
+            <div class="cal-day has-outfit"><span class="cal-day-num text-[#1B1716]">6</span><div class="cal-badge"></div></div>
+            <div class="cal-day"><span class="cal-day-num">7</span></div>
+            <div class="cal-day"><span class="cal-day-num">8</span></div>
+            <div class="cal-day"><span class="cal-day-num">9</span></div>
+            <div class="cal-day has-outfit"><span class="cal-day-num text-[#1B1716]">10</span><div class="cal-badge"></div></div>
+            <div class="cal-day"><span class="cal-day-num">11</span></div>
+            <div class="cal-day"><span class="cal-day-num">12</span></div>
+            <div class="cal-day has-outfit"><span class="cal-day-num text-[#1B1716]">13</span><div class="cal-badge"></div></div>
+            <div class="cal-day"><span class="cal-day-num">14</span></div>
+            <div class="cal-day has-outfit"><span class="cal-day-num text-[#1B1716]">15</span><div class="cal-badge"></div></div>
+            <div class="cal-day"><span class="cal-day-num">16</span></div>
+            <div class="cal-day"><span class="cal-day-num">17</span></div>
+            <div class="cal-day"><span class="cal-day-num">18</span></div>
+            <div class="cal-day has-outfit"><span class="cal-day-num text-[#1B1716]">19</span><div class="cal-badge"></div></div>
+            <div class="cal-day"><span class="cal-day-num">20</span></div>
+            <div class="cal-day"><span class="cal-day-num">21</span></div>
+            <div class="cal-day today has-outfit"><span class="cal-day-num text-[#C89B45]">22</span><div class="cal-badge"></div></div>
+            <div class="cal-day"><span class="cal-day-num text-[#9F9387]">23</span></div>
+            <div class="cal-day"><span class="cal-day-num text-[#9F9387]">24</span></div>
+            <div class="cal-day"><span class="cal-day-num text-[#9F9387]">25</span></div>
+            <div class="cal-day"><span class="cal-day-num text-[#9F9387]">26</span></div>
+            <div class="cal-day"><span class="cal-day-num text-[#9F9387]">27</span></div>
+            <div class="cal-day"><span class="cal-day-num text-[#9F9387]">28</span></div>
+          </div>
+
+          <p class="small-caps text-[#C89B45] mb-2">Most Worn Outfit</p>
+          <div class="card p-3 flex items-center gap-3 bg-white mb-5">
+            <img src="images/outfit_soft_tailoring.png" class="w-10 h-12 object-cover rounded-lg border border-[#ECE7E1]">
+            <div>
+              <p class="text-xs font-bold">"Soft Tailoring" Configuration</p>
+              <p class="text-[9px] text-[#6F675F]">Worn 8 times · 94% Avg. user confidence</p>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" onclick="showToast('Outfit set for tomorrow!')">
+              <span>Rewear Outfit</span>
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn" data-target="screen-81">Add to Style Board</button>
+              <button class="secondary-btn" data-target="screen-75">Private Circle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 74 — STYLE WRAPPED                               -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-74" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 74 — Style Wrapped</h2>
+      <div class="phone" data-nav="home">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-72"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Style Wrapped 2026</p>
+            <button class="icon-btn" onclick="showToast('Summary copied to share!')"><i data-lucide="share-2" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="card bg-[#1B1716] text-[#F8F6F3] p-5 relative overflow-hidden mb-5">
+            <div class="absolute -right-16 -bottom-16 w-48 h-48 rounded-full border border-white/10"></div>
+            
+            <p class="small-caps text-[#C89B45] mb-1">StyleIQ 2026</p>
+            <h2 class="font-serif text-3xl font-bold leading-tight mb-4">Your Year In Style</h2>
+
+            <div class="space-y-3 relative z-10">
+              <div class="flex justify-between border-b border-white/10 pb-2">
+                <span class="text-xs text-[#9F9387]">Most worn item</span>
+                <span class="text-xs font-bold text-white">Camel Blazer (42×)</span>
+              </div>
+              <div class="flex justify-between border-b border-white/10 pb-2">
+                <span class="text-xs text-[#9F9387]">Most worn color</span>
+                <span class="text-xs font-bold text-white">Warm Ivory</span>
+              </div>
+              <div class="flex justify-between border-b border-white/10 pb-2">
+                <span class="text-xs text-[#9F9387]">Total outfits</span>
+                <span class="text-xs font-bold text-white">184 Logged</span>
+              </div>
+              <div class="flex justify-between border-b border-white/10 pb-2">
+                <span class="text-xs text-[#9F9387]">Money saved</span>
+                <span class="text-xs font-bold text-[#C89B45]">£847 Saved</span>
+              </div>
+              <div class="flex justify-between border-b border-white/10 pb-2">
+                <span class="text-xs text-[#9F9387]">CO₂ saved</span>
+                <span class="text-xs font-bold text-white">42kg Saved</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-xs text-[#9F9387]">Closet utilization</span>
+                <span class="text-xs font-bold text-[#C89B45]">88% Active</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="muse-card p-4 mb-4">
+            <div class="flex items-start gap-3">
+              <img src="images/muse_portrait.png" alt="Muse" class="muse-portrait">
+              <div>
+                <p class="section-label mb-1">Muse Review</p>
+                <p class="text-xs text-[#6F675F] leading-relaxed">"Amelia, you resold 4 unworn pieces and saved £847 by avoiding duplicates. That is style intelligence at work."</p>
+              </div>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full" onclick="showToast('Wrapped stats shared!')">
+            <span>Share Summary</span>
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 75 — TRUSTED CIRCLE HUB                          -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-75" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 75 — Trusted Circle Hub</h2>
+      <div class="phone" data-nav="looks">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-73"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Trusted Circle Hub</p>
+            <button class="icon-btn" data-target="screen-76"><i data-lucide="plus" class="w-4 h-4"></i></button>
+          </div>
+
+          <!-- Members Section -->
+          <p class="small-caps text-[#C89B45] mb-2">Circle Members</p>
+          <div class="grid grid-cols-4 gap-2 mb-4">
+            <div class="text-center">
+              <img src="images/profile_man.png" class="w-10 h-10 rounded-full object-cover border border-[#C89B45] mx-auto">
+              <span class="text-[9px] font-bold block mt-1">Marc (Stylist)</span>
+            </div>
+            <div class="text-center">
+              <img src="images/profile_woman.png" class="w-10 h-10 rounded-full object-cover border border-[#ECE7E1] mx-auto">
+              <span class="text-[9px] font-bold block mt-1">Sarah (Friend)</span>
+            </div>
+            <div class="text-center">
+              <div class="w-10 h-10 rounded-full bg-neutral-200 border border-transparent mx-auto flex items-center justify-center text-[10px] font-bold">TC</div>
+              <span class="text-[9px] font-bold block mt-1">Tom (Partner)</span>
+            </div>
+            <div class="text-center">
+              <div class="w-10 h-10 rounded-full bg-neutral-200 border border-transparent mx-auto flex items-center justify-center text-[10px] font-bold">LC</div>
+              <span class="text-[9px] font-bold block mt-1">Lucy (Family)</span>
+            </div>
+          </div>
+
+          <!-- Active Conversations -->
+          <p class="small-caps text-[#C89B45] mb-2">Active Conversations</p>
+          <div class="card p-3 mb-4 space-y-2 bg-white text-xs cursor-pointer" data-target="screen-79">
+            <div class="flex gap-2">
+              <img src="images/profile_man.png" class="w-6 h-6 rounded-full object-cover">
+              <div>
+                <p class="font-bold">Marc (Stylist)</p>
+                <p class="text-[10px] text-[#6F675F] mt-0.5">"Outfit A has elegant lines. Pair with gold heels..."</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shared Boards -->
+          <p class="small-caps text-[#C89B45] mb-2">Shared Boards</p>
+          <div class="card p-3 mb-4 flex justify-between items-center bg-white text-xs cursor-pointer" data-target="screen-81">
+            <div class="flex items-center gap-2">
+              <i data-lucide="folder-closed" class="w-4 h-4 text-[#C89B45]"></i>
+              <span class="font-bold">Italy Vacation Board</span>
+            </div>
+            <span class="text-[9px] text-[#6F675F]">Sarah &amp; Marc</span>
+          </div>
+
+          <!-- Pending Votes -->
+          <p class="small-caps text-[#C89B45] mb-2">Pending Votes</p>
+          <div class="card p-3 mb-5 flex justify-between items-center bg-white text-xs cursor-pointer" data-target="screen-77">
+            <div class="flex items-center gap-2">
+              <i data-lucide="help-circle" class="w-4 h-4 text-[#C89B45]"></i>
+              <span class="font-bold">Pick outfit for dinner at Lilia</span>
+            </div>
+            <span class="text-[9px] text-green-700 font-bold bg-green-50 px-1.5 py-0.5 rounded">Active</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button class="primary-btn" data-target="screen-76">Create Poll</button>
+            <button class="secondary-btn" data-target="screen-81">Style Boards</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 76 / 82 — CREATE POLL                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-76" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 76 / 82 — Create Poll</h2>
+      <div class="phone" data-nav="looks">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-3">
+            <button class="icon-btn" data-target="screen-75"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Outfit Voting</p>
+            <div class="w-9 h-9"></div>
+          </div>
+
+          <!-- Poll Question -->
+          <div class="mb-4">
+            <label class="font-bold text-[#6F675F] text-xs">Poll Question</label>
+            <input type="text" id="poll-question" value="Which outfit should I wear?" class="w-full border border-[#ECE7E1] bg-white rounded-xl p-2.5 mt-1 text-xs focus:outline-none focus:border-[#C89B45]">
+          </div>
+
+          <!-- Outfit Options (A, B, C) -->
+          <label class="font-bold text-[#6F675F] text-xs block mb-2">Select Outfit Options</label>
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="card p-1.5 text-center relative cursor-pointer border-2 border-[#C89B45] bg-[#F8F6F3]" onclick="togglePollOption(this)">
+              <img src="images/outfit_soft_tailoring.png" class="w-full h-20 object-cover rounded-lg mb-1">
+              <span class="text-[9px] font-bold">Option A</span>
+              <span class="checkmark-badge absolute top-1 right-1 bg-[#C89B45] text-white p-0.5 rounded-full"><i data-lucide="check" class="w-2 h-2"></i></span>
+            </div>
+            <div class="card p-1.5 text-center relative cursor-pointer border border-[#ECE7E1] bg-white" onclick="togglePollOption(this)">
+              <img src="images/outfit_creative_tonal.png" class="w-full h-20 object-cover rounded-lg mb-1">
+              <span class="text-[9px] font-bold">Option B</span>
+            </div>
+            <div class="card p-1.5 text-center relative cursor-pointer border border-[#ECE7E1] bg-white" onclick="togglePollOption(this)">
+              <img src="images/style_elevated_everyday.png" class="w-full h-20 object-cover rounded-lg mb-1">
+              <span class="text-[9px] font-bold">Option C</span>
+            </div>
+          </div>
+
+          <!-- Invite Participants -->
+          <p class="small-caps text-[#C89B45] mb-2">Invite Participants</p>
+          <div class="flex gap-2 mb-4 text-center">
+            <label class="flex-1 cursor-pointer">
+              <input type="checkbox" checked class="hidden peer">
+              <span class="block py-1 border border-[#ECE7E1] rounded-xl text-[9px] font-bold peer-checked:border-[#C89B45] peer-checked:text-[#C89B45] bg-white">Friends</span>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="checkbox" checked class="hidden peer">
+              <span class="block py-1 border border-[#ECE7E1] rounded-xl text-[9px] font-bold peer-checked:border-[#C89B45] peer-checked:text-[#C89B45] bg-white">Stylist</span>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="checkbox" class="hidden peer">
+              <span class="block py-1 border border-[#ECE7E1] rounded-xl text-[9px] font-bold peer-checked:border-[#C89B45] peer-checked:text-[#C89B45] bg-white">Partner</span>
+            </label>
+            <label class="flex-1 cursor-pointer">
+              <input type="checkbox" class="hidden peer">
+              <span class="block py-1 border border-[#ECE7E1] rounded-xl text-[9px] font-bold peer-checked:border-[#C89B45] peer-checked:text-[#C89B45] bg-white">Family</span>
+            </label>
+          </div>
+
+          <!-- Poll Settings -->
+          <div class="card p-4 space-y-2 mb-4 text-xs">
+            <div class="flex justify-between items-center pb-2 border-b border-[#ECE7E1]">
+              <span>Anonymous Voting</span>
+              <input type="checkbox" class="accent-[#C89B45]">
+            </div>
+            <div class="flex justify-between items-center pb-2 border-b border-[#ECE7E1]">
+              <span>Comments Enabled</span>
+              <input type="checkbox" checked class="accent-[#C89B45]">
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Deadline Limit</span>
+              <select class="bg-transparent font-bold text-[#C89B45] outline-none">
+                <option>2 Hours</option>
+                <option>24 Hours</option>
+                <option>No Limit</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full" onclick="publishPoll()">
+            <span>Publish Poll</span>
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 77 / 83 — POLL RESULTS                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-77" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 77 / 83 — Poll Results</h2>
+      <div class="phone" data-nav="looks">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-3">
+            <button class="icon-btn" data-target="screen-76"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Poll Results</p>
+            <button class="icon-btn" onclick="showToast('Consensus results shared!')"><i data-lucide="share" class="w-4 h-4"></i></button>
+          </div>
+
+          <h2 id="poll-results-title" class="font-serif text-sm font-bold mb-3 text-[#1B1716]">Which outfit should I wear?</h2>
+
+          <!-- Winning Look Card -->
+          <div class="card p-3 border-2 border-[#C89B45] bg-[#F8F6F3] mb-4 flex items-center gap-3">
+            <img src="images/outfit_soft_tailoring.png" class="w-14 h-18 object-cover rounded-lg border border-[#ECE7E1]">
+            <div class="flex-grow">
+              <span class="bg-[#C89B45] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">Winner Badge</span>
+              <h3 class="font-serif text-sm font-bold mt-1">Option A — Soft Tailoring</h3>
+              <p class="text-[10px] text-green-700 font-bold">68% of total votes</p>
+            </div>
+          </div>
+
+          <!-- Voting Breakdown -->
+          <p class="small-caps text-[#C89B45] mb-2">Voting Breakdown</p>
+          <div class="space-y-2 mb-4 text-xs">
+            <div>
+              <div class="flex justify-between font-bold mb-1">
+                <span>Option A (Soft Tailoring)</span><span>68% (17 votes)</span>
+              </div>
+              <div class="bar-track"><div id="bar-fill-a" class="bar-fill gold" style="width: 68%; transition: width 0.8s ease-out;"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between font-bold mb-1">
+                <span>Option B (Creative Tonal)</span><span>20% (5 votes)</span>
+              </div>
+              <div class="bar-track"><div id="bar-fill-b" class="bar-fill" style="width: 20%; transition: width 0.8s ease-out;"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between font-bold mb-1">
+                <span>Option C (Linen Everyday)</span><span>12% (3 votes)</span>
+              </div>
+              <div class="bar-track"><div id="bar-fill-c" class="bar-fill" style="width: 12%; transition: width 0.8s ease-out;"></div></div>
+            </div>
+          </div>
+
+          <!-- Comments Feed -->
+          <p class="small-caps text-[#C89B45] mb-2">Community Comments</p>
+          <div class="space-y-2 mb-3" id="poll-comments-container">
+            <div class="card p-2 bg-white text-[10px] flex gap-2">
+              <img src="images/profile_man.png" class="w-5 h-5 rounded-full object-cover">
+              <div>
+                <span class="font-bold">Marc (Stylist):</span>
+                <span class="text-[#6F675F]">Option A suits the dinner context perfectly.</span>
+              </div>
+            </div>
+            <div class="card p-2 bg-white text-[10px] flex gap-2">
+              <img src="images/profile_woman.png" class="w-5 h-5 rounded-full object-cover">
+              <div>
+                <span class="font-bold">Sarah:</span>
+                <span class="text-[#6F675F]">Definitely Option A! Perfect colors for you.</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Add Comment Input -->
+          <div class="flex gap-2 mb-4">
+            <input type="text" id="poll-comment-input" placeholder="Add a comment..." class="flex-grow border border-[#ECE7E1] bg-white rounded-xl p-2 text-[10px] focus:outline-none focus:border-[#C89B45]">
+            <button onclick="addPollComment()" class="bg-[#1B1716] text-white px-3 rounded-xl text-[10px] font-bold">Post</button>
+          </div>
+
+          <!-- Muse Recommendation Summary -->
+          <div class="muse-card p-3 text-xs mb-4">
+            <p class="section-label mb-0.5">Muse Consensus Summary</p>
+            <p class="text-[#6F675F] leading-tight">Your circle preferred Look A because it better matched the occasion and your Style DNA.</p>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" onclick="showToast('Outfit applied to calendar diary!')">
+              <span>Wear This Look</span>
+              <i data-lucide="check" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn text-xs" onclick="showToast('Consensus result saved!')">Save Result</button>
+              <button class="secondary-btn text-xs" data-target="screen-76">Create New Poll</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 78 — ASK MUSE                                    -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-78" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 78 — Ask Muse</h2>
+      <div class="phone" data-nav="muse">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8 flex flex-col h-[726px]">
+          <!-- Upgraded Muse Profile Card -->
+          <div class="pt-4 text-center flex-shrink-0">
+            <img src="images/muse_portrait.png" class="w-16 h-16 rounded-full object-cover mx-auto border-2 border-[#C89B45] mb-2">
+            <h1 class="font-serif text-2xl font-bold">Muse</h1>
+            <p class="text-[9px] uppercase font-bold text-[#C89B45] tracking-widest">Editorial Stylist Persona</p>
+            <div class="card p-2 bg-white text-[10px] text-[#6F675F] max-w-[280px] mx-auto mt-2 leading-relaxed">
+              <strong>Style Profile:</strong> Minimalist &amp; Quiet Luxury Editorial.<br>
+              <strong>Communication style:</strong> Structured, Thoughtful, Wardrobe-aware.
+            </div>
+          </div>
+
+          <!-- Daily Check-ins & Proactive recommendations -->
+          <div class="mt-4 flex-1 space-y-2">
+            <p class="small-caps text-[#C89B45] mb-1">Daily Stylist Check-ins</p>
+            <div class="muse-card p-3 text-xs leading-relaxed">
+              <p class="font-bold text-[#1B1716]">"Good morning. I prepared three tailored options for your lunch."</p>
+              <button class="text-[#C89B45] font-bold mt-1 block" data-target="screen-80">View choices →</button>
+            </div>
+            <div class="card p-3 text-xs bg-white leading-relaxed">
+              <p class="text-[#6F675F]">"You haven’t worn your Arket camel blazer in 43 days. Let's style it into your week schedule."</p>
+              <button class="text-[#1B1716] font-bold mt-1 block" onclick="triggerMusePreset('What matches my camel blazer?')">Style blazer now →</button>
+            </div>
+            <div class="card p-3 text-xs bg-white leading-relaxed">
+              <p class="text-[#6F675F]">"Your wardrobe value increased by £198 this month from automated retailer connections."</p>
+            </div>
+          </div>
+
+          <!-- Input bar and tags -->
+          <div class="pt-4 flex-shrink-0">
+            <div class="card p-2 flex items-center justify-between border-[#line-strong] bg-white mb-2 cursor-pointer" data-target="screen-79">
+              <span class="text-xs text-[#9F9387] pl-2">Ask Muse styling advice...</span>
+              <div class="w-8 h-8 rounded-xl bg-[#1B1716] flex items-center justify-center text-white"><i data-lucide="arrow-up" class="w-4 h-4"></i></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn text-[10px]" data-target="screen-81">Style Boards</button>
+              <button class="secondary-btn text-[10px]" data-target="screen-75">Trusted Circle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 79 — MUSE CONVERSATION                           -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-79" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 79 — Muse Conversation</h2>
+      <div class="phone" data-nav="muse">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8 flex flex-col h-[726px]">
+          <div class="flex items-center justify-between pt-2 mb-4 flex-shrink-0">
+            <button class="icon-btn" data-target="screen-78"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <div class="flex items-center gap-2">
+              <img src="images/muse_portrait.png" class="w-6 h-6 rounded-full object-cover">
+              <span class="text-xs font-bold">Muse Stylist</span>
+            </div>
+            <button class="icon-btn" data-target="screen-80"><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+          </div>
+
+          <div class="flex-grow overflow-y-auto space-y-4 pr-1 text-xs" id="chat-conversation-container">
+            <div class="flex justify-end">
+              <div class="bg-[#1B1716] text-white p-3 rounded-2xl rounded-tr-none max-w-[240px]">
+                <p id="chat-user-text">What matches my camel blazer?</p>
+              </div>
+            </div>
+            
+            <div class="flex gap-2">
+              <img src="images/muse_portrait.png" class="w-6 h-6 rounded-full object-cover flex-shrink-0">
+              <div class="bg-white border border-[#ECE7E1] p-3 rounded-2xl rounded-tl-none max-w-[240px] space-y-2">
+                <p id="chat-muse-text">Based on your warm autumn colors, here are matching outfits from your closet:</p>
+                <div class="card p-2 flex items-center gap-2 bg-[#F8F6F3]">
+                  <img src="images/item_silk_shell.png" class="w-8 h-8 object-cover rounded-lg">
+                  <div>
+                    <p class="font-bold text-[10px]">Ivory Silk Shell</p>
+                    <p class="text-[8px] text-[#6F675F]">98% Match rating</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat input field -->
+          <div class="pt-2 flex-shrink-0">
+            <div class="card p-1.5 flex items-center justify-between border-[#ECE7E1] bg-white mb-1">
+              <input type="text" id="chat-input-field" placeholder="Ask Muse styling advice..." class="text-xs text-[#1B1716] pl-2 focus:outline-none flex-grow bg-transparent border-none">
+              <button onclick="sendChatMessage()" class="w-7 h-7 rounded-xl bg-[#1B1716] flex items-center justify-center text-white"><i data-lucide="arrow-up" class="w-3.5 h-3.5"></i></button>
+            </div>
+          </div>
+
+          <div class="pt-4 flex-shrink-0 space-y-2">
+            <button class="primary-btn w-full" data-target="screen-80">
+              <span>View Outfit Plan</span>
+              <i data-lucide="calendar-check" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn" data-target="screen-64">Shop Pairings</button>
+              <button class="secondary-btn" onclick="showToast('Synced advice details!')">Save Tips</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 80 — MUSE RECOMMENDATION PLAN                    -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-80" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 80 — Muse Recommendation Plan</h2>
+      <div class="phone" data-nav="planner">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-79"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Action Plan</p>
+            <button class="icon-btn" data-target="screen-81"><i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+          </div>
+
+          <h2 class="font-serif text-lg leading-tight mb-2">Muse Action Plan</h2>
+
+          <div class="space-y-3 mb-4">
+            <div class="card p-3 bg-white">
+              <p class="text-[9px] uppercase font-bold text-[#C89B45]">Weekly Outfit Schedule</p>
+              <div class="divide-y divide-[#ECE7E1] mt-1 text-xs">
+                <div class="py-1.5 flex justify-between"><span>Mon: Soft Tailoring</span><span class="text-[#6F675F]">Camel Blazer + Shell</span></div>
+                <div class="py-1.5 flex justify-between"><span>Tue: Linen Everyday</span><span class="text-[#6F675F]">Linen Shirt + Olive Pants</span></div>
+              </div>
+            </div>
+
+            <div class="card p-3 bg-white text-xs">
+              <p class="text-[9px] uppercase font-bold text-[#6F675F] mb-1">Closet Actions</p>
+              <div class="flex gap-2 items-center">
+                <i data-lucide="archive" class="w-4 h-4 text-[#C89B45]"></i>
+                <span>Retrieve linen shirt from seasonal storage.</span>
+              </div>
+            </div>
+
+            <div class="card p-3 bg-white text-xs cursor-pointer" data-target="screen-64">
+              <p class="text-[9px] uppercase font-bold text-[#6F675F] mb-1">Shopping Actions (Closet Gaps)</p>
+              <div class="flex gap-2 items-center">
+                <i data-lucide="shopping-bag" class="w-4 h-4 text-[#C89B45]"></i>
+                <span class="flex-grow">Buy Charcoal Wool Trouser to fill gap.</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-[#9F9387]"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <button class="primary-btn w-full" onclick="showToast('Weekly Outfit Schedule Applied!')">
+              <span>Apply Styling Plan</span>
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+            </button>
+            <div class="grid grid-cols-2 gap-2">
+              <button class="secondary-btn font-bold" onclick="showToast('Synced to Apple Calendar!')">Add to Calendar</button>
+              <button class="secondary-btn font-bold" onclick="showToast('Plan Saved!')">Save Plan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 81 — STYLE BOARDS HUB                            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-81" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 81 — Style Boards Hub</h2>
+      <div class="phone" data-nav="looks">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-3">
+            <button class="icon-btn" data-target="screen-75"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Style Boards</p>
+            <div class="w-9 h-9"></div>
+          </div>
+
+          <h1 class="font-serif text-2xl font-bold leading-none mb-1">Style Boards</h1>
+          <p class="text-[10px] text-[#6F675F] mb-4">Create boards, gather inspiration, and make better style decisions together.</p>
+
+          <!-- Board Categories -->
+          <div class="flex gap-1.5 overflow-x-auto pb-3">
+            <span class="chip active py-1 min-h-6 text-[9px]" onclick="filterStyleBoards('all', this)">All</span>
+            <span class="chip py-1 min-h-6 text-[9px]" onclick="filterStyleBoards('travel', this)">Travel</span>
+            <span class="chip py-1 min-h-6 text-[9px]" onclick="filterStyleBoards('events', this)">Events</span>
+            <span class="chip py-1 min-h-6 text-[9px]" onclick="filterStyleBoards('seasonal', this)">Seasonal</span>
+            <span class="chip py-1 min-h-6 text-[9px]" onclick="filterStyleBoards('capsules', this)">Capsules</span>
+          </div>
+
+          <!-- Active Boards list -->
+          <p class="small-caps text-[#C89B45] mb-2 mt-1">Active Collaborative Boards</p>
+          <div id="active-boards-list" class="space-y-3 mb-4">
+            <!-- Italy Vacation -->
+            <div class="card p-3 flex flex-col gap-2 bg-white border-2 border-[#C89B45] hover:border-[#C89B45] transition-all">
+              <div class="flex justify-between items-center cursor-pointer" data-target="screen-82">
+                <div class="flex items-center gap-3">
+                  <img src="images/screen_07_hero.png" class="w-10 h-10 object-cover rounded-lg border border-[#ECE7E1]">
+                  <div>
+                    <p class="text-xs font-bold">Italy Vacation</p>
+                    <p class="text-[9px] text-[#6F675F]">18 saved items · Active 2h ago</p>
+                  </div>
+                </div>
+                <div class="flex -space-x-1.5">
+                  <img src="images/profile_woman.png" class="w-5 h-5 rounded-full object-cover border border-white">
+                  <img src="images/profile_man.png" class="w-5 h-5 rounded-full object-cover border border-white">
+                </div>
+              </div>
+              <div class="flex gap-2 justify-end">
+                <button class="chip py-0.5 min-h-6 text-[8px] bg-[#C89B45]/15 text-[#C89B45] border-transparent font-bold" data-target="screen-76">Create Poll</button>
+                <button class="chip py-0.5 min-h-6 text-[8px]" data-target="screen-82">Share Collection</button>
+              </div>
+            </div>
+
+            <!-- Wedding Weekend -->
+            <div class="card p-3 flex flex-col gap-2 bg-white hover:border-[#C89B45] transition-all">
+              <div class="flex justify-between items-center cursor-pointer" data-target="screen-82">
+                <div class="flex items-center gap-3">
+                  <img src="images/outfit_dinner_classic.png" class="w-10 h-10 object-cover rounded-lg border border-[#ECE7E1]">
+                  <div>
+                    <p class="text-xs font-bold">Wedding Weekend</p>
+                    <p class="text-[9px] text-[#6F675F]">8 saved items · Active 1d ago</p>
+                  </div>
+                </div>
+                <div class="flex -space-x-1.5">
+                  <img src="images/profile_woman.png" class="w-5 h-5 rounded-full object-cover border border-white">
+                  <div class="w-5 h-5 rounded-full bg-neutral-200 border border-white flex items-center justify-center text-[7px] font-bold">TL</div>
+                </div>
+              </div>
+              <div class="flex gap-2 justify-end">
+                <button class="chip py-0.5 min-h-6 text-[8px] bg-[#C89B45]/15 text-[#C89B45] border-transparent font-bold" data-target="screen-76">Create Poll</button>
+                <button class="chip py-0.5 min-h-6 text-[8px]" data-target="screen-82">Share Collection</button>
+              </div>
+            </div>
+
+            <!-- Work Refresh -->
+            <div class="card p-3 flex flex-col gap-2 bg-white hover:border-[#C89B45] transition-all">
+              <div class="flex justify-between items-center cursor-pointer" data-target="screen-82">
+                <div class="flex items-center gap-3">
+                  <img src="images/style_modern_prof.png" class="w-10 h-10 object-cover rounded-lg border border-[#ECE7E1]">
+                  <div>
+                    <p class="text-xs font-bold">Work Refresh</p>
+                    <p class="text-[9px] text-[#6F675F]">12 saved items · Active 3d ago</p>
+                  </div>
+                </div>
+                <img src="images/profile_man.png" class="w-5 h-5 rounded-full object-cover border border-white">
+              </div>
+              <div class="flex gap-2 justify-end">
+                <button class="chip py-0.5 min-h-6 text-[8px] bg-[#C89B45]/15 text-[#C89B45] border-transparent font-bold" data-target="screen-76">Create Poll</button>
+                <button class="chip py-0.5 min-h-6 text-[8px]" data-target="screen-82">Share Collection</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full" onclick="createStyleBoard()">
+            <span>Create New Board</span>
+            <i data-lucide="plus" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 82 / 84 — SHARE COLLECTION                       -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-82" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 82 / 84 — Share Collection</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-71"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Share Collection</p>
+            <div class="w-9 h-9"></div>
+          </div>
+
+          <!-- Collection details -->
+          <div class="card p-3 mb-3 text-xs bg-white">
+            <p class="font-bold text-[#C89B45] mb-1.5 uppercase tracking-wider text-[9px]">Collection details</p>
+            <div class="flex items-center gap-3">
+              <img src="images/screen_07_hero.png" class="w-10 h-10 object-cover rounded-lg border border-[#ECE7E1]">
+              <div class="flex-grow">
+                <input type="text" value="Italy Packing List" class="font-bold border-b border-[#ECE7E1] pb-0.5 focus:outline-none w-full">
+                <input type="text" value="Linen capsule for 7 days" class="text-[10px] text-[#6F675F] mt-1 w-full border-none focus:outline-none">
+              </div>
+            </div>
+          </div>
+
+          <!-- Shared Items -->
+          <div class="flex justify-between items-center mb-2">
+            <p class="small-caps text-[#C89B45]">Shared Items</p>
+            <div class="flex gap-1">
+              <button id="share-view-grid-btn" class="chip py-0 min-h-6 text-[8px] active" onclick="setShareCollectionView('grid')">Grid</button>
+              <button id="share-view-list-btn" class="chip py-0 min-h-6 text-[8px]" onclick="setShareCollectionView('list')">List</button>
+            </div>
+          </div>
+
+          <div id="shared-items-container" class="grid grid-cols-2 gap-2 mb-4">
+            <!-- Item 1 -->
+            <div class="card p-2 flex flex-col gap-1 text-xs relative">
+              <img src="images/screen_23_item.png" class="w-full h-16 object-cover rounded-lg">
+              <div class="flex justify-between items-center mt-1">
+                <span class="font-bold truncate text-[10px]">Arket Camel Blazer</span>
+                <input type="checkbox" checked class="accent-[#C89B45] share-item-checkbox" onclick="updateSharedCount()">
+              </div>
+            </div>
+            <!-- Item 2 -->
+            <div class="card p-2 flex flex-col gap-1 text-xs relative">
+              <img src="images/item_silk_shell.png" class="w-full h-16 object-cover rounded-lg">
+              <div class="flex justify-between items-center mt-1">
+                <span class="font-bold truncate text-[10px]">Ivory Silk Shell</span>
+                <input type="checkbox" checked class="accent-[#C89B45] share-item-checkbox" onclick="updateSharedCount()">
+              </div>
+            </div>
+            <!-- Item 3 -->
+            <div class="card p-2 flex flex-col gap-1 text-xs relative">
+              <img src="images/screen_07_hero.png" class="w-full h-16 object-cover rounded-lg">
+              <div class="flex justify-between items-center mt-1">
+                <span class="font-bold truncate text-[10px]">Linen Wide Pants</span>
+                <input type="checkbox" checked class="accent-[#C89B45] share-item-checkbox" onclick="updateSharedCount()">
+              </div>
+            </div>
+            <!-- Item 4 -->
+            <div class="card p-2 flex flex-col gap-1 text-xs relative">
+              <img src="images/outfit_dinner_classic.png" class="w-full h-16 object-cover rounded-lg">
+              <div class="flex justify-between items-center mt-1">
+                <span class="font-bold truncate text-[10px]">Leather Boots</span>
+                <input type="checkbox" class="accent-[#C89B45] share-item-checkbox" onclick="updateSharedCount()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Invite and permissions -->
+          <div class="card p-4 space-y-3 mb-4 text-xs">
+            <div class="flex flex-col gap-1">
+              <span class="font-bold text-[#6F675F]">Invite Participants</span>
+              <input type="email" placeholder="friend@email.com" class="border border-[#ECE7E1] rounded-lg p-2 focus:outline-none focus:border-[#C89B45]">
+            </div>
+            
+            <div class="flex justify-between items-center">
+              <span class="font-bold text-[#6F675F]">Permission Level</span>
+              <select class="bg-transparent font-bold text-[#C89B45] outline-none">
+                <option>View Only</option>
+                <option>Comment Only</option>
+                <option>Suggest Outfits</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="primary-btn w-full" onclick="showToast('Shared wardrobe collection generated!')">
+            <span>Share Collection</span>
+            <i data-lucide="share" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 83 / 85 — MARKETPLACE DASHBOARD                  -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <section id="screen-83" class="flex flex-col items-center gap-4">
+      <h2 class="title text-xs font-semibold uppercase tracking-widest text-[#6F675F]">Screen 83 / 85 — Marketplace Dashboard</h2>
+      <div class="phone" data-nav="closet">
+        <div class="status-bar">
+          <span class="text-xs font-medium">9:41</span>
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i>
+          </div>
+        </div>
+        
+        <div class="px-6 pb-8">
+          <div class="flex items-center justify-between pt-2 mb-4">
+            <button class="icon-btn" data-target="screen-71"><i data-lucide="arrow-left" class="w-4 h-4"></i></button>
+            <p class="small-caps text-[#6F675F]">Marketplace Hub</p>
+            <button class="icon-btn" onclick="showToast('Activity feed updated')"><i data-lucide="rotate-cw" class="w-4 h-4"></i></button>
+          </div>
+
+          <!-- Earnings Overview -->
+          <div class="card p-3 mb-3 text-center grid grid-cols-4 divide-x divide-[#ECE7E1]">
+            <div>
+              <p class="text-[8px] text-[#6F675F] font-bold">Total Earned</p>
+              <p id="total-earned-metric" class="text-xs font-bold font-serif text-green-700 mt-1">£340</p>
+            </div>
+            <div>
+              <p class="text-[8px] text-[#6F675F] font-bold">Pending</p>
+              <p id="pending-metric" class="text-xs font-bold font-serif text-[#1B1716] mt-1">£120</p>
+            </div>
+            <div>
+              <p class="text-[8px] text-[#6F675F] font-bold">Active Listings</p>
+              <p id="active-listings-metric" class="text-xs font-bold font-serif text-green-700 mt-1">2</p>
+            </div>
+            <div>
+              <p class="text-[8px] text-[#6F675F] font-bold">Sold Items</p>
+              <p id="sold-listings-metric" class="text-xs font-bold font-serif text-green-700 mt-1">12</p>
+            </div>
+          </div>
+
+          <!-- Listing Performance -->
+          <div class="card p-3 bg-[#F8F6F3] text-center grid grid-cols-4 gap-1 mb-3 text-xs">
+            <div><span class="block text-[7px] text-[#6F675F]">Views</span><strong class="text-[10px]">142</strong></div>
+            <div><span class="block text-[7px] text-[#6F675F]">Saves</span><strong class="text-[10px]">32</strong></div>
+            <div><span class="block text-[7px] text-[#6F675F]">Offers</span><strong class="text-[10px]">3</strong></div>
+            <div><span class="block text-[7px] text-[#6F675F]">Conversion</span><strong class="text-[10px] text-green-700">8.4%</strong></div>
+          </div>
+
+          <!-- Active Listings status -->
+          <p class="small-caps text-[#C89B45] mb-2">Active Listings</p>
+          <div id="marketplace-listings-container" class="space-y-2 mb-3">
+            <div class="card p-2 flex justify-between items-center text-xs bg-white">
+              <div class="flex items-center gap-2">
+                <img src="images/item_blazer.png" class="w-8 h-8 object-cover rounded">
+                <div>
+                  <p class="font-bold">Zara Navy Blazer</p>
+                  <p class="text-[8px] text-[#6F675F]">Price: £45 · 142 views</p>
+                </div>
+              </div>
+              <span class="text-[8px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">Active</span>
+            </div>
+            <div class="card p-2 flex justify-between items-center text-xs bg-white">
+              <div class="flex items-center gap-2">
+                <img src="images/item_silk_shell.png" class="w-8 h-8 object-cover rounded">
+                <div>
+                  <p class="font-bold">Silk Tank Top</p>
+                  <p class="text-[8px] text-[#6F675F]">Price: £25 · Draft mode</p>
+                </div>
+              </div>
+              <span class="text-[8px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">Draft</span>
+            </div>
+            <div class="card p-2 flex justify-between items-center text-xs bg-white">
+              <div class="flex items-center gap-2">
+                <img src="images/outfit_dinner_classic.png" class="w-8 h-8 object-cover rounded">
+                <div>
+                  <p class="font-bold">Massimo Dutti Knit</p>
+                  <p class="text-[8px] text-[#6F675F]">Sold for: £65 · Completed</p>
+                </div>
+              </div>
+              <span class="text-[8px] font-bold text-green-800 bg-green-100 px-1.5 py-0.5 rounded">Sold</span>
+            </div>
+            <div class="card p-2 flex justify-between items-center text-xs bg-white">
+              <div class="flex items-center gap-2">
+                <img src="images/screen_23_item.png" class="w-8 h-8 object-cover rounded">
+                <div>
+                  <p class="font-bold">Ribbed Cardigan</p>
+                  <p class="text-[8px] text-[#6F675F]">Price: £45 · Offer accepted</p>
+                </div>
+              </div>
+              <span class="text-[8px] font-bold text-yellow-700 bg-yellow-50 px-1.5 py-0.5 rounded">Pending</span>
+            </div>
+          </div>
+
+          <!-- Muse Resell Recommendations -->
+          <div class="muse-card p-3 mb-3 text-xs">
+            <p class="section-label mb-0.5">Muse Resell Suggestion</p>
+            <div class="flex justify-between items-start gap-2">
+              <p class="text-[#6F675F] text-[10px] leading-tight">You haven’t worn your Ribbed Knit Blazer in 14 months. Value: £82. recommended action: List for sale.</p>
+              <button class="chip min-h-6 bg-[#C89B45] text-white border-transparent text-[8px] px-2 py-0" onclick="listSuggestedItem(this)">List</button>
+            </div>
+          </div>
+
+          <!-- Activity Feed -->
+          <p class="small-caps text-[#C89B45] mb-2">Marketplace Activity</p>
+          <div class="card p-3 space-y-2 text-xs bg-white mb-4">
+            <div class="flex justify-between items-center text-[10px] pb-1 border-b border-[#ECE7E1]">
+              <span class="text-[#6F675F]">Offer of £40 received for Zara Navy Blazer</span>
+              <span class="font-bold text-green-700">New Offer</span>
+            </div>
+            <div class="flex justify-between items-center text-[10px] pb-1 border-b border-[#ECE7E1]">
+              <span class="text-[#6F675F]">Massimo Dutti Knit sold to @clara_style</span>
+              <span class="text-[#6F675F]">2h ago</span>
+            </div>
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-[#6F675F]">Payment of £65 released to your Style Budget</span>
+              <span class="text-[#6F675F]">1d ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT HANDLERS -->
+  <script>
+    const navigationItems = [
+      { id: "home",        label: "Home",        icon: "home",           target: "screen-62" },
+      { id: "closet",      label: "Closet",      icon: "shirt",          target: "screen-71" },
+      { id: "looks",       label: "Looks",       icon: "sparkles",       target: "screen-73" },
+      { id: "planner",     label: "Planner",     icon: "calendar-days",  target: "screen-80" },
+      { id: "muse",        label: "Muse",        icon: "message-circle-heart", target: "screen-78" }
+    ];
+
+    const screenLocations = {
+      "screen-62": "Identity · Profile",
+      "screen-72": "Identity · Timeline",
+      "screen-74": "Identity · Wrapped",
+      "screen-63": "Analytics · ROI",
+      "screen-64": "Shopping · Recommendation",
+      "screen-65": "Shopping · Before You Buy",
+      "screen-66": "Imports · History",
+      "screen-67": "Imports · Scanner",
+      "screen-68": "Integrations · Sync",
+      "screen-69": "Transitions · Seasonal",
+      "screen-70": "Transitions · Declutter",
+      "screen-71": "Lifecycle · Details",
+      "screen-73": "Diary · Outfits",
+      "screen-75": "Circle · Trusted Circle Hub",
+      "screen-76": "Circle · Create Poll",
+      "screen-77": "Circle · Poll Results",
+      "screen-78": "Muse · Profile & Check-in",
+      "screen-79": "Muse · Chat Stylist",
+      "screen-80": "Muse · Weekly Plan",
+      "screen-81": "Collaborative · Boards Hub",
+      "screen-82": "Collaborative · Share Collection",
+      "screen-83": "Resale · Marketplace Dashboard"
+    };
+
+    // DOM Injection Engine
+    document.querySelectorAll(".phone[data-nav]").forEach((phone) => {
+      const activeDestination = phone.dataset.nav;
+      const sectionId = phone.closest("section")?.id;
+      const statusBar = phone.querySelector(":scope > .status-bar");
+      const contentNodes = Array.from(phone.children).filter((child) => child !== statusBar);
+
+      const contentViewport = document.createElement("div");
+      contentViewport.className = "app-content";
+      contentNodes.forEach((node) => contentViewport.appendChild(node));
+
+      const shellBar = document.createElement("div");
+      shellBar.className = "shell-bar";
+      shellBar.innerHTML = `
+        <span class="shell-brand">StyleIQ</span>
+        <span class="shell-location">${screenLocations[sectionId] || "StyleIQ"}</span>
+      `;
+
+      const navigation = document.createElement("nav");
+      navigation.className = "bottom-nav";
+      navigation.setAttribute("aria-label", "Primary navigation");
+      navigation.innerHTML = navigationItems.map((item) => `
+        <button
+          class="nav-item${item.id === activeDestination ? " active" : ""}${item.id === "looks" ? " looks" : ""}"
+          aria-label="Open ${item.label}"
+          data-target="${item.target}"
+        >
+          <span class="nav-icon">
+            <i data-lucide="${item.icon}" class="${item.id === "looks" ? "w-5 h-5" : "w-[18px] h-[18px]"}" stroke-width="1.5"></i>
+          </span>
+          <span>${item.label}</span>
+        </button>
+      `).join("");
+
+      phone.appendChild(shellBar);
+      phone.appendChild(contentViewport);
+      phone.appendChild(navigation);
+    });
+
+    // Global Scrolling Navigation Engine
+    function scrollToScreen(screenId) {
+      const screen = document.getElementById(screenId);
+      if (!screen) return;
+      
+      document.querySelectorAll(".phone").forEach((el) => {
+        el.classList.remove("highlighted-shell");
+      });
+      
+      screen.scrollIntoView({ behavior: "smooth", block: "center" });
+      
+      const phoneShell = screen.querySelector(".phone");
+      if (phoneShell) {
+        phoneShell.classList.add("highlighted-shell");
+      }
+      
+      const selector = document.getElementById("screen-selector");
+      if (selector) selector.value = screenId;
+    }
+
+    // Global click listener
+    document.addEventListener("click", (event) => {
+      const targetButton = event.target.closest("[data-target]");
+      if (targetButton) {
+        const targetId = targetButton.dataset.target;
+        scrollToScreen(targetId);
+      }
+    });
+
+    // Interactive Action: DNA synthesis recalculation
+    function triggerDNASynthesis() {
+      const btnText = document.getElementById("dna-btn-text");
+      const btnIcon = document.getElementById("dna-btn-icon");
+      if (!btnText || !btnIcon) return;
+
+      btnText.innerText = "Recalculating DNA...";
+      btnIcon.classList.add("animate-spin");
+
+      setTimeout(() => {
+        btnText.innerText = "Retake Style DNA";
+        btnIcon.classList.remove("animate-spin");
+        showToast("DNA synthesis completed! Color tags updated.");
+      }, 2000);
+    }
+
+    // Interactive Action: Smart savings
+    function triggerSmartSave() {
+      showToast("Smart Save! £89.00 added to your Resale & Style Budget.");
+      const totalEarnedNode = document.getElementById("total-earned-metric");
+      if (totalEarnedNode) {
+        let currentVal = parseInt(totalEarnedNode.innerText.replace('£', ''));
+        totalEarnedNode.innerText = '£' + (currentVal + 89);
+      }
+      scrollToScreen("screen-83");
+    }
+
+    // Interactive Action: Receipt scanner camera trigger
+    function startScannerScan() {
+      const line = document.getElementById("scanner-line-node");
+      const resultCard = document.getElementById("scanned-result-card");
+      const triggerBtn = document.getElementById("scan-trigger-btn");
+      if (!line || !resultCard || !triggerBtn) return;
+
+      line.classList.remove("hidden");
+      resultCard.classList.add("hidden");
+      triggerBtn.disabled = true;
+      triggerBtn.querySelector("span").innerText = "Reading receipt data...";
+
+      setTimeout(() => {
+        line.classList.add("hidden");
+        resultCard.classList.remove("hidden");
+        triggerBtn.disabled = false;
+        triggerBtn.querySelector("span").innerText = "Scan Paper Receipt";
+        showToast("Oat Blazer successfully added to closet additions!");
+      }, 2500);
+    }
+
+    // Interactive Action: Seasonal transition score incrementor
+    function runSeasonalTransitionAnimation() {
+      const scoreNode = document.getElementById("readiness-score-node");
+      const barNode = document.getElementById("readiness-bar-node");
+      if (!scoreNode || !barNode) return;
+
+      showToast("Preparing summer storage transition pack...");
+      
+      setTimeout(() => {
+        scoreNode.innerText = "98%";
+        barNode.style.width = "98%";
+        showToast("Transition complete! 24 summer items shelved.");
+      }, 1500);
+    }
+
+    // Interactive Action: Create Style Board
+    function createStyleBoard() {
+      const boardNames = ["Fall Wardrobe Refresh", "Date Night Ideas", "Summer Refresh", "Weekend Getaway", "Holiday Gala"];
+      const existingBoards = Array.from(document.querySelectorAll("#active-boards-list p.font-bold")).map(p => p.innerText.trim());
+      const nextName = boardNames.find(name => !existingBoards.includes(name)) || "New Style Board";
+      
+      const container = document.getElementById("active-boards-list");
+      if (!container) return;
+      
+      const newCard = document.createElement("div");
+      newCard.className = "card p-3 flex flex-col gap-2 bg-white hover:border-[#C89B45] transition-all";
+      newCard.innerHTML = `
+        <div class="flex justify-between items-center cursor-pointer" data-target="screen-82">
+          <div class="flex items-center gap-3">
+            <img src="images/outfit_soft_tailoring.png" class="w-10 h-10 object-cover rounded-lg border border-[#ECE7E1]">
+            <div>
+              <p class="text-xs font-bold">${nextName}</p>
+              <p class="text-[9px] text-[#6F675F]">0 saved items · Active just now</p>
+            </div>
+          </div>
+          <div class="flex -space-x-1.5">
+            <img src="images/profile_woman.png" class="w-5 h-5 rounded-full object-cover border border-white">
+          </div>
+        </div>
+        <div class="flex gap-2 justify-end">
+          <button class="chip py-0.5 min-h-6 text-[8px] bg-[#C89B45]/15 text-[#C89B45] border-transparent font-bold" data-target="screen-76">Create Poll</button>
+          <button class="chip py-0.5 min-h-6 text-[8px]" data-target="screen-82">Share Collection</button>
+        </div>
+      `;
+      container.appendChild(newCard);
+      showToast(`Board "${nextName}" created and added to collaborative active list!`);
+    }
+
+    // Interactive Action: Filter Style Boards
+    function filterStyleBoards(category, pillElement) {
+      const section = pillElement.closest("section");
+      if (section) {
+        section.querySelectorAll(".chip").forEach(chip => chip.classList.remove("active"));
+        pillElement.classList.add("active");
+      }
+      
+      const boards = document.querySelectorAll("#active-boards-list > div");
+      boards.forEach(board => {
+        const title = board.querySelector("p.font-bold").innerText.toLowerCase();
+        if (category === "all") {
+          board.classList.remove("hidden");
+        } else if (category === "travel" && title.includes("vacation")) {
+          board.classList.remove("hidden");
+        } else if (category === "events" && title.includes("wedding")) {
+          board.classList.remove("hidden");
+        } else if (category === "capsules" && title.includes("work")) {
+          board.classList.remove("hidden");
+        } else if (category === "seasonal" && (title.includes("summer") || title.includes("fall"))) {
+          board.classList.remove("hidden");
+        } else {
+          board.classList.add("hidden");
+        }
+      });
+      
+      showToast(`Filtered style boards by: ${category}`);
+    }
+
+    // Interactive Action: Toggle poll options A, B, C selection
+    function togglePollOption(element) {
+      element.classList.toggle("border-[#C89B45]");
+      element.classList.toggle("bg-[#F8F6F3]");
+      element.classList.toggle("border-2");
+      element.classList.toggle("border-[#ECE7E1]");
+      element.classList.toggle("bg-white");
+      
+      let check = element.querySelector(".checkmark-badge");
+      if (!check) {
+        check = document.createElement("span");
+        check.className = "checkmark-badge absolute top-1 right-1 bg-[#C89B45] text-white p-0.5 rounded-full";
+        check.innerHTML = `<i data-lucide="check" class="w-2 h-2"></i>`;
+        element.appendChild(check);
+        lucide.createIcons();
+      } else {
+        check.remove();
+      }
+    }
+
+    // Interactive Action: Publish Poll and animate results
+    function publishPoll() {
+      const questionInput = document.getElementById("poll-question");
+      const questionText = questionInput ? questionInput.value : "Which outfit should I wear?";
+      
+      const resultsTitle = document.getElementById("poll-results-title");
+      if (resultsTitle) {
+        resultsTitle.innerText = questionText;
+      }
+      
+      const fillA = document.getElementById("bar-fill-a");
+      const fillB = document.getElementById("bar-fill-b");
+      const fillC = document.getElementById("bar-fill-c");
+      
+      if (fillA && fillB && fillC) {
+        fillA.style.width = "0%";
+        fillB.style.width = "0%";
+        fillC.style.width = "0%";
+        
+        setTimeout(() => {
+          fillA.style.width = "68%";
+          fillB.style.width = "20%";
+          fillC.style.width = "12%";
+        }, 400);
+      }
+      
+      showToast("Poll published to your Trusted Circle!");
+      scrollToScreen("screen-77");
+    }
+
+    // Interactive Action: Add Poll Comment
+    function addPollComment() {
+      const input = document.getElementById("poll-comment-input");
+      if (!input || !input.value.trim()) return;
+      
+      const container = document.getElementById("poll-comments-container");
+      if (!container) return;
+      
+      const newComment = document.createElement("div");
+      newComment.className = "card p-2 bg-white text-[10px] flex gap-2";
+      newComment.innerHTML = `
+        <div class="w-5 h-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center text-[8px] font-bold">ME</div>
+        <div>
+          <span class="font-bold">You:</span>
+          <span class="text-[#6F675F]">${input.value.trim()}</span>
+        </div>
+      `;
+      container.appendChild(newComment);
+      input.value = "";
+      showToast("Comment posted!");
+    }
+
+    // Interactive Action: Set Share Collection Layout View Grid/List
+    function setShareCollectionView(viewType) {
+      const container = document.getElementById("shared-items-container");
+      const gridBtn = document.getElementById("share-view-grid-btn");
+      const listBtn = document.getElementById("share-view-list-btn");
+      if (!container || !gridBtn || !listBtn) return;
+      
+      if (viewType === 'grid') {
+        gridBtn.classList.add("active");
+        listBtn.classList.remove("active");
+        container.className = "grid grid-cols-2 gap-2 mb-4";
+        
+        container.querySelectorAll(".card").forEach(card => {
+          card.className = "card p-2 flex flex-col gap-1 text-xs relative";
+          const img = card.querySelector("img");
+          if (img) img.className = "w-full h-16 object-cover rounded-lg";
+          const wrapper = card.querySelector(".flex");
+          if (wrapper) wrapper.className = "flex justify-between items-center mt-1";
+        });
+      } else {
+        listBtn.classList.add("active");
+        gridBtn.classList.remove("active");
+        container.className = "flex flex-col gap-2 mb-4";
+        
+        container.querySelectorAll(".card").forEach(card => {
+          card.className = "card p-2 flex flex-row items-center gap-3 text-xs relative";
+          const img = card.querySelector("img");
+          if (img) img.className = "w-10 h-10 object-cover rounded-lg";
+          const wrapper = card.querySelector(".flex");
+          if (wrapper) wrapper.className = "flex-grow flex justify-between items-center";
+        });
+      }
+      showToast(`Switched view to ${viewType}`);
+    }
+
+    // Interactive Action: Update shared collection item selection count
+    function updateSharedCount() {
+      const checkedCount = document.querySelectorAll(".share-item-checkbox:checked").length;
+      showToast(`Selected ${checkedCount} items to share.`);
+    }
+
+    // Interactive Action: List suggested item on Marketplace Dashboard
+    function listSuggestedItem(button) {
+      const container = document.getElementById("marketplace-listings-container");
+      if (!container) return;
+      
+      const newListing = document.createElement("div");
+      newListing.className = "card p-2 flex justify-between items-center text-xs bg-white border border-[#C89B45] animate-pulse";
+      newListing.innerHTML = `
+        <div class="flex items-center gap-2">
+          <img src="images/style_creative.png" class="w-8 h-8 object-cover rounded" style="object-position: center">
+          <div>
+            <p class="font-bold">Ribbed Knit Blazer</p>
+            <p class="text-[8px] text-[#6F675F]">Price: £82 · 0 views</p>
+          </div>
+        </div>
+        <span class="text-[8px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">Active</span>
+      `;
+      
+      container.insertBefore(newListing, container.firstChild);
+      
+      const parentCard = button.closest(".muse-card");
+      if (parentCard) {
+        parentCard.innerHTML = `
+          <p class="section-label mb-0.5">Muse Resell Suggestion</p>
+          <p class="text-green-700 font-bold text-[10px] leading-tight">✓ Ribbed Knit Blazer has been listed on the marketplace for £82.</p>
+        `;
+      }
+      
+      const activeCountNode = document.getElementById("active-listings-metric");
+      if (activeCountNode) {
+        let currentVal = parseInt(activeCountNode.innerText);
+        activeCountNode.innerText = currentVal + 1;
+      }
+      
+      showToast("Ribbed Knit Blazer added to active listings!");
+    }
+
+    // Interactive Action: Resell Item from Screen 70 details
+    function resellItemFromScreen70() {
+      showToast('Item listed to Vinted & Vestiaire!');
+      
+      const container = document.getElementById("marketplace-listings-container");
+      if (container) {
+        const newListing = document.createElement("div");
+        newListing.className = "card p-2 flex justify-between items-center text-xs bg-white border border-[#C89B45] animate-pulse";
+        newListing.innerHTML = `
+          <div class="flex items-center gap-2">
+            <img src="images/style_creative.png" class="w-8 h-8 object-cover rounded">
+            <div>
+              <p class="font-bold">Massimo Dutti Ribbed Knit Vest</p>
+              <p class="text-[8px] text-[#6F675F]">Price: £48 · 0 views</p>
+            </div>
+          </div>
+          <span class="text-[8px] font-bold text-green-700 bg-green-50 px-1.5 py-0.5 rounded">Active</span>
+        `;
+        container.insertBefore(newListing, container.firstChild);
+      }
+      
+      const activeCountNode = document.getElementById("active-listings-metric");
+      if (activeCountNode) {
+        let currentVal = parseInt(activeCountNode.innerText);
+        activeCountNode.innerText = currentVal + 1;
+      }
+      
+      scrollToScreen("screen-83");
+    }
+
+    // Chat logic: add message to Muse stylist conversation
+    function addMessageToChat(sender, text, item = null) {
+      const container = document.getElementById("chat-conversation-container");
+      if (!container) return;
+      
+      const bubble = document.createElement("div");
+      if (sender === "user") {
+        bubble.className = "flex justify-end";
+        bubble.innerHTML = `
+          <div class="bg-[#1B1716] text-white p-3 rounded-2xl rounded-tr-none max-w-[240px]">
+            <p>${text}</p>
+          </div>
+        `;
+      } else {
+        bubble.className = "flex gap-2";
+        let itemHtml = "";
+        if (item) {
+          itemHtml = `
+            <div class="card p-2 flex items-center gap-2 bg-[#F8F6F3] mt-2">
+              <img src="${item.img}" class="w-8 h-8 object-cover rounded-lg">
+              <div>
+                <p class="font-bold text-[10px]">${item.name}</p>
+                <p class="text-[8px] text-[#6F675F]">${item.meta}</p>
+              </div>
+            </div>
+          `;
+        }
+        bubble.innerHTML = `
+          <img src="images/muse_portrait.png" class="w-6 h-6 rounded-full object-cover flex-shrink-0">
+          <div class="bg-white border border-[#ECE7E1] p-3 rounded-2xl rounded-tl-none max-w-[240px] space-y-2">
+            <p>${text}</p>
+            ${itemHtml}
+          </div>
+        `;
+      }
+      
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+      lucide.createIcons();
+    }
+
+    // Chat logic: send user question and simulate Muse reply
+    function sendChatMessage() {
+      const input = document.getElementById("chat-input-field");
+      if (!input || !input.value.trim()) return;
+      
+      const query = input.value.trim();
+      addMessageToChat("user", query);
+      input.value = "";
+      
+      const typingIndicator = document.createElement("div");
+      typingIndicator.className = "flex gap-2 items-center text-[10px] text-[#6F675F] chat-typing-indicator mt-2";
+      typingIndicator.innerHTML = `
+        <img src="images/muse_portrait.png" class="w-5 h-5 rounded-full object-cover">
+        <span>Muse is compiling styling recommendations...</span>
+      `;
+      const container = document.getElementById("chat-conversation-container");
+      if (container) {
+        container.appendChild(typingIndicator);
+        container.scrollTop = container.scrollHeight;
+      }
+      
+      setTimeout(() => {
+        const indicator = document.querySelector(".chat-typing-indicator");
+        if (indicator) indicator.remove();
+        
+        let answer = "";
+        let item = null;
+        
+        const lowerQuery = query.toLowerCase();
+        if (lowerQuery.includes("camel") || lowerQuery.includes("blazer")) {
+          answer = "The Camel blazer works beautifully with neutral bases. I suggest the Ivory Silk Shell and linen wide trousers.";
+          item = { name: "Ivory Silk Shell", img: "images/item_silk_shell.png", meta: "98% Match rating" };
+        } else if (lowerQuery.includes("paris") || lowerQuery.includes("travel") || lowerQuery.includes("pack")) {
+          answer = "For Paris: pack breathable layers. A linen shirt, cotton trousers, and a lightweight knit will ensure chic utility.";
+          item = { name: "Linen Shirt", img: "images/screen_07_hero.png", meta: "Highly recommended for travel" };
+        } else if (lowerQuery.includes("similar") || lowerQuery.includes("duplicate")) {
+          answer = "I've flagged a duplicate in your closet: two navy blazers. Selling the Zara blazer would reclaim £45.";
+          item = { name: "Zara Navy Blazer", img: "images/item_blazer.png", meta: "Unworn for 6 months" };
+        } else {
+          answer = "As your stylist, I recommend pairing that with clean lines: try soft tailoring or tonal linen pieces from your summer pack list.";
+        }
+        
+        addMessageToChat("muse", answer, item);
+        showToast("Styling recommendations compiled by Muse AI");
+      }, 1500);
+    }
+
+    // Interactive Action: Muse suggestion chat bubbles updater
+    function triggerMusePreset(questionText) {
+      scrollToScreen("screen-79");
+      const container = document.getElementById("chat-conversation-container");
+      if (container) container.innerHTML = "";
+      
+      addMessageToChat("user", questionText);
+      
+      setTimeout(() => {
+        let answer = "";
+        let item = null;
+        if (questionText.includes("blazer")) {
+          answer = "Based on your warm autumn colors, here are matching outfits from your closet:";
+          item = { name: "Ivory Silk Shell", img: "images/item_silk_shell.png", meta: "98% Match rating" };
+        } else if (questionText.includes("Paris")) {
+          answer = "For Paris (68° Breezy): Pack your linen blazer, cream silk shell, and comfortable loafers. Perfect capsule combinations.";
+          item = { name: "Linen Blazer", img: "images/screen_07_hero.png", meta: "Travel essential" };
+        } else {
+          answer = "Analyzing duplicates... You own two navy blazers. One is Zara (unworn), and the other is Massimo Dutti. Selling one would recoup £48.";
+          item = { name: "Zara Navy Blazer", img: "images/item_blazer.png", meta: "Unworn · Resell value £48" };
+        }
+        addMessageToChat("muse", answer, item);
+        showToast("Styling recommendations compiled by Muse AI");
+      }, 1000);
+    }
+
+    // Utility: Show message toast notification
+    function showToast(text) {
+      const toast = document.getElementById("toast-notification");
+      const toastText = document.getElementById("toast-text");
+      if (!toast || !toastText) return;
+
+      toastText.innerText = text;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3500);
+    }
+
+    // Utility: Toggle heart items in wishlist
+    function toggleHeart(button) {
+      const icon = button.querySelector("i");
+      if (!icon) return;
+      if (icon.classList.contains("text-gray-400")) {
+        icon.classList.remove("text-gray-400");
+        icon.classList.add("text-red-500", "fill-red-500");
+        showToast("Added to Wishlist");
+      } else {
+        icon.classList.remove("text-red-500", "fill-red-500");
+        icon.classList.add("text-gray-400");
+        showToast("Removed from Wishlist");
+      }
+    }
+
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Auto highlight screen selector dropdown based on window scroll position
+    window.addEventListener("scroll", () => {
+      let currentScreen = "screen-62";
+      document.querySelectorAll("section").forEach((sec) => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+          currentScreen = sec.id;
+        }
+      });
+      const selector = document.getElementById("screen-selector");
+      if (selector && selector.value !== currentScreen) {
+        selector.value = currentScreen;
+      }
+    });
+  </script>
+</body>
+</html>
