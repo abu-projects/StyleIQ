@@ -7,29 +7,160 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <style>
-/* Import a sophisticated serif for headings to simulate Canela/Noe Display */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #EFECE7; /* Canvas background to let the Ivory screens pop */
+  background-color: #EFECE7;
 }
 .font-serif {
   font-family: 'Playfair Display', serif;
 }
-/* Hide scrollbar for cleaner mockup appearance */
-.mockup-container::-webkit-scrollbar {
-  display: none;
+.mockup-container::-webkit-scrollbar { display: none; }
+.mockup-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* REDUCE-STEPS: index.html — SSO button styles */
+.sso-btn {
+  width: 100%;
+  height: 56px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1px solid #ECE7E1;
+  color: #1B1716;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, transform 100ms;
 }
-.mockup-container {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+.sso-btn:hover { background: #F8F6F3; border-color: #D6CCC2; }
+.sso-btn:active { transform: scale(0.98); }
+
+/* REDUCE-STEPS: index.html — "Use email instead" toggle */
+.email-toggle {
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6F675F;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 150ms;
+}
+.email-toggle:hover { color: #1B1716; }
+.email-toggle span {
+  border-bottom: 1px solid #D6CCC2;
+  padding-bottom: 1px;
+}
+
+/* REDUCE-STEPS: index.html — email form hidden by default on sign up */
+.email-form-section {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 400ms ease, opacity 300ms ease;
+}
+.email-form-section.visible {
+  max-height: 600px;
+  opacity: 1;
+}
+
+/* divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.divider-line { flex: 1; height: 1px; background: #ECE7E1; }
+.divider-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #9F9387;
+  white-space: nowrap;
+}
+
+/* input */
+.field-input {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #ECE7E1;
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 52px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #1B1716;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+.field-input::placeholder { color: #9F9387; }
+.field-input:focus { border-color: #C89B45; box-shadow: 0 0 0 2px rgba(200,155,69,0.12); }
+
+/* primary button */
+.primary-btn {
+  width: 100%;
+  height: 56px;
+  border-radius: 16px;
+  background: #1B1716;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 150ms, transform 100ms;
+  border: none;
+}
+.primary-btn:hover { opacity: 0.9; }
+.primary-btn:active { transform: scale(0.98); }
+
+/* ghost button */
+.ghost-btn {
+  width: 100%;
+  height: 52px;
+  border-radius: 16px;
+  background: transparent;
+  border: 1px solid #ECE7E1;
+  color: #1B1716;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 150ms, transform 100ms;
+}
+.ghost-btn:hover { background: rgba(239,236,231,0.4); }
+.ghost-btn:active { transform: scale(0.98); }
+
+/* REDUCE-STEPS: index.html — splash progress bar */
+@keyframes splash-progress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+.splash-bar {
+  animation: splash-progress 1.6s ease-in-out forwards;
 }
 </style>
 </head>
 <body class="p-8 md:p-16 min-h-screen">
   <div class="flex flex-wrap justify-center gap-16 md:gap-24">
 
-    <!-- SCREEN 01 — SPLASH SCREEN -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 01 — SPLASH SCREEN                              -->
+    <!-- REDUCE-STEPS: auto-advances, no user action required   -->
+    <!-- ═══════════════════════════════════════════════════════ -->
     <div class="flex flex-col items-center gap-6">
       <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
         Screen 01 — Splash Screen
@@ -45,7 +176,7 @@ body {
           </div>
         </div>
 
-        <!-- Content -->
+        <!-- Content — centered logo only, auto-advances in 1.5 s -->
         <div class="flex-1 flex flex-col items-center justify-center bg-[#F8F6F3] px-6">
           <h1 class="font-serif text-[44px] tracking-tight text-[#1B1716] leading-none">
             StyleIQ
@@ -54,10 +185,24 @@ body {
             Personal Style Intelligence
           </span>
         </div>
+
+        <!-- REDUCE-STEPS: progress bar shows auto-advance — no tap needed -->
+        <div class="absolute bottom-16 left-8 right-8">
+          <div class="h-0.5 bg-[#ECE7E1] rounded-full overflow-hidden">
+            <div class="splash-bar h-full bg-[#C89B45] rounded-full"></div>
+          </div>
+          <p class="text-center text-[9px] font-sans text-[#9F9387] mt-3 uppercase tracking-widest">
+            Preparing your personal stylist...
+          </p>
+        </div>
       </div>
     </div>
 
-    <!-- SCREEN 02 — WELCOME SCREEN -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 02 — WELCOME SCREEN                             -->
+    <!-- REDUCE-STEPS: SSO shortcuts added so returning users   -->
+    <!-- can auth in one tap without ever seeing a form         -->
+    <!-- ═══════════════════════════════════════════════════════ -->
     <div class="flex flex-col items-center gap-6">
       <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
         Screen 02 — Welcome Screen
@@ -73,39 +218,95 @@ body {
           </div>
         </div>
 
-        <!-- Content -->
         <div class="flex-1 flex flex-col bg-[#F8F6F3]">
-          <div class="h-[55%] w-full relative">
+          <!-- Hero image -->
+          <div class="h-[52%] w-full relative">
             <img src="images/screen_07_hero.png" class="w-full h-full object-cover object-center" alt="Morning getting ready">
             <div class="absolute inset-0 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3]/10 to-transparent"></div>
           </div>
-          
-          <div class="flex-1 px-6 pb-8 flex flex-col justify-between -mt-12 relative z-10">
+
+          <div class="flex-1 px-6 pb-6 flex flex-col justify-between -mt-10 relative z-10">
+            <!-- Headline -->
             <div class="text-center">
-              <h2 class="font-serif text-[34px] tracking-tight leading-[1.1] text-[#1B1716]">
+              <h2 class="font-serif text-[32px] tracking-tight leading-[1.1] text-[#1B1716]">
                 Know What To Wear.
                 <br>
                 Every Single Day.
               </h2>
-              <p class="font-sans text-sm text-[#6F675F] leading-relaxed mt-4 max-w-[300px] mx-auto">
+              <p class="font-sans text-sm text-[#6F675F] leading-relaxed mt-3 max-w-[300px] mx-auto">
                 Your personal style intelligence that helps you dress confidently, save time, and get more from your wardrobe.
               </p>
             </div>
-            <div class="flex flex-col gap-3">
-              <button class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98]">
-                Get Started
+
+            <!-- Muse intro card — warm teaser before CTAs -->
+            <div class="bg-[#EFECE7] rounded-2xl px-4 py-3.5 flex items-center gap-3 mb-1">
+              <div class="w-8 h-8 rounded-full bg-[#C89B45]/15 flex items-center justify-center flex-shrink-0">
+                <i data-lucide="sparkles" class="w-4 h-4 text-[#C89B45]" stroke-width="1.5"></i>
+              </div>
+              <div>
+                <p class="font-serif text-[13px] text-[#1B1716] leading-tight">Meet Muse, your personal stylist</p>
+                <p class="font-sans text-[11px] text-[#6F675F] mt-0.5">Outfit ideas, wardrobe insights, zero effort.</p>
+              </div>
+            </div>
+
+            <!-- REDUCE-STEPS: CTAs restructured — primary = Build My Style,  -->
+            <!-- then SSO for returning users, then quiet "Sign In" link -->
+            <div class="flex flex-col gap-2.5 mt-3">
+              <!-- Primary CTA — new users -->
+              <button class="primary-btn">
+                Build My Style
                 <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
               </button>
-              <button class="w-full bg-transparent border border-[#ECE7E1] text-[#1B1716] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center hover:bg-[#EFECE7]/30 transition-all active:scale-[0.98]">
-                I Already Have An Account
+
+              <!-- REDUCE-STEPS: divider separates new vs returning -->
+              <div class="divider">
+                <div class="divider-line"></div>
+                <span class="divider-text">or sign back in with</span>
+                <div class="divider-line"></div>
+              </div>
+
+              <!-- REDUCE-STEPS: SSO shortcuts on welcome — one tap back in -->
+              <button class="sso-btn">
+                <!-- Google logo -->
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
               </button>
+              <button class="sso-btn">
+                <!-- Apple logo -->
+                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.68 2.45-3.02 2.47-1.34.02-1.77-.8-3.29-.8-1.53 0-2 .77-3.28.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.29-.02 2.51.87 3.28.87.77 0 2.25-1.05 3.79-1 .65.02 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.73 4.07-.03.07-.42 1.47-1.39 2.88zM12.98 5.67c.72-1.07 1.19-2.55 1.06-4.03-1.03.04-2.28.69-3.02 1.57-.67.79-1.2 2.27-1.03 3.73 1.15.09 2.52-.51 3.27-1.54z"/>
+                </svg>
+                Continue with Apple
+              </button>
+
+              <!-- SSO helper text -->
+              <p class="text-center font-sans text-[11px] text-[#9F9387] -mt-0.5">
+                The fastest way to start. No setup required.
+              </p>
+
+              <!-- REDUCE-STEPS: "have account" demoted to quiet text link -->
+              <p class="text-center font-sans text-xs text-[#9F9387] mt-0.5">
+                <a href="#" class="text-[#6F675F] font-semibold border-b border-[#D6CCC2] pb-0.5 hover:text-[#1B1716] hover:border-[#1B1716] transition-colors">
+                  Sign In
+                </a>
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SCREEN 03 — LOGIN -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 03 — LOGIN                                      -->
+    <!-- REDUCE-STEPS: SSO is now the hero at the top.         -->
+    <!-- Email/password form is hidden behind "Use email"      -->
+    <!-- toggle — no scrolling required to find SSO            -->
+    <!-- ═══════════════════════════════════════════════════════ -->
     <div class="flex flex-col items-center gap-6">
       <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
         Screen 03 — Login
@@ -121,93 +322,101 @@ body {
           </div>
         </div>
 
-        <!-- Content -->
         <div class="flex-grow flex flex-col bg-[#F8F6F3] px-6 pb-8">
-          <!-- StyleIQ Logo at top -->
-          <div class="pt-8 pb-10 flex justify-center">
+          <!-- Logo -->
+          <div class="pt-8 pb-8 flex justify-center">
             <span class="font-serif text-xl font-medium tracking-tight text-[#1B1716]">StyleIQ</span>
           </div>
-          
-          <div class="flex-grow flex flex-col justify-between">
-            <div>
-              <h1 class="font-serif text-3xl tracking-tight text-[#1B1716] mb-2">
-                Welcome Back
-              </h1>
-              <p class="font-sans text-sm text-[#6F675F] mb-8">
-                Enter your details to access your personal style assistant.
-              </p>
-              
-              <form class="flex flex-col gap-6">
-                <div class="flex flex-col gap-2">
-                  <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
-                    Email Address
-                  </label>
-                  <input type="email" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] rounded-xl px-4 h-14 font-sans text-base text-[#1B1716] placeholder-[#9F9387] focus:outline-none focus:border-[#C89B45] focus:ring-1 focus:ring-[#C89B45] transition-all" placeholder="hello@example.com">
-                </div>
-                
-                <div class="flex flex-col gap-2">
-                  <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
-                    Password
-                  </label>
-                  <input type="password" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] rounded-xl px-4 h-14 font-sans text-base text-[#1B1716] placeholder-[#9F9387] focus:outline-none focus:border-[#C89B45] focus:ring-1 focus:ring-[#C89B45] transition-all" placeholder="••••••••">
-                </div>
-                
-                <div class="flex justify-end -mt-1">
-                  <a href="#" class="font-sans text-xs text-[#C89B45] font-semibold hover:text-[#1B1716] transition-colors">
-                    Forgot Password?
-                  </a>
-                </div>
-                
-                <button type="button" class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98] shadow-sm mt-3">
-                  Login
-                  <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
-                </button>
-              </form>
-              
-              <!-- Divider -->
-              <div class="relative flex items-center py-6">
-                <div class="flex-grow border-t border-[#ECE7E1]"></div>
-                <span class="flex-shrink-0 mx-4 text-[#6F675F] text-[11px] font-sans uppercase tracking-widest font-semibold">
-                  Or continue with
-                </span>
-                <div class="flex-grow border-t border-[#ECE7E1]"></div>
+
+          <!-- Headline -->
+          <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-1 leading-tight">
+            Welcome Back
+          </h1>
+          <p class="font-sans text-sm text-[#6F675F] mb-7">
+            Your style is waiting for you.
+          </p>
+
+          <!-- REDUCE-STEPS: SSO buttons are now the HERO — visible immediately, no scroll -->
+          <div class="flex flex-col gap-3 mb-5">
+            <button class="sso-btn" style="height:60px; border-radius:18px; font-size:15px;">
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
+            <button class="sso-btn" style="height:60px; border-radius:18px; font-size:15px;">
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.68 2.45-3.02 2.47-1.34.02-1.77-.8-3.29-.8-1.53 0-2 .77-3.28.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.29-.02 2.51.87 3.28.87.77 0 2.25-1.05 3.79-1 .65.02 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.73 4.07-.03.07-.42 1.47-1.39 2.88zM12.98 5.67c.72-1.07 1.19-2.55 1.06-4.03-1.03.04-2.28.69-3.02 1.57-.67.79-1.2 2.27-1.03 3.73 1.15.09 2.52-.51 3.27-1.54z"/>
+              </svg>
+              Continue with Apple
+            </button>
+          </div>
+
+          <!-- REDUCE-STEPS: divider separates SSO from the optional email form -->
+          <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">Or</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <!-- REDUCE-STEPS: "Continue with Email" toggle — tapping reveals the form -->
+          <button class="email-toggle mb-1" onclick="toggleLoginForm(this)">
+            <span>Continue with Email</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 inline-block ml-1 transition-transform duration-300" id="login-chevron" stroke-width="2.5"></i>
+          </button>
+          <p class="font-sans text-[11px] text-[#9F9387] text-center mb-4">
+            Secure sign in. Takes less than a minute.
+          </p>
+
+          <!-- REDUCE-STEPS: form is hidden by default — only shown if user requests it -->
+          <div class="email-form-section" id="login-email-form">
+            <form class="flex flex-col gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
+                  Email Address
+                </label>
+                <input type="email" class="field-input" placeholder="hello@example.com">
               </div>
-              
-              <!-- Social buttons -->
-              <div class="flex flex-col gap-3">
-                <button type="button" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] text-[#1B1716] h-14 rounded-xl font-sans text-base font-medium flex justify-center items-center gap-3 hover:bg-[#F8F6F3] transition-all active:scale-[0.98]">
-                  <svg class="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path>
-                  </svg>
-                  Continue with Google
-                </button>
-                <button type="button" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] text-[#1B1716] h-14 rounded-xl font-sans text-base font-medium flex justify-center items-center gap-3 hover:bg-[#F8F6F3] transition-all active:scale-[0.98]">
-                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.68 2.45-3.02 2.47-1.34.02-1.77-.8-3.29-.8-1.53 0-2 .77-3.28.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.29-.02 2.51.87 3.28.87.77 0 2.25-1.05 3.79-1 .65.02 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.73 4.07-.03.07-.42 1.47-1.39 2.88zM12.98 5.67c.72-1.07 1.19-2.55 1.06-4.03-1.03.04-2.28.69-3.02 1.57-.67.79-1.2 2.27-1.03 3.73 1.15.09 2.52-.51 3.27-1.54z"/>
-                  </svg>
-                  Continue with Apple
-                </button>
+              <div class="flex flex-col gap-1.5">
+                <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
+                  Password
+                </label>
+                <input type="password" class="field-input" placeholder="••••••••">
               </div>
-            </div>
-            
-            <!-- Create account link -->
-            <div class="mt-8 text-center">
-              <p class="font-sans text-sm text-[#6F675F]">
-                Don't have an account?
-                <a href="#" class="text-[#1B1716] font-semibold border-b border-[#1B1716] pb-0.5 hover:text-[#C89B45] hover:border-[#C89B45] transition-colors ml-1">
-                  Create Account
+              <div class="flex justify-end -mt-1">
+                <a href="#" class="font-sans text-xs text-[#C89B45] font-semibold hover:text-[#1B1716] transition-colors">
+                  Forgot Password?
                 </a>
-              </p>
-            </div>
+              </div>
+              <button type="button" class="primary-btn mt-2">
+                Sign In
+                <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
+              </button>
+            </form>
+          </div>
+
+          <!-- Build My Style link -->
+          <div class="mt-auto pt-8 text-center">
+            <p class="font-sans text-sm text-[#6F675F]">
+              New here?
+              <a href="#" class="text-[#1B1716] font-semibold border-b border-[#1B1716] pb-0.5 hover:text-[#C89B45] hover:border-[#C89B45] transition-colors ml-1">
+                Build My Style
+              </a>
+            </p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SCREEN 04 — SIGN UP -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 04 — SIGN UP                                    -->
+    <!-- REDUCE-STEPS: SSO is hero. Email-only form step 1.    -->
+    <!-- First/Last name removed — deferred to onboarding 08B. -->
+    <!-- Password deferred to step 2 (post-email confirm).     -->
+    <!-- ═══════════════════════════════════════════════════════ -->
     <div class="flex flex-col items-center gap-6">
       <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
         Screen 04 — Sign Up
@@ -223,105 +432,258 @@ body {
           </div>
         </div>
 
-        <!-- Content -->
         <div class="flex-grow flex flex-col bg-[#F8F6F3] px-6 pb-8">
-          <!-- StyleIQ Logo at top -->
+          <!-- Logo -->
           <div class="pt-8 pb-8 flex justify-center">
             <span class="font-serif text-xl font-medium tracking-tight text-[#1B1716]">StyleIQ</span>
           </div>
 
-          <div class="flex-grow flex flex-col justify-between">
-            <div>
-              <h1 class="font-serif text-3xl tracking-tight text-[#1B1716] mb-2">
-                Create Account
-              </h1>
-              <p class="font-sans text-sm text-[#6F675F] mb-8">
-                Start building your intelligent wardrobe today.
-              </p>
+          <!-- Headline -->
+          <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-1 leading-tight">
+            Build Your Style
+          </h1>
+          <p class="font-sans text-sm text-[#6F675F] mb-7">
+            Let's personalize everything together.
+          </p>
 
-              <form class="flex flex-col gap-5">
-                <div class="flex gap-4">
-                  <div class="flex flex-col gap-2 flex-1">
-                    <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
-                      First Name
-                    </label>
-                    <input type="text" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] rounded-xl px-4 h-14 font-sans text-base text-[#1B1716] placeholder-[#9F9387] focus:outline-none focus:border-[#C89B45] focus:ring-1 focus:ring-[#C89B45] transition-all" placeholder="Jane">
-                  </div>
-                  <div class="flex flex-col gap-2 flex-1">
-                    <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
-                      Last Name
-                    </label>
-                    <input type="text" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] rounded-xl px-4 h-14 font-sans text-base text-[#1B1716] placeholder-[#9F9387] focus:outline-none focus:border-[#C89B45] focus:ring-1 focus:ring-[#C89B45] transition-all" placeholder="Doe">
-                  </div>
-                </div>
-                
-                <div class="flex flex-col gap-2">
-                  <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
-                    Email Address
-                  </label>
-                  <input type="email" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] rounded-xl px-4 h-14 font-sans text-base text-[#1B1716] placeholder-[#9F9387] focus:outline-none focus:border-[#C89B45] focus:ring-1 focus:ring-[#C89B45] transition-all" placeholder="jane@example.com">
-                </div>
-                
-                <div class="flex flex-col gap-2">
-                  <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
-                    Password
-                  </label>
-                  <input type="password" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] rounded-xl px-4 h-14 font-sans text-base text-[#1B1716] placeholder-[#9F9387] focus:outline-none focus:border-[#C89B45] focus:ring-1 focus:ring-[#C89B45] transition-all" placeholder="Create a password">
-                </div>
+          <!-- REDUCE-STEPS: SSO at top — fastest path in, no form -->
+          <div class="flex flex-col gap-3 mb-5">
+            <button class="sso-btn" style="height:60px; border-radius:18px; font-size:15px;">
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+              </svg>
+              Continue with Google
+            </button>
+            <button class="sso-btn" style="height:60px; border-radius:18px; font-size:15px;">
+              <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.71 19.5c-.83 1.24-1.68 2.45-3.02 2.47-1.34.02-1.77-.8-3.29-.8-1.53 0-2 .77-3.28.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.29-.02 2.51.87 3.28.87.77 0 2.25-1.05 3.79-1 .65.02 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.73 4.07-.03.07-.42 1.47-1.39 2.88zM12.98 5.67c.72-1.07 1.19-2.55 1.06-4.03-1.03.04-2.28.69-3.02 1.57-.67.79-1.2 2.27-1.03 3.73 1.15.09 2.52-.51 3.27-1.54z"/>
+              </svg>
+              Continue with Apple
+            </button>
+          </div>
 
-                <button type="button" class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98] shadow-sm mt-3">
-                  Create Account
-                  <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
-                </button>
-              </form>
+          <!-- Divider -->
+          <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">Or</span>
+            <div class="divider-line"></div>
+          </div>
 
-              <!-- Divider -->
-              <div class="relative flex items-center py-6">
-                <div class="flex-grow border-t border-[#ECE7E1]"></div>
-                <span class="flex-shrink-0 mx-4 text-[#6F675F] text-[11px] font-sans uppercase tracking-widest font-semibold">
-                  Or
-                </span>
-                <div class="flex-grow border-t border-[#ECE7E1]"></div>
+          <!-- REDUCE-STEPS: "Continue with Email" toggle for sign up -->
+          <button class="email-toggle mb-1" onclick="toggleSignUpForm(this)">
+            <span>Continue with Email</span>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 inline-block ml-1 transition-transform duration-300" id="signup-chevron" stroke-width="2.5"></i>
+          </button>
+          <p class="font-sans text-[11px] text-[#9F9387] text-center mb-4">
+            We'll securely sign you in and personalize your experience.
+          </p>
+
+          <!-- REDUCE-STEPS: email-only form — First Name, Last Name, Password removed.  -->
+          <!-- Name collected in onboarding (screen 08B). Password set post-email.       -->
+          <div class="email-form-section" id="signup-email-form">
+            <form class="flex flex-col gap-4">
+
+              <!-- REDUCE-STEPS: single email field only -->
+              <div class="flex flex-col gap-1.5">
+                <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
+                  Your Email
+                </label>
+                <input type="email" class="field-input" placeholder="jane@example.com">
               </div>
 
-              <!-- Social Buttons exactly matching Login screen -->
-              <div class="flex flex-col gap-3">
-                <button type="button" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] text-[#1B1716] h-14 rounded-xl font-sans text-base font-medium flex justify-center items-center gap-3 hover:bg-[#F8F6F3] transition-all active:scale-[0.98]">
-                  <svg class="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path>
-                  </svg>
-                  Continue with Google
-                </button>
-                <button type="button" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] text-[#1B1716] h-14 rounded-xl font-sans text-base font-medium flex justify-center items-center gap-3 hover:bg-[#F8F6F3] transition-all active:scale-[0.98]">
-                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.68 2.45-3.02 2.47-1.34.02-1.77-.8-3.29-.8-1.53 0-2 .77-3.28.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.29-.02 2.51.87 3.28.87.77 0 2.25-1.05 3.79-1 .65.02 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.73 4.07-.03.07-.42 1.47-1.39 2.88zM12.98 5.67c.72-1.07 1.19-2.55 1.06-4.03-1.03.04-2.28.69-3.02 1.57-.67.79-1.2 2.27-1.03 3.73 1.15.09 2.52-.51 3.27-1.54z"/>
-                  </svg>
-                  Continue with Apple
-                </button>
-              </div>
-            </div>
-
-            <!-- Login link -->
-            <div class="mt-8 text-center pb-4">
-              <p class="font-sans text-sm text-[#6F675F]">
-                Already have an account?
-                <a href="#" class="text-[#1B1716] font-semibold border-b border-[#1B1716] pb-0.5 hover:text-[#C89B45] hover:border-[#C89B45] transition-colors ml-1">
-                  Login
-                </a>
+              <!-- Reassurance line under email field -->
+              <p class="font-sans text-xs text-[#9F9387] leading-relaxed -mt-1">
+                We'll personalize everything together in the next step.
               </p>
-            </div>
+
+              <button type="button" class="primary-btn mt-1">
+                Continue
+                <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
+              </button>
+            </form>
+          </div>
+
+          <!-- Login link -->
+          <div class="mt-auto pt-8 text-center">
+            <p class="font-sans text-sm text-[#6F675F]">
+              Already have an account?
+              <a href="#" class="text-[#1B1716] font-semibold border-b border-[#1B1716] pb-0.5 hover:text-[#C89B45] hover:border-[#C89B45] transition-colors ml-1">
+                Sign In
+              </a>
+            </p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SCREEN 05 — FORGOT PASSWORD -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN A — EMAIL SIGN IN                               -->
+    <!-- Dedicated email sign-in screen. Reached from the      -->
+    <!-- "Continue with Email" toggle on Screen 03. Forgot     -->
+    <!-- Password links here to Screen 05.                     -->
+    <!-- ═══════════════════════════════════════════════════════ -->
     <div class="flex flex-col items-center gap-6">
       <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
-        Screen 05 — Forgot Password
+        Screen A — Email Sign In
+      </h2>
+      <div class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+        <!-- Status Bar -->
+        <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+          <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+          <div class="flex gap-1.5 items-center">
+            <i data-lucide="signal" class="w-4 h-4 text-[#1B1716]" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4 text-[#1B1716]" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5 text-[#1B1716]" stroke-width="1.5"></i>
+          </div>
+        </div>
+
+        <div class="flex-grow flex flex-col bg-[#F8F6F3] px-6 pb-8">
+          <!-- Back button -->
+          <div class="pt-4 pb-6 flex items-center">
+            <button class="w-10 h-10 rounded-full border border-[#ECE7E1] bg-[#FFFFFF] flex items-center justify-center text-[#1B1716] hover:bg-[#F8F6F3] transition-all active:scale-95 shadow-sm">
+              <i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i>
+            </button>
+          </div>
+
+          <!-- Logo -->
+          <div class="pb-6 flex justify-center">
+            <span class="font-serif text-xl font-medium tracking-tight text-[#1B1716]">StyleIQ</span>
+          </div>
+
+          <!-- Headline -->
+          <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-1 leading-tight">
+            Sign In
+          </h1>
+          <p class="font-sans text-sm text-[#6F675F] mb-8">
+            Welcome back. Your style is waiting.
+          </p>
+
+          <!-- Email + Password form -->
+          <form class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
+                Your Email
+              </label>
+              <input type="email" class="field-input" placeholder="hello@example.com">
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
+                Password
+              </label>
+              <input type="password" class="field-input" placeholder="••••••••">
+            </div>
+
+            <!-- Forgot Password — only accessible from this screen -->
+            <div class="flex justify-end -mt-1">
+              <a href="#" class="font-sans text-xs text-[#C89B45] font-semibold hover:text-[#1B1716] transition-colors">
+                Forgot Password?
+              </a>
+            </div>
+
+            <button type="button" class="primary-btn mt-2">
+              Continue
+              <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
+            </button>
+          </form>
+
+          <!-- Create account link -->
+          <div class="mt-auto pt-8 text-center">
+            <p class="font-sans text-sm text-[#6F675F]">
+              New here?
+              <a href="#" class="text-[#1B1716] font-semibold border-b border-[#1B1716] pb-0.5 hover:text-[#C89B45] hover:border-[#C89B45] transition-colors ml-1">
+                Build My Style
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN B — CREATE ACCOUNT WITH EMAIL                   -->
+    <!-- Frictionless email-only sign-up. Name and password    -->
+    <!-- are deferred to onboarding. Reached from Screen A     -->
+    <!-- ("New here? Build My Style") or Screen 03 toggle.    -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flex flex-col items-center gap-6">
+      <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+        Screen B — Create Account with Email
+      </h2>
+      <div class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col mockup-container overflow-y-auto">
+        <!-- Status Bar -->
+        <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 sticky top-0 bg-[#F8F6F3]/80 backdrop-blur-md">
+          <span class="text-xs font-medium text-[#1B1716]">9:41</span>
+          <div class="flex gap-1.5 items-center">
+            <i data-lucide="signal" class="w-4 h-4 text-[#1B1716]" stroke-width="1.5"></i>
+            <i data-lucide="wifi" class="w-4 h-4 text-[#1B1716]" stroke-width="1.5"></i>
+            <i data-lucide="battery" class="w-5 h-5 text-[#1B1716]" stroke-width="1.5"></i>
+          </div>
+        </div>
+
+        <div class="flex-grow flex flex-col bg-[#F8F6F3] px-6 pb-8">
+          <!-- Back button -->
+          <div class="pt-4 pb-6 flex items-center">
+            <button class="w-10 h-10 rounded-full border border-[#ECE7E1] bg-[#FFFFFF] flex items-center justify-center text-[#1B1716] hover:bg-[#F8F6F3] transition-all active:scale-95 shadow-sm">
+              <i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i>
+            </button>
+          </div>
+
+          <!-- Logo -->
+          <div class="pb-6 flex justify-center">
+            <span class="font-serif text-xl font-medium tracking-tight text-[#1B1716]">StyleIQ</span>
+          </div>
+
+          <!-- Headline -->
+          <h1 class="font-serif text-[30px] tracking-tight text-[#1B1716] mb-1 leading-tight">
+            Build Your Style
+          </h1>
+          <p class="font-sans text-sm text-[#6F675F] mb-8">
+            Let's get you started.
+          </p>
+
+          <!-- Email-only form -->
+          <form class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
+                Your Email
+              </label>
+              <input type="email" class="field-input" placeholder="jane@example.com">
+            </div>
+
+            <!-- Reassurance — no password or name needed here -->
+            <p class="font-sans text-xs text-[#9F9387] leading-relaxed -mt-1">
+              We'll securely sign you in and personalize your experience.
+            </p>
+
+            <button type="button" class="primary-btn mt-1">
+              Continue
+              <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
+            </button>
+          </form>
+
+          <!-- Sign in link -->
+          <div class="mt-auto pt-8 text-center">
+            <p class="font-sans text-sm text-[#6F675F]">
+              Already have a style profile?
+              <a href="#" class="text-[#1B1716] font-semibold border-b border-[#1B1716] pb-0.5 hover:text-[#C89B45] hover:border-[#C89B45] transition-colors ml-1">
+                Sign In
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SCREEN 05 — RECOVER ACCESS (RESET PASSWORD)            -->
+    <!-- Reached via "Forgot Password?" on Screen A only.      -->
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <div class="flex flex-col items-center gap-6">
+      <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">
+        Screen 05 — Recover Access
       </h2>
       <div class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] overflow-hidden relative shadow-xl flex flex-col">
         <!-- Status Bar -->
@@ -334,10 +696,9 @@ body {
           </div>
         </div>
 
-        <!-- Content -->
         <div class="flex-grow flex flex-col bg-[#F8F6F3] px-6 pb-8">
-          <!-- Header with Back Button -->
-          <div class="pt-6 pb-10 flex items-center">
+          <!-- Back button -->
+          <div class="pt-16 pb-10 flex items-center">
             <button class="w-10 h-10 rounded-full border border-[#ECE7E1] bg-[#FFFFFF] flex items-center justify-center text-[#1B1716] hover:bg-[#F8F6F3] transition-all active:scale-95 shadow-sm">
               <i data-lucide="arrow-left" class="w-5 h-5" stroke-width="1.5"></i>
             </button>
@@ -346,28 +707,27 @@ body {
           <div class="flex-grow flex flex-col justify-between">
             <div>
               <h1 class="font-serif text-3xl tracking-tight text-[#1B1716] mb-3">
-                Reset Password
+                Recover Your Access
               </h1>
               <p class="font-sans text-sm text-[#6F675F] mb-10 leading-relaxed">
-                Enter the email associated with your account. We’ll send a secure reset link to your email.
+                Enter your email and we'll send a secure link to get you back into your style profile.
               </p>
 
-              <form class="flex flex-col gap-8">
+              <form class="flex flex-col gap-6">
                 <div class="flex flex-col gap-2">
                   <label class="font-sans text-[10px] font-bold text-[#6F675F] uppercase tracking-wider">
                     Email Address
                   </label>
-                  <input type="email" class="w-full bg-[#FFFFFF] border border-[#ECE7E1] rounded-xl px-4 h-14 font-sans text-base text-[#1B1716] placeholder-[#9F9387] focus:outline-none focus:border-[#C89B45] focus:ring-1 focus:ring-[#C89B45] transition-all" placeholder="hello@example.com">
+                  <input type="email" class="field-input" placeholder="hello@example.com">
                 </div>
-
-                <button type="button" class="w-full bg-[#1B1716] text-[#FFFFFF] h-14 rounded-2xl font-sans text-base font-medium flex justify-center items-center gap-2 hover:bg-[#1B1716]/90 transition-all active:scale-[0.98] shadow-sm mt-2">
+                <button type="button" class="primary-btn mt-2">
                   Send Reset Link
                   <i data-lucide="arrow-right" class="w-5 h-5" stroke-width="1.5"></i>
                 </button>
               </form>
             </div>
 
-            <div class="mt-12 text-center flex justify-center">
+            <div class="text-center flex justify-center">
               <a href="#" class="text-[#1B1716] font-sans text-sm font-semibold flex items-center gap-2 hover:text-[#C89B45] transition-colors">
                 <i data-lucide="chevron-left" class="w-4 h-4" stroke-width="2"></i>
                 Back To Login
@@ -382,6 +742,24 @@ body {
 
   <script>
     lucide.createIcons();
+
+    // REDUCE-STEPS: toggle email/password form on Login screen
+    function toggleLoginForm(btn) {
+      const form = document.getElementById('login-email-form');
+      const chevron = document.getElementById('login-chevron');
+      const isOpen = form.classList.contains('visible');
+      form.classList.toggle('visible', !isOpen);
+      chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
+
+    // REDUCE-STEPS: toggle email form on Sign Up screen
+    function toggleSignUpForm(btn) {
+      const form = document.getElementById('signup-email-form');
+      const chevron = document.getElementById('signup-chevron');
+      const isOpen = form.classList.contains('visible');
+      form.classList.toggle('visible', !isOpen);
+      chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+    }
   </script>
 </body>
 </html>
