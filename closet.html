@@ -1,0 +1,333 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleIQ - Phase 1 Onboarding Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet">
+    <style>
+      :root {
+          --color-primary: #1B1716;
+          --color-background: #F8F6F3;
+          --color-canvas: #EFECE7;
+          --color-text-secondary: #6F675F;
+          --color-accent-gold: #C89B45;
+          --color-border: #ECE7E1;
+          --color-border-interactive: #D6CCC2;
+      }
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: var(--color-canvas);
+          color: var(--color-primary);
+      }
+      h1, h2, h3, h4, h5, h6, .font-serif {
+          font-family: 'Playfair Display', serif;
+      }
+
+      /* Hide scrollbar for mobile mockups but allow scrolling */
+      .mockup-scroll {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+      .mockup-scroll::-webkit-scrollbar {
+          display: none;
+      }
+
+      /* Micro-interactions */
+      .interactive-card {
+          transition: all 0.2s ease-in-out;
+      }
+      .interactive-card:hover {
+          border-color: var(--color-border-interactive);
+      }
+    </style>
+  </head>
+  <body class="p-8 md:p-12 lg:p-16 min-h-screen">
+    <div class="max-w-[1400px] mx-auto">
+      <div class="mb-16 text-center">
+        <h1 class="text-4xl font-serif tracking-tight mb-4 text-[#1B1716]">
+          StyleIQ Onboarding Prototype
+        </h1>
+        <p class="text-[#6F675F] text-base">
+          Phase 1A &amp; 1B — Visual-First Style Discovery
+        </p>
+      </div>
+
+      <div class="flex flex-col items-center gap-4">
+        <h2 class="text-xs uppercase tracking-widest font-medium text-[#6F675F]">
+          SCREEN C01 — CHOOSE METHOD
+        </h2>
+        <div class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] shadow-xl overflow-hidden relative flex flex-col mockup-scroll">
+          <div class="h-12 w-full flex justify-between items-center px-6 text-[11px] font-medium sticky top-0 z-50">
+            <span>9:41</span>
+            <div class="flex gap-1.5 items-center">
+              <iconify-icon icon="solar:cellular-linear"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-linear"></iconify-icon>
+              <iconify-icon icon="solar:battery-charge-linear"></iconify-icon>
+            </div>
+          </div>
+          <div class="flex-1 px-6 pt-4 pb-32 overflow-y-auto mockup-scroll">
+            <h3 class="text-3xl font-serif tracking-tight mb-4">
+              Let's build your closet.
+            </h3>
+            <p class="text-sm text-[#6F675F] mb-8 leading-relaxed">
+              Choose a visual way to show Muse your wardrobe. No manual entry
+              needed.
+            </p>
+
+            <div class="flex flex-col gap-4">
+              <button class="bg-[#1B1716] border border-[#1B1716] rounded-2xl p-6 flex flex-col items-start gap-4 interactive-card text-left text-white relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 blur-xl transition-all group-hover:scale-110"></div>
+                <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0 text-white backdrop-blur-sm">
+                  <iconify-icon icon="solar:videocamera-linear" class="text-2xl"></iconify-icon>
+                </div>
+                <div>
+                  <span class="text-lg font-serif mb-1 block">
+                    Scan Closet Video
+                  </span>
+                  <span class="text-xs text-white/70 font-light leading-relaxed">
+                    Pan your camera across your closet. Muse will detect your
+                    items instantly.
+                  </span>
+                </div>
+                <div class="mt-2 text-[10px] uppercase tracking-widest font-medium text-[#C89B45] flex items-center gap-1">
+                  <iconify-icon icon="solar:bolt-linear"></iconify-icon>
+                  Fastest Method
+                </div>
+              </button>
+
+              <button class="bg-white border border-[#ECE7E1] rounded-2xl p-6 flex flex-col items-start gap-4 interactive-card text-left group hover:border-[#D6CCC2]">
+                <div class="w-12 h-12 bg-[#F8F6F3] rounded-full flex items-center justify-center flex-shrink-0 text-[#1B1716] group-hover:bg-[#EFECE7] transition-colors">
+                  <iconify-icon icon="solar:gallery-add-linear" class="text-2xl"></iconify-icon>
+                </div>
+                <div>
+                  <span class="text-lg font-serif mb-1 block text-[#1B1716]">
+                    Upload Photos
+                  </span>
+                  <span class="text-xs text-[#6F675F] leading-relaxed">
+                    Select photos of your favourite pieces or outfits from your
+                    camera roll.
+                  </span>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent z-40">
+            <button class="w-full py-3 rounded-2xl font-medium text-sm text-[#6F675F] hover:text-[#1B1716] transition-colors">
+              I'll add items manually later
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center gap-4">
+        <h2 class="text-xs uppercase tracking-widest font-medium text-[#6F675F]">
+          SCREEN C02 — CLOSET SCAN
+        </h2>
+        <div class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-black shadow-xl overflow-hidden relative flex flex-col">
+          <img src="https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?q=80&amp;w=800&amp;auto=format&amp;fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-80" alt="Closet Rack">
+          <div class="absolute inset-0 z-10 flex flex-col justify-between">
+            <div class="h-12 w-full flex justify-between items-center px-6 text-[11px] font-medium text-white drop-shadow-md">
+              <span>9:41</span>
+              <div class="flex gap-1.5 items-center">
+                <iconify-icon icon="solar:cellular-linear"></iconify-icon>
+                <iconify-icon icon="solar:wi-fi-linear"></iconify-icon>
+                <iconify-icon icon="solar:battery-charge-linear"></iconify-icon>
+              </div>
+            </div>
+
+            <div class="px-6 pt-4 text-center text-white">
+              <span class="inline-flex items-center gap-2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full text-xs font-medium border border-white/20">
+                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                Recording...
+              </span>
+            </div>
+
+            <div class="flex-1 px-8 py-12 flex items-center justify-center">
+              <div class="w-full aspect-[3/4] border-2 border-white/30 rounded-3xl relative">
+                <div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-white rounded-tl-3xl"></div>
+                <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white rounded-tr-3xl"></div>
+                <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white rounded-bl-3xl"></div>
+                <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-white rounded-br-3xl"></div>
+
+                <div class="absolute top-[20%] left-[10%] w-[40%] h-[50%] border border-[#C89B45] bg-[#C89B45]/10 rounded-lg backdrop-blur-[1px]"></div>
+                <div class="absolute top-[30%] right-[15%] w-[35%] h-[60%] border border-white/50 bg-white/5 rounded-lg"></div>
+              </div>
+            </div>
+
+            <div class="p-8 pb-12 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col items-center">
+              <p class="text-white text-sm font-medium mb-6 drop-shadow-md">
+                Slowly pan across your clothes
+              </p>
+              <button class="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center p-1">
+                <div class="w-full h-full bg-white rounded-full flex items-center justify-center">
+                  <div class="w-6 h-6 bg-red-500 rounded-sm"></div>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center gap-4">
+        <h2 class="text-xs uppercase tracking-widest font-medium text-[#6F675F]">
+          SCREEN C03 — MUSE ANALYSING
+        </h2>
+        <div class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] shadow-xl overflow-hidden relative flex flex-col justify-center px-8">
+          <div class="flex flex-col items-center mb-12">
+            <div class="relative w-20 h-20 mb-8">
+              <div class="absolute inset-0 rounded-full border-2 border-[#1B1716] opacity-10"></div>
+              <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-[#1B1716] animate-spin"></div>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <iconify-icon icon="solar:hanger-2-linear" class="text-2xl text-[#C89B45]"></iconify-icon>
+              </div>
+            </div>
+            <h3 class="text-3xl font-serif tracking-tight text-center mb-2">
+              Unpacking your closet
+            </h3>
+            <p class="text-sm text-[#6F675F] text-center">
+              Muse is identifying items from your video.
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            <div class="flex items-center gap-4">
+              <iconify-icon icon="solar:check-circle-bold" class="text-[#C89B45] text-xl flex-shrink-0"></iconify-icon>
+              <span class="text-sm font-medium text-[#1B1716]">
+                Processing video frames
+              </span>
+            </div>
+            <div class="flex items-center gap-4">
+              <iconify-icon icon="solar:check-circle-bold" class="text-[#C89B45] text-xl flex-shrink-0"></iconify-icon>
+              <span class="text-sm font-medium text-[#1B1716]">
+                Isolating individual garments
+              </span>
+            </div>
+            <div class="flex items-center gap-4 animate-pulse">
+              <div class="w-5 h-5 border-2 border-[#D6CCC2] rounded-full flex-shrink-0 border-t-[#1B1716] animate-spin"></div>
+              <span class="text-sm font-medium text-[#1B1716]">
+                Categorising items &amp; colours
+              </span>
+            </div>
+            <div class="flex items-center gap-4 opacity-40">
+              <div class="w-5 h-5 border-2 border-[#D6CCC2] rounded-full flex-shrink-0"></div>
+              <span class="text-sm font-medium text-[#1B1716]">
+                Matching with Style DNA
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col items-center gap-4">
+        <h2 class="text-xs uppercase tracking-widest font-medium text-[#6F675F]">
+          SCREEN C04 — CLOSET READY
+        </h2>
+        <div class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] shadow-xl overflow-hidden relative flex flex-col mockup-scroll">
+          <div class="h-12 w-full flex justify-between items-center px-6 text-[11px] font-medium sticky top-0 z-50 bg-[#F8F6F3]/90 backdrop-blur-md">
+            <span>9:41</span>
+            <div class="flex gap-1.5 items-center">
+              <iconify-icon icon="solar:cellular-linear"></iconify-icon>
+              <iconify-icon icon="solar:wi-fi-linear"></iconify-icon>
+              <iconify-icon icon="solar:battery-charge-linear"></iconify-icon>
+            </div>
+          </div>
+
+          <div class="flex-1 px-5 pt-2 pb-36 overflow-y-auto mockup-scroll">
+            <div class="mb-8 px-1 flex flex-col items-center text-center">
+              <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center border border-[#ECE7E1] mb-4 shadow-sm">
+                <iconify-icon icon="solar:magic-stick-3-linear" class="text-2xl text-[#C89B45]"></iconify-icon>
+              </div>
+              <h3 class="text-3xl font-serif tracking-tight mb-2">
+                34 items added
+              </h3>
+              <p class="text-sm text-[#6F675F]">
+                Muse has built the first version of your digital closet. You can
+                refine this anytime.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-white border border-[#ECE7E1] rounded-2xl p-3 flex flex-col items-center gap-3 interactive-card">
+                <div class="w-full h-36 bg-[#EFECE7]/50 rounded-xl flex items-center justify-center overflow-hidden p-2">
+                  <img src="https://images.unsplash.com/photo-1550639525-c97d455acf70?q=80&amp;w=400&amp;auto=format&amp;fit=crop" class="h-full w-full object-cover rounded-lg mix-blend-multiply opacity-90" alt="Coat">
+                </div>
+                <div class="text-center w-full pb-1">
+                  <span class="text-xs font-medium text-[#1B1716] block truncate">
+                    Camel Overcoat
+                  </span>
+                  <span class="text-[10px] text-[#6F675F] uppercase tracking-wider mt-0.5 block">
+                    Outerwear
+                  </span>
+                </div>
+              </div>
+
+              <div class="bg-white border border-[#ECE7E1] rounded-2xl p-3 flex flex-col items-center gap-3 interactive-card">
+                <div class="w-full h-36 bg-[#EFECE7]/50 rounded-xl flex items-center justify-center overflow-hidden p-2">
+                  <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/30104e3c-5eea-4b93-93e9-5313698a7156_1600w.webp" class="h-full w-full object-cover rounded-lg mix-blend-multiply opacity-90" alt="Shirt">
+                </div>
+                <div class="text-center w-full pb-1">
+                  <span class="text-xs font-medium text-[#1B1716] block truncate">
+                    Crisp White Shirt
+                  </span>
+                  <span class="text-[10px] text-[#6F675F] uppercase tracking-wider mt-0.5 block">
+                    Tops
+                  </span>
+                </div>
+              </div>
+
+              <div class="bg-white border border-[#ECE7E1] rounded-2xl p-3 flex flex-col items-center gap-3 interactive-card">
+                <div class="w-full h-36 bg-[#EFECE7]/50 rounded-xl flex items-center justify-center overflow-hidden p-2 relative">
+                  <img src="https://images.unsplash.com/photo-1542272604-787c3835535d?q=80&amp;w=400&amp;auto=format&amp;fit=crop" class="h-full w-full object-cover rounded-lg mix-blend-multiply grayscale opacity-50" alt="Jeans">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="bg-[#1B1716] text-white text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full font-medium">
+                      +12 Bottoms
+                    </span>
+                  </div>
+                </div>
+                <div class="text-center w-full pb-1">
+                  <span class="text-xs font-medium text-transparent block truncate select-none">
+                    More
+                  </span>
+                  <span class="text-[10px] text-transparent uppercase tracking-wider mt-0.5 block select-none">
+                    More
+                  </span>
+                </div>
+              </div>
+
+              <div class="bg-white border border-[#ECE7E1] rounded-2xl p-3 flex flex-col items-center gap-3 interactive-card">
+                <div class="w-full h-36 bg-[#EFECE7]/50 rounded-xl flex items-center justify-center overflow-hidden p-2 relative">
+                  <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?q=80&amp;w=400&amp;auto=format&amp;fit=crop" class="h-full w-full object-cover rounded-lg mix-blend-multiply opacity-50" alt="Shoes">
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="bg-[#1B1716] text-white text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full font-medium">
+                      +8 Shoes
+                    </span>
+                  </div>
+                </div>
+                <div class="text-center w-full pb-1">
+                  <span class="text-xs font-medium text-transparent block truncate select-none">
+                    More
+                  </span>
+                  <span class="text-[10px] text-transparent uppercase tracking-wider mt-0.5 block select-none">
+                    More
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent z-40 flex flex-col gap-3">
+            <button class="w-full bg-[#1B1716] text-white py-4 rounded-2xl font-medium text-base hover:bg-black transition-colors shadow-lg">
+              View Wardrobe Insights
+            </button>
+            <button class="w-full py-2 text-sm font-medium text-[#6F675F] hover:text-[#1B1716] transition-colors">
+              Add more items manually
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+</body></html>
