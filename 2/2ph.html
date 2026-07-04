@@ -1,0 +1,566 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleIQ Phase 2 Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #EFECE7;
+            color: #1B1716;
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Hide scrollbar for horizontal scrolling areas */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Microinteractions */
+        .btn-hover {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .btn-hover:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+        .card-hover {
+            transition: border-color 0.2s ease;
+        }
+        .card-hover:hover {
+            border-color: #D6CCC2;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8 md:p-16 flex flex-wrap gap-16 items-start justify-center">
+
+    <!-- Prototype Intro / Navigation mapping (Not a screen, just board context) -->
+    <div class="w-full max-w-7xl mb-8 flex flex-col gap-4">
+        <h1 class="font-serif text-4xl tracking-tight text-[#1B1716]">StyleIQ — Phase 2 Flow</h1>
+        <p class="text-[#6F675F] text-sm max-w-2xl font-light">Connected mobile product experience focusing on the daily outfit loop, wardrobe intelligence, planning, and personal style management. The active tab is indicated by Charcoal (#1B1716), inactive by Muted Neutral (#9F9387).</p>
+    </div>
+
+    <!-- ==========================================
+         JOURNEY 1: DAILY OUTFIT LOOP
+         ========================================== -->
+
+    <!-- SCREEN 01 -->
+    <div class="flex flex-col gap-4">
+        <div class="text-xs uppercase tracking-widest text-[#6F675F] font-medium ml-4">Screen 01 — Today / Morning Outfit</div>
+        
+        <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.1)] overflow-hidden relative flex flex-col">
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-32">
+                <div class="p-6 pt-12 flex flex-col gap-6">
+                    
+                    <!-- Header -->
+                    <div class="flex flex-col gap-1">
+                        <h2 class="font-serif text-3xl tracking-tight text-[#1B1716]">Good morning,<br>Amelia</h2>
+                        <div class="flex items-center gap-2 text-xs text-[#6F675F]">
+                            <iconify-icon icon="solar:cloud-sun-linear"></iconify-icon>
+                            <span>18°C · Office day · Light rain later</span>
+                        </div>
+                    </div>
+
+                    <!-- Main Recommendation Card -->
+                    <div class="bg-white rounded-[24px] border border-[#ECE7E1] overflow-hidden flex flex-col">
+                        <div class="h-80 w-full relative">
+                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&amp;w=600&amp;auto=format&amp;fit=crop" alt="The Camel Composer" class="w-full h-full object-cover">
+                        </div>
+                        <div class="p-5 flex flex-col gap-4">
+                            <div>
+                                <h3 class="font-serif text-xl tracking-tight text-[#1B1716] mb-1">The Camel Composer</h3>
+                                <p class="text-xs text-[#6F675F] font-light leading-relaxed">Warm neutrals for your meetings today. Layers perfectly for the cooler afternoon commute.</p>
+                            </div>
+                            
+                            <!-- Included Items Mini Grid -->
+                            <div class="flex items-center gap-2">
+                                <div class="w-12 h-12 rounded-xl border border-[#ECE7E1] overflow-hidden">
+                                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/917d6f93-fb36-439a-8c48-884b67b35381_1600w.jpg" class="w-full h-full object-cover">
+                                </div>
+                                <div class="w-12 h-12 rounded-xl border border-[#ECE7E1] overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&amp;w=200&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover">
+                                </div>
+                                <div class="w-12 h-12 rounded-xl border border-[#ECE7E1] bg-[#F8F6F3] flex items-center justify-center text-xs text-[#6F675F]">
+                                    +2
+                                </div>
+                                <button class="ml-auto text-xs text-[#1B1716] font-medium underline underline-offset-2">Why this look?</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col gap-3">
+                        <button class="btn-hover bg-[#1B1716] text-white rounded-2xl py-4 font-medium text-sm flex items-center justify-center gap-2">
+                            Wear This
+                            <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+                        </button>
+                        <div class="flex gap-3">
+                            <button class="btn-hover flex-1 bg-white border border-[#ECE7E1] text-[#1B1716] rounded-2xl py-3 font-medium text-sm">Alternatives</button>
+                            <button class="btn-hover flex-1 bg-white border border-[#ECE7E1] text-[#1B1716] rounded-2xl py-3 font-medium text-sm flex items-center justify-center gap-2">
+                                <iconify-icon icon="solar:bookmark-linear"></iconify-icon> Save Look
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 w-full h-[88px] bg-[#F8F6F3]/90 backdrop-blur-md border-t border-[#ECE7E1] pb-4 px-6 flex justify-between items-center z-50">
+                <button class="flex flex-col items-center gap-1 text-[#1B1716]">
+                    <iconify-icon icon="solar:sun-2-bold" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Today</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:hanger-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Closet</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:calendar-minimalistic-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Planner</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:compass-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Discover</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:user-circle-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 03 -->
+    <div class="flex flex-col gap-4 relative">
+        <!-- Connecting Line (Visual only) -->
+        <div class="hidden xl:block absolute top-1/2 -left-12 w-8 border-t border-dashed border-[#9F9387]"></div>
+
+        <div class="text-xs uppercase tracking-widest text-[#6F675F] font-medium ml-4">Screen 03 — Alternatives</div>
+        
+        <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.1)] overflow-hidden relative flex flex-col">
+            
+            <!-- Sticky Header -->
+            <div class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-10 px-6 py-4 flex items-center justify-between border-b border-[#ECE7E1]">
+                <button class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover">
+                    <iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>
+                </button>
+                <span class="text-xs font-medium uppercase tracking-widest text-[#1B1716]">Alternatives</span>
+                <div class="w-10"></div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-6 pb-32 flex flex-col gap-5">
+                <p class="text-sm text-[#6F675F] font-light text-center mb-2">Select a different direction for today.</p>
+
+                <!-- Alternative 1 -->
+                <div class="card-hover bg-white rounded-[24px] border border-[#ECE7E1] overflow-hidden flex cursor-pointer">
+                    <div class="w-2/5 h-32">
+                        <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4 flex flex-col justify-center gap-1 w-3/5">
+                        <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">More Relaxed</span>
+                        <h4 class="font-serif text-base text-[#1B1716] leading-tight">The Soft Neutral</h4>
+                    </div>
+                </div>
+
+                <!-- Alternative 2 (Selected State) -->
+                <div class="bg-[#F8F6F3] rounded-[24px] border-2 border-[#C89B45] overflow-hidden flex cursor-pointer relative shadow-sm">
+                    <div class="absolute top-3 right-3 w-6 h-6 bg-[#C89B45] rounded-full flex items-center justify-center text-white z-10 shadow-sm">
+                        <iconify-icon icon="solar:check-read-linear" class="text-sm"></iconify-icon>
+                    </div>
+                    <div class="w-2/5 h-32">
+                        <img src="https://images.unsplash.com/photo-1550639525-c97d455acf70?q=80&amp;w=400&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover opacity-95">
+                    </div>
+                    <div class="p-4 flex flex-col justify-center gap-1 w-3/5">
+                        <span class="text-[10px] text-[#C89B45] font-medium uppercase tracking-widest">Warmer Option</span>
+                        <h4 class="font-serif text-base text-[#1B1716] leading-tight">Layered Cashmere</h4>
+                    </div>
+                </div>
+
+                <!-- Alternative 3 -->
+                <div class="card-hover bg-white rounded-[24px] border border-[#ECE7E1] overflow-hidden flex cursor-pointer">
+                    <div class="w-2/5 h-32">
+                        <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?q=80&amp;w=400&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4 flex flex-col justify-center gap-1 w-3/5">
+                        <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">More Polished</span>
+                        <h4 class="font-serif text-base text-[#1B1716] leading-tight">Structured Monochrome</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sticky Bottom Action -->
+            <div class="absolute bottom-0 w-full p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent z-20">
+                <button class="btn-hover bg-[#1B1716] text-white rounded-2xl py-4 font-medium text-sm flex items-center justify-center w-full">
+                    Choose This Look
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         JOURNEY 2: CLOSET INTELLIGENCE
+         ========================================== -->
+
+    <!-- SCREEN 06 -->
+    <div class="flex flex-col gap-4">
+        <div class="text-xs uppercase tracking-widest text-[#6F675F] font-medium ml-4">Screen 06 — Closet Home</div>
+        
+        <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.1)] overflow-hidden relative flex flex-col">
+            
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-32">
+                <div class="p-6 pt-12 flex flex-col gap-8">
+                    
+                    <div class="flex justify-between items-end">
+                        <h2 class="font-serif text-3xl tracking-tight text-[#1B1716]">Your Closet</h2>
+                        <button class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover shadow-sm">
+                            <iconify-icon icon="solar:add-linear" class="text-lg"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <!-- Health Summary -->
+                    <div class="flex justify-between border-y border-[#ECE7E1] py-4">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">Total</span>
+                            <span class="font-serif text-2xl text-[#1B1716]">142</span>
+                        </div>
+                        <div class="w-px bg-[#ECE7E1]"></div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">Worn 30d</span>
+                            <span class="font-serif text-2xl text-[#1B1716]">38</span>
+                        </div>
+                        <div class="w-px bg-[#ECE7E1]"></div>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">Sleeping</span>
+                            <span class="font-serif text-2xl text-[#1B1716]">12</span>
+                        </div>
+                    </div>
+
+                    <!-- AI Insight -->
+                    <div class="bg-white rounded-[20px] border border-[#ECE7E1] p-5 flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-[#F8F6F3] flex items-center justify-center text-[#C89B45] shrink-0">
+                            <iconify-icon icon="solar:lightbulb-minimalistic-linear" class="text-lg"></iconify-icon>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <p class="text-sm text-[#1B1716] font-light leading-snug">You have 6 pieces that pair beautifully with your new camel coat.</p>
+                            <button class="text-xs text-[#6F675F] font-medium uppercase tracking-widest self-start btn-hover">View Pairings →</button>
+                        </div>
+                    </div>
+
+                    <!-- Categories -->
+                    <div class="flex flex-col gap-4">
+                        <h3 class="text-xs font-medium uppercase tracking-widest text-[#6F675F]">Categories</h3>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="card-hover bg-white rounded-2xl border border-[#ECE7E1] p-3 flex flex-col gap-3 cursor-pointer">
+                                <div class="w-full h-24 rounded-xl overflow-hidden">
+                                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/c543a9e1-f226-4ced-80b0-feb8445a75b9_1600w.jpg" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex justify-between items-center px-1">
+                                    <span class="text-sm font-medium text-[#1B1716]">Outerwear</span>
+                                    <span class="text-xs text-[#6F675F]">18</span>
+                                </div>
+                            </div>
+                            <div class="card-hover bg-white rounded-2xl border border-[#ECE7E1] p-3 flex flex-col gap-3 cursor-pointer">
+                                <div class="w-full h-24 rounded-xl overflow-hidden bg-[#F8F6F3]">
+                                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/5bab247f-35d9-400d-a82b-fd87cfe913d2_1600w.webp" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex justify-between items-center px-1">
+                                    <span class="text-sm font-medium text-[#1B1716]">Tops</span>
+                                    <span class="text-xs text-[#6F675F]">45</span>
+                                </div>
+                            </div>
+                            <div class="card-hover bg-white rounded-2xl border border-[#ECE7E1] p-3 flex flex-col gap-3 cursor-pointer">
+                                <div class="w-full h-24 rounded-xl overflow-hidden bg-[#F8F6F3]">
+                                    <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&amp;w=300&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex justify-between items-center px-1">
+                                    <span class="text-sm font-medium text-[#1B1716]">Trousers</span>
+                                    <span class="text-xs text-[#6F675F]">22</span>
+                                </div>
+                            </div>
+                            <div class="card-hover bg-white rounded-2xl border border-[#ECE7E1] p-3 flex flex-col gap-3 cursor-pointer">
+                                <div class="w-full h-24 rounded-xl overflow-hidden bg-[#F8F6F3]">
+                                    <img src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?q=80&amp;w=300&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex justify-between items-center px-1">
+                                    <span class="text-sm font-medium text-[#1B1716]">Shoes</span>
+                                    <span class="text-xs text-[#6F675F]">15</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 w-full h-[88px] bg-[#F8F6F3]/90 backdrop-blur-md border-t border-[#ECE7E1] pb-4 px-6 flex justify-between items-center z-50">
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:sun-2-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Today</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#1B1716]">
+                    <iconify-icon icon="solar:hanger-bold" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Closet</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:calendar-minimalistic-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Planner</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:compass-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Discover</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:user-circle-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         JOURNEY 3: PLANNING
+         ========================================== -->
+
+    <!-- SCREEN 11 -->
+    <div class="flex flex-col gap-4">
+        <div class="text-xs uppercase tracking-widest text-[#6F675F] font-medium ml-4">Screen 11 — Planner Home</div>
+        
+        <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.1)] overflow-hidden relative flex flex-col">
+            
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-32">
+                
+                <!-- Sticky Header & Week Strip -->
+                <div class="bg-[#F8F6F3] pt-12 pb-4 px-6 border-b border-[#ECE7E1] sticky top-0 z-20">
+                    <h2 class="font-serif text-3xl tracking-tight text-[#1B1716] mb-6">This Week</h2>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">S</span>
+                            <span class="text-sm font-medium text-[#1B1716]">12</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">M</span>
+                            <span class="text-sm font-medium text-[#1B1716]">13</span>
+                        </div>
+                        <!-- Active Day -->
+                        <div class="flex flex-col items-center gap-2 relative">
+                            <div class="absolute -top-1 w-8 h-12 bg-[#1B1716] rounded-full -z-10"></div>
+                            <span class="text-[10px] text-[#9F9387] uppercase tracking-widest relative z-10 pt-1">T</span>
+                            <span class="text-sm font-medium text-white relative z-10">14</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">W</span>
+                            <span class="text-sm font-medium text-[#1B1716]">15</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">T</span>
+                            <span class="text-sm font-medium text-[#1B1716]">16</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">F</span>
+                            <span class="text-sm font-medium text-[#1B1716]">17</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2">
+                            <span class="text-[10px] text-[#6F675F] uppercase tracking-widest">S</span>
+                            <span class="text-sm font-medium text-[#1B1716]">18</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 flex flex-col gap-6">
+                    
+                    <!-- Event with Planned Look -->
+                    <div class="flex flex-col gap-3">
+                        <div class="flex justify-between items-end">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-medium uppercase tracking-widest text-[#6F675F]">Today · Evening</span>
+                                <span class="font-serif text-xl text-[#1B1716]">Dinner with Sarah</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-[20px] border border-[#ECE7E1] p-3 flex gap-4">
+                            <div class="w-20 h-24 rounded-xl overflow-hidden shrink-0">
+                                <img src="https://images.unsplash.com/photo-1550639525-c97d455acf70?q=80&amp;w=200&amp;auto=format&amp;fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex flex-col justify-center gap-1">
+                                <span class="text-[10px] bg-[#F8F6F3] text-[#1B1716] px-2 py-1 rounded-md self-start border border-[#ECE7E1]">Planned Look</span>
+                                <span class="font-serif text-base text-[#1B1716]">Layered Cashmere</span>
+                                <span class="text-xs text-[#6F675F] font-light mt-1">Ready to wear</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty Day State -->
+                    <div class="flex flex-col gap-3 mt-4">
+                        <div class="flex justify-between items-end">
+                            <div class="flex flex-col">
+                                <span class="text-xs font-medium uppercase tracking-widest text-[#6F675F]">Wednesday · All Day</span>
+                                <span class="font-serif text-xl text-[#1B1716]">Office</span>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full border border-dashed border-[#9F9387] rounded-[20px] py-8 flex flex-col items-center justify-center gap-2 btn-hover bg-[#F8F6F3]/50">
+                            <div class="w-10 h-10 rounded-full bg-white border border-[#ECE7E1] flex items-center justify-center text-[#1B1716] shadow-sm">
+                                <iconify-icon icon="solar:add-linear" class="text-lg"></iconify-icon>
+                            </div>
+                            <span class="text-sm text-[#1B1716] font-medium">Plan a Look</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 w-full h-[88px] bg-[#F8F6F3]/90 backdrop-blur-md border-t border-[#ECE7E1] pb-4 px-6 flex justify-between items-center z-50">
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:sun-2-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Today</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:hanger-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Closet</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#1B1716]">
+                    <iconify-icon icon="solar:calendar-minimalistic-bold" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Planner</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:compass-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Discover</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:user-circle-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         JOURNEY 4 & 5: DISCOVER & PROFILE
+         ========================================== -->
+
+    <!-- SCREEN 17 -->
+    <div class="flex flex-col gap-4">
+        <div class="text-xs uppercase tracking-widest text-[#6F675F] font-medium ml-4">Screen 17 — Profile / My Atelier</div>
+        
+        <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.1)] overflow-hidden relative flex flex-col">
+            
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-32">
+                <div class="p-6 pt-12 flex flex-col gap-8">
+                    
+                    <div class="flex justify-between items-center">
+                        <h2 class="font-serif text-3xl tracking-tight text-[#1B1716]">My Atelier</h2>
+                        <button class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover shadow-sm">
+                            <iconify-icon icon="solar:settings-linear" class="text-lg"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <!-- Profile Header -->
+                    <div class="flex flex-col items-center gap-4 text-center mt-2">
+                        <div class="w-24 h-24 rounded-full border border-[#ECE7E1] p-1 bg-white shadow-sm">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&amp;w=200&amp;auto=format&amp;fit=crop" class="w-full h-full rounded-full object-cover">
+                        </div>
+                        <div>
+                            <h3 class="font-sans text-xl font-medium text-[#1B1716]">Amelia Clark</h3>
+                            <p class="font-serif text-[#6F675F] italic mt-1 text-lg">The Elevated Minimalist</p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Navigation Cards -->
+                    <div class="flex flex-col gap-3">
+                        
+                        <div class="card-hover bg-white rounded-2xl border border-[#ECE7E1] p-4 flex items-center justify-between cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[#F8F6F3] flex items-center justify-center text-[#1B1716]">
+                                    <iconify-icon icon="solar:magic-stick-3-linear" class="text-lg"></iconify-icon>
+                                </div>
+                                <span class="text-sm font-medium text-[#1B1716]">My Style Profile</span>
+                            </div>
+                            <iconify-icon icon="solar:alt-arrow-right-linear" class="text-[#9F9387]"></iconify-icon>
+                        </div>
+
+                        <div class="card-hover bg-white rounded-2xl border border-[#ECE7E1] p-4 flex items-center justify-between cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[#F8F6F3] flex items-center justify-center text-[#1B1716]">
+                                    <iconify-icon icon="solar:bookmark-linear" class="text-lg"></iconify-icon>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-medium text-[#1B1716]">Saved Looks</span>
+                                    <span class="text-[10px] text-[#6F675F]">24 outfits</span>
+                                </div>
+                            </div>
+                            <iconify-icon icon="solar:alt-arrow-right-linear" class="text-[#9F9387]"></iconify-icon>
+                        </div>
+
+                        <div class="card-hover bg-white rounded-2xl border border-[#ECE7E1] p-4 flex items-center justify-between cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[#F8F6F3] flex items-center justify-center text-[#1B1716]">
+                                    <iconify-icon icon="solar:slider-minimalistic-horizontal-linear" class="text-lg"></iconify-icon>
+                                </div>
+                                <span class="text-sm font-medium text-[#1B1716]">Preferences &amp; Sizes</span>
+                            </div>
+                            <iconify-icon icon="solar:alt-arrow-right-linear" class="text-[#9F9387]"></iconify-icon>
+                        </div>
+                        
+                    </div>
+
+                    <!-- Wardrobe Health -->
+                    <div class="bg-[#1B1716] rounded-2xl p-6 text-white flex flex-col gap-4 relative overflow-hidden mt-4 shadow-md">
+                        <div class="absolute -right-6 -top-6 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                        <div class="flex justify-between items-center relative z-10">
+                            <h3 class="font-serif text-lg tracking-tight">Wardrobe Health</h3>
+                            <span class="text-2xl font-serif text-[#C89B45]">82<span class="text-sm text-[#9F9387]">/100</span></span>
+                        </div>
+                        <p class="text-xs text-[#9F9387] font-light relative z-10">High versatility. Adding a staple knit would increase your score.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="absolute bottom-0 w-full h-[88px] bg-[#F8F6F3]/90 backdrop-blur-md border-t border-[#ECE7E1] pb-4 px-6 flex justify-between items-center z-50">
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:sun-2-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Today</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:hanger-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Closet</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:calendar-minimalistic-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Planner</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#9F9387]">
+                    <iconify-icon icon="solar:compass-linear" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Discover</span>
+                </button>
+                <button class="flex flex-col items-center gap-1 text-[#1B1716]">
+                    <iconify-icon icon="solar:user-circle-bold" class="text-2xl"></iconify-icon>
+                    <span class="text-[10px] font-medium">Profile</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+</body></html>
