@@ -1608,6 +1608,28 @@
                                 </div>
                             </div>
 
+                            <div class="preowned-results flex flex-col gap-3" data-preowned-group="muse-plan">
+                                <div>
+                                    <h4 class="font-serif text-lg tracking-tight text-[#1B1716]">You are one piece away.</h4>
+                                    <p class="text-[10px] text-[#6F675F] leading-relaxed mt-1">Find tailored pants that match your wardrobe, including external resale listings.</p>
+                                </div>
+                                <div class="flex gap-1.5 text-[10px] font-semibold">
+                                    <button type="button" data-preowned-filter="all" data-group="muse-plan" onclick="setPreownedFilter('muse-plan', 'all')" class="px-3 py-1.5 rounded-full bg-[#1B1716] text-white">All</button>
+                                    <button type="button" data-preowned-filter="new" data-group="muse-plan" onclick="setPreownedFilter('muse-plan', 'new')" class="px-3 py-1.5 rounded-full bg-white border border-[#ECE7E1] text-[#6F675F]">New</button>
+                                    <button type="button" data-preowned-filter="preowned" data-group="muse-plan" onclick="setPreownedFilter('muse-plan', 'preowned')" class="px-3 py-1.5 rounded-full bg-white border border-[#ECE7E1] text-[#6F675F]">Pre-owned</button>
+                                </div>
+                                <button type="button" data-preowned-community="muse-plan" onclick="toggleCommunityOnly('muse-plan')" class="w-full bg-white border border-[#ECE7E1] rounded-xl px-3 py-2 text-[10px] font-semibold text-[#6F675F] flex items-center justify-between">
+                                    <span>StyleIQ Users Only</span>
+                                    <span class="text-[#9F9387]">Off</span>
+                                </button>
+                                <div class="space-y-2">
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="muse-plan" data-source="new" data-community="false"><img src="images/style_minimal.png" class="w-14 h-16 object-cover rounded-lg"><div class="flex-1 text-left"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Charcoal Tailored Trouser</strong><span class="text-[10px] font-semibold">$118</span></div><p class="text-[10px] text-[#6F675F] mt-1">Everlane · New · Size M</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#9F9387]">Retailer option</span><a href="#screen-s08" class="text-[10px] text-[#C89B45] font-semibold">Save</a></div></div></div>
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="muse-plan" data-source="preowned" data-community="true"><img src="images/screen_23_item.png" class="w-14 h-16 object-cover rounded-lg"><div class="flex-1 text-left"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Theory Tailored Pants</strong><span class="text-[10px] font-semibold">$58</span></div><p class="text-[10px] text-[#6F675F] mt-1">Theory · M · Excellent · Poshmark</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#C89B45] font-semibold">StyleIQ Community</span><a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View on Poshmark <iconify-icon icon="solar:external-link-linear"></iconify-icon></a></div></div></div>
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="muse-plan" data-source="preowned" data-community="false"><img src="images/outfit_soft_tailoring.png" class="w-14 h-16 object-cover rounded-lg"><div class="flex-1 text-left"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Wool Blend Trouser</strong><span class="text-[10px] font-semibold">$44</span></div><p class="text-[10px] text-[#6F675F] mt-1">COS · M · Good · Depop</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#9F9387]">External seller</span><a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View on Depop <iconify-icon icon="solar:external-link-linear"></iconify-icon></a></div></div></div>
+                                </div>
+                                <div data-preowned-empty="muse-plan" class="hidden bg-white border border-[#ECE7E1] rounded-xl p-4 text-center"><h4 class="font-serif text-sm">No community listings yet</h4><p class="text-[10px] text-[#6F675F] mt-1">Try viewing all pre-owned finds or save this search for later.</p><div class="grid grid-cols-2 gap-2 mt-3"><button type="button" onclick="setPreownedFilter('muse-plan', 'preowned', true)" class="ghost-btn h-9 text-[10px]">View All Pre-owned</button><a href="#screen-s08" class="ghost-btn h-9 text-[10px]">Save Search</a></div></div>
+                            </div>
+
                             <!-- Actions -->
                             <div class="flex flex-col gap-2.5 mt-2">
                                 <a href="#screen-04" class="btn-hover bg-[#1B1716] text-white text-center rounded-xl py-3.5 font-medium text-sm">
@@ -1984,7 +2006,51 @@
                         <span class="text-[10px] font-semibold uppercase tracking-widest text-[#1B1716]">Item Details</span>
                         <div class="w-8"></div>
                     </div>
-                    <div class="flex-1 overflow-y-auto no-scrollbar pb-24"><div class="p-6 flex flex-col gap-5"><div class="bg-white border border-[#ECE7E1] rounded-[24px] p-5 flex justify-center"><img src="images/item_blazer.png" class="h-52 object-contain"></div><div><h3 class="font-serif text-[30px] tracking-tight">Camel Wool Blazer</h3><div class="flex gap-2 flex-wrap mt-3 text-xs"><span class="px-3 py-1.5 bg-white border border-[#ECE7E1] rounded-full">Blazer</span><span class="px-3 py-1.5 bg-white border border-[#ECE7E1] rounded-full">Camel</span><span class="px-3 py-1.5 bg-white border border-[#ECE7E1] rounded-full">Autumn / Winter</span></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><strong>3</strong><span class="block text-[#6F675F] mt-1">Wears</span></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><strong>2w</strong><span class="block text-[#6F675F] mt-1">Added</span></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><strong>Tue</strong><span class="block text-[#6F675F] mt-1">Last worn</span></div></div><div class="bg-white border border-[#ECE7E1] rounded-2xl p-4"><span class="text-xs font-semibold">Works Well With</span><p class="text-xs text-[#6F675F] mt-1">This piece may work well with these items.</p><div class="flex gap-2 mt-3"><img src="images/item_silk_shell.png" class="w-16 h-16 object-contain bg-[#F8F6F3] rounded-xl"><img src="images/style_minimal.png" class="w-16 h-16 object-cover rounded-xl"><img src="images/cat_shoes.png" class="w-16 h-16 object-cover rounded-xl"></div></div><div class="bg-[#EFECE7] border border-[#D6CCC2] rounded-2xl p-4"><span class="text-xs font-semibold">Similar pieces in your closet</span><p class="text-xs text-[#6F675F] mt-1">You have 2 similar tailored blazers.</p></div><div class="grid grid-cols-2 gap-2"><a href="#screen-c08" class="ghost-btn h-11">Edit Item</a><a href="#screen-c11" class="ghost-btn h-11">Mark as Worn</a><a href="#screen-01" class="primary-btn h-11">Add to Outfit</a><a href="#screen-c06" class="ghost-btn h-11">Archive Item</a></div></div></div>
+                    <div class="flex-1 overflow-y-auto no-scrollbar pb-24"><div class="p-6 flex flex-col gap-5"><div class="bg-white border border-[#ECE7E1] rounded-[24px] p-5 flex justify-center"><img src="images/item_blazer.png" class="h-52 object-contain"></div><div><h3 class="font-serif text-[30px] tracking-tight">Camel Wool Blazer</h3><div class="flex gap-2 flex-wrap mt-3 text-xs"><span class="px-3 py-1.5 bg-white border border-[#ECE7E1] rounded-full">Blazer</span><span class="px-3 py-1.5 bg-white border border-[#ECE7E1] rounded-full">Camel</span><span class="px-3 py-1.5 bg-white border border-[#ECE7E1] rounded-full">Autumn / Winter</span></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><strong>3</strong><span class="block text-[#6F675F] mt-1">Wears</span></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><strong>2w</strong><span class="block text-[#6F675F] mt-1">Added</span></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><strong>Tue</strong><span class="block text-[#6F675F] mt-1">Last worn</span></div></div><div class="bg-white border border-[#ECE7E1] rounded-2xl p-4"><span class="text-xs font-semibold">Works Well With</span><p class="text-xs text-[#6F675F] mt-1">This piece may work well with these items.</p><div class="flex gap-2 mt-3"><img src="images/item_silk_shell.png" class="w-16 h-16 object-contain bg-[#F8F6F3] rounded-xl"><img src="images/style_minimal.png" class="w-16 h-16 object-cover rounded-xl"><img src="images/cat_shoes.png" class="w-16 h-16 object-cover rounded-xl"></div></div><div class="bg-[#EFECE7] border border-[#D6CCC2] rounded-2xl p-4"><span class="text-xs font-semibold">Similar pieces in your closet</span><p class="text-xs text-[#6F675F] mt-1">You have 2 similar tailored blazers.</p></div><div id="external-listing-status" class="bg-white border border-[#ECE7E1] rounded-2xl p-4 flex flex-col gap-3"><div class="flex items-center justify-between"><span class="text-[9px] uppercase tracking-widest text-[#C89B45] font-semibold">Listed Externally</span><span id="listing-status-label" class="text-[10px] text-[#6F675F]">Active</span></div><div class="grid grid-cols-2 gap-2 text-[10px]"><div><span class="text-[#9F9387]">Platform</span><strong class="block text-[#1B1716] mt-0.5">Poshmark</strong></div><div><span class="text-[#9F9387]">Asking price</span><strong class="block text-[#1B1716] mt-0.5">$68</strong></div></div><a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View Listing <iconify-icon icon="solar:external-link-linear" class="text-xs"></iconify-icon></a><div id="listing-actions" class="grid grid-cols-3 gap-2 text-[10px]"><a href="#screen-r03" class="bg-[#F8F6F3] border border-[#ECE7E1] rounded-lg py-2 text-center font-semibold">Edit Link</a><button type="button" onclick="markListingSold()" class="bg-[#F8F6F3] border border-[#ECE7E1] rounded-lg py-2 font-semibold">Mark as Sold</button><button type="button" onclick="removeListingStatus()" class="bg-[#F8F6F3] border border-[#ECE7E1] rounded-lg py-2 font-semibold">Remove</button></div></div><div class="grid grid-cols-2 gap-2"><a href="#screen-c08" class="ghost-btn h-11">Edit Item</a><a href="#screen-c11" class="ghost-btn h-11">Mark as Worn</a><a href="#screen-01" class="primary-btn h-11">Add to Outfit</a><a href="#screen-c06" class="ghost-btn h-11">Archive Item</a><a href="#screen-r01" class="ghost-btn h-11 col-span-2">Sell This Item</a></div></div></div>
+                </div>
+            </div>
+            <div id="screen-r01" class="flex flex-col gap-4 relative">
+                <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN R01 — PREPARE YOUR LISTING</div>
+                <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
+                    <div class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
+                        <a href="#screen-c07" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover"><iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon></a>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-[#1B1716]">Prepare Listing</span>
+                        <div class="w-8"></div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto no-scrollbar pb-8"><div class="p-6 flex flex-col gap-5 text-left"><div><h3 class="font-serif text-[31px] tracking-tight">Prepare Your Listing</h3><p class="text-sm text-[#6F675F] leading-relaxed mt-2">We'll use your wardrobe details to help you create a ready-to-post resale listing.</p></div><div class="bg-white border border-[#ECE7E1] rounded-[24px] p-4 flex gap-4"><img src="images/item_blazer.png" class="w-24 h-28 object-contain bg-[#F8F6F3] rounded-xl"><div class="flex-1 text-xs"><span class="text-[9px] uppercase tracking-widest text-[#C89B45] font-semibold">Preview</span><h4 class="font-serif text-lg leading-tight mt-1">Camel Wool Blazer</h4><p class="text-[#6F675F] mt-1">Excellent condition · $68</p><p class="text-[10px] text-[#9F9387] mt-2 leading-relaxed">Tailored camel wool-blend blazer, worn 3 times.</p></div></div><div class="grid grid-cols-2 gap-2 text-[10px]"><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><span class="text-[#9F9387]">Brand</span><strong class="block mt-1">Suggested</strong></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><span class="text-[#9F9387]">Category</span><strong class="block mt-1">Blazer</strong></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><span class="text-[#9F9387]">Color</span><strong class="block mt-1">Camel</strong></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3"><span class="text-[#9F9387]">Size</span><strong class="block mt-1">M</strong></div></div><div class="space-y-2 text-xs"><div class="bg-white border border-[#ECE7E1] rounded-xl p-3 flex justify-between"><span>Condition</span><strong>Excellent</strong></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3 flex justify-between"><span>Original price</span><strong>$188</strong></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3 flex justify-between"><span>Suggested resale price</span><strong>$58-$76</strong></div><div class="bg-white border border-[#ECE7E1] rounded-xl p-3 flex justify-between"><span>Asking price</span><strong>$68</strong></div></div><div class="bg-[#EFECE7] border border-[#D6CCC2] rounded-2xl p-4"><span class="text-xs font-semibold">Listing description</span><p class="text-[10px] text-[#6F675F] leading-relaxed mt-2">Camel tailored wool-blend blazer. Clean structured fit, best for autumn and winter layering. Final sale details are managed externally.</p></div><a href="#screen-r02" class="primary-btn">Choose Selling Platform</a></div></div>
+                </div>
+            </div>
+            <div id="screen-r02" class="flex flex-col gap-4 relative">
+                <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN R02 — CHOOSE WHERE TO SELL</div>
+                <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
+                    <div class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
+                        <a href="#screen-r01" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover"><iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon></a>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-[#1B1716]">Choose Platform</span>
+                        <div class="w-8"></div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto no-scrollbar pb-8"><div class="p-6 flex flex-col gap-5 text-left"><div><h3 class="font-serif text-[31px] tracking-tight">Choose Where to Sell</h3><p class="text-sm text-[#6F675F] leading-relaxed mt-2">You'll publish and manage the sale on the selected platform.</p></div><div class="space-y-2 text-xs"><button type="button" onclick="selectSellingPlatform(this, 'Poshmark')" class="selling-platform w-full bg-[#1B1716] text-white border border-[#1B1716] rounded-2xl p-4 flex items-center justify-between text-left"><span><strong class="block">Poshmark</strong><span class="text-white/70 text-[10px]">Broad resale audience</span></span><iconify-icon icon="solar:external-link-linear"></iconify-icon></button><button type="button" onclick="selectSellingPlatform(this, 'Depop')" class="selling-platform w-full bg-white border border-[#ECE7E1] rounded-2xl p-4 flex items-center justify-between text-left"><span><strong class="block">Depop</strong><span class="text-[#6F675F] text-[10px]">Trend-led community listings</span></span><iconify-icon icon="solar:external-link-linear"></iconify-icon></button><button type="button" onclick="selectSellingPlatform(this, 'Vestiaire Collective')" class="selling-platform w-full bg-white border border-[#ECE7E1] rounded-2xl p-4 flex items-center justify-between text-left"><span><strong class="block">Vestiaire Collective</strong><span class="text-[#6F675F] text-[10px]">Designer and premium pieces</span></span><iconify-icon icon="solar:external-link-linear"></iconify-icon></button><button type="button" onclick="selectSellingPlatform(this, 'Grailed')" class="selling-platform w-full bg-white border border-[#ECE7E1] rounded-2xl p-4 flex items-center justify-between text-left"><span><strong class="block">Grailed</strong><span class="text-[#6F675F] text-[10px]">Menswear-focused resale</span></span><iconify-icon icon="solar:external-link-linear"></iconify-icon></button><button type="button" onclick="selectSellingPlatform(this, 'eBay')" class="selling-platform w-full bg-white border border-[#ECE7E1] rounded-2xl p-4 flex items-center justify-between text-left"><span><strong class="block">eBay</strong><span class="text-[#6F675F] text-[10px]">Large external marketplace</span></span><iconify-icon icon="solar:external-link-linear"></iconify-icon></button><button type="button" onclick="selectSellingPlatform(this, 'Other platform')" class="selling-platform w-full bg-white border border-[#ECE7E1] rounded-2xl p-4 flex items-center justify-between text-left"><span><strong class="block">Other platform</strong><span class="text-[#6F675F] text-[10px]">Use your preferred resale site</span></span><iconify-icon icon="solar:external-link-linear"></iconify-icon></button></div><div class="flex flex-col gap-2"><a href="#screen-r03" id="continue-platform-link" class="primary-btn">Continue to Poshmark</a><button type="button" class="ghost-btn">Copy Listing Details</button></div></div></div>
+                </div>
+            </div>
+            <div id="screen-r03" class="flex flex-col gap-4 relative">
+                <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN R03 — LINK YOUR LISTING</div>
+                <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
+                    <div class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
+                        <a href="#screen-r02" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover"><iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon></a>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-[#1B1716]">Link Listing</span>
+                        <div class="w-8"></div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto no-scrollbar pb-8"><div class="p-6 flex flex-col gap-5 text-left"><div><h3 class="font-serif text-[31px] tracking-tight">Link Your Listing</h3><p class="text-sm text-[#6F675F] leading-relaxed mt-2">Paste the listing link so StyleIQ can show your item in relevant pre-owned recommendations.</p></div><div class="bg-white border border-[#ECE7E1] rounded-[24px] p-4 flex gap-3"><img src="images/item_blazer.png" class="w-20 h-24 object-contain bg-[#F8F6F3] rounded-xl"><div class="text-xs"><span class="text-[9px] uppercase tracking-widest text-[#9F9387]">External Listing</span><h4 class="font-serif text-lg mt-1">Camel Wool Blazer</h4><p class="text-[#6F675F] mt-1">Buyers complete purchase on the external platform.</p></div></div><div class="space-y-3 text-xs"><div><span class="font-semibold">Platform</span><div class="field-input h-12 mt-2 flex items-center">Poshmark</div></div><div><span class="font-semibold">External listing URL</span><div class="field-input h-12 mt-2 flex items-center text-[#9F9387]">https://poshmark.com/listing/...</div></div><div class="grid grid-cols-2 gap-2"><div><span class="font-semibold">Asking price</span><div class="field-input h-12 mt-2 flex items-center">$68</div></div><div><span class="font-semibold">Listing status</span><div class="field-input h-12 mt-2 flex items-center">Active</div></div></div></div><div class="flex flex-col gap-2 mt-auto"><a href="#screen-r04" class="primary-btn">Save Listing</a><a href="#screen-c07" class="ghost-btn">I'll Do This Later</a></div></div></div>
+                </div>
+            </div>
+            <div id="screen-r04" class="flex flex-col gap-4 relative">
+                <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN R04 — LISTING CONNECTED</div>
+                <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
+                    <div class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
+                        <a href="#screen-r03" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover"><iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon></a>
+                        <span class="text-[10px] font-semibold uppercase tracking-widest text-[#1B1716]">Connected</span>
+                        <div class="w-8"></div>
+                    </div>
+                    <div class="flex-1 p-6 flex flex-col justify-center gap-5 text-center"><div class="mx-auto w-14 h-14 rounded-full bg-[#C89B45]/15 flex items-center justify-center"><i data-lucide="check" class="w-7 h-7 text-[#C89B45]"></i></div><div><h3 class="font-serif text-[31px] tracking-tight">Listing Connected</h3><p class="text-sm text-[#6F675F] leading-relaxed mt-2">Your item is now discoverable in StyleIQ Pre-owned Finds.</p></div><div class="bg-white border border-[#ECE7E1] rounded-2xl p-4 text-left"><span class="text-xs font-semibold">External sale</span><p class="text-xs text-[#6F675F] mt-1">Buyers will complete the purchase on Poshmark.</p></div><div class="flex flex-col gap-2"><a href="#" class="primary-btn">View External Listing</a><a href="#screen-c06" class="ghost-btn">Back to My Closet</a></div></div>
                 </div>
             </div>
             <div id="screen-c08" class="flex flex-col gap-4 relative"><span id="screen-24"></span>
@@ -2039,7 +2105,7 @@
                         <span class="text-[10px] font-semibold uppercase tracking-widest text-[#1B1716]">Underused Pieces</span>
                         <div class="w-8"></div>
                     </div>
-                    <div class="flex-1 overflow-y-auto no-scrollbar pb-8"><div class="p-6 flex flex-col gap-5"><div><h3 class="font-serif text-[31px] tracking-tight">Pieces you may want to revisit.</h3><p class="text-sm text-[#6F675F] leading-relaxed mt-2">These items have not appeared in your recent looks. Explore a few ways to bring them back.</p></div><div class="grid grid-cols-2 gap-3"><div class="bg-white border border-[#ECE7E1] rounded-2xl p-3"><img src="images/item_silk_shell.png" class="h-32 w-full object-contain bg-[#F8F6F3] rounded-xl"><h4 class="text-xs font-semibold mt-2">Ivory Silk Shell</h4><p class="text-[10px] text-[#6F675F]">Last worn 84 days ago</p><a href="#screen-01" class="text-[10px] text-[#C89B45] font-semibold mt-2 block">Style this piece</a></div><div class="bg-white border border-[#ECE7E1] rounded-2xl p-3"><img src="images/style_classic.png" class="h-32 w-full object-cover rounded-xl"><h4 class="text-xs font-semibold mt-2">Shearling Jacket</h4><p class="text-[10px] text-[#6F675F]">Last worn 96 days ago</p><a href="#screen-01" class="text-[10px] text-[#C89B45] font-semibold mt-2 block">Style this piece</a></div></div><a href="#screen-c09" class="ghost-btn">Back to Insights</a></div></div>
+                    <div class="flex-1 overflow-y-auto no-scrollbar pb-8"><div class="p-6 flex flex-col gap-5"><div><h3 class="font-serif text-[31px] tracking-tight">Pieces you may want to revisit.</h3><p class="text-sm text-[#6F675F] leading-relaxed mt-2">These items have not appeared in your recent looks. Explore a few ways to bring them back.</p></div><div class="grid grid-cols-2 gap-3"><div class="bg-white border border-[#ECE7E1] rounded-2xl p-3"><img src="images/item_silk_shell.png" class="h-32 w-full object-contain bg-[#F8F6F3] rounded-xl"><h4 class="text-xs font-semibold mt-2">Ivory Silk Shell</h4><p class="text-[10px] text-[#6F675F]">Last worn 84 days ago</p><div class="flex items-center gap-3 mt-2"><a href="#screen-01" class="text-[10px] text-[#C89B45] font-semibold block">Style this piece</a><a href="#screen-r01" class="text-[10px] text-[#6F675F] font-semibold block">Sell</a></div></div><div class="bg-white border border-[#ECE7E1] rounded-2xl p-3"><img src="images/style_classic.png" class="h-32 w-full object-cover rounded-xl"><h4 class="text-xs font-semibold mt-2">Shearling Jacket</h4><p class="text-[10px] text-[#6F675F]">Last worn 96 days ago</p><div class="flex items-center gap-3 mt-2"><a href="#screen-01" class="text-[10px] text-[#C89B45] font-semibold block">Style this piece</a><a href="#screen-r01" class="text-[10px] text-[#6F675F] font-semibold block">Sell</a></div></div></div><a href="#screen-c09" class="ghost-btn">Back to Insights</a></div></div>
                 </div>
             </div>
             <div id="screen-c13" class="flex flex-col gap-4 relative">
@@ -4576,6 +4642,29 @@
                                 </div>
                             </div>
 
+                            <div class="preowned-results flex flex-col gap-3" data-preowned-group="smart-shopping">
+                                <div class="text-left">
+                                    <span class="text-[9px] uppercase tracking-widest text-[#6F675F] font-semibold">Shop Smarter</span>
+                                    <h3 class="font-serif text-lg tracking-tight text-[#1B1716] mt-1">Pre-owned Finds</h3>
+                                    <p class="text-[10px] text-[#6F675F] mt-1 leading-relaxed">Find pieces that match your wardrobe, including listings shared by the StyleIQ community.</p>
+                                </div>
+                                <div class="flex gap-1.5 text-[10px] font-semibold">
+                                    <button type="button" data-preowned-filter="all" data-group="smart-shopping" onclick="setPreownedFilter('smart-shopping', 'all')" class="px-3 py-1.5 rounded-full bg-[#1B1716] text-white">All</button>
+                                    <button type="button" data-preowned-filter="new" data-group="smart-shopping" onclick="setPreownedFilter('smart-shopping', 'new')" class="px-3 py-1.5 rounded-full bg-white border border-[#ECE7E1] text-[#6F675F]">New</button>
+                                    <button type="button" data-preowned-filter="preowned" data-group="smart-shopping" onclick="setPreownedFilter('smart-shopping', 'preowned')" class="px-3 py-1.5 rounded-full bg-white border border-[#ECE7E1] text-[#6F675F]">Pre-owned</button>
+                                </div>
+                                <button type="button" data-preowned-community="smart-shopping" onclick="toggleCommunityOnly('smart-shopping')" class="w-full bg-white border border-[#ECE7E1] rounded-xl px-3 py-2 text-[10px] font-semibold text-[#6F675F] flex items-center justify-between">
+                                    <span>StyleIQ Users Only</span>
+                                    <span class="text-[#9F9387]">Off</span>
+                                </button>
+                                <div class="space-y-2">
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="smart-shopping" data-source="new" data-community="false"><img src="images/item_silk_shell.png" class="w-14 h-16 object-contain bg-[#F8F6F3] rounded-lg"><div class="flex-1 text-left"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Ivory Rib Turtleneck</strong><span class="text-[10px] font-semibold">$98</span></div><p class="text-[10px] text-[#6F675F] mt-1">New · M · Warm ivory · Retailer</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#9F9387]">Completes camel look</span><a href="#screen-s08" class="text-[10px] text-[#C89B45] font-semibold">Save</a></div></div></div>
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="smart-shopping" data-source="preowned" data-community="true"><img src="images/item_silk_shell.png" class="w-14 h-16 object-contain bg-[#F8F6F3] rounded-lg"><div class="flex-1 text-left"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Cashmere Turtleneck</strong><span class="text-[10px] font-semibold">$72</span></div><p class="text-[10px] text-[#6F675F] mt-1">Naadam · M · Excellent · Poshmark</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#C89B45] font-semibold">StyleIQ Community · Worn 4 times</span><a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View on Poshmark <iconify-icon icon="solar:external-link-linear"></iconify-icon></a></div></div></div>
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="smart-shopping" data-source="preowned" data-community="false"><img src="images/outfit_soft_tailoring.png" class="w-14 h-16 object-cover rounded-lg"><div class="flex-1 text-left"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Cream Merino Knit</strong><span class="text-[10px] font-semibold">$46</span></div><p class="text-[10px] text-[#6F675F] mt-1">Uniqlo · S · Very good · Depop</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#9F9387]">External seller</span><a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View on Depop <iconify-icon icon="solar:external-link-linear"></iconify-icon></a></div></div></div>
+                                </div>
+                                <div data-preowned-empty="smart-shopping" class="hidden bg-white border border-[#ECE7E1] rounded-xl p-4 text-center"><h4 class="font-serif text-sm">No community listings yet</h4><p class="text-[10px] text-[#6F675F] mt-1">Try viewing all pre-owned finds or save this search for later.</p><div class="grid grid-cols-2 gap-2 mt-3"><button type="button" onclick="setPreownedFilter('smart-shopping', 'preowned', true)" class="ghost-btn h-9 text-[10px]">View All Pre-owned</button><a href="#screen-s08" class="ghost-btn h-9 text-[10px]">Save Search</a></div></div>
+                            </div>
+
                             <!-- Saved for Later (Wishlist Preview) -->
                             <div class="flex flex-col gap-3">
                                 <div class="flex items-center justify-between">
@@ -5508,6 +5597,28 @@
                                 </div>
                             </div>
 
+                            <div class="preowned-results flex flex-col gap-3" data-preowned-group="complete-look">
+                                <div>
+                                    <h4 class="font-serif text-lg tracking-tight text-[#1B1716]">Recommended missing pieces</h4>
+                                    <p class="text-[10px] text-[#6F675F] leading-relaxed mt-1">Compare new retailer options with external pre-owned listings for the same wardrobe gap.</p>
+                                </div>
+                                <div class="flex gap-1.5 text-[10px] font-semibold">
+                                    <button type="button" data-preowned-filter="all" data-group="complete-look" onclick="setPreownedFilter('complete-look', 'all')" class="px-3 py-1.5 rounded-full bg-[#1B1716] text-white">All</button>
+                                    <button type="button" data-preowned-filter="new" data-group="complete-look" onclick="setPreownedFilter('complete-look', 'new')" class="px-3 py-1.5 rounded-full bg-white border border-[#ECE7E1] text-[#6F675F]">New</button>
+                                    <button type="button" data-preowned-filter="preowned" data-group="complete-look" onclick="setPreownedFilter('complete-look', 'preowned')" class="px-3 py-1.5 rounded-full bg-white border border-[#ECE7E1] text-[#6F675F]">Pre-owned</button>
+                                </div>
+                                <button type="button" data-preowned-community="complete-look" onclick="toggleCommunityOnly('complete-look')" class="w-full bg-white border border-[#ECE7E1] rounded-xl px-3 py-2 text-[10px] font-semibold text-[#6F675F] flex items-center justify-between">
+                                    <span>StyleIQ Users Only</span>
+                                    <span class="text-[#9F9387]">Off</span>
+                                </button>
+                                <div class="space-y-2">
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="complete-look" data-source="new" data-community="false"><img src="images/item_silk_shell.png" class="w-14 h-16 object-contain bg-[#F8F6F3] rounded-lg"><div class="flex-1"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Ivory Turtleneck Sweater</strong><span class="text-[10px] font-semibold">$88</span></div><p class="text-[10px] text-[#6F675F] mt-1">New · M · Retailer</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#9F9387]">Matches camel blazer</span><a href="#screen-s07" class="text-[10px] text-[#C89B45] font-semibold">Save</a></div></div></div>
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="complete-look" data-source="preowned" data-community="true"><img src="images/item_silk_shell.png" class="w-14 h-16 object-contain bg-[#F8F6F3] rounded-lg"><div class="flex-1"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Ivory Cashmere Knit</strong><span class="text-[10px] font-semibold">$64</span></div><p class="text-[10px] text-[#6F675F] mt-1">Everlane · M · Excellent · Poshmark</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#C89B45] font-semibold">StyleIQ Community</span><a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View on Poshmark <iconify-icon icon="solar:external-link-linear"></iconify-icon></a></div></div></div>
+                                    <div class="preowned-card bg-white border border-[#ECE7E1] rounded-xl p-3 flex gap-3" data-group="complete-look" data-source="preowned" data-community="false"><img src="images/style_minimal.png" class="w-14 h-16 object-cover rounded-lg"><div class="flex-1"><div class="flex justify-between gap-2"><strong class="text-xs leading-tight">Cream Mockneck</strong><span class="text-[10px] font-semibold">$39</span></div><p class="text-[10px] text-[#6F675F] mt-1">COS · S · Good · eBay</p><div class="flex justify-between items-center mt-2"><span class="text-[9px] text-[#9F9387]">External seller</span><a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View on eBay <iconify-icon icon="solar:external-link-linear"></iconify-icon></a></div></div></div>
+                                </div>
+                                <div data-preowned-empty="complete-look" class="hidden bg-white border border-[#ECE7E1] rounded-xl p-4 text-center"><h4 class="font-serif text-sm">No community listings yet</h4><p class="text-[10px] text-[#6F675F] mt-1">Try viewing all pre-owned finds or save this search for later.</p><div class="grid grid-cols-2 gap-2 mt-3"><button type="button" onclick="setPreownedFilter('complete-look', 'preowned', true)" class="ghost-btn h-9 text-[10px]">View All Pre-owned</button><a href="#screen-s07" class="ghost-btn h-9 text-[10px]">Save Search</a></div></div>
+                            </div>
+
                             <!-- Actions -->
                             <div class="flex flex-col gap-2.5 mt-2">
                                 <a href="#screen-s04" class="primary-btn h-12 rounded-xl text-xs font-semibold">
@@ -5600,6 +5711,21 @@
                                 <div class="bg-white border border-[#ECE7E1] rounded-xl p-3">
                                     <span class="text-[#9F9387]">Recommended season</span>
                                     <strong class="block mt-1 font-semibold text-[#C89B45]">Autumn / Spring</strong>
+                                </div>
+                            </div>
+
+                            <div class="bg-white border border-[#ECE7E1] rounded-2xl p-4 shadow-sm">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div>
+                                        <span class="text-[9px] uppercase tracking-widest text-[#C89B45] font-semibold">Pre-owned Find</span>
+                                        <h4 class="font-serif text-sm text-[#1B1716] mt-1">Black Leather Loafers</h4>
+                                        <p class="text-[10px] text-[#6F675F] mt-1">Vagabond · Size 8 · Excellent · Depop</p>
+                                    </div>
+                                    <span class="text-xs font-semibold">$52</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-3">
+                                    <span class="text-[9px] text-[#C89B45] font-semibold">StyleIQ Community</span>
+                                    <a href="#" class="text-[10px] text-[#C89B45] font-semibold flex items-center gap-1">View on Depop <iconify-icon icon="solar:external-link-linear"></iconify-icon></a>
                                 </div>
                             </div>
 
@@ -5868,6 +5994,101 @@
                 }
             }
         }
+
+        const preownedFilterState = {};
+
+        function getPreownedState(group) {
+            if (!preownedFilterState[group]) {
+                preownedFilterState[group] = { filter: 'all', communityOnly: false };
+            }
+            return preownedFilterState[group];
+        }
+
+        function setPreownedFilter(group, filter, clearCommunity) {
+            const state = getPreownedState(group);
+            state.filter = filter;
+            if (clearCommunity) state.communityOnly = false;
+            if (state.communityOnly && state.filter === 'new') state.filter = 'preowned';
+            updatePreownedResults(group);
+        }
+
+        function toggleCommunityOnly(group) {
+            const state = getPreownedState(group);
+            state.communityOnly = !state.communityOnly;
+            if (state.communityOnly && state.filter === 'new') state.filter = 'preowned';
+            updatePreownedResults(group);
+        }
+
+        function updatePreownedResults(group) {
+            const state = getPreownedState(group);
+            const filterButtons = document.querySelectorAll(`[data-group="${group}"][data-preowned-filter]`);
+            filterButtons.forEach((btn) => {
+                const isActive = btn.dataset.preownedFilter === state.filter;
+                btn.className = isActive
+                    ? 'px-3 py-1.5 rounded-full bg-[#1B1716] text-white'
+                    : 'px-3 py-1.5 rounded-full bg-white border border-[#ECE7E1] text-[#6F675F]';
+            });
+
+            const communityButton = document.querySelector(`[data-preowned-community="${group}"]`);
+            if (communityButton) {
+                communityButton.className = state.communityOnly
+                    ? 'w-full bg-[#1B1716] border border-[#1B1716] rounded-xl px-3 py-2 text-[10px] font-semibold text-white flex items-center justify-between'
+                    : 'w-full bg-white border border-[#ECE7E1] rounded-xl px-3 py-2 text-[10px] font-semibold text-[#6F675F] flex items-center justify-between';
+                const status = communityButton.querySelector('span:last-child');
+                if (status) {
+                    status.textContent = state.communityOnly ? 'On' : 'Off';
+                    status.className = state.communityOnly ? 'text-white/70' : 'text-[#9F9387]';
+                }
+            }
+
+            let visibleCount = 0;
+            document.querySelectorAll(`.preowned-card[data-group="${group}"]`).forEach((card) => {
+                const sourceMatches = state.filter === 'all' || card.dataset.source === state.filter;
+                const communityMatches = !state.communityOnly || (card.dataset.source === 'preowned' && card.dataset.community === 'true');
+                const shouldShow = sourceMatches && communityMatches;
+                card.classList.toggle('hidden', !shouldShow);
+                if (shouldShow) visibleCount += 1;
+            });
+
+            const emptyState = document.querySelector(`[data-preowned-empty="${group}"]`);
+            if (emptyState) emptyState.classList.toggle('hidden', visibleCount > 0);
+        }
+
+        function selectSellingPlatform(btn, platform) {
+            document.querySelectorAll('.selling-platform').forEach((item) => {
+                item.className = 'selling-platform w-full bg-white border border-[#ECE7E1] rounded-2xl p-4 flex items-center justify-between text-left';
+                const helper = item.querySelector('span span');
+                if (helper) helper.className = 'text-[#6F675F] text-[10px]';
+            });
+            btn.className = 'selling-platform w-full bg-[#1B1716] text-white border border-[#1B1716] rounded-2xl p-4 flex items-center justify-between text-left';
+            const helper = btn.querySelector('span span');
+            if (helper) helper.className = 'text-white/70 text-[10px]';
+            const link = document.getElementById('continue-platform-link');
+            if (link) link.textContent = `Continue to ${platform}`;
+        }
+
+        function markListingSold() {
+            const status = document.getElementById('listing-status-label');
+            const actions = document.getElementById('listing-actions');
+            if (status) {
+                status.textContent = 'Sold';
+                status.className = 'text-[10px] text-[#C89B45] font-semibold';
+            }
+            if (actions) {
+                actions.innerHTML = '<div class="col-span-3 bg-[#FFF9ED] border border-[#E8D7B4] rounded-lg py-2 text-center text-[10px] font-semibold text-[#C89B45]">Marked sold in prototype</div>';
+            }
+        }
+
+        function removeListingStatus() {
+            const panel = document.getElementById('external-listing-status');
+            if (panel) {
+                panel.innerHTML = '<div class="flex items-center justify-between"><span class="text-[9px] uppercase tracking-widest text-[#9F9387] font-semibold">External Listing</span><a href="#screen-r01" class="text-[10px] text-[#C89B45] font-semibold">Sell This Item</a></div><p class="text-[10px] text-[#6F675F] mt-1">No external listing is connected.</p>';
+            }
+        }
+
+        document.querySelectorAll('[data-preowned-group]').forEach((surface) => {
+            updatePreownedResults(surface.dataset.preownedGroup);
+        });
 </script>
 </body>
 </html>
