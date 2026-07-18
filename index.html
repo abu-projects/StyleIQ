@@ -197,6 +197,142 @@
         .mockup-scroll::-webkit-scrollbar {
             display: none;
         }
+
+        /* STYLEIQ MOTION: finite product motion plus board-only preview timing */
+        :root {
+            --styleiq-motion-micro: 180ms;
+            --styleiq-motion-main: 520ms;
+            --styleiq-motion-hero: 720ms;
+            --styleiq-motion-stagger: 80ms;
+            --styleiq-progress-duration: 650ms;
+            --styleiq-progress-delay: 240ms;
+            --styleiq-motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        [data-motion-screen] [data-motion-item] {
+            --styleiq-motion-delay-step: 0;
+            --styleiq-motion-y: 12px;
+            --styleiq-motion-x: 0px;
+            --styleiq-motion-scale: 1;
+            transform-origin: center;
+        }
+        [data-motion-delay="1"] { --styleiq-motion-delay-step: 1; }
+        [data-motion-delay="2"] { --styleiq-motion-delay-step: 2; }
+        [data-motion-delay="3"] { --styleiq-motion-delay-step: 3; }
+        [data-motion-delay="4"] { --styleiq-motion-delay-step: 4; }
+        [data-motion-delay="5"] { --styleiq-motion-delay-step: 5; }
+        [data-motion-delay="6"] { --styleiq-motion-delay-step: 6; }
+        [data-motion-delay="7"] { --styleiq-motion-delay-step: 7; }
+        [data-motion-delay="8"] { --styleiq-motion-delay-step: 8; }
+        [data-motion-item="hero"],
+        [data-motion-item="image"] {
+            --styleiq-motion-scale: 0.97;
+        }
+        [data-motion-item="pop"] {
+            --styleiq-motion-y: 0px;
+            --styleiq-motion-scale: 0.94;
+        }
+        [data-motion-item="check"] {
+            --styleiq-motion-y: 0px;
+            --styleiq-motion-scale: 0.78;
+        }
+        [data-motion-item="day"] {
+            --styleiq-motion-y: 0px;
+            --styleiq-motion-scale: 0.94;
+        }
+        [data-motion-screen].styleiq-motion-preview-run {
+            --styleiq-motion-main: 676ms;
+            --styleiq-motion-hero: 850ms;
+            --styleiq-motion-stagger: 104ms;
+            --styleiq-progress-duration: 845ms;
+            --styleiq-progress-delay: 312ms;
+        }
+        [data-motion-screen].styleiq-motion-preview-run [data-motion-item] {
+            --styleiq-motion-y: 16px;
+        }
+        .styleiq-motion-ready [data-motion-screen].styleiq-motion-pending [data-motion-item] {
+            opacity: 0;
+            transform: translate3d(var(--styleiq-motion-x), var(--styleiq-motion-y), 0) scale(var(--styleiq-motion-scale));
+        }
+        .styleiq-motion-ready [data-motion-screen].styleiq-motion-active [data-motion-item] {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale(1);
+            transition:
+                opacity var(--styleiq-motion-main) var(--styleiq-motion-ease) calc(var(--styleiq-motion-stagger) * var(--styleiq-motion-delay-step)),
+                transform var(--styleiq-motion-main) var(--styleiq-motion-ease) calc(var(--styleiq-motion-stagger) * var(--styleiq-motion-delay-step));
+        }
+        .styleiq-motion-ready [data-motion-screen].styleiq-motion-active [data-motion-item="check"] {
+            transition-duration: var(--styleiq-motion-hero);
+            transition-timing-function: cubic-bezier(0.2, 1.45, 0.35, 1);
+        }
+        #screen-d-1:not(.styleiq-motion-preview-run) [data-motion-item],
+        #screen-d-5:not(.styleiq-motion-preview-run) [data-motion-item] {
+            --styleiq-motion-main: 420ms;
+        }
+        #screen-a-1 [data-motion-press]:active {
+            transform: scale(0.985);
+            transition-duration: var(--styleiq-motion-micro);
+        }
+        [data-motion-screen].styleiq-motion-active [data-motion-item].card-hover:hover {
+            transform: translateY(-2px);
+        }
+        [data-motion-screen].styleiq-motion-active [data-motion-item].btn-hover:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+        #style-twin-scene-overlay {
+            transition: opacity var(--styleiq-motion-micro) var(--styleiq-motion-ease);
+        }
+        #screen-a-3 .alternative-look-card {
+            transition:
+                border-color 260ms var(--styleiq-motion-ease),
+                box-shadow 260ms var(--styleiq-motion-ease),
+                transform 260ms var(--styleiq-motion-ease),
+                opacity var(--styleiq-motion-main) var(--styleiq-motion-ease) calc(var(--styleiq-motion-stagger) * var(--styleiq-motion-delay-step));
+        }
+        #screen-a-3 .alternative-look-card.is-selected {
+            border-color: #C89B45;
+            box-shadow: 0 8px 18px -14px rgba(27, 23, 22, 0.45);
+            transform: translate3d(0, -2px, 0) scale(1.005);
+        }
+        #screen-a-3 .alternative-look-card:not(.is-selected):hover {
+            transform: translateY(-2px);
+        }
+        #screen-a-3.styleiq-motion-pending .alternative-look-card.is-selected {
+            border-color: #ECE7E1;
+            box-shadow: none;
+            transform: translate3d(0, 12px, 0) scale(0.98);
+        }
+        #screen-a-3 .alternative-look-card:focus-visible {
+            outline: 2px solid #C89B45;
+            outline-offset: 3px;
+        }
+        #screen-y-17 [data-closet-progress-fill] {
+            transform-origin: left center;
+        }
+        .styleiq-motion-ready #screen-y-17.styleiq-motion-pending [data-closet-progress-fill] {
+            transform: scaleX(0);
+        }
+        .styleiq-motion-ready #screen-y-17.styleiq-motion-active [data-closet-progress-fill] {
+            transform: scaleX(1);
+            transition: transform var(--styleiq-progress-duration) var(--styleiq-motion-ease) var(--styleiq-progress-delay);
+        }
+        #styleiq-motion-preview [data-motion-preview-screen][aria-pressed="true"] {
+            background: #1B1716;
+            border-color: #1B1716;
+            color: #FFFFFF;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .styleiq-motion-ready [data-motion-screen]:not(.styleiq-motion-force-preview) [data-motion-item],
+            .styleiq-motion-ready #screen-y-17:not(.styleiq-motion-force-preview) [data-closet-progress-fill],
+            #screen-a-3:not(.styleiq-motion-force-preview) .alternative-look-card,
+            #screen-y-12:not(.styleiq-motion-force-preview) #style-twin-scene-overlay {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+                animation: none !important;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen p-6 md:p-12 flex flex-col items-center justify-start gap-16">
@@ -882,37 +1018,37 @@
 
             <div class="flex flex-col items-center gap-6">
                 <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">SCREEN Y-12 — MEET YOUR STYLE TWIN</h2>
-                <div id="screen-y-12" class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] shadow-xl overflow-hidden relative flex flex-col">
+                <div id="screen-y-12" data-motion-screen class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] shadow-xl overflow-hidden relative flex flex-col">
                     <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 bg-[#F8F6F3]/90 backdrop-blur-md shrink-0"><span class="text-xs font-medium text-[#1B1716]">9:41</span><div class="flex gap-1.5 items-center"><i data-lucide="signal" class="w-4 h-4"></i><i data-lucide="wifi" class="w-4 h-4"></i><i data-lucide="battery" class="w-5 h-5"></i></div></div>
                     <div class="px-6 pt-4 pb-28 flex-1 overflow-y-auto no-scrollbar flex flex-col gap-4">
-                        <div class="flex items-center justify-between"><a href="#screen-y-10" class="w-9 h-9 rounded-full bg-white border border-[#ECE7E1] flex items-center justify-center btn-hover"><i data-lucide="arrow-left" class="w-4 h-4"></i></a><span class="text-[10px] uppercase tracking-widest text-[#C89B45] font-bold">Your Twin is Ready</span></div>
+                        <div data-motion-item="content" class="flex items-center justify-between"><a href="#screen-y-10" class="w-9 h-9 rounded-full bg-white border border-[#ECE7E1] flex items-center justify-center btn-hover"><i data-lucide="arrow-left" class="w-4 h-4"></i></a><span class="text-[10px] uppercase tracking-widest text-[#C89B45] font-bold">Your Twin is Ready</span></div>
 
-                        <div class="text-left px-1">
+                        <div data-motion-item="content" data-motion-delay="1" class="text-left px-1">
                             <h3 class="font-serif text-[28px] tracking-tight leading-tight text-[#1B1716] mb-1">Meet Your<br>Style Twin ✨</h3>
                             <p class="text-xs text-[#6F675F] leading-relaxed">Your avatar is ready!</p>
                         </div>
 
-                        <div class="grid grid-cols-3 gap-1 bg-white border border-[#ECE7E1] rounded-2xl p-1" role="group" aria-label="Style Twin presentation scene">
+                        <div data-motion-item="content" data-motion-delay="2" class="grid grid-cols-3 gap-1 bg-white border border-[#ECE7E1] rounded-2xl p-1" role="group" aria-label="Style Twin presentation scene">
                             <button type="button" data-style-twin-scene="daytime" aria-pressed="true" onclick="setStyleTwinScene('daytime')" class="style-twin-scene-btn rounded-xl px-2 py-2 text-[10px] font-semibold bg-[#1B1716] text-white btn-hover">Daytime</button>
                             <button type="button" data-style-twin-scene="relaxing" aria-pressed="false" onclick="setStyleTwinScene('relaxing')" class="style-twin-scene-btn rounded-xl px-2 py-2 text-[10px] font-semibold text-[#6F675F] btn-hover">Relaxing</button>
                             <button type="button" data-style-twin-scene="evening" aria-pressed="false" onclick="setStyleTwinScene('evening')" class="style-twin-scene-btn rounded-xl px-2 py-2 text-[10px] font-semibold text-[#6F675F] btn-hover">Evening</button>
                         </div>
 
                         <!-- Avatar Reveal Full Image Card -->
-                        <div class="w-full h-[320px] rounded-3xl overflow-hidden border border-[#ECE7E1] relative shadow-sm shrink-0 bg-white">
+                        <div id="style-twin-card" data-motion-item="hero" data-motion-delay="2" class="w-full h-[320px] rounded-3xl overflow-hidden border border-[#ECE7E1] relative shadow-sm shrink-0 bg-white">
                             <img src="images/avatar_style_twin.png" class="w-full h-full object-cover object-top" alt="Completed Style Twin avatar">
                             <div id="style-twin-scene-overlay" class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to top, rgba(27,23,22,0.28), rgba(255,249,237,0.08) 45%, rgba(255,255,255,0));"></div>
-                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-[#ECE7E1] rounded-full px-3 py-1.5 text-left">
+                            <div data-motion-item="pop" data-motion-delay="3" class="absolute top-4 left-4 bg-white/90 backdrop-blur-md border border-[#ECE7E1] rounded-full px-3 py-1.5 text-left">
                                 <span id="style-twin-scene-label" class="text-[9px] uppercase tracking-widest text-[#C89B45] font-bold">Daytime</span>
                             </div>
                             <!-- Subtle premium badge -->
-                            <div class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md border border-[#ECE7E1] rounded-2xl p-2.5 text-left flex flex-col gap-0.5">
+                            <div data-motion-item="pop" data-motion-delay="3" class="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md border border-[#ECE7E1] rounded-2xl p-2.5 text-left flex flex-col gap-0.5">
                                 <span class="text-[9px] uppercase tracking-widest text-[#C89B45] font-bold">Fit Profile Status</span>
                                 <span class="text-xs font-bold text-[#1B1716]">100% Calibrated</span>
                             </div>
                         </div>
 
-                        <div class="bg-white border border-[#ECE7E1] rounded-2xl p-4">
+                        <div id="style-twin-scene-copy" data-motion-item="content" data-motion-delay="4" class="bg-white border border-[#ECE7E1] rounded-2xl p-4">
                             <div class="flex items-start justify-between gap-3">
                                 <div>
                                     <span class="text-[9px] uppercase tracking-widest text-[#9F9387] font-semibold">Scene Direction</span>
@@ -938,7 +1074,7 @@
                         </div>
                     </div>
                     <!-- Footer CTAs -->
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent flex flex-col gap-2.5">
+                    <div data-motion-item="content" data-motion-delay="5" class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent flex flex-col gap-2.5">
                         <a href="#screen-y-13" class="primary-btn btn-hover bg-[#1B1716]">Explore Looks</a>
                         <a href="#screen-y-10" onclick="openStylePreferencesEdit()" class="ghost-btn btn-hover text-[#6F675F] border-[#ECE7E1] text-xs">Edit My Twin</a>
                     </div>
@@ -1035,17 +1171,17 @@
 
             <div class="flex flex-col items-center gap-6">
                 <h2 class="font-sans text-sm font-medium text-[#6F675F] tracking-wide uppercase">SCREEN Y-17 — CLOSET PROGRESS CELEBRATION</h2>
-                <div id="screen-y-17" class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] shadow-xl overflow-hidden relative flex flex-col">
+                <div id="screen-y-17" data-motion-screen class="w-[375px] h-[812px] rounded-[48px] border-[12px] border-[#ECE7E1] bg-[#F8F6F3] shadow-xl overflow-hidden relative flex flex-col">
                     <div class="h-12 w-full flex justify-between items-center px-6 pt-2 z-50 bg-[#F8F6F3]/90 backdrop-blur-md"><span class="text-xs font-medium text-[#1B1716]">9:41</span><div class="flex gap-1.5 items-center"><i data-lucide="signal" class="w-4 h-4" stroke-width="1.5"></i><i data-lucide="wifi" class="w-4 h-4" stroke-width="1.5"></i><i data-lucide="battery" class="w-5 h-5" stroke-width="1.5"></i></div></div>
                     <div class="px-6 pt-8 pb-28 flex-1 overflow-y-auto no-scrollbar text-center">
-                        <div class="mx-auto w-16 h-16 rounded-full bg-[#C89B45]/15 flex items-center justify-center mb-5"><i data-lucide="check" class="w-7 h-7 text-[#C89B45]"></i></div>
-                        <h3 class="font-serif text-[32px] tracking-tight leading-tight mb-2">Great start.</h3>
-                        <p class="text-sm text-[#6F675F] leading-relaxed mb-6">Muse now knows 1 of your everyday pieces.</p>
-                        <div class="bg-white border border-[#ECE7E1] rounded-3xl p-4 mb-5"><img src="images/item_blazer.png" class="h-36 mx-auto object-contain mb-3"><div class="flex justify-between items-center"><span class="text-xs uppercase tracking-widest text-[#6F675F]">Closet Readiness</span><span class="font-serif text-3xl">5%</span></div><div class="h-2 bg-[#EFECE7] rounded-full mt-3 overflow-hidden"><div class="h-full w-[5%] bg-[#C89B45]"></div></div></div>
-                        <div class="grid grid-cols-2 gap-2 text-xs text-left mb-5"><div class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Tops</span><strong>1 / 10</strong></div><div class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Bottoms</span><strong>0 / 5</strong></div><div class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Shoes</span><strong>0 / 3</strong></div><div class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Outerwear</span><strong>0 / 2</strong></div></div>
-                        <div class="bg-[#EFECE7] rounded-2xl p-4 text-left"><span class="text-xs font-semibold text-[#1B1716]">Muse note</span><p class="text-xs text-[#6F675F] leading-relaxed mt-1">This piece may work well with tailored trousers, denim, or a simple knit as you add more items.</p></div>
+                        <div data-motion-item="check" class="mx-auto w-16 h-16 rounded-full bg-[#C89B45]/15 flex items-center justify-center mb-5"><i data-lucide="check" class="w-7 h-7 text-[#C89B45]"></i></div>
+                        <h3 data-motion-item="content" data-motion-delay="1" class="font-serif text-[32px] tracking-tight leading-tight mb-2">Great start.</h3>
+                        <p data-motion-item="content" data-motion-delay="1" class="text-sm text-[#6F675F] leading-relaxed mb-6">Muse now knows 1 of your everyday pieces.</p>
+                        <div data-motion-item="hero" data-motion-delay="2" class="bg-white border border-[#ECE7E1] rounded-3xl p-4 mb-5"><img data-motion-item="image" data-motion-delay="3" src="images/item_blazer.png" class="h-36 mx-auto object-contain mb-3"><div class="flex justify-between items-center"><span class="text-xs uppercase tracking-widest text-[#6F675F]">Closet Readiness</span><span id="closet-readiness-count" class="font-serif text-3xl tabular-nums">5%</span></div><div class="h-2 bg-[#EFECE7] rounded-full mt-3 overflow-hidden"><div data-closet-progress-fill class="h-full w-[5%] bg-[#C89B45]"></div></div></div>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-left mb-5"><div data-motion-item="content" data-motion-delay="3" class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Tops</span><strong>1 / 10</strong></div><div data-motion-item="content" data-motion-delay="4" class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Bottoms</span><strong>0 / 5</strong></div><div data-motion-item="content" data-motion-delay="5" class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Shoes</span><strong>0 / 3</strong></div><div data-motion-item="content" data-motion-delay="6" class="bg-white rounded-xl border border-[#ECE7E1] p-3 flex justify-between"><span>Outerwear</span><strong>0 / 2</strong></div></div>
+                        <div data-motion-item="content" data-motion-delay="6" class="bg-[#EFECE7] rounded-2xl p-4 text-left"><span class="text-xs font-semibold text-[#1B1716]">Muse note</span><p class="text-xs text-[#6F675F] leading-relaxed mt-1">This piece may work well with tailored trousers, denim, or a simple knit as you add more items.</p></div>
                     </div>
-                    <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent flex flex-col gap-3"><a href="#screen-y-14" class="primary-btn">Add Another Item</a><a href="#screen-y-18" class="text-center text-sm font-medium text-[#6F675F]">See What StyleIQ Can Do</a></div>
+                    <div data-motion-item="content" data-motion-delay="7" class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent flex flex-col gap-3"><a href="#screen-y-14" class="primary-btn">Add Another Item</a><a href="#screen-y-18" class="text-center text-sm font-medium text-[#6F675F]">See What StyleIQ Can Do</a></div>
                 </div>
             </div>
 
@@ -1120,7 +1256,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-y-16 gap-x-12 pb-12 pt-4 px-4 w-full">
 
             <!-- SCREEN A-1 — TODAY / MORNING OUTFIT -->
-            <div id="screen-a-1" class="flex flex-col gap-4 relative">
+            <div id="screen-a-1" data-motion-screen class="flex flex-col gap-4 relative">
 
 
                 <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN A-1 — TODAY / MORNING OUTFIT</div>
@@ -1141,7 +1277,7 @@
                     <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
                         <div class="p-6 pt-2 flex flex-col gap-6">
                             <!-- Greeting -->
-                            <div class="flex flex-col gap-1">
+                            <div data-motion-item="content" class="flex flex-col gap-1">
                                 <h2 class="font-serif text-3xl tracking-tight text-[#1B1716]">Good morning,<br>Amelia</h2>
                                 <div class="flex items-center gap-2 text-xs text-[#6F675F]">
                                     <iconify-icon icon="solar:cloud-sun-linear"></iconify-icon>
@@ -1150,7 +1286,7 @@
                             </div>
 
                             <!-- Muse Moment Component -->
-                            <div class="bg-white rounded-[20px] border border-[#ECE7E1] p-3.5 flex gap-3.5 items-center shadow-sm">
+                            <div data-motion-item="content" data-motion-delay="1" class="bg-white rounded-[20px] border border-[#ECE7E1] p-3.5 flex gap-3.5 items-center shadow-sm">
                                 <div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border border-[#ECE7E1]">
                                     <img src="images/muse_portrait.png" class="w-full h-full object-cover object-center">
                                 </div>
@@ -1165,7 +1301,7 @@
                             </div>
 
                             <!-- Ask Muse Quick Action Entry -->
-                            <a href="#screen-a-5" class="card-hover bg-[#1B1716] text-white rounded-[20px] p-4 flex items-center justify-between shadow-sm text-left">
+                            <a href="#screen-a-5" data-motion-item="content" data-motion-delay="2" data-motion-press class="card-hover bg-[#1B1716] text-white rounded-[20px] p-4 flex items-center justify-between shadow-sm text-left">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#C89B45] shrink-0 border border-white/5">
                                         <iconify-icon icon="solar:sparkles-bold" class="text-lg"></iconify-icon>
@@ -1179,28 +1315,28 @@
                             </a>
 
                             <!-- Main Hero Outfit Card -->
-                            <a href="#screen-a-2" class="bg-white rounded-[24px] border border-[#ECE7E1] overflow-hidden flex flex-col card-hover">
+                            <a href="#screen-a-2" data-motion-item="hero" data-motion-delay="3" data-motion-press class="bg-white rounded-[24px] border border-[#ECE7E1] overflow-hidden flex flex-col card-hover">
                                 <div class="h-[270px] w-full relative">
                                     <img src="images/outfit_neutral_minimal.png" alt="The Camel Composer" class="w-full h-full object-cover">
-                                    <div class="absolute top-4 right-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-[#1B1716] font-semibold border border-white/40">
+                                    <div data-motion-item="pop" data-motion-delay="4" class="absolute top-4 right-4 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] uppercase tracking-wider text-[#1B1716] font-semibold border border-white/40">
                                         Muse’s Pick
                                     </div>
                                 </div>
                                 <div class="p-5 flex flex-col gap-4">
-                                    <div>
+                                    <div data-motion-item="content" data-motion-delay="4">
                                         <h3 class="font-serif text-xl tracking-tight text-[#1B1716] mb-1">The Camel Composer</h3>
                                         <p class="text-xs text-[#6F675F] font-light leading-relaxed">Warm neutrals for your meetings today. Layers perfectly for the cooler afternoon commute.</p>
                                     </div>
 
                                     <!-- Included Items Mini Grid -->
                                     <div class="flex items-center gap-2">
-                                        <div class="w-10 h-10 rounded-lg border border-[#ECE7E1] overflow-hidden">
+                                        <div data-motion-item="pop" data-motion-delay="5" class="w-10 h-10 rounded-lg border border-[#ECE7E1] overflow-hidden">
                                             <img src="images/item_blazer.png" class="w-full h-full object-cover">
                                         </div>
-                                        <div class="w-10 h-10 rounded-lg border border-[#ECE7E1] overflow-hidden">
+                                        <div data-motion-item="pop" data-motion-delay="6" class="w-10 h-10 rounded-lg border border-[#ECE7E1] overflow-hidden">
                                             <img src="images/item_silk_shell.png" class="w-full h-full object-cover">
                                         </div>
-                                        <div class="w-10 h-10 rounded-lg border border-[#ECE7E1] bg-[#F8F6F3] flex items-center justify-center text-xs text-[#6F675F]">
+                                        <div data-motion-item="pop" data-motion-delay="7" class="w-10 h-10 rounded-lg border border-[#ECE7E1] bg-[#F8F6F3] flex items-center justify-center text-xs text-[#6F675F]">
                                             +2
                                         </div>
                                         <span class="ml-auto text-xs text-[#1B1716] font-medium underline underline-offset-2">Why this look?</span>
@@ -1209,14 +1345,14 @@
                             </a>
 
                             <!-- Actions -->
-                            <div class="flex flex-col gap-3">
-                                <a href="#screen-a-4" class="btn-hover bg-[#1B1716] text-white rounded-2xl py-4 font-medium text-sm flex items-center justify-center gap-2">
+                            <div data-motion-item="content" data-motion-delay="7" class="flex flex-col gap-3">
+                                <a href="#screen-a-4" data-motion-press class="btn-hover bg-[#1B1716] text-white rounded-2xl py-4 font-medium text-sm flex items-center justify-center gap-2">
                                     Wear This
                                     <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
                                 </a>
                                 <div class="flex gap-3">
-                                    <a href="#screen-a-3" class="btn-hover flex-1 text-center bg-white border border-[#ECE7E1] text-[#1B1716] rounded-2xl py-3 font-medium text-sm">Alternatives</a>
-                                    <a href="#screen-b-1" class="btn-hover flex-1 text-center bg-white border border-[#ECE7E1] text-[#1B1716] rounded-2xl py-3 font-medium text-sm flex items-center justify-center gap-1.5">
+                                    <a href="#screen-a-3" data-motion-press class="btn-hover flex-1 text-center bg-white border border-[#ECE7E1] text-[#1B1716] rounded-2xl py-3 font-medium text-sm">Alternatives</a>
+                                    <a href="#screen-b-1" data-motion-press class="btn-hover flex-1 text-center bg-white border border-[#ECE7E1] text-[#1B1716] rounded-2xl py-3 font-medium text-sm flex items-center justify-center gap-1.5">
                                         <iconify-icon icon="solar:bookmark-linear"></iconify-icon> Save Look
                                     </a>
                                 </div>
@@ -1380,13 +1516,13 @@
             </div>
 
             <!-- SCREEN A-3 — ALTERNATIVES -->
-            <div id="screen-a-3" class="flex flex-col gap-4 relative">
+            <div id="screen-a-3" data-motion-screen class="flex flex-col gap-4 relative">
                 <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN A-3 — ALTERNATIVES</div>
 
                 <!-- iPhone Mockup -->
                 <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
                     <!-- Sticky Header -->
-                    <div class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
+                    <div data-motion-item="content" class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
                         <a href="#screen-a-2" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover">
                             <iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>
                         </a>
@@ -1397,49 +1533,57 @@
                     <!-- Content -->
                     <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
                         <div class="p-6 flex flex-col gap-4">
-                            <p class="text-xs text-[#6F675F] text-center font-light leading-relaxed">Select a different styling path for today's weather conditions.</p>
+                            <p data-motion-item="content" data-motion-delay="1" class="text-xs text-[#6F675F] text-center font-light leading-relaxed">Select a different styling path for today's weather conditions.</p>
 
+                            <div class="flex flex-col gap-4" role="listbox" aria-label="Alternative outfit directions">
                             <!-- Alternative 1 -->
-                            <div class="card-hover bg-white rounded-[20px] border border-[#ECE7E1] overflow-hidden flex cursor-pointer">
+                            <div data-alternative-card data-motion-item="content" data-motion-delay="2" role="option" tabindex="0" aria-selected="false" onclick="selectAlternativeLook(this)" onkeydown="handleAlternativeLookKeydown(event, this)" class="alternative-look-card card-hover bg-white rounded-[20px] border-2 border-[#ECE7E1] overflow-hidden flex cursor-pointer relative">
+                                <div data-alternative-check data-motion-item="pop" data-motion-delay="3" class="hidden absolute top-3 right-3 w-5 h-5 bg-[#C89B45] rounded-full items-center justify-center text-white z-10">
+                                    <iconify-icon icon="solar:check-read-linear" class="text-xs"></iconify-icon>
+                                </div>
                                 <div class="w-2/5 h-28 shrink-0">
                                     <img src="images/outfit_relaxed_structure.png" class="w-full h-full object-cover">
                                 </div>
                                 <div class="p-4 flex flex-col justify-center gap-1 w-3/5">
-                                    <span class="text-[9px] text-[#6F675F] font-semibold uppercase tracking-widest">More Relaxed</span>
+                                    <span data-alternative-label class="text-[9px] text-[#6F675F] font-semibold uppercase tracking-widest">More Relaxed</span>
                                     <h4 class="font-serif text-sm text-[#1B1716] leading-tight">The Soft Neutral</h4>
                                     <span class="text-[10px] text-[#9F9387] font-light">Fine knit, wool tailored pants</span>
                                 </div>
                             </div>
 
                             <!-- Alternative 2 (Selected State) -->
-                            <div class="bg-white rounded-[20px] border-2 border-[#C89B45] overflow-hidden flex cursor-pointer relative shadow-sm">
-                                <div class="absolute top-3 right-3 w-5 h-5 bg-[#C89B45] rounded-full flex items-center justify-center text-white z-10">
+                            <div data-alternative-card data-motion-item="content" data-motion-delay="3" role="option" tabindex="0" aria-selected="true" onclick="selectAlternativeLook(this)" onkeydown="handleAlternativeLookKeydown(event, this)" class="alternative-look-card is-selected bg-white rounded-[20px] border-2 border-[#C89B45] overflow-hidden flex cursor-pointer relative shadow-sm">
+                                <div data-alternative-check data-motion-item="pop" data-motion-delay="4" class="absolute top-3 right-3 w-5 h-5 bg-[#C89B45] rounded-full flex items-center justify-center text-white z-10">
                                     <iconify-icon icon="solar:check-read-linear" class="text-xs"></iconify-icon>
                                 </div>
                                 <div class="w-2/5 h-28 shrink-0">
                                     <img src="images/outfit_soft_tailoring.png" class="w-full h-full object-cover">
                                 </div>
                                 <div class="p-4 flex flex-col justify-center gap-1 w-3/5">
-                                    <span class="text-[9px] text-[#C89B45] font-semibold uppercase tracking-widest">Warmer Option</span>
+                                    <span data-alternative-label class="text-[9px] text-[#C89B45] font-semibold uppercase tracking-widest">Warmer Option</span>
                                     <h4 class="font-serif text-sm text-[#1B1716] leading-tight">Layered Cashmere</h4>
                                     <span class="text-[10px] text-[#6F675F] font-light">Chunky turtleneck, wool lining</span>
                                 </div>
                             </div>
 
                             <!-- Alternative 3 -->
-                            <div class="card-hover bg-white rounded-[20px] border border-[#ECE7E1] overflow-hidden flex cursor-pointer">
+                            <div data-alternative-card data-motion-item="content" data-motion-delay="4" role="option" tabindex="0" aria-selected="false" onclick="selectAlternativeLook(this)" onkeydown="handleAlternativeLookKeydown(event, this)" class="alternative-look-card card-hover bg-white rounded-[20px] border-2 border-[#ECE7E1] overflow-hidden flex cursor-pointer relative">
+                                <div data-alternative-check data-motion-item="pop" data-motion-delay="5" class="hidden absolute top-3 right-3 w-5 h-5 bg-[#C89B45] rounded-full items-center justify-center text-white z-10">
+                                    <iconify-icon icon="solar:check-read-linear" class="text-xs"></iconify-icon>
+                                </div>
                                 <div class="w-2/5 h-28 shrink-0">
                                     <img src="images/outfit_coffee_meeting.png" class="w-full h-full object-cover">
                                 </div>
                                 <div class="p-4 flex flex-col justify-center gap-1 w-3/5">
-                                    <span class="text-[9px] text-[#6F675F] font-semibold uppercase tracking-widest">More Polished</span>
+                                    <span data-alternative-label class="text-[9px] text-[#6F675F] font-semibold uppercase tracking-widest">More Polished</span>
                                     <h4 class="font-serif text-sm text-[#1B1716] leading-tight">Structured Monochrome</h4>
                                     <span class="text-[10px] text-[#9F9387] font-light">Double blazer, structured belt</span>
                                 </div>
                             </div>
+                            </div>
 
                             <!-- Action -->
-                            <a href="#screen-a-4" class="btn-hover bg-[#1B1716] text-white text-center rounded-xl py-3.5 mt-4 font-medium text-sm block">
+                            <a href="#screen-a-4" data-motion-item="content" data-motion-delay="5" class="btn-hover bg-[#1B1716] text-white text-center rounded-xl py-3.5 mt-4 font-medium text-sm block">
                                 Choose This Look
                             </a>
                         </div>
@@ -2191,7 +2335,7 @@
 
             <div id="screen-c-18" class="flex flex-col gap-4 relative"><div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN C-18 — COST PER WEAR</div><div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-xl overflow-hidden relative flex flex-col"><div class="px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]"><a href="#screen-f-4" class="w-8 h-8 rounded-full bg-white border flex items-center justify-center" aria-label="Back"><i data-lucide="arrow-left" class="w-4 h-4"></i></a><span class="text-[10px] uppercase tracking-widest">Tracked data example</span><div class="w-8"></div></div><div class="flex-1 overflow-y-auto no-scrollbar p-6"><h3 class="font-serif text-[30px]">Cost per Wear</h3><p class="text-xs text-[#6F675F] mt-2">Based on purchase prices and wears recorded in StyleIQ.</p><div class="grid grid-cols-2 gap-2 mt-4"><div class="bg-white rounded-2xl p-4 border"><span class="text-[9px] uppercase">Investment</span><strong class="block font-serif text-2xl">$4,286</strong></div><div class="bg-white rounded-2xl p-4 border"><span class="text-[9px] uppercase">Average CPW</span><strong class="block font-serif text-2xl">$18.40</strong></div></div><div class="flex gap-2 mt-4 text-[10px]"><button class="px-3 py-2 rounded-full bg-[#1B1716] text-white">Category</button><button class="px-3 py-2 rounded-full bg-white border">Season</button><button class="px-3 py-2 rounded-full bg-white border">Brand</button><button class="px-3 py-2 rounded-full bg-white border">Date</button></div><div class="mt-4 space-y-3 text-xs"><div class="bg-white border rounded-2xl p-4"><strong>Camel Wool Blazer</strong><p class="text-[#6F675F] mt-1">$188 · 11 wears · $17.09/wear · last worn Tuesday</p><div class="flex gap-3 mt-2"><a href="#screen-c-7">Details</a><a href="#screen-c-15">Mark worn</a><a href="#screen-c-12">Edit price</a></div></div><div class="bg-white border rounded-2xl p-4"><strong>Best value: Black Loafers</strong><p class="text-[#6F675F]">$6.20/wear · 31 wears · improving</p></div><div class="bg-[#FFF9ED] border border-[#E8D7B4] rounded-2xl p-4"><strong>3 pieces need a purchase price</strong><p class="text-[#6F675F]">Cost-per-wear is incomplete until missing values are added.</p></div></div><a href="#screen-c-16" class="ghost-btn mt-4">Review Underused Pieces</a><p class="text-[10px] text-center text-[#9F9387] mt-3">Back follows entry context: F-4 or E-6.</p></div></div></div>
             <div id="screen-c-19" class="flex flex-col gap-4 relative"><div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN C-19 — DUPLICATES & SIMILAR PIECES</div><div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-xl overflow-hidden relative flex flex-col"><div class="px-6 pt-12 pb-3 flex items-center justify-between"><a href="#screen-f-4" class="w-8 h-8 rounded-full bg-white border flex items-center justify-center" aria-label="Back"><i data-lucide="arrow-left" class="w-4 h-4"></i></a><span class="text-[10px] uppercase tracking-widest">Closet-wide analysis</span><div class="w-8"></div></div><div class="flex-1 overflow-y-auto p-6"><h3 class="font-serif text-[29px]">Duplicates & Similar Pieces</h3><p class="text-xs text-[#6F675F] mt-2">G-5 compares a new product. This view compares owned pieces.</p><div class="bg-white border rounded-[24px] p-4 mt-4"><div class="flex justify-between text-xs"><strong>Tailored camel layers</strong><span class="text-[#C89B45]">88% similar</span></div><div class="grid grid-cols-2 gap-3 mt-3"><div><img src="images/item_blazer.png" class="h-28 w-full object-contain bg-[#F8F6F3] rounded-xl"><p class="text-[10px]">11 wears · $17.09 CPW</p></div><div><img src="images/screen_23_item.png" class="h-28 w-full object-contain bg-[#F8F6F3] rounded-xl"><p class="text-[10px]">2 wears · $72 CPW</p></div></div><div class="flex flex-wrap gap-1 mt-3 text-[9px]"><span class="px-2 py-1 bg-[#EFECE7]">Category</span><span class="px-2 py-1 bg-[#EFECE7]">Color</span><span class="px-2 py-1 bg-[#EFECE7]">Silhouette</span><span class="px-2 py-1 bg-[#EFECE7]">Season</span><span class="px-2 py-1 bg-[#EFECE7]">Material</span></div><div class="grid grid-cols-2 gap-2 mt-4 text-xs"><button onclick="chooseDuplicateAction(this,'Keep Both')" class="ghost-btn h-10">Keep Both</button><button onclick="chooseDuplicateAction(this,'Compare Details')" class="ghost-btn h-10">Compare Details</button><button onclick="chooseDuplicateAction(this,'Archive One')" class="ghost-btn h-10">Archive One</button><a href="#screen-c-8" onclick="chooseDuplicateAction(this,'Sell One')" class="ghost-btn h-10">Sell One</a></div><a href="#screen-c-7" class="block text-center text-xs font-semibold text-[#C89B45] mt-4">Open Item Details</a></div><div id="duplicate-action-status" class="hidden mt-4 bg-[#FFF9ED] border rounded-xl p-3 text-xs"></div></div></div></div>
-            <div id="screen-c-20" class="flex flex-col gap-4 relative"><div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN C-20 — SEASONAL AUDIT</div><div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-xl overflow-hidden relative flex flex-col"><div class="px-6 pt-12 pb-3 flex items-center justify-between"><a href="#screen-f-4" class="w-8 h-8 rounded-full bg-white border flex items-center justify-center" aria-label="Back"><i data-lucide="arrow-left" class="w-4 h-4"></i></a><span class="text-[10px] uppercase tracking-widest">Autumn / Winter</span><div class="w-8"></div></div><div class="flex-1 overflow-y-auto p-6"><div class="flex justify-between"><h3 class="font-serif text-[29px]">Seasonal Audit</h3><span id="audit-progress" class="text-xs tabular-nums">0 / 3</span></div><div class="h-2 bg-[#ECE7E1] mt-3"><div id="audit-progress-bar" class="h-full w-0 bg-[#C89B45]"></div></div><div class="mt-4 space-y-3 text-xs"><div data-audit-item class="bg-white border rounded-2xl p-3"><strong>Camel Blazer</strong><p class="text-[#6F675F]">Worn this season</p><button onclick="setAuditState(this,'keep')" class="mt-2 mr-2 border px-2 py-1">Keep</button><button onclick="setAuditState(this,'store')" class="border px-2 py-1">Store</button><a href="#screen-c-8" onclick="setAuditState(this,'sell')" class="border px-2 py-1 ml-2">Sell</a></div><div data-audit-item class="bg-white border rounded-2xl p-3"><strong>Ivory Silk Shell</strong><p class="text-[#6F675F]">Not worn · needs repair</p><button onclick="setAuditState(this,'repair')" class="mt-2 mr-2 border px-2 py-1">Repair</button><button onclick="setAuditState(this,'donate')" class="border px-2 py-1">Donate</button><button onclick="setAuditState(this,'archive')" class="border px-2 py-1 ml-2">Archive</button></div><div data-audit-item class="bg-white border rounded-2xl p-3"><strong>Soft Trench</strong><p class="text-[#6F675F]">Ready for next season</p><button onclick="setAuditState(this,'keep')" class="mt-2 mr-2 border px-2 py-1">Keep</button><button onclick="setAuditState(this,'store')" class="border px-2 py-1">Store</button></div></div><div class="mt-4 bg-[#1B1716] text-white rounded-2xl p-4 text-xs"><strong>Audit summary</strong><div class="grid grid-cols-2 gap-2 mt-2 text-white/70"><span>Kept: <b data-audit-count="keep">0</b></span><span>Stored: <b data-audit-count="store">0</b></span><span>Archived: <b data-audit-count="archive">0</b></span><span>Donation: <b data-audit-count="donate">0</b></span><span>Resale: <b data-audit-count="sell">0</b></span><span>Potential value: $0</span></div><p class="mt-2">Closet Readiness may change after confirmation.</p></div><a href="#screen-f-4" class="primary-btn mt-4">Complete Audit</a><a href="#screen-c-7" class="block text-center text-xs mt-3">Open selected item</a></div></div></div>
+            <div id="screen-c-20" class="flex flex-col gap-4 relative"><div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN C-20 — SEASONAL AUDIT</div><div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-xl overflow-hidden relative flex flex-col"><div class="px-6 pt-12 pb-3 flex items-center justify-between"><a href="#screen-f-4" class="w-8 h-8 rounded-full bg-white border flex items-center justify-center" aria-label="Back"><i data-lucide="arrow-left" class="w-4 h-4"></i></a><span class="text-[10px] uppercase tracking-widest">Autumn / Winter</span><div class="w-8"></div></div><div class="flex-1 overflow-y-auto no-scrollbar p-6"><div class="flex justify-between"><h3 class="font-serif text-[29px]">Seasonal Audit</h3><span id="audit-progress" class="text-xs tabular-nums">0 / 3</span></div><div class="h-2 bg-[#ECE7E1] mt-3"><div id="audit-progress-bar" class="h-full w-0 bg-[#C89B45]"></div></div><div class="mt-4 space-y-3 text-xs"><div data-audit-item class="bg-white border rounded-2xl p-3"><strong>Camel Blazer</strong><p class="text-[#6F675F]">Worn this season</p><button onclick="setAuditState(this,'keep')" class="mt-2 mr-2 border px-2 py-1">Keep</button><button onclick="setAuditState(this,'store')" class="border px-2 py-1">Store</button><a href="#screen-c-8" onclick="setAuditState(this,'sell')" class="border px-2 py-1 ml-2">Sell</a></div><div data-audit-item class="bg-white border rounded-2xl p-3"><strong>Ivory Silk Shell</strong><p class="text-[#6F675F]">Not worn · needs repair</p><button onclick="setAuditState(this,'repair')" class="mt-2 mr-2 border px-2 py-1">Repair</button><button onclick="setAuditState(this,'donate')" class="border px-2 py-1">Donate</button><button onclick="setAuditState(this,'archive')" class="border px-2 py-1 ml-2">Archive</button></div><div data-audit-item class="bg-white border rounded-2xl p-3"><strong>Soft Trench</strong><p class="text-[#6F675F]">Ready for next season</p><button onclick="setAuditState(this,'keep')" class="mt-2 mr-2 border px-2 py-1">Keep</button><button onclick="setAuditState(this,'store')" class="border px-2 py-1">Store</button></div></div><div class="mt-4 bg-[#1B1716] text-white rounded-2xl p-4 text-xs"><strong>Audit summary</strong><div class="grid grid-cols-2 gap-2 mt-2 text-white/70"><span>Kept: <b data-audit-count="keep">0</b></span><span>Stored: <b data-audit-count="store">0</b></span><span>Archived: <b data-audit-count="archive">0</b></span><span>Donation: <b data-audit-count="donate">0</b></span><span>Resale: <b data-audit-count="sell">0</b></span><span>Potential value: $0</span></div><p class="mt-2">Closet Readiness may change after confirmation.</p></div><a href="#screen-f-4" class="primary-btn mt-4">Complete Audit</a><a href="#screen-c-7" class="block text-center text-xs mt-3">Open selected item</a></div></div></div>
         </div>
     </section>
 
@@ -2207,7 +2351,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-y-16 gap-x-12 pb-12 pt-4 px-4 w-full">
 
             <!-- SCREEN D-1 — PLANNER HOME -->
-            <div id="screen-d-1" class="flex flex-col gap-4 relative">
+            <div id="screen-d-1" data-motion-screen class="flex flex-col gap-4 relative">
 
 
                 <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN D-1 — PLANNER HOME</div>
@@ -2216,36 +2360,36 @@
                 <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
                     <!-- Week Strip Banner -->
                     <div class="bg-[#F8F6F3] pt-12 pb-4 px-6 border-b border-[#ECE7E1] sticky top-0 z-20">
-                        <h2 class="font-serif text-3xl tracking-tight text-[#1B1716] mb-6">This Week</h2>
+                        <h2 data-motion-item="content" class="font-serif text-3xl tracking-tight text-[#1B1716] mb-6">This Week</h2>
 
                         <div class="flex justify-between items-center select-none">
-                            <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+                            <div data-motion-item="day" class="flex flex-col items-center gap-1.5 cursor-pointer">
                                 <span class="text-[9px] text-[#9F9387] uppercase tracking-widest font-semibold">S</span>
                                 <span class="text-xs font-semibold text-[#1B1716]">12</span>
                             </div>
-                            <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+                            <div data-motion-item="day" data-motion-delay="1" class="flex flex-col items-center gap-1.5 cursor-pointer">
                                 <span class="text-[9px] text-[#9F9387] uppercase tracking-widest font-semibold">M</span>
                                 <span class="text-xs font-semibold text-[#1B1716]">13</span>
                             </div>
                             <!-- Active Day -->
-                            <div class="flex flex-col items-center gap-1.5 relative cursor-pointer">
+                            <div data-motion-item="day" data-motion-delay="2" class="flex flex-col items-center gap-1.5 relative cursor-pointer">
                                 <div class="absolute -top-1 w-8 h-12 bg-[#1B1716] rounded-full -z-10"></div>
                                 <span class="text-[9px] text-white/50 uppercase tracking-widest font-semibold pt-1 relative">T</span>
                                 <span class="text-xs font-bold text-white relative">14</span>
                             </div>
-                            <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+                            <div data-motion-item="day" data-motion-delay="3" class="flex flex-col items-center gap-1.5 cursor-pointer">
                                 <span class="text-[9px] text-[#6F675F] uppercase tracking-widest font-semibold">W</span>
                                 <span class="text-xs font-semibold text-[#1B1716]">15</span>
                             </div>
-                            <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+                            <div data-motion-item="day" data-motion-delay="4" class="flex flex-col items-center gap-1.5 cursor-pointer">
                                 <span class="text-[9px] text-[#6F675F] uppercase tracking-widest font-semibold">T</span>
                                 <span class="text-xs font-semibold text-[#1B1716]">16</span>
                             </div>
-                            <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+                            <div data-motion-item="day" data-motion-delay="5" class="flex flex-col items-center gap-1.5 cursor-pointer">
                                 <span class="text-[9px] text-[#6F675F] uppercase tracking-widest font-semibold">F</span>
                                 <span class="text-xs font-semibold text-[#1B1716]">17</span>
                             </div>
-                            <div class="flex flex-col items-center gap-1.5 cursor-pointer">
+                            <div data-motion-item="day" data-motion-delay="6" class="flex flex-col items-center gap-1.5 cursor-pointer">
                                 <span class="text-[9px] text-[#6F675F] uppercase tracking-widest font-semibold">S</span>
                                 <span class="text-xs font-semibold text-[#1B1716]">18</span>
                             </div>
@@ -2256,7 +2400,7 @@
                     <div class="flex-1 overflow-y-auto no-scrollbar pb-32 p-6 flex flex-col gap-6">
 
                         <!-- Packing Assistant Planner Entry -->
-                        <a href="#screen-d-4" class="card-hover bg-white border border-[#ECE7E1] rounded-[20px] p-4 flex justify-between items-center shadow-sm shrink-0 text-left">
+                        <a href="#screen-d-4" data-motion-item="content" data-motion-delay="2" class="card-hover bg-white border border-[#ECE7E1] rounded-[20px] p-4 flex justify-between items-center shadow-sm shrink-0 text-left">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-[#C89B45]/15 border border-[#C89B45]/10 flex items-center justify-center text-[#C89B45] shrink-0">
                                     <iconify-icon icon="solar:plain-linear" class="text-xl rotate-45"></iconify-icon>
@@ -2271,14 +2415,14 @@
 
                         <!-- Event with Planned Look -->
                         <div class="flex flex-col gap-3">
-                            <div class="flex justify-between items-end">
+                            <div data-motion-item="content" data-motion-delay="3" class="flex justify-between items-end">
                                 <div class="flex flex-col">
                                     <span class="text-[10px] font-semibold uppercase tracking-widest text-[#6F675F]">Today · Evening</span>
                                     <span class="font-serif text-lg text-[#1B1716]">Dinner with Sarah</span>
                                 </div>
                             </div>
 
-                            <a href="#screen-d-3" class="bg-white rounded-[20px] border border-[#ECE7E1] p-3 flex gap-4 card-hover">
+                            <a href="#screen-d-3" data-motion-item="content" data-motion-delay="4" class="bg-white rounded-[20px] border border-[#ECE7E1] p-3 flex gap-4 card-hover">
                                 <div class="w-16 h-20 rounded-xl overflow-hidden shrink-0 border border-[#ECE7E1]">
                                     <img src="images/outfit_soft_tailoring.png" class="w-full h-full object-cover">
                                 </div>
@@ -2292,14 +2436,14 @@
 
                         <!-- Empty Day State -->
                         <div class="flex flex-col gap-3">
-                            <div class="flex justify-between items-end">
+                            <div data-motion-item="content" data-motion-delay="5" class="flex justify-between items-end">
                                 <div class="flex flex-col">
                                     <span class="text-[10px] font-semibold uppercase tracking-widest text-[#6F675F]">Wednesday · All Day</span>
                                     <span class="font-serif text-lg text-[#1B1716]">Office Business Meeting</span>
                                 </div>
                             </div>
 
-                            <a href="#screen-d-2" class="w-full border border-dashed border-[#9F9387] rounded-[20px] py-6 flex flex-col items-center justify-center gap-2 btn-hover bg-[#F8F6F3]/50">
+                            <a href="#screen-d-2" data-motion-item="content" data-motion-delay="6" class="w-full border border-dashed border-[#9F9387] rounded-[20px] py-6 flex flex-col items-center justify-center gap-2 btn-hover bg-[#F8F6F3]/50">
                                 <div class="w-8 h-8 rounded-full bg-white border border-[#ECE7E1] flex items-center justify-center text-[#1B1716] shadow-sm">
                                     <iconify-icon icon="solar:add-linear" class="text-md"></iconify-icon>
                                 </div>
@@ -2309,14 +2453,14 @@
 
                         <!-- Thursday State -->
                         <div class="flex flex-col gap-3">
-                            <div class="flex justify-between items-end">
+                            <div data-motion-item="content" data-motion-delay="6" class="flex justify-between items-end">
                                 <div class="flex flex-col">
                                     <span class="text-[10px] font-semibold uppercase tracking-widest text-[#6F675F]">Thursday · Afternoon</span>
                                     <span class="font-serif text-lg text-[#1B1716]">Weekend Travel commute</span>
                                 </div>
                             </div>
 
-                            <div class="bg-white rounded-[20px] border border-[#ECE7E1] p-3 flex gap-4">
+                            <div data-motion-item="content" data-motion-delay="7" class="bg-white rounded-[20px] border border-[#ECE7E1] p-3 flex gap-4">
                                 <div class="w-16 h-20 rounded-xl overflow-hidden shrink-0 border border-[#ECE7E1]">
                                     <img src="images/outfit_relaxed_structure.png" class="w-full h-full object-cover">
                                 </div>
@@ -2595,13 +2739,13 @@
             </div>
 
             <!-- SCREEN D-5 — TRAVEL WARDROBE PLAN -->
-            <div id="screen-d-5" class="flex flex-col gap-4 relative">
+            <div id="screen-d-5" data-motion-screen class="flex flex-col gap-4 relative">
                 <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN D-5 — TRAVEL WARDROBE PLAN</div>
 
                 <!-- iPhone Mockup -->
                 <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
                     <!-- Sticky Header -->
-                    <div class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
+                    <div data-motion-item="content" class="sticky top-0 bg-[#F8F6F3]/90 backdrop-blur-md z-30 px-6 pt-12 pb-3 flex items-center justify-between border-b border-[#ECE7E1]">
                         <a href="#screen-d-4" class="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover">
                             <iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>
                         </a>
@@ -2613,7 +2757,7 @@
                     <div class="flex-1 overflow-y-auto no-scrollbar pb-24">
                         <div class="p-6 flex flex-col gap-6">
                             <!-- Trip Summary header -->
-                            <div class="flex flex-col gap-1 text-left">
+                            <div data-motion-item="content" data-motion-delay="1" class="flex flex-col gap-1 text-left">
                                 <span class="text-[9px] uppercase tracking-widest text-[#C89B45] font-semibold">London Capsule Plan</span>
                                 <h3 class="font-serif text-xl text-[#1B1716]">London · 5 Days · 7 Pieces</h3>
                                 <div class="flex items-center gap-1.5 text-xs text-[#6F675F] mt-0.5">
@@ -2624,13 +2768,13 @@
 
                             <!-- Outfits by Day Carousel / List -->
                             <div class="flex flex-col gap-3">
-                                <span class="text-[9px] uppercase tracking-widest text-[#6F675F] font-semibold text-left">Daily Outfit Schedule</span>
+                                <span data-motion-item="content" data-motion-delay="2" class="text-[9px] uppercase tracking-widest text-[#6F675F] font-semibold text-left">Daily Outfit Schedule</span>
 
                                 <div class="flex flex-col gap-3">
                                     <!-- Day 1 -->
-                                    <div class="bg-white border border-[#ECE7E1] p-3 rounded-xl flex gap-3 text-left">
+                                    <div data-motion-item="content" data-motion-delay="2" class="bg-white border border-[#ECE7E1] p-3 rounded-xl flex gap-3 text-left">
                                         <div class="w-14 h-16 border border-[#ECE7E1] rounded-lg overflow-hidden shrink-0">
-                                            <img src="images/outfit_relaxed_structure.png" class="w-full h-full object-cover">
+                                            <img data-motion-item="image" data-motion-delay="2" src="images/outfit_relaxed_structure.png" class="w-full h-full object-cover">
                                         </div>
                                         <div class="flex flex-col justify-center">
                                             <span class="text-[9px] bg-[#1B1716]/5 px-2 py-0.5 rounded font-semibold self-start border border-[#ECE7E1] mb-1">Day 1 · Travel</span>
@@ -2640,9 +2784,9 @@
                                     </div>
 
                                     <!-- Day 2 -->
-                                    <div class="bg-white border border-[#ECE7E1] p-3 rounded-xl flex gap-3 text-left">
+                                    <div data-motion-item="content" data-motion-delay="3" class="bg-white border border-[#ECE7E1] p-3 rounded-xl flex gap-3 text-left">
                                         <div class="w-14 h-16 border border-[#ECE7E1] rounded-lg overflow-hidden shrink-0">
-                                            <img src="images/outfit_neutral_minimal.png" class="w-full h-full object-cover">
+                                            <img data-motion-item="image" data-motion-delay="3" src="images/outfit_neutral_minimal.png" class="w-full h-full object-cover">
                                         </div>
                                         <div class="flex flex-col justify-center">
                                             <span class="text-[9px] bg-[#C89B45]/15 text-[#C89B45] px-2 py-0.5 rounded font-semibold self-start border border-[#C89B45]/10 mb-1">Day 2 · Work</span>
@@ -2652,9 +2796,9 @@
                                     </div>
 
                                     <!-- Day 3 -->
-                                    <div class="bg-white border border-[#ECE7E1] p-3 rounded-xl flex gap-3 text-left">
+                                    <div data-motion-item="content" data-motion-delay="4" class="bg-white border border-[#ECE7E1] p-3 rounded-xl flex gap-3 text-left">
                                         <div class="w-14 h-16 border border-[#ECE7E1] rounded-lg overflow-hidden shrink-0">
-                                            <img src="images/outfit_coffee_meeting.png" class="w-full h-full object-cover">
+                                            <img data-motion-item="image" data-motion-delay="4" src="images/outfit_coffee_meeting.png" class="w-full h-full object-cover">
                                         </div>
                                         <div class="flex flex-col justify-center">
                                             <span class="text-[9px] bg-[#C89B45]/15 text-[#C89B45] px-2 py-0.5 rounded font-semibold self-start border border-[#C89B45]/10 mb-1">Day 3 · Dinner</span>
@@ -2666,18 +2810,18 @@
                             </div>
 
                             <!-- Checklist -->
-                            <div class="bg-white border border-[#ECE7E1] rounded-2xl p-4.5 text-xs text-left flex flex-col gap-3">
+                            <div data-motion-item="content" data-motion-delay="5" class="bg-white border border-[#ECE7E1] rounded-2xl p-4.5 text-xs text-left flex flex-col gap-3">
                                 <span class="text-[9px] uppercase tracking-widest text-[#9F9387] font-semibold">Capsule Packing Checklist</span>
                                 <div class="flex flex-col gap-2 font-light">
-                                    <div class="flex justify-between border-b border-[#F8F6F3] pb-1.5">
+                                    <div data-motion-item="content" data-motion-delay="6" class="flex justify-between border-b border-[#F8F6F3] pb-1.5">
                                         <span>🧥 Outerwear (Max Mara Coat, Trench)</span>
                                         <span class="font-semibold text-[#1B1716]">2 items</span>
                                     </div>
-                                    <div class="flex justify-between border-b border-[#F8F6F3] pb-1.5">
+                                    <div data-motion-item="content" data-motion-delay="7" class="flex justify-between border-b border-[#F8F6F3] pb-1.5">
                                         <span>👚 Tops (Fine Knit, Silk Shell, White Shirt)</span>
                                         <span class="font-semibold text-[#1B1716]">3 items</span>
                                     </div>
-                                    <div class="flex justify-between border-b border-[#F8F6F3] pb-1.5">
+                                    <div data-motion-item="content" data-motion-delay="8" class="flex justify-between border-b border-[#F8F6F3] pb-1.5">
                                         <span>👖 Bottoms (Charcoal Trousers, Blue Denim)</span>
                                         <span class="font-semibold text-[#1B1716]">2 items</span>
                                     </div>
@@ -2685,7 +2829,7 @@
                             </div>
 
                             <!-- CTAs -->
-                            <div class="flex flex-col gap-2.5">
+                            <div data-motion-item="content" data-motion-delay="8" class="flex flex-col gap-2.5">
                                 <a href="#screen-d-1" class="btn-hover bg-[#1B1716] text-white text-center rounded-xl py-3.5 w-full font-medium text-sm">
                                     Add to Planner
                                 </a>
@@ -4824,6 +4968,30 @@
         </div>
     </section>
 
+    <!-- Prototype review control: intentionally outside every phone frame -->
+    <details id="styleiq-motion-preview" class="fixed bottom-4 right-4 z-50 w-72 max-w-[calc(100vw-2rem)] rounded-lg border border-[#D6CCC2] bg-white shadow-lg">
+        <summary class="cursor-pointer select-none px-4 py-3 text-xs font-semibold text-[#1B1716]">Motion Preview</summary>
+        <div class="border-t border-[#ECE7E1] p-4">
+            <div class="grid grid-cols-3 gap-2" aria-label="Animated screen preview selection">
+                <button type="button" data-motion-preview-screen="screen-y-12" aria-pressed="true" class="rounded-md border border-[#D6CCC2] px-2 py-2 text-[10px] font-semibold">Y-12</button>
+                <button type="button" data-motion-preview-screen="screen-y-17" aria-pressed="false" class="rounded-md border border-[#D6CCC2] px-2 py-2 text-[10px] font-semibold">Y-17</button>
+                <button type="button" data-motion-preview-screen="screen-a-1" aria-pressed="false" class="rounded-md border border-[#D6CCC2] px-2 py-2 text-[10px] font-semibold">A-1</button>
+                <button type="button" data-motion-preview-screen="screen-a-3" aria-pressed="false" class="rounded-md border border-[#D6CCC2] px-2 py-2 text-[10px] font-semibold">A-3</button>
+                <button type="button" data-motion-preview-screen="screen-d-1" aria-pressed="false" class="rounded-md border border-[#D6CCC2] px-2 py-2 text-[10px] font-semibold">D-1</button>
+                <button type="button" data-motion-preview-screen="screen-d-5" aria-pressed="false" class="rounded-md border border-[#D6CCC2] px-2 py-2 text-[10px] font-semibold">D-5</button>
+            </div>
+            <button type="button" id="styleiq-motion-replay" class="mt-3 w-full rounded-md bg-[#1B1716] px-3 py-2.5 text-xs font-semibold text-white">Replay current</button>
+            <div class="mt-3 space-y-2 border-t border-[#ECE7E1] pt-3 text-[11px] text-[#6F675F]">
+                <label class="flex items-center justify-between gap-3"><span>Loop preview</span><input id="styleiq-motion-loop" type="checkbox" class="size-4 accent-[#C89B45]"></label>
+                <label class="flex items-center justify-between gap-3"><span>Force preview motion</span><input id="styleiq-motion-force" type="checkbox" class="size-4 accent-[#C89B45]"></label>
+            </div>
+            <div class="mt-3 rounded-md bg-[#F8F6F3] p-3 text-[10px] leading-relaxed text-[#6F675F]" aria-live="polite">
+                <strong id="styleiq-motion-mode" class="block text-[#1B1716]">Motion mode: Standard</strong>
+                <span id="styleiq-motion-status">Select a screen or replay Y-12.</span>
+            </div>
+        </div>
+    </details>
+
 
     <script>
         lucide.createIcons();
@@ -4858,16 +5026,27 @@
             }
         };
 
-        function setStyleTwinScene(scene) {
-            const nextScene = styleTwinScenes[scene] || styleTwinScenes.daytime;
-            document.querySelectorAll('.style-twin-scene-btn').forEach(btn => {
+        const styleTwinSceneState = {
+            current: 'daytime',
+            queued: null,
+            switching: false,
+            generation: 0,
+            animations: []
+        };
+
+        function syncStyleTwinSceneButtons(scene) {
+            document.querySelectorAll('#screen-y-12 .style-twin-scene-btn').forEach(btn => {
                 const isSelected = btn.dataset.styleTwinScene === scene;
                 btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
                 btn.classList.toggle('bg-[#1B1716]', isSelected);
                 btn.classList.toggle('text-white', isSelected);
                 btn.classList.toggle('text-[#6F675F]', !isSelected);
             });
+        }
 
+        function applyStyleTwinSceneContent(scene) {
+            const nextScene = styleTwinScenes[scene];
+            if (!nextScene) return;
             const label = document.getElementById('style-twin-scene-label');
             const title = document.getElementById('style-twin-look-title');
             const description = document.getElementById('style-twin-scene-description');
@@ -4883,6 +5062,598 @@
             if (use) use.textContent = nextScene.use;
             if (finish) finish.textContent = nextScene.finish;
             if (overlay) overlay.style.background = nextScene.overlay;
+        }
+
+        function applyStyleTwinSceneImmediately(scene) {
+            styleTwinSceneState.generation += 1;
+            styleTwinSceneState.animations.forEach(animation => animation.cancel());
+            styleTwinSceneState.animations = [];
+            styleTwinSceneState.switching = false;
+            styleTwinSceneState.queued = null;
+            applyStyleTwinSceneContent(scene);
+            syncStyleTwinSceneButtons(scene);
+            styleTwinSceneState.current = scene;
+        }
+
+        async function transitionStyleTwinScene(scene) {
+            const card = document.getElementById('style-twin-card');
+            const copy = document.getElementById('style-twin-scene-copy');
+            const screen = document.getElementById('screen-y-12');
+            const forcePreview = screen && screen.classList.contains('styleiq-motion-force-preview');
+            const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches && !forcePreview;
+            const previewMultiplier = screen && screen.classList.contains('styleiq-motion-preview-run') ? 1.3 : 1;
+
+            if (reducedMotion || !card || !copy || typeof card.animate !== 'function') {
+                applyStyleTwinSceneImmediately(scene);
+                return;
+            }
+
+            styleTwinSceneState.switching = true;
+            const generation = ++styleTwinSceneState.generation;
+            const easing = 'cubic-bezier(0.22, 1, 0.36, 1)';
+            const outgoing = [
+                card.animate([
+                    { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' },
+                    { opacity: 0.68, transform: 'scale(0.985)', filter: 'blur(1px)' }
+                ], { duration: 150 * previewMultiplier, easing, fill: 'forwards' }),
+                copy.animate([
+                    { opacity: 1, transform: 'translateY(0)' },
+                    { opacity: 0, transform: 'translateY(4px)' }
+                ], { duration: 150 * previewMultiplier, easing, fill: 'forwards' })
+            ];
+            styleTwinSceneState.animations = outgoing;
+            await Promise.all(outgoing.map(animation => animation.finished.catch(() => undefined)));
+            if (generation !== styleTwinSceneState.generation) return;
+
+            applyStyleTwinSceneContent(scene);
+            syncStyleTwinSceneButtons(scene);
+            styleTwinSceneState.current = scene;
+
+            const incoming = [
+                card.animate([
+                    { opacity: 0.68, transform: 'scale(0.985)', filter: 'blur(1px)' },
+                    { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }
+                ], { duration: 170 * previewMultiplier, easing, fill: 'forwards' }),
+                copy.animate([
+                    { opacity: 0, transform: 'translateY(4px)' },
+                    { opacity: 1, transform: 'translateY(0)' }
+                ], { duration: 170 * previewMultiplier, easing, fill: 'forwards' })
+            ];
+            styleTwinSceneState.animations = incoming;
+            await Promise.all(incoming.map(animation => animation.finished.catch(() => undefined)));
+            if (generation !== styleTwinSceneState.generation) return;
+            incoming.concat(outgoing).forEach(animation => animation.cancel());
+            styleTwinSceneState.animations = [];
+            styleTwinSceneState.switching = false;
+
+            const queuedScene = styleTwinSceneState.queued;
+            styleTwinSceneState.queued = null;
+            if (queuedScene && queuedScene !== styleTwinSceneState.current) {
+                setStyleTwinScene(queuedScene);
+            }
+        }
+
+        function setStyleTwinScene(scene) {
+            const nextScene = Object.prototype.hasOwnProperty.call(styleTwinScenes, scene) ? scene : 'daytime';
+            if (styleTwinSceneState.switching) {
+                styleTwinSceneState.queued = nextScene;
+                return;
+            }
+            if (nextScene === styleTwinSceneState.current) {
+                applyStyleTwinSceneContent(nextScene);
+                syncStyleTwinSceneButtons(nextScene);
+                return;
+            }
+            transitionStyleTwinScene(nextScene);
+        }
+
+        function selectAlternativeLook(card) {
+            const group = card && card.closest('[role="listbox"]');
+            if (!group) return;
+            group.querySelectorAll('[data-alternative-card]').forEach(option => {
+                const isSelected = option === card;
+                option.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+                option.classList.toggle('is-selected', isSelected);
+                const check = option.querySelector('[data-alternative-check]');
+                if (check) {
+                    check.classList.toggle('hidden', !isSelected);
+                    check.classList.toggle('flex', isSelected);
+                }
+                const label = option.querySelector('[data-alternative-label]');
+                if (label) {
+                    label.classList.toggle('text-[#C89B45]', isSelected);
+                    label.classList.toggle('text-[#6F675F]', !isSelected);
+                }
+            });
+        }
+
+        function handleAlternativeLookKeydown(event, card) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            selectAlternativeLook(card);
+        }
+
+        const styleIQMotionScreenIds = [
+            'screen-y-12',
+            'screen-y-17',
+            'screen-a-1',
+            'screen-a-3',
+            'screen-d-1',
+            'screen-d-5'
+        ];
+        const styleIQMotionDurations = {
+            'screen-y-12': 950,
+            'screen-y-17': 1120,
+            'screen-a-1': 1100,
+            'screen-a-3': 950,
+            'screen-d-1': 1020,
+            'screen-d-5': 1100
+        };
+        const styleIQMotionController = {
+            initialized: false,
+            observer: null,
+            viewportScreenIds: new WeakMap(),
+            screenStates: new Map(),
+            activeScreen: null,
+            selectedPreviewScreen: 'screen-y-12',
+            previewActionGeneration: 0,
+            previewScrollFrame: null,
+            previewLoopTimer: null,
+            previewLoopGeneration: 0,
+            tabVisible: !document.hidden,
+            reducedMotionQuery: window.matchMedia('(prefers-reduced-motion: reduce)')
+        };
+
+        function getStyleIQMotionViewport(screen) {
+            if (!screen) return null;
+            if (screen.matches('div[class~="w-[375px]"]')) return screen;
+            return screen.querySelector('div[class~="w-[375px]"]') || screen;
+        }
+
+        function getStyleIQMotionState(screenId) {
+            if (!styleIQMotionController.screenStates.has(screenId)) {
+                styleIQMotionController.screenStates.set(screenId, {
+                    hasPlayed: false,
+                    replayOnEnter: false,
+                    generation: 0,
+                    frames: new Set(),
+                    timers: new Set(),
+                    countFrame: null,
+                    resolveRun: null
+                });
+            }
+            return styleIQMotionController.screenStates.get(screenId);
+        }
+
+        function styleIQSystemPrefersReducedMotion() {
+            return styleIQMotionController.reducedMotionQuery.matches;
+        }
+
+        function styleIQMotionIsAllowed(options = {}) {
+            return !styleIQSystemPrefersReducedMotion() || Boolean(options.preview && options.forceMotion);
+        }
+
+        function isStyleIQViewportMeaningfullyVisible(viewport) {
+            if (!viewport) return false;
+            const rect = viewport.getBoundingClientRect();
+            const visibleHeight = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+            const ratio = rect.height ? visibleHeight / rect.height : 0;
+            if (ratio >= 0.5) return true;
+
+            // A viewport shorter than half the phone cannot reach the normal threshold.
+            const canReachHalf = window.innerHeight >= rect.height * 0.5;
+            const center = rect.top + rect.height / 2;
+            return !canReachHalf && center >= window.innerHeight * 0.25 && center <= window.innerHeight * 0.75;
+        }
+
+        function cancelStyleIQScreenWork(screenId, showFinal = true) {
+            const screen = document.getElementById(screenId);
+            const state = getStyleIQMotionState(screenId);
+            state.generation += 1;
+            state.frames.forEach(frame => cancelAnimationFrame(frame));
+            state.frames.clear();
+            state.timers.forEach(timer => clearTimeout(timer));
+            state.timers.clear();
+            if (state.countFrame) cancelAnimationFrame(state.countFrame);
+            state.countFrame = null;
+            if (state.resolveRun) state.resolveRun({ cancelled: true, screenId });
+            state.resolveRun = null;
+
+            if (!screen) return state.generation;
+            screen.classList.remove(
+                'styleiq-motion-pending',
+                'styleiq-motion-active',
+                'styleiq-motion-preview-run',
+                'styleiq-motion-force-preview'
+            );
+            screen.classList.toggle('styleiq-motion-completed', showFinal);
+            const count = screen.querySelector('#closet-readiness-count');
+            if (count && showFinal) count.textContent = '5%';
+            return state.generation;
+        }
+
+        function resetStyleIQScreenMotion(screenId, options = {}) {
+            const screen = document.getElementById(screenId);
+            if (!screen || !screen.hasAttribute('data-motion-screen')) return null;
+            const generation = cancelStyleIQScreenWork(screenId, false);
+            screen.classList.toggle('styleiq-motion-preview-run', Boolean(options.preview));
+            screen.classList.toggle('styleiq-motion-force-preview', Boolean(options.preview && options.forceMotion));
+            screen.classList.add('styleiq-motion-pending');
+            if (screenId === 'screen-y-12') applyStyleTwinSceneImmediately('daytime');
+            const count = screen.querySelector('#closet-readiness-count');
+            if (count) count.textContent = '0%';
+            return generation;
+        }
+
+        function waitForStyleIQAnimationFrame(screenId, generation) {
+            const state = getStyleIQMotionState(screenId);
+            return new Promise(resolve => {
+                const frame = requestAnimationFrame(() => {
+                    state.frames.delete(frame);
+                    resolve(state.generation === generation);
+                });
+                state.frames.add(frame);
+            });
+        }
+
+        function scheduleStyleIQScreenTimer(screenId, generation, callback, delay) {
+            const state = getStyleIQMotionState(screenId);
+            const timer = setTimeout(() => {
+                state.timers.delete(timer);
+                if (state.generation === generation) callback();
+            }, delay);
+            state.timers.add(timer);
+            return timer;
+        }
+
+        function runStyleIQClosetCountUp(generation, options = {}) {
+            const screenId = 'screen-y-17';
+            const state = getStyleIQMotionState(screenId);
+            const output = document.getElementById('closet-readiness-count');
+            if (!output) return;
+            if (!styleIQMotionIsAllowed(options)) {
+                output.textContent = '5%';
+                return;
+            }
+
+            const multiplier = options.preview ? 1.3 : 1;
+            const duration = 650 * multiplier;
+            const delay = 240 * multiplier;
+            let startTime = null;
+            const step = timestamp => {
+                if (state.generation !== generation) return;
+                if (startTime === null) startTime = timestamp;
+                const progress = Math.min(1, Math.max(0, (timestamp - startTime - delay) / duration));
+                const eased = 1 - Math.pow(1 - progress, 3);
+                output.textContent = `${Math.min(5, Math.floor(eased * 5))}%`;
+                if (progress < 1) {
+                    state.countFrame = requestAnimationFrame(step);
+                } else {
+                    output.textContent = '5%';
+                    state.countFrame = null;
+                }
+            };
+            state.countFrame = requestAnimationFrame(step);
+        }
+
+        function getStyleIQRunDuration(screenId, options = {}) {
+            if (options.preview && screenId === 'screen-y-12') return 2800;
+            const duration = styleIQMotionDurations[screenId] || 1100;
+            return options.preview ? Math.round(duration * 1.3) : duration;
+        }
+
+        function scheduleStyleIQScenePreview(generation) {
+            scheduleStyleIQScreenTimer('screen-y-12', generation, () => setStyleTwinScene('relaxing'), 1150);
+            scheduleStyleIQScreenTimer('screen-y-12', generation, () => setStyleTwinScene('evening'), 1700);
+            scheduleStyleIQScreenTimer('screen-y-12', generation, () => setStyleTwinScene('daytime'), 2250);
+        }
+
+        function completeStyleIQScreenMotion(screenId, generation) {
+            const screen = document.getElementById(screenId);
+            const state = getStyleIQMotionState(screenId);
+            if (!screen || state.generation !== generation) return;
+            screen.classList.remove(
+                'styleiq-motion-pending',
+                'styleiq-motion-active',
+                'styleiq-motion-preview-run',
+                'styleiq-motion-force-preview'
+            );
+            screen.classList.add('styleiq-motion-completed');
+            const count = screen.querySelector('#closet-readiness-count');
+            if (count) count.textContent = '5%';
+            state.timers.forEach(timer => clearTimeout(timer));
+            state.timers.clear();
+            if (state.resolveRun) state.resolveRun({ cancelled: false, screenId });
+            state.resolveRun = null;
+        }
+
+        function replayStyleIQMotion(screenId, options = {}) {
+            const screen = document.getElementById(screenId);
+            if (!screen || !screen.hasAttribute('data-motion-screen')) {
+                return Promise.resolve({ cancelled: true, screenId });
+            }
+            const state = getStyleIQMotionState(screenId);
+            state.hasPlayed = true;
+            state.replayOnEnter = false;
+            styleIQMotionController.activeScreen = screenId;
+
+            if (!styleIQMotionIsAllowed(options)) {
+                cancelStyleIQScreenWork(screenId, true);
+                if (screenId === 'screen-y-12') applyStyleTwinSceneImmediately('daytime');
+                return Promise.resolve({ cancelled: false, reduced: true, screenId });
+            }
+
+            const generation = resetStyleIQScreenMotion(screenId, options);
+            const runPromise = new Promise(resolve => {
+                state.resolveRun = resolve;
+            });
+
+            (async () => {
+                const firstFrameCurrent = await waitForStyleIQAnimationFrame(screenId, generation);
+                if (!firstFrameCurrent) return;
+                const secondFrameCurrent = await waitForStyleIQAnimationFrame(screenId, generation);
+                if (!secondFrameCurrent || state.generation !== generation) return;
+
+                screen.classList.remove('styleiq-motion-pending');
+                screen.classList.add('styleiq-motion-active');
+                if (screenId === 'screen-y-17') runStyleIQClosetCountUp(generation, options);
+                if (screenId === 'screen-y-12' && options.preview) scheduleStyleIQScenePreview(generation);
+                scheduleStyleIQScreenTimer(
+                    screenId,
+                    generation,
+                    () => completeStyleIQScreenMotion(screenId, generation),
+                    getStyleIQRunDuration(screenId, options)
+                );
+            })();
+
+            return runPromise;
+        }
+
+        function runStyleIQScreenMotion(screenId) {
+            return replayStyleIQMotion(screenId, { preview: false, forceMotion: false });
+        }
+
+        function queueStyleIQHashMotion() {
+            const screenId = window.location.hash.slice(1);
+            if (!styleIQMotionScreenIds.includes(screenId)) return;
+            const screen = document.getElementById(screenId);
+            if (!screen) return;
+            const state = getStyleIQMotionState(screenId);
+            state.replayOnEnter = true;
+            const viewport = getStyleIQMotionViewport(screen);
+            if (isStyleIQViewportMeaningfullyVisible(viewport)) runStyleIQScreenMotion(screenId);
+        }
+
+        function setStyleIQPreviewSelection(screenId) {
+            styleIQMotionController.selectedPreviewScreen = screenId;
+            document.querySelectorAll('[data-motion-preview-screen]').forEach(button => {
+                button.setAttribute('aria-pressed', button.dataset.motionPreviewScreen === screenId ? 'true' : 'false');
+            });
+        }
+
+        function updateStyleIQMotionPreviewStatus(message) {
+            const mode = document.getElementById('styleiq-motion-mode');
+            const status = document.getElementById('styleiq-motion-status');
+            const force = document.getElementById('styleiq-motion-force');
+            if (mode) {
+                const forced = styleIQSystemPrefersReducedMotion() && force && force.checked;
+                mode.textContent = forced
+                    ? 'Motion mode: Preview forced'
+                    : `Motion mode: ${styleIQSystemPrefersReducedMotion() ? 'Reduced' : 'Standard'}`;
+            }
+            if (status && message) status.textContent = message;
+        }
+
+        function cancelStyleIQPreviewScroll() {
+            styleIQMotionController.previewActionGeneration += 1;
+            if (styleIQMotionController.previewScrollFrame) {
+                cancelAnimationFrame(styleIQMotionController.previewScrollFrame);
+                styleIQMotionController.previewScrollFrame = null;
+            }
+        }
+
+        function waitForStyleIQViewportStable(screenId, actionGeneration) {
+            const screen = document.getElementById(screenId);
+            const viewport = getStyleIQMotionViewport(screen);
+            return new Promise(resolve => {
+                let previousTop = null;
+                let stableFrames = 0;
+                let frameCount = 0;
+                const check = () => {
+                    if (actionGeneration !== styleIQMotionController.previewActionGeneration || !viewport) {
+                        resolve(false);
+                        return;
+                    }
+                    const top = viewport.getBoundingClientRect().top;
+                    stableFrames = previousTop !== null && Math.abs(top - previousTop) < 0.5 ? stableFrames + 1 : 0;
+                    previousTop = top;
+                    frameCount += 1;
+                    if (stableFrames >= 4 || frameCount >= 150) {
+                        styleIQMotionController.previewScrollFrame = null;
+                        resolve(true);
+                        return;
+                    }
+                    styleIQMotionController.previewScrollFrame = requestAnimationFrame(check);
+                };
+                styleIQMotionController.previewScrollFrame = requestAnimationFrame(check);
+            });
+        }
+
+        function stopStyleIQPreviewLoop(uncheck = false) {
+            styleIQMotionController.previewLoopGeneration += 1;
+            if (styleIQMotionController.previewLoopTimer) {
+                clearTimeout(styleIQMotionController.previewLoopTimer);
+                styleIQMotionController.previewLoopTimer = null;
+            }
+            if (uncheck) {
+                const loop = document.getElementById('styleiq-motion-loop');
+                if (loop) loop.checked = false;
+            }
+        }
+
+        async function previewStyleIQScreen(screenId) {
+            cancelStyleIQPreviewScroll();
+            const actionGeneration = styleIQMotionController.previewActionGeneration;
+            setStyleIQPreviewSelection(screenId);
+            const screen = document.getElementById(screenId);
+            const viewport = getStyleIQMotionViewport(screen);
+            if (!viewport) return { cancelled: true, screenId };
+
+            updateStyleIQMotionPreviewStatus(`Positioning ${screenId.replace('screen-', '').toUpperCase()}...`);
+            viewport.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+            const stable = await waitForStyleIQViewportStable(screenId, actionGeneration);
+            if (!stable || actionGeneration !== styleIQMotionController.previewActionGeneration) {
+                return { cancelled: true, screenId };
+            }
+
+            const force = document.getElementById('styleiq-motion-force');
+            const options = { preview: true, forceMotion: Boolean(force && force.checked) };
+            if (styleIQSystemPrefersReducedMotion() && !options.forceMotion) {
+                updateStyleIQMotionPreviewStatus('Reduced motion is active. Enable Force preview motion to review animation.');
+            } else {
+                updateStyleIQMotionPreviewStatus(`Playing ${screenId.replace('screen-', '').toUpperCase()} at 1.3x review timing.`);
+            }
+            const result = await replayStyleIQMotion(screenId, options);
+            if (!result.cancelled) {
+                updateStyleIQMotionPreviewStatus(
+                    result.reduced ? 'Reduced motion is active; content is shown immediately.' : 'Preview complete.'
+                );
+            }
+            return result;
+        }
+
+        function scheduleStyleIQPreviewLoop(delay = 0) {
+            const loop = document.getElementById('styleiq-motion-loop');
+            if (!loop || !loop.checked) return;
+            const loopGeneration = styleIQMotionController.previewLoopGeneration;
+            if (styleIQMotionController.previewLoopTimer) clearTimeout(styleIQMotionController.previewLoopTimer);
+            styleIQMotionController.previewLoopTimer = setTimeout(async () => {
+                styleIQMotionController.previewLoopTimer = null;
+                if (loopGeneration !== styleIQMotionController.previewLoopGeneration || !loop.checked) return;
+                const screenId = styleIQMotionController.selectedPreviewScreen;
+                const viewport = getStyleIQMotionViewport(document.getElementById(screenId));
+                if (!styleIQMotionController.tabVisible) {
+                    updateStyleIQMotionPreviewStatus('Loop paused while this tab is hidden.');
+                    return;
+                }
+                if (!isStyleIQViewportMeaningfullyVisible(viewport)) {
+                    updateStyleIQMotionPreviewStatus('Loop paused until the selected phone is visible.');
+                    return;
+                }
+                const force = document.getElementById('styleiq-motion-force');
+                if (styleIQSystemPrefersReducedMotion() && !(force && force.checked)) {
+                    updateStyleIQMotionPreviewStatus('Loop paused by reduced motion. Enable Force preview motion to review it.');
+                    scheduleStyleIQPreviewLoop(600);
+                    return;
+                }
+
+                const startedAt = performance.now();
+                await replayStyleIQMotion(screenId, { preview: true, forceMotion: Boolean(force && force.checked) });
+                if (loopGeneration !== styleIQMotionController.previewLoopGeneration || !loop.checked) return;
+                const elapsed = performance.now() - startedAt;
+                scheduleStyleIQPreviewLoop(Math.max(2000, 4000 - elapsed));
+            }, delay);
+        }
+
+        async function playStyleIQPreviewAndContinueLoop() {
+            const loop = document.getElementById('styleiq-motion-loop');
+            const loopGeneration = styleIQMotionController.previewLoopGeneration;
+            const startedAt = performance.now();
+            await previewStyleIQScreen(styleIQMotionController.selectedPreviewScreen);
+            if (!loop || !loop.checked || loopGeneration !== styleIQMotionController.previewLoopGeneration) return;
+            const elapsed = performance.now() - startedAt;
+            scheduleStyleIQPreviewLoop(Math.max(2000, 4000 - elapsed));
+        }
+
+        function initializeStyleIQMotionPreview() {
+            setStyleIQPreviewSelection(styleIQMotionController.selectedPreviewScreen);
+            document.querySelectorAll('[data-motion-preview-screen]').forEach(button => {
+                button.addEventListener('click', () => {
+                    stopStyleIQPreviewLoop(true);
+                    previewStyleIQScreen(button.dataset.motionPreviewScreen);
+                });
+            });
+
+            const replay = document.getElementById('styleiq-motion-replay');
+            const loop = document.getElementById('styleiq-motion-loop');
+            const force = document.getElementById('styleiq-motion-force');
+            if (replay) replay.addEventListener('click', () => {
+                stopStyleIQPreviewLoop(false);
+                playStyleIQPreviewAndContinueLoop();
+            });
+            if (loop) loop.addEventListener('change', () => {
+                stopStyleIQPreviewLoop(false);
+                if (loop.checked) playStyleIQPreviewAndContinueLoop();
+                else updateStyleIQMotionPreviewStatus('Loop preview stopped.');
+            });
+            if (force) force.addEventListener('change', () => {
+                updateStyleIQMotionPreviewStatus(force.checked ? 'Force preview applies only to manual review.' : 'System motion preference is respected.');
+                if (loop && loop.checked) {
+                    stopStyleIQPreviewLoop(false);
+                    scheduleStyleIQPreviewLoop(0);
+                }
+            });
+            updateStyleIQMotionPreviewStatus('Select a screen or replay Y-12.');
+        }
+
+        function initializeStyleIQMotion() {
+            if (styleIQMotionController.initialized) return;
+            styleIQMotionController.initialized = true;
+            document.documentElement.classList.add('styleiq-motion-ready');
+            const screens = styleIQMotionScreenIds.map(id => document.getElementById(id)).filter(Boolean);
+            screens.forEach(screen => {
+                getStyleIQMotionState(screen.id);
+                const viewport = getStyleIQMotionViewport(screen);
+                if (viewport) styleIQMotionController.viewportScreenIds.set(viewport, screen.id);
+            });
+
+            if ('IntersectionObserver' in window) {
+                styleIQMotionController.observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        const screenId = styleIQMotionController.viewportScreenIds.get(entry.target);
+                        if (!screenId) return;
+                        const state = getStyleIQMotionState(screenId);
+                        const meaningful = entry.intersectionRatio >= 0.5 || isStyleIQViewportMeaningfullyVisible(entry.target);
+                        if (!meaningful) {
+                            if (screenId === styleIQMotionController.selectedPreviewScreen) {
+                                const loop = document.getElementById('styleiq-motion-loop');
+                                if (loop && loop.checked) {
+                                    cancelStyleIQScreenWork(screenId, true);
+                                    stopStyleIQPreviewLoop(false);
+                                    updateStyleIQMotionPreviewStatus('Loop paused until the selected phone is visible.');
+                                }
+                            }
+                            return;
+                        }
+                        if (!state.hasPlayed || state.replayOnEnter) runStyleIQScreenMotion(screenId);
+                        const loop = document.getElementById('styleiq-motion-loop');
+                        if (screenId === styleIQMotionController.selectedPreviewScreen && loop && loop.checked && !styleIQMotionController.previewLoopTimer) {
+                            scheduleStyleIQPreviewLoop(300);
+                        }
+                    });
+                }, { threshold: [0.35, 0.5, 0.65] });
+                screens.forEach(screen => {
+                    const viewport = getStyleIQMotionViewport(screen);
+                    if (viewport) styleIQMotionController.observer.observe(viewport);
+                });
+            }
+
+            window.addEventListener('hashchange', queueStyleIQHashMotion);
+            document.addEventListener('visibilitychange', () => {
+                styleIQMotionController.tabVisible = !document.hidden;
+                const loop = document.getElementById('styleiq-motion-loop');
+                if (document.hidden) {
+                    if (loop && loop.checked) cancelStyleIQScreenWork(styleIQMotionController.selectedPreviewScreen, true);
+                    stopStyleIQPreviewLoop(false);
+                } else if (loop && loop.checked) {
+                    scheduleStyleIQPreviewLoop(300);
+                }
+            });
+            styleIQMotionController.reducedMotionQuery.addEventListener('change', () => {
+                updateStyleIQMotionPreviewStatus('System motion preference changed.');
+            });
+            initializeStyleIQMotionPreview();
+            queueStyleIQHashMotion();
         }
 
         // REDUCE-STEPS: toggle email/password form on Login screen
@@ -5657,7 +6428,7 @@
                 disclosure.dataset.marketplaceDisclosure = '';
                 disclosure.className = 'mx-6 mb-3 text-[10px] leading-relaxed text-[#9F9387]';
                 disclosure.textContent = 'External marketplace sales, payment, shipping, returns, and buyer protection are handled by the selected marketplace, not StyleIQ.';
-                const phone = screen.querySelector('.w-\[375px\]');
+                const phone = screen.querySelector('div[class~="w-[375px]"]');
                 if (phone) phone.appendChild(disclosure);
             });
         }
@@ -5665,6 +6436,7 @@
         document.querySelectorAll('[data-preowned-group]').forEach((surface) => {
             updatePreownedResults(surface.dataset.preownedGroup);
         });
+        initializeStyleIQMotion();
         initializeStaticActions();
 </script>
 </body>
