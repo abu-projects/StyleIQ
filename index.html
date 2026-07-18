@@ -321,6 +321,9 @@
             border-color: #1B1716;
             color: #FFFFFF;
         }
+        #styleiq-motion-preview:not([open]) {
+            width: auto;
+        }
         @media (prefers-reduced-motion: reduce) {
             html { scroll-behavior: auto; }
             .styleiq-motion-ready [data-motion-screen]:not(.styleiq-motion-force-preview) [data-motion-item],
@@ -5277,6 +5280,9 @@
             screen.classList.toggle('styleiq-motion-completed', showFinal);
             const count = screen.querySelector('#closet-readiness-count');
             if (count && showFinal) count.textContent = '5%';
+            if (screenId === 'screen-y-12' && styleTwinSceneState.switching) {
+                applyStyleTwinSceneImmediately(styleTwinSceneState.current);
+            }
             return state.generation;
         }
 
@@ -5492,6 +5498,10 @@
             if (styleIQMotionController.previewLoopTimer) {
                 clearTimeout(styleIQMotionController.previewLoopTimer);
                 styleIQMotionController.previewLoopTimer = null;
+            }
+            const selectedScreen = document.getElementById(styleIQMotionController.selectedPreviewScreen);
+            if (selectedScreen && selectedScreen.classList.contains('styleiq-motion-preview-run')) {
+                cancelStyleIQScreenWork(styleIQMotionController.selectedPreviewScreen, true);
             }
             if (uncheck) {
                 const loop = document.getElementById('styleiq-motion-loop');
