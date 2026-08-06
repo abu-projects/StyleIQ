@@ -336,6 +336,132 @@
                 animation: none !important;
             }
         }
+
+        /* F-14 Settings */
+        .settings-group {
+            overflow: hidden;
+            border: 1px solid #ECE7E1;
+            border-radius: 18px;
+            background: #FFFFFF;
+        }
+        .settings-row {
+            min-height: 54px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            color: #1B1716;
+            text-align: left;
+        }
+        .settings-row + .settings-row {
+            border-top: 1px solid #F0ECE7;
+        }
+        .settings-row:active { background: #F8F6F3; }
+        .settings-row[aria-disabled="true"] {
+            opacity: .42;
+            pointer-events: none;
+        }
+        .settings-icon {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            background: #F8F6F3;
+            color: #6F675F;
+            font-size: 14px;
+        }
+        .settings-copy { min-width: 0; flex: 1; }
+        .settings-copy strong {
+            display: block;
+            font-size: 11px;
+            line-height: 1.25;
+            font-weight: 600;
+        }
+        .settings-copy small {
+            display: block;
+            margin-top: 2px;
+            color: #7F766D;
+            font-size: 8.5px;
+            line-height: 1.35;
+        }
+        .settings-value {
+            max-width: 92px;
+            color: #6F675F;
+            font-size: 8.5px;
+            line-height: 1.3;
+            text-align: right;
+        }
+        .settings-switch {
+            position: relative;
+            width: 34px;
+            height: 20px;
+            flex: 0 0 34px;
+        }
+        .settings-switch input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+        }
+        .settings-switch span {
+            position: absolute;
+            inset: 0;
+            border: 1px solid #D6CCC2;
+            border-radius: 999px;
+            background: #EFECE7;
+            transition: background-color 150ms ease, border-color 150ms ease;
+        }
+        .settings-switch span::after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #FFFFFF;
+            box-shadow: 0 1px 3px rgba(27, 23, 22, .18);
+            transition: transform 150ms ease;
+        }
+        .settings-switch input:checked + span {
+            border-color: #C89B45;
+            background: #C89B45;
+        }
+        .settings-switch input:checked + span::after { transform: translateX(14px); }
+        .settings-switch input:focus-visible + span {
+            outline: 2px solid #C89B45;
+            outline-offset: 2px;
+        }
+        #settings-scroll.settings-larger-text .settings-copy small,
+        #settings-scroll.settings-larger-text .settings-value { font-size: 10px; }
+        .settings-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 60;
+            display: flex;
+            align-items: flex-end;
+            padding: 12px;
+            background: rgba(27, 23, 22, .34);
+        }
+        .settings-modal-backdrop.hidden { display: none; }
+        .settings-modal-sheet {
+            width: 100%;
+            max-height: 82%;
+            overflow-y: auto;
+            border: 1px solid #ECE7E1;
+            border-radius: 24px;
+            background: #F8F6F3;
+            padding: 18px;
+            box-shadow: 0 18px 40px -20px rgba(27, 23, 22, .45);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .settings-switch span,
+            .settings-switch span::after { transition: none; }
+        }
     </style>
 </head>
 <body class="min-h-screen p-6 md:p-12 flex flex-col items-center justify-start gap-16">
@@ -590,21 +716,32 @@
 
                         <!-- Upload slots / thumbnails -->
                         <div class="grid grid-cols-3 gap-2.5">
-                            <button onclick="selectFaceThumb(this, 'images/profile_woman.png', false)" class="h-24 rounded-2xl border-2 border-[#C89B45] bg-[#FFF9ED] flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-face-thumb">
+                            <button onclick="selectFaceThumb(this, 'images/profile_woman.png', false)" data-photo-label="Front" class="h-24 rounded-2xl border-2 border-[#C89B45] bg-[#FFF9ED] flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-face-thumb">
                                 <div class="w-12 h-12 rounded-full overflow-hidden border border-[#ECE7E1]"><img src="images/profile_woman.png" class="w-full h-full object-cover"></div>
                                 <span class="text-[10px] font-semibold text-[#1B1716]">Front</span>
                                 <span class="absolute top-1.5 right-1.5 bg-[#C89B45] text-white rounded-full p-0.5"><i data-lucide="check" class="w-2.5 h-2.5"></i></span>
                             </button>
-                            <button onclick="selectFaceThumb(this, 'images/profile_woman.png', true)" class="h-24 rounded-2xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-face-thumb">
+                            <button onclick="selectFaceThumb(this, 'images/profile_woman.png', true)" data-photo-label="Left" class="h-24 rounded-2xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-face-thumb">
                                 <div class="w-12 h-12 rounded-full overflow-hidden border border-[#ECE7E1]"><img src="images/profile_woman.png" class="w-full h-full object-cover scale-x-[-1]"></div>
                                 <span class="text-[10px] font-semibold text-[#6F675F]">Left</span>
                                 <span class="absolute top-1.5 right-1.5 bg-[#C89B45] text-white rounded-full p-0.5 hidden"><i data-lucide="check" class="w-2.5 h-2.5"></i></span>
                             </button>
-                            <button onclick="selectFaceThumb(this, 'images/profile_woman.png', false)" class="h-24 rounded-2xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-face-thumb">
+                            <button onclick="selectFaceThumb(this, 'images/profile_woman.png', false)" data-photo-label="Right" class="h-24 rounded-2xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-face-thumb">
                                 <div class="w-12 h-12 rounded-full overflow-hidden border border-[#ECE7E1]"><img src="images/profile_woman.png" class="w-full h-full object-cover"></div>
                                 <span class="text-[10px] font-semibold text-[#6F675F]">Right</span>
                                 <span class="absolute top-1.5 right-1.5 bg-[#C89B45] text-white rounded-full p-0.5 hidden"><i data-lucide="check" class="w-2.5 h-2.5"></i></span>
                             </button>
+                        </div>
+                        <p id="face-photo-count" class="text-center text-[10px] font-semibold text-[#9F9387]">1 of 3 photos added</p>
+                        <div class="grid gap-2">
+                            <button id="face-camera-button" type="button" onclick="document.getElementById('face-camera-input').click()" class="primary-btn h-12 text-xs">
+                                <i data-lucide="camera" class="w-4 h-4"></i><span>Retake Front Photo</span>
+                            </button>
+                            <button type="button" onclick="document.getElementById('face-library-input').click()" class="ghost-btn h-12 bg-white text-xs">
+                                <i data-lucide="image" class="w-4 h-4"></i><span>Upload from Library</span>
+                            </button>
+                            <input id="face-camera-input" type="file" accept="image/*" capture="user" class="hidden" onchange="handleStyleIQPhotoUpload(event, 'face')">
+                            <input id="face-library-input" type="file" accept="image/*" class="hidden" onchange="handleStyleIQPhotoUpload(event, 'face')">
                         </div>
                     </div>
                     <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent"><a href="#screen-y-5" class="primary-btn btn-hover">Continue</a></div>
@@ -634,26 +771,37 @@
 
                         <!-- Upload Grid / Thumbnails -->
                         <div class="grid grid-cols-4 gap-2">
-                            <button onclick="selectBodyThumb(this, 'images/body_front.png')" class="h-22 rounded-xl border-2 border-[#C89B45] bg-[#FFF9ED] flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
+                            <button onclick="selectBodyThumb(this, 'images/body_front.png')" data-photo-label="Front" class="h-22 rounded-xl border-2 border-[#C89B45] bg-[#FFF9ED] flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
                                 <div class="w-8 h-10 overflow-hidden border border-[#ECE7E1] rounded"><img src="images/body_front.png" class="w-full h-full object-cover"></div>
                                 <span class="text-[9px] font-semibold text-[#1B1716]">Front</span>
                                 <span class="absolute top-1 right-1 bg-[#C89B45] text-white rounded-full p-0.5"><i data-lucide="check" class="w-2 h-2"></i></span>
                             </button>
-                            <button onclick="selectBodyThumb(this, 'images/body_side.png')" class="h-22 rounded-xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
+                            <button onclick="selectBodyThumb(this, 'images/body_side.png')" data-photo-label="Side" class="h-22 rounded-xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
                                 <div class="w-8 h-10 overflow-hidden border border-[#ECE7E1] rounded"><img src="images/body_side.png" class="w-full h-full object-cover"></div>
                                 <span class="text-[9px] font-semibold text-[#6F675F]">Side</span>
                                 <span class="absolute top-1 right-1 bg-[#C89B45] text-white rounded-full p-0.5 hidden"><i data-lucide="check" class="w-2.5 h-2.5"></i></span>
                             </button>
-                            <button onclick="selectBodyThumb(this, 'images/body_back.png')" class="h-22 rounded-xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
+                            <button onclick="selectBodyThumb(this, 'images/body_back.png')" data-photo-label="Back" class="h-22 rounded-xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
                                 <div class="w-8 h-10 overflow-hidden border border-[#ECE7E1] rounded"><img src="images/body_back.png" class="w-full h-full object-cover"></div>
                                 <span class="text-[9px] font-semibold text-[#6F675F]">Back</span>
                                 <span class="absolute top-1 right-1 bg-[#C89B45] text-white rounded-full p-0.5 hidden"><i data-lucide="check" class="w-2.5 h-2.5"></i></span>
                             </button>
-                            <button onclick="selectBodyThumb(this, 'images/body_angle.png')" class="h-22 rounded-xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
+                            <button onclick="selectBodyThumb(this, 'images/body_angle.png')" data-photo-label="45° Angle" class="h-22 rounded-xl border border-[#ECE7E1] bg-white flex flex-col items-center justify-center gap-1.5 p-1 relative overflow-hidden group shadow-sm select-body-thumb">
                                 <div class="w-8 h-10 overflow-hidden border border-[#ECE7E1] rounded"><img src="images/body_angle.png" class="w-full h-full object-cover"></div>
                                 <span class="text-[9px] font-semibold text-[#6F675F]">45° Angle</span>
                                 <span class="absolute top-1 right-1 bg-[#C89B45] text-white rounded-full p-0.5 hidden"><i data-lucide="check" class="w-2.5 h-2.5"></i></span>
                             </button>
+                        </div>
+                        <p id="body-photo-count" class="text-center text-[10px] font-semibold text-[#9F9387]">1 of 4 photos added</p>
+                        <div class="grid gap-2">
+                            <button id="body-camera-button" type="button" onclick="document.getElementById('body-camera-input').click()" class="primary-btn h-12 text-xs">
+                                <i data-lucide="camera" class="w-4 h-4"></i><span>Retake Front Photo</span>
+                            </button>
+                            <button type="button" onclick="document.getElementById('body-library-input').click()" class="ghost-btn h-12 bg-white text-xs">
+                                <i data-lucide="image" class="w-4 h-4"></i><span>Upload from Library</span>
+                            </button>
+                            <input id="body-camera-input" type="file" accept="image/*" capture="environment" class="hidden" onchange="handleStyleIQPhotoUpload(event, 'body')">
+                            <input id="body-library-input" type="file" accept="image/*" class="hidden" onchange="handleStyleIQPhotoUpload(event, 'body')">
                         </div>
                     </div>
                     <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#F8F6F3] via-[#F8F6F3] to-transparent"><a href="#screen-y-6" class="primary-btn btn-hover">Continue</a></div>
@@ -2988,9 +3136,9 @@
 
                             <div class="flex justify-between items-center">
                                 <h2 class="font-serif text-3xl tracking-tight text-[#1B1716]">My Atelier</h2>
-                                <button type="button" aria-label="Open settings" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover shadow-sm">
+                                <a href="#screen-f-14" aria-label="Open Settings" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover shadow-sm">
                                     <iconify-icon icon="solar:settings-linear" class="text-lg"></iconify-icon>
-                                </button>
+                                </a>
                             </div>
 
                             <!-- Profile info -->
@@ -4051,6 +4199,262 @@
                     <div class="font-medium text-[#1B1716]">Navigation Flows:</div>
                     <div class="flex flex-col gap-1 text-[#6F675F] font-light">
                         <div class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-[#C89B45]"></span><span>Tap Back / Submit → <a href="#screen-f-12" class="underline text-[#C89B45]">Poll Details (F-12)</a></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN F-14 — SETTINGS -->
+            <div id="screen-f-14" class="flex flex-col gap-4 relative">
+                <div class="text-xs uppercase tracking-widest text-[#6F675F] font-semibold ml-4">SCREEN F-14 — SETTINGS</div>
+
+                <div class="w-[375px] h-[812px] bg-[#F8F6F3] rounded-[48px] border-[12px] border-[#ECE7E1] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.12)] overflow-hidden relative flex flex-col">
+                    <header class="shrink-0 bg-[#F8F6F3]/95 backdrop-blur-md z-30 px-5 pt-10 pb-3 border-b border-[#ECE7E1]">
+                        <div class="flex items-center justify-between">
+                            <a href="#screen-f-1" aria-label="Back to My Atelier" class="w-9 h-9 flex items-center justify-center rounded-full bg-white border border-[#ECE7E1] text-[#1B1716] btn-hover">
+                                <iconify-icon icon="solar:alt-arrow-left-linear"></iconify-icon>
+                            </a>
+                            <span class="text-[9px] font-semibold uppercase tracking-widest text-[#1B1716]">Settings</span>
+                            <div class="w-9"></div>
+                        </div>
+                        <h3 class="font-serif text-[27px] leading-none text-[#1B1716] mt-2">Settings</h3>
+                        <p class="text-[9px] text-[#6F675F] mt-1">Personalize how StyleIQ works for you.</p>
+                    </header>
+
+                    <div id="settings-scroll" class="flex-1 overflow-y-auto no-scrollbar px-4 py-4 pb-8">
+                        <section class="mb-4">
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Account</h4>
+                            <div class="settings-group">
+                                <button type="button" onclick="openSettingsPanel('account')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:user-circle-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Account Details</strong><small>Amelia Clark · amelia@example.com</small></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <a href="#screen-f-2" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:closet-2-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>My Style Profile</strong><small>Style identity, silhouettes and inspiration</small></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </a>
+                                <a href="#screen-f-3" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:user-id-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Preferences &amp; Sizes</strong><small>Brands, fit, sizes and comfort preferences</small></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </a>
+                                <a href="#screen-y-3" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:magic-stick-3-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Style Twin</strong><small>Review or update your Style Twin setup</small></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </a>
+                            </div>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Muse &amp; Daily Styling</h4>
+                            <div class="settings-group">
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:bell-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Daily Outfit Reminder</strong><small>Receive your daily Muse outfit suggestion.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="dailyOutfitReminder" onchange="changeStyleIQSetting(this)" aria-label="Daily Outfit Reminder"><span></span></span>
+                                </label>
+                                <button id="settings-reminder-time-row" type="button" onclick="openSettingsChoice('dailyOutfitReminderTime')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:clock-circle-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Reminder Time</strong></span>
+                                    <span class="settings-value" data-setting-value="dailyOutfitReminderTime">8:00 AM</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:sun-fog-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Weather-Aware Styling</strong><small>Use local weather when preparing looks and packing suggestions.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="weatherAwareStyling" onchange="changeStyleIQSetting(this)" aria-label="Weather-Aware Styling"><span></span></span>
+                                </label>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:calendar-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Calendar-Aware Suggestions</strong><small>Use planned occasions and events to improve outfit suggestions.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="calendarAwareSuggestions" onchange="changeStyleIQSetting(this)" aria-label="Calendar-Aware Suggestions"><span></span></span>
+                                </label>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:stars-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Muse Learning</strong><small>Use outfit feedback, wear activity and saved looks to refine suggestions.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="museLearningEnabled" onchange="changeStyleIQSetting(this)" aria-label="Muse Learning"><span></span></span>
+                                </label>
+                            </div>
+                            <p class="text-[8px] leading-relaxed text-[#7F766D] px-1 mt-2">You can continue using StyleIQ if Muse Learning is off, but recommendations may be less personalized.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Notifications &amp; Reminders</h4>
+                            <div class="settings-group">
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:calendar-mark-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Planner Reminders</strong><small>Reminders for planned outfits and upcoming trips.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="plannerReminders" onchange="changeStyleIQSetting(this)" aria-label="Planner Reminders"><span></span></span>
+                                </label>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:heart-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Wishlist Updates</strong><small>Price drops, availability changes and review reminders.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="wishlistUpdates" onchange="changeStyleIQSetting(this)" aria-label="Wishlist Updates"><span></span></span>
+                                </label>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:hanger-2-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Closet Care</strong><small>Seasonal audits, sleeping items and wardrobe-maintenance prompts.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="closetCareReminders" onchange="changeStyleIQSetting(this)" aria-label="Closet Care"><span></span></span>
+                                </label>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:users-group-rounded-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Community Activity</strong><small>Polls, shared boards and StyleIQ community activity.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="communityActivityNotifications" onchange="changeStyleIQSetting(this)" aria-label="Community Activity"><span></span></span>
+                                </label>
+                            </div>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Shopping Preferences</h4>
+                            <div class="settings-group">
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:shop-2-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Show Pre-Owned Finds</strong><small>Include relevant pre-owned options in Muse and Discover results.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="showPreOwnedFinds" onchange="changeStyleIQSetting(this)" aria-label="Show Pre-Owned Finds"><span></span></span>
+                                </label>
+                                <label id="settings-community-priority-row" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:users-group-two-rounded-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Prioritize StyleIQ Community Listings</strong><small>Show community listings before external marketplace results when available.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="prioritizeCommunityListings" onchange="changeStyleIQSetting(this)" aria-label="Prioritize StyleIQ Community Listings"><span></span></span>
+                                </label>
+                                <button type="button" onclick="openSettingsChoice('preferredCurrency')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:dollar-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Preferred Currency</strong></span>
+                                    <span class="settings-value" data-setting-value="preferredCurrency">USD</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <a href="#screen-e-3" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:wallet-money-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Style Budget</strong></span>
+                                    <span class="settings-value">$250 monthly plan</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </a>
+                                <a href="#screen-g-8" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:heart-angle-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Wishlist</strong></span>
+                                    <span class="settings-value">8 saved · 3 ready to buy</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </a>
+                            </div>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Display &amp; Accessibility</h4>
+                            <div class="settings-group">
+                                <button type="button" onclick="openSettingsChoice('appearance')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:palette-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Appearance</strong></span>
+                                    <span class="settings-value capitalize" data-setting-value="appearance">System</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:pause-circle-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Reduce Motion</strong><small>Reduce decorative transitions and entrance animations.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="reduceMotion" onchange="changeStyleIQSetting(this)" aria-label="Reduce Motion"><span></span></span>
+                                </label>
+                                <label class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:text-bold-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Larger Text</strong><small>Increase supporting text for easier reading.</small></span>
+                                    <span class="settings-switch"><input type="checkbox" data-setting="largerText" onchange="changeStyleIQSetting(this)" aria-label="Larger Text"><span></span></span>
+                                </label>
+                                <button type="button" onclick="openSettingsChoice('measurementUnits')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:ruler-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Measurement Units</strong></span>
+                                    <span class="settings-value capitalize" data-setting-value="measurementUnits">Imperial</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                            </div>
+                            <p id="settings-dark-note" class="hidden text-[8px] leading-relaxed text-[#7F766D] px-1 mt-2">Dark appearance preview will be applied as screens are optimized.</p>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Privacy &amp; Connected Services</h4>
+                            <div class="settings-group">
+                                <button type="button" onclick="openSettingsPanel('services')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:link-circle-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Connected Services</strong></span>
+                                    <span id="settings-services-value" class="settings-value">Instagram · Pinterest</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="openSettingsPanel('receipts')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:shield-keyhole-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Purchase History Permissions</strong><small>Control receipt-import access</small></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="openSettingsPanel('personalization')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:magic-stick-3-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Personalization Data</strong><small>Review what helps Muse learn your style</small></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="requestStyleIQDataExport()" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:export-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Export My Data</strong></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                            </div>
+                        </section>
+
+                        <section class="mb-4">
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Support &amp; About</h4>
+                            <div class="settings-group">
+                                <button type="button" onclick="showPrototypeToast('Help Center will open here.')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:question-circle-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Help Center</strong></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="openSettingsPanel('feedback')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:chat-square-call-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Send Feedback</strong></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="openSettingsPanel('privacy')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:shield-check-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Privacy Policy</strong></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="openSettingsPanel('terms')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:document-text-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Terms of Use</strong></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="openSettingsPanel('about')" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:info-circle-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>About StyleIQ</strong></span>
+                                    <span class="settings-value">Version 1.0.0 Demo</span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                            </div>
+                        </section>
+
+                        <section>
+                            <h4 class="text-[8px] uppercase tracking-widest text-[#9F9387] font-semibold mb-2 px-1">Account Actions</h4>
+                            <div class="settings-group">
+                                <button type="button" onclick="confirmStyleIQLogout()" class="settings-row">
+                                    <span class="settings-icon"><iconify-icon icon="solar:logout-2-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Log Out</strong></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#9F9387]"></iconify-icon>
+                                </button>
+                                <button type="button" onclick="openStyleIQDeleteConfirmation()" class="settings-row text-[#A64B45]">
+                                    <span class="settings-icon bg-[#FFF3F1] text-[#A64B45]"><iconify-icon icon="solar:trash-bin-trash-linear"></iconify-icon></span>
+                                    <span class="settings-copy"><strong>Delete Account</strong></span>
+                                    <iconify-icon icon="solar:alt-arrow-right-linear" class="text-xs text-[#B98681]"></iconify-icon>
+                                </button>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div id="settings-modal" class="settings-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+                        <div id="settings-modal-content" class="settings-modal-sheet"></div>
+                    </div>
+                </div>
+
+                <div class="mt-2 px-4 py-3 bg-white/60 border border-[#ECE7E1] rounded-2xl w-[375px] text-xs flex flex-col gap-2">
+                    <div class="font-medium text-[#1B1716]">Navigation Flows:</div>
+                    <div class="flex flex-col gap-1 text-[#6F675F] font-light">
+                        <div>Back → <a href="#screen-f-1" class="underline text-[#C89B45] font-semibold">My Atelier (F-1)</a></div>
+                        <div>Canonical editors → <a href="#screen-f-2" class="underline text-[#C89B45] font-semibold">Style Profile</a> · <a href="#screen-f-3" class="underline text-[#C89B45] font-semibold">Preferences</a> · <a href="#screen-e-3" class="underline text-[#C89B45] font-semibold">Budget</a> · <a href="#screen-g-8" class="underline text-[#C89B45] font-semibold">Wishlist</a></div>
                     </div>
                 </div>
             </div>
@@ -5371,7 +5775,9 @@
         }
 
         function styleIQMotionIsAllowed(options = {}) {
-            return !styleIQSystemPrefersReducedMotion() || Boolean(options.preview && options.forceMotion);
+            const reduced = styleIQSystemPrefersReducedMotion() ||
+                (typeof styleIQSettings !== 'undefined' && styleIQSettings.reduceMotion);
+            return !reduced || Boolean(options.preview && options.forceMotion);
         }
 
         function isStyleIQViewportMeaningfullyVisible(viewport) {
@@ -5824,6 +6230,10 @@
 
         // Thumbnail selection for Face Photos
         function selectFaceThumb(btn, imgPath, flip) {
+            if (btn.dataset.uploadUrl) {
+                imgPath = btn.dataset.uploadUrl;
+                flip = false;
+            }
             const thumbs = btn.parentNode.querySelectorAll('.select-face-thumb');
             thumbs.forEach(t => {
                 t.classList.remove('border-2', 'border-[#C89B45]', 'bg-[#FFF9ED]');
@@ -5855,10 +6265,12 @@
                     mainPreview.classList.remove('scale-x-[-1]');
                 }
             }
+            updateStyleIQPhotoAction('face', btn.dataset.photoLabel || 'Photo');
         }
 
         // Thumbnail selection for Body Photos
         function selectBodyThumb(btn, imgPath) {
+            if (btn.dataset.uploadUrl) imgPath = btn.dataset.uploadUrl;
             const thumbs = btn.parentNode.querySelectorAll('.select-body-thumb');
             thumbs.forEach(t => {
                 t.classList.remove('border-2', 'border-[#C89B45]', 'bg-[#FFF9ED]');
@@ -5885,6 +6297,55 @@
             if (mainPreview) {
                 mainPreview.src = imgPath;
             }
+            updateStyleIQPhotoAction('body', btn.dataset.photoLabel || 'Photo');
+        }
+
+        const styleIQPhotoUploads = {
+            face: new Set(['Front']),
+            body: new Set(['Front'])
+        };
+
+        function updateStyleIQPhotoAction(type, label) {
+            const button = document.getElementById(`${type}-camera-button`);
+            if (!button) return;
+            button.querySelector('span').textContent = `${styleIQPhotoUploads[type].has(label) ? 'Retake' : 'Take'} ${label} Photo`;
+        }
+
+        function handleStyleIQPhotoUpload(event, type) {
+            const file = event.target.files && event.target.files[0];
+            const screen = document.getElementById(type === 'face' ? 'screen-y-4' : 'screen-y-5');
+            if (!file || !screen || !file.type.startsWith('image/')) {
+                if (file) showPrototypeToast('Choose an image file to continue.');
+                event.target.value = '';
+                return;
+            }
+
+            const selected = screen.querySelector(type === 'face'
+                ? '.select-face-thumb.border-2'
+                : '.select-body-thumb.border-2');
+            if (!selected) return;
+
+            if (selected.dataset.uploadUrl) URL.revokeObjectURL(selected.dataset.uploadUrl);
+            const url = URL.createObjectURL(file);
+            selected.dataset.uploadUrl = url;
+            const thumbnail = selected.querySelector('img');
+            const preview = document.getElementById(type === 'face' ? 'main-face-preview' : 'main-body-preview');
+            if (thumbnail) {
+                thumbnail.src = url;
+                thumbnail.classList.remove('scale-x-[-1]');
+            }
+            if (preview) {
+                preview.src = url;
+                preview.classList.remove('scale-x-[-1]');
+            }
+
+            const label = selected.dataset.photoLabel || 'Photo';
+            styleIQPhotoUploads[type].add(label);
+            document.getElementById(`${type}-photo-count`).textContent =
+                `${styleIQPhotoUploads[type].size} of ${type === 'face' ? 3 : 4} photos added`;
+            updateStyleIQPhotoAction(type, label);
+            showPrototypeToast(`${label} photo added from your device.`);
+            event.target.value = '';
         }
 
         // Footwear single-option selection
@@ -5993,7 +6454,10 @@
 
             let visibleCount = 0;
             document.querySelectorAll(`.preowned-card[data-group="${group}"]`).forEach((card) => {
-                const sourceMatches = state.filter === 'all' || card.dataset.source === state.filter;
+                const preownedAllowed = typeof styleIQSettings === 'undefined' ||
+                    styleIQSettings.showPreOwnedFinds ||
+                    card.dataset.source !== 'preowned';
+                const sourceMatches = preownedAllowed && (state.filter === 'all' || card.dataset.source === state.filter);
                 const communityMatches = !state.communityOnly || (card.dataset.source === 'preowned' && card.dataset.community === 'true');
                 const shouldShow = sourceMatches && communityMatches;
                 card.classList.toggle('hidden', !shouldShow);
@@ -6060,6 +6524,202 @@
                 creators: ['Sofia Richie Grainge', 'David Beckham', 'Matilda Djerf']
             }
         };
+
+        const styleIQSettingsDefaults = {
+            dailyOutfitReminder: true,
+            dailyOutfitReminderTime: '8:00 AM',
+            weatherAwareStyling: true,
+            calendarAwareSuggestions: true,
+            museLearningEnabled: true,
+            plannerReminders: true,
+            wishlistUpdates: true,
+            closetCareReminders: true,
+            communityActivityNotifications: false,
+            showPreOwnedFinds: true,
+            prioritizeCommunityListings: false,
+            preferredCurrency: 'USD',
+            appearance: 'system',
+            reduceMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+            largerText: false,
+            measurementUnits: 'imperial',
+            receiptImportSuggestions: false
+        };
+        const styleIQSettings = (() => {
+            try {
+                const stored = JSON.parse(localStorage.getItem('styleiq-settings') || '{}');
+                return { ...styleIQSettingsDefaults, ...stored };
+            } catch (_) {
+                return { ...styleIQSettingsDefaults };
+            }
+        })();
+        const styleIQConnections = (() => {
+            try {
+                return {
+                    instagram: true,
+                    pinterest: true,
+                    gmail: false,
+                    ...JSON.parse(localStorage.getItem('styleiq-connections') || '{}')
+                };
+            } catch (_) {
+                return { instagram: true, pinterest: true, gmail: false };
+            }
+        })();
+
+        function persistStyleIQSettings() {
+            localStorage.setItem('styleiq-settings', JSON.stringify(styleIQSettings));
+        }
+
+        function renderStyleIQSettings() {
+            document.querySelectorAll('#screen-f-14 [data-setting]').forEach(input => {
+                input.checked = Boolean(styleIQSettings[input.dataset.setting]);
+            });
+            document.querySelectorAll('#screen-f-14 [data-setting-value]').forEach(node => {
+                const value = styleIQSettings[node.dataset.settingValue];
+                node.textContent = ['appearance', 'measurementUnits'].includes(node.dataset.settingValue)
+                    ? value.charAt(0).toUpperCase() + value.slice(1)
+                    : value;
+            });
+
+            const reminderRow = document.getElementById('settings-reminder-time-row');
+            reminderRow?.setAttribute('aria-disabled', String(!styleIQSettings.dailyOutfitReminder));
+            const priorityRow = document.getElementById('settings-community-priority-row');
+            priorityRow?.setAttribute('aria-disabled', String(!styleIQSettings.showPreOwnedFinds));
+            const priorityInput = priorityRow?.querySelector('input');
+            if (priorityInput) priorityInput.disabled = !styleIQSettings.showPreOwnedFinds;
+            document.getElementById('settings-scroll')?.classList.toggle('settings-larger-text', styleIQSettings.largerText);
+            document.getElementById('settings-dark-note')?.classList.toggle('hidden', styleIQSettings.appearance !== 'dark');
+
+            const connected = [];
+            if (styleIQConnections.instagram) connected.push('Instagram');
+            if (styleIQConnections.pinterest) connected.push('Pinterest');
+            if (styleIQConnections.gmail) connected.push('Gmail');
+            const servicesValue = document.getElementById('settings-services-value');
+            if (servicesValue) servicesValue.textContent = connected.length ? connected.join(' · ') : 'None connected';
+        }
+
+        function changeStyleIQSetting(input) {
+            const key = input.dataset.setting;
+            styleIQSettings[key] = input.checked;
+            if (key === 'showPreOwnedFinds' && !input.checked) {
+                styleIQSettings.prioritizeCommunityListings = false;
+            }
+            persistStyleIQSettings();
+            renderStyleIQSettings();
+            document.querySelectorAll('[data-preowned-group]').forEach(surface => updatePreownedResults(surface.dataset.preownedGroup));
+            const messages = {
+                dailyOutfitReminder: input.checked ? 'Daily outfit reminders are on.' : 'Daily outfit reminders are off.',
+                showPreOwnedFinds: input.checked ? 'Pre-owned finds are included.' : 'Pre-owned finds are hidden.',
+                reduceMotion: input.checked ? 'Reduced motion is on.' : 'Reduced motion is off.',
+                largerText: input.checked ? 'Supporting text is larger.' : 'Supporting text returned to standard size.'
+            };
+            showPrototypeToast(messages[key] || 'Preference saved locally.');
+        }
+
+        const styleIQSettingChoices = {
+            dailyOutfitReminderTime: ['7:00 AM', '8:00 AM', '9:00 AM', '6:00 PM'],
+            preferredCurrency: ['USD', 'GBP', 'EUR'],
+            appearance: ['system', 'light', 'dark'],
+            measurementUnits: ['imperial', 'metric']
+        };
+
+        function openSettingsChoice(key) {
+            const titles = {
+                dailyOutfitReminderTime: 'Reminder Time',
+                preferredCurrency: 'Preferred Currency',
+                appearance: 'Appearance',
+                measurementUnits: 'Measurement Units'
+            };
+            const options = styleIQSettingChoices[key].map(option => {
+                const label = ['appearance', 'measurementUnits'].includes(key)
+                    ? option.charAt(0).toUpperCase() + option.slice(1)
+                    : option;
+                const selected = styleIQSettings[key] === option;
+                return `<button type="button" onclick="selectStyleIQSettingChoice('${key}', '${option}')" class="w-full min-h-12 rounded-xl border ${selected ? 'border-[#C89B45] bg-[#FFF9ED]' : 'border-[#ECE7E1] bg-white'} px-4 py-3 flex items-center justify-between text-xs font-semibold"><span>${label}</span>${selected ? '<iconify-icon icon="solar:check-circle-bold" class="text-[#C89B45] text-base"></iconify-icon>' : ''}</button>`;
+            }).join('');
+            openStyleIQSettingsModal(`<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Choose preference</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">${titles[key]}</h3><div class="grid gap-2 mt-4">${options}</div><button type="button" onclick="closeStyleIQSettingsModal()" class="ghost-btn h-11 mt-4">Cancel</button>`);
+        }
+
+        function selectStyleIQSettingChoice(key, value) {
+            styleIQSettings[key] = value;
+            persistStyleIQSettings();
+            renderStyleIQSettings();
+            closeStyleIQSettingsModal();
+            showPrototypeToast(`${key === 'dailyOutfitReminderTime' ? 'Reminder time' : 'Preference'} saved locally.`);
+        }
+
+        function openStyleIQSettingsModal(content) {
+            const modal = document.getElementById('settings-modal');
+            const panel = document.getElementById('settings-modal-content');
+            if (!modal || !panel) return;
+            panel.innerHTML = content;
+            modal.classList.remove('hidden');
+            panel.querySelector('button, input, select, textarea, a')?.focus();
+        }
+
+        function closeStyleIQSettingsModal() {
+            document.getElementById('settings-modal')?.classList.add('hidden');
+        }
+
+        function openSettingsPanel(panel) {
+            const panels = {
+                account: `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Account</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Account Details</h3><div class="bg-white border border-[#ECE7E1] rounded-2xl p-4 mt-4 text-xs"><strong>Amelia Clark</strong><p class="text-[#6F675F] mt-1">amelia@example.com</p><p class="text-[#9F9387] mt-3 text-[10px]">Account management is simulated in this prototype.</p></div><button type="button" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-4">Done</button>`,
+                services: renderStyleIQServicesPanel(),
+                receipts: `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Privacy</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Purchase History Permissions</h3><div class="bg-white border border-[#ECE7E1] rounded-2xl p-4 mt-4 text-[11px] leading-relaxed text-[#6F675F] space-y-2"><p>StyleIQ should only request receipt-related access.</p><p>Email content is not accessed by the current prototype.</p><p>Purchase history can also be uploaded manually.</p></div><label class="settings-row bg-white border border-[#ECE7E1] rounded-2xl mt-3"><span class="settings-copy"><strong>Allow receipt-import suggestions</strong></span><span class="settings-switch"><input type="checkbox" data-setting="receiptImportSuggestions" onchange="changeStyleIQSetting(this)" aria-label="Allow receipt-import suggestions" ${styleIQSettings.receiptImportSuggestions ? 'checked' : ''}><span></span></span></label><button type="button" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-4">Done</button>`,
+                personalization: `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Muse Personalization</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">What helps Muse learn</h3><ul class="bg-white border border-[#ECE7E1] rounded-2xl p-4 mt-4 grid grid-cols-2 gap-2 text-[10px] text-[#6F675F]"><li>Style profile</li><li>Style Twin details</li><li>Closet items</li><li>Outfit feedback</li><li>Wear history</li><li>Wishlist activity</li><li>Style inspiration</li></ul><a href="#screen-f-2" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-4">Review My Style Profile</a><button type="button" onclick="closeStyleIQSettingsModal()" class="ghost-btn h-11 mt-2">Close</button>`,
+                feedback: `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Support</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Send Feedback</h3><form onsubmit="submitStyleIQFeedback(event)" class="mt-4 grid gap-3"><label class="text-[10px] font-semibold">Feedback category<select id="settings-feedback-category" class="field-input h-11 mt-1"><option>Product feedback</option><option>Something is not working</option><option>Accessibility</option><option>Other</option></select></label><label class="text-[10px] font-semibold">Your feedback<textarea id="settings-feedback-text" class="field-input h-24 py-3 mt-1 resize-none" placeholder="Tell us what would improve your experience." aria-describedby="settings-feedback-error"></textarea></label><p id="settings-feedback-error" class="hidden text-[10px] text-red-600" role="alert">Please add a short message before submitting.</p><button type="submit" class="primary-btn h-11">Submit Feedback</button><button type="button" onclick="closeStyleIQSettingsModal()" class="ghost-btn h-11">Cancel</button></form>`,
+                privacy: `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Legal</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Privacy Policy</h3><div class="text-[11px] leading-relaxed text-[#6F675F] mt-4 space-y-3"><p>StyleIQ uses the profile, closet and preference information you choose to provide to personalize your experience.</p><p>This prototype stores demo preferences only on this device and does not send them to a production service.</p><p>You stay in control of connected services, personalization data and export requests.</p></div><button type="button" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-5">Done</button>`,
+                terms: `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Legal</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Terms of Use</h3><div class="text-[11px] leading-relaxed text-[#6F675F] mt-4 space-y-3"><p>StyleIQ is presented here as an interactive demonstration.</p><p>Recommendations, pricing, marketplace information and Style Budget values are illustrative and should be reviewed before acting on them.</p><p>External marketplace transactions remain subject to the marketplace’s own terms.</p></div><button type="button" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-5">Done</button>`,
+                about: `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">About</span><h3 id="settings-modal-title" class="font-serif text-3xl mt-1">StyleIQ</h3><p class="text-xs text-[#6F675F] mt-2">Your personal stylist and wardrobe companion.</p><div class="bg-white border border-[#ECE7E1] rounded-2xl p-4 mt-4 text-[10px] flex justify-between"><span>Version 1.0.0</span><strong class="text-[#C89B45]">Demo / Prototype</strong></div><button type="button" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-4">Done</button>`
+            };
+            openStyleIQSettingsModal(panels[panel]);
+        }
+
+        function renderStyleIQServicesPanel() {
+            const serviceRow = (key, title, note) => `<div class="bg-white border border-[#ECE7E1] rounded-xl p-3 flex items-center justify-between gap-3"><span class="text-[10px]"><strong class="block">${title}</strong><small class="text-[#7F766D]">${styleIQConnections[key] ? 'Connected' : note}</small></span><button type="button" onclick="toggleStyleIQConnection('${key}')" class="px-3 py-2 rounded-lg border border-[#ECE7E1] text-[9px] font-semibold">${styleIQConnections[key] ? 'Disconnect' : 'Connect'}</button></div>`;
+            return `<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Prototype connections</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Connected Services</h3><div class="grid gap-2 mt-4">${serviceRow('instagram', 'Instagram', 'Not connected')}${serviceRow('pinterest', 'Pinterest', 'Not connected')}${serviceRow('gmail', 'Gmail receipts', 'Not connected')}<div class="bg-white border border-[#ECE7E1] rounded-xl p-3 flex justify-between text-[10px]"><span><strong class="block">Calendar</strong><small class="text-[#7F766D]">Demo access only</small></span><button type="button" onclick="closeStyleIQSettingsModal(); document.getElementById('settings-scroll').scrollTo({top: 0, behavior: 'smooth'}); showPrototypeToast('Manage Calendar-Aware Suggestions in Muse settings.')" class="px-3 py-2 rounded-lg border border-[#ECE7E1] text-[9px] font-semibold">Manage</button></div></div><p class="text-[9px] text-[#9F9387] mt-3">All connection states on this screen are simulated.</p><button type="button" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-4">Done</button>`;
+        }
+
+        function toggleStyleIQConnection(key) {
+            styleIQConnections[key] = !styleIQConnections[key];
+            localStorage.setItem('styleiq-connections', JSON.stringify(styleIQConnections));
+            renderStyleIQSettings();
+            openStyleIQSettingsModal(renderStyleIQServicesPanel());
+            showPrototypeToast(`${key === 'gmail' ? 'Gmail receipts' : key.charAt(0).toUpperCase() + key.slice(1)} ${styleIQConnections[key] ? 'connected' : 'disconnected'} in this prototype.`);
+        }
+
+        function submitStyleIQFeedback(event) {
+            event.preventDefault();
+            const text = document.getElementById('settings-feedback-text');
+            const error = document.getElementById('settings-feedback-error');
+            const valid = Boolean(text?.value.trim());
+            error?.classList.toggle('hidden', valid);
+            text?.setAttribute('aria-invalid', String(!valid));
+            if (!valid) return;
+            closeStyleIQSettingsModal();
+            showPrototypeToast('Thank you for helping improve StyleIQ.');
+        }
+
+        function requestStyleIQDataExport() {
+            openStyleIQSettingsModal(`<span class="text-[8px] uppercase tracking-widest text-[#C89B45] font-semibold">Data export</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Your export is being prepared.</h3><p class="text-xs text-[#6F675F] mt-2">This prototype does not create or download a real file.</p><button type="button" onclick="closeStyleIQSettingsModal()" class="primary-btn h-11 mt-5">Done</button>`);
+            showPrototypeToast('Data export requested.');
+        }
+
+        function confirmStyleIQLogout() {
+            openPrototypeConfirmation('Log out of StyleIQ?', 'You can sign in again using your existing account.', 'Log Out', () => {
+                window.location.hash = 'screen-x-1';
+                showPrototypeToast('You have been logged out of the prototype.');
+            });
+        }
+
+        function openStyleIQDeleteConfirmation() {
+            openStyleIQSettingsModal(`<span class="text-[8px] uppercase tracking-widest text-[#A64B45] font-semibold">Prototype account action</span><h3 id="settings-modal-title" class="font-serif text-2xl mt-1">Delete your account?</h3><p class="text-xs text-[#6F675F] leading-relaxed mt-2">This would permanently remove your Style Twin, closet, saved looks, planner, Wishlist and wardrobe history.</p><label class="bg-white border border-[#ECE7E1] rounded-2xl p-3 mt-4 flex gap-3 text-[10px] leading-relaxed"><input id="settings-delete-check" type="checkbox" onchange="document.getElementById('settings-delete-button').disabled = !this.checked" class="accent-[#A64B45]"><span>I understand this cannot be undone</span></label><button id="settings-delete-button" type="button" onclick="submitStyleIQDeleteRequest()" disabled class="w-full h-11 mt-4 rounded-xl bg-[#A64B45] text-white text-xs font-semibold disabled:opacity-40">Submit Deletion Request</button><button type="button" onclick="closeStyleIQSettingsModal()" class="ghost-btn h-11 mt-2">Cancel</button>`);
+        }
+
+        function submitStyleIQDeleteRequest() {
+            closeStyleIQSettingsModal();
+            window.location.hash = 'screen-x-1';
+            showPrototypeToast('Account deletion request submitted.');
+        }
         let resendInterval;
         let genericConfirmAction = null;
 
@@ -6830,6 +7490,7 @@
         renderBrandFitList();
         renderStyleInspirationState();
         updateProfileLearningSummaries();
+        renderStyleIQSettings();
         initializeStyleIQMotion();
         initializeStaticActions();
 </script>
