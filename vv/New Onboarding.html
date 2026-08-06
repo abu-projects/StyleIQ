@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StyleIQ — New Onboarding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#1B1716; --muted:#6F675F; --line:#ECE7E1; --paper:#F8F6F3; --gold:#C89B45; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; font-family:Inter,sans-serif; background:#EFECE7; color:var(--ink); -webkit-font-smoothing:antialiased; }
+    .font-serif { font-family:"Playfair Display",serif; }
+    .no-scrollbar { scrollbar-width:none; }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .phone { width:375px; height:812px; border-radius:48px; border:12px solid var(--line); background:var(--paper); overflow:hidden; position:relative; display:flex; flex-direction:column; box-shadow:0 24px 48px -12px rgba(0,0,0,.12); }
+    .status { height:42px; padding:13px 22px 0; display:flex; justify-content:space-between; align-items:center; flex:none; font-size:12px; font-weight:500; }
+    .scroll { flex:1; overflow-y:auto; padding:12px 24px 112px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+    .icon-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:999px; border:1px solid var(--line); background:white; }
+    .card { background:white; border:1px solid var(--line); border-radius:20px; padding:16px; }
+    .primary, .secondary { min-height:48px; border-radius:16px; display:flex; align-items:center; justify-content:center; text-align:center; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; }
+    .primary { background:var(--ink); color:white; }
+    .secondary { background:white; color:var(--ink); border:1px solid var(--line); }
+    .footer { position:absolute; left:0; right:0; bottom:0; padding:14px 24px 20px; background:rgba(248,246,243,.97); display:flex; flex-direction:column; gap:8px; border-top:1px solid rgba(236,231,225,.7); z-index:10; }
+    .nav-note { width:375px; margin-top:8px; padding:12px 14px; border:1px solid var(--line); background:rgba(255,255,255,.62); border-radius:16px; color:var(--muted); font-size:11px; line-height:1.55; }
+    .nav-note a { color:var(--gold); font-weight:600; text-decoration:underline; }
+    .eyebrow { font-size:9px; text-transform:uppercase; color:var(--gold); font-weight:700; tracking:wider; }
+    .screen-title { margin-left:16px; font-size:12px; text-transform:uppercase; color:var(--muted); font-weight:600; }
+    .choice[aria-pressed="true"] { border-color:var(--gold); background:#FFFDF9; box-shadow:inset 0 0 0 1px var(--gold); }
+    .choice[aria-pressed="true"] .check { display:flex; }
+    .check { display:none; }
+    .select-card[aria-pressed="true"] { border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+    .select-card[aria-pressed="true"] .check { display:flex; }
+    .progress-track { height:5px; background:var(--line); border-radius:99px; overflow:hidden; }
+    .progress-fill { height:100%; background:var(--gold); border-radius:99px; }
+    .bottom-nav { height:72px; position:absolute; left:0; right:0; bottom:0; border-top:1px solid var(--line); background:white; display:grid; grid-template-columns:repeat(5,1fr); padding:10px 12px 8px; z-index:10; }
+    .bottom-nav a { display:flex; flex-direction:column; align-items:center; gap:3px; color:#9F9387; font-size:9px; }
+    .bottom-nav a.active { color:var(--ink); font-weight:600; }
+    button, a { -webkit-tap-highlight-color:transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+    @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  </style>
+</head>
+<body>
+  <header class="max-w-[1600px] mx-auto px-6 pt-16 pb-10">
+    <p class="text-xs uppercase text-[#C89B45] font-semibold">Phase 1 · Focused reference</p>
+    <h1 class="font-serif text-5xl mt-2 text-balance">StyleIQ — New Onboarding</h1>
+    <p class="max-w-3xl mt-4 text-sm leading-6 text-[#6F675F] text-pretty">Focused reference for the shortened onboarding and the existing application screens where optional setup continues later.</p>
+    <div class="mt-5 max-w-5xl text-xs leading-6 text-[#6F675F]">
+      Initial onboarding: <b>Y-1 → Y-2 → A-1</b> · Style Preferences: <b>F-2 → Y-11 → F-2</b> · Style Inspiration: <b>F-2 → Y-12 → F-2</b> · Optional Style Twin: <b>F-1 → Y-3 → existing Y-4/Y-5 → Y-6 → existing Y-8/Y-9 → Y-13 → Y-14 → F-1</b> · Sizes and fit: <b>F-1 → F-3</b> · Closet setup: <b>C-1 → C-2 → existing C-3/C-4/C-5</b> · Purchase history: <b>C-1/C-2/F-2 → E-4 → existing E-5 → existing C-4</b>.
+    </div>
+  </header>
+
+  <main class="max-w-[1600px] mx-auto px-6 pb-24 flex flex-col gap-20">
+    <!-- SECTION Y -->
+    <section id="section-y">
+      <div class="border-b-2 border-[#1B1716]/10 pb-4 mb-8">
+        <span class="text-xs uppercase text-[#C89B45] font-semibold">Section Y</span>
+        <h2 class="font-serif text-3xl mt-1">SECTION Y — ONBOARDING AND STYLE TWIN</h2>
+        <p class="text-sm text-[#6F675F] mt-2">Two-step entry, independent Style Intelligence tasks, and the optional Style Twin flow.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-16">
+
+        <!-- Y-1 — Meet Muse -->
+        <article id="screen-y-1" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-1 — MEET MUSE</div>
+          <div class="phone bg-[#1B1716] text-white">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="px-6 pt-3 pb-28 flex-1 overflow-y-auto no-scrollbar">
+              <div class="flex justify-between items-center"><span class="font-serif text-lg">StyleIQ</span><span class="text-[10px] uppercase text-white/55">1 of 2</span></div>
+              <div class="mt-10 rounded-[28px] overflow-hidden h-52 relative border border-white/10">
+                <img src="images/muse_portrait.png" class="w-full h-full object-cover object-[center_30%]" alt="Muse, StyleIQ's personal stylist">
+                <div class="absolute bottom-3 left-3 bg-white text-[#1B1716] rounded-full px-3 py-1.5 text-[10px] font-semibold">Meet Muse</div>
+              </div>
+              <div class="mt-8">
+                <p class="eyebrow text-[#C89B45]">Meet Muse</p>
+                <h3 class="font-serif text-[38px] leading-[1.05] mt-2 text-balance">Hi, I’m Muse.</h3>
+                <p class="text-sm text-white/90 font-medium leading-6 mt-4 text-pretty">Your personal stylist, starting with what you already own.</p>
+                <p class="text-xs text-white/65 leading-5 mt-2 text-pretty">I’ll help you understand your wardrobe, create outfits, and make more intentional style decisions.</p>
+              </div>
+            </div>
+            <div class="footer bg-[#1B1716] border-white/10"><a href="#screen-y-2" class="primary bg-white text-[#1B1716]">Meet Muse</a></div>
+          </div>
+          <div class="nav-note"><b>Navigation:</b> Continue → <a href="#screen-y-2">Who Are We Styling? (Y-2)</a></div>
+        </article>
+
+        <!-- Y-2 — Who Are We Styling? -->
+        <article id="screen-y-2" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-2 — WHO ARE WE STYLING?</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-y-1" class="icon-btn" aria-label="Back to Meet Muse"><i data-lucide="arrow-left" class="size-4"></i></a><span class="text-[10px] uppercase text-[#9F9387]">2 of 2</span></div>
+              <h3 class="font-serif text-[31px] leading-tight text-balance">Who are we styling?</h3>
+              <p class="text-xs text-[#6F675F] leading-5 mt-2 text-pretty">Choose the wardrobe Muse should personalize. You can change this later.</p>
+              <div class="grid grid-cols-2 gap-3 mt-5" role="group" aria-label="Styling profile">
+                <button type="button" class="choice card p-2 text-left relative transition-all border-2" aria-pressed="true" data-profile="Women’s">
+                  <img src="images/profile_woman.png" class="h-24 w-full object-cover rounded-xl object-top" alt="Women's wardrobe">
+                  <span class="block text-xs font-semibold mt-2">Women’s</span>
+                  <span class="check absolute top-4 right-4 size-6 rounded-full bg-[#1B1716] text-white items-center justify-center"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="choice card p-2 text-left relative transition-all border-2" aria-pressed="false" data-profile="Men’s">
+                  <img src="images/profile_man.png" class="h-24 w-full object-cover rounded-xl object-top" alt="Men's wardrobe">
+                  <span class="block text-xs font-semibold mt-2">Men’s</span>
+                  <span class="check absolute top-4 right-4 size-6 rounded-full bg-[#1B1716] text-white items-center justify-center"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="choice card p-2 text-left relative transition-all border-2" aria-pressed="false" data-profile="Both / Shared Wardrobe">
+                  <img src="images/cel_styles.png" class="h-20 w-full object-cover rounded-xl" alt="Shared wardrobe">
+                  <span class="block text-[11px] font-semibold mt-2">Both / Shared Wardrobe</span>
+                  <span class="check absolute top-4 right-4 size-6 rounded-full bg-[#1B1716] text-white items-center justify-center"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="choice card p-2 text-left relative transition-all border-2" aria-pressed="false" data-profile="Styling for someone else">
+                  <img src="images/outfit_soft_tailoring.png" class="h-20 w-full object-cover rounded-xl" alt="Styling for someone else">
+                  <span class="block text-[11px] font-semibold mt-2">Styling for someone else</span>
+                  <span class="check absolute top-4 right-4 size-6 rounded-full bg-[#1B1716] text-white items-center justify-center"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+              </div>
+            </div>
+            <div class="footer"><a href="#screen-a-1" id="complete-onboarding" class="primary">Continue to StyleIQ</a></div>
+          </div>
+          <div class="nav-note"><b>Navigation:</b> Select without leaving the screen · Continue completes onboarding → <a href="#screen-a-1">Today (A-1)</a></div>
+        </article>
+
+        <!-- Y-3 — Create Your Style Twin -->
+        <article id="screen-y-3" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-3 — CREATE YOUR STYLE TWIN</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-f-1" class="icon-btn" aria-label="Back to My Atelier"><i data-lucide="arrow-left" class="size-4"></i></a><span class="rounded-full bg-[#FFF9ED] border border-[#E8D7B4] px-3 py-1 text-[9px] uppercase text-[#C89B45] font-bold">Optional</span></div>
+              <p class="eyebrow">Your visual styling companion</p>
+              <h3 class="font-serif text-[31px] leading-tight mt-2 text-balance">Create Your Style Twin</h3>
+              <p class="text-xs text-[#6F675F] leading-5 mt-3 text-pretty">Build a private avatar when you’re ready. It helps you preview proportion, silhouette, and outfit direction—but it never blocks StyleIQ.</p>
+              <div class="card mt-5 p-3 h-72 relative overflow-hidden">
+                <img src="images/avatar_style_twin.png" class="w-full h-full object-cover object-top rounded-2xl" alt="Style Twin preview">
+                <span class="absolute left-6 bottom-6 bg-white/95 rounded-full px-3 py-1.5 text-[10px] font-semibold">Private by default</span>
+              </div>
+              <div class="grid grid-cols-3 gap-2 mt-4 text-center text-[9px]">
+                <div class="card p-2"><i data-lucide="scan-face" class="size-4 mx-auto mb-1 text-[#C89B45]"></i>Personal fit</div>
+                <div class="card p-2"><i data-lucide="shirt" class="size-4 mx-auto mb-1 text-[#C89B45]"></i>Try looks</div>
+                <div class="card p-2"><i data-lucide="lock-keyhole" class="size-4 mx-auto mb-1 text-[#C89B45]"></i>Your control</div>
+              </div>
+            </div>
+            <div class="footer"><a href="#screen-y-4" class="primary">Create My Style Twin</a><a href="#screen-f-1" class="text-center text-xs font-semibold text-[#6F675F] py-1">Maybe Later</a></div>
+          </div>
+          <div class="nav-note"><b>Existing master flow continues through Y-4 and Y-5 before returning to the updated Y-6.</b><br><a href="#screen-y-4">Y-4 — Existing Master Destination</a> · Maybe Later / Back → <a href="#screen-f-1">F-1</a></div>
+        </article>
+
+        <!-- Y-6 — Your Details -->
+        <article id="screen-y-6" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-6 — YOUR DETAILS</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-y-5" class="icon-btn" aria-label="Back to body capture"><i data-lucide="arrow-left" class="size-4"></i></a><span class="text-[10px] uppercase text-[#9F9387]">Twin setup · 3 of 6</span></div>
+              <p class="eyebrow">Style Twin</p><h3 class="font-serif text-[31px] mt-2">Your Details</h3>
+              <p class="text-xs text-[#6F675F] leading-5 mt-2">Only the details needed to render your Twin accurately.</p>
+              <div class="card mt-6 space-y-5">
+                <div><label for="height" class="text-[10px] uppercase text-[#6F675F] font-semibold">Height</label><div class="flex gap-2 mt-2"><input id="height" value="168" inputmode="numeric" class="w-full h-12 rounded-xl border border-[#ECE7E1] px-4 bg-[#F8F6F3] text-sm"><select aria-label="Height unit" class="h-12 rounded-xl border border-[#ECE7E1] px-3 bg-[#F8F6F3] text-xs"><option>cm</option><option>ft/in</option></select></div></div>
+                <fieldset><legend class="text-[10px] uppercase text-[#6F675F] font-semibold">Avatar presentation</legend><div class="grid grid-cols-3 gap-2 mt-2"><button type="button" class="select-card secondary h-11 text-[10px]" aria-pressed="true">Feminine</button><button type="button" class="select-card secondary h-11 text-[10px]" aria-pressed="false">Masculine</button><button type="button" class="select-card secondary h-11 text-[10px]" aria-pressed="false">Neutral</button></div></fieldset>
+                <p class="text-[10px] leading-4 text-[#9F9387]">Sizes, usual fit, date of birth, and shoe preferences are managed later in Preferences &amp; Sizes.</p>
+              </div>
+            </div>
+            <div class="footer"><a href="#screen-y-8" class="primary">Continue Twin Setup</a><a href="#screen-f-1" class="text-center text-xs font-semibold text-[#6F675F] py-1">Save and Finish Later</a></div>
+          </div>
+          <div class="nav-note"><b>Existing master Style Twin flow continues through Y-8 and Y-9 before opening Y-13.</b><br>Back → <a href="#screen-y-5">Y-5 — Existing Master Destination</a> · Continue → <a href="#screen-y-8">Y-8 — Existing Master Destination</a></div>
+        </article>
+
+        <!-- Y-11 — Style Preferences -->
+        <article id="screen-y-11" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-11 — STYLE PREFERENCES</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-f-2" class="icon-btn" aria-label="Back to My Style Profile"><i data-lucide="arrow-left" class="size-4"></i></a><span id="style-count" class="text-[10px] uppercase text-[#9F9387] tabular-nums font-semibold">1 of 3 selected</span></div>
+              <h3 class="font-serif text-[29px] leading-tight">Style Preferences</h3><p class="text-xs text-[#6F675F] mt-2">Choose up to three outfit directions that feel most like you.</p>
+              <div class="grid grid-cols-3 gap-2 mt-5" id="style-grid">
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#C89B45] bg-white transition-all text-left" aria-pressed="true" data-style="Minimal">
+                  <img src="images/style_minimal.png" class="h-24 w-full object-cover" alt="Minimal style">
+                  <span class="block text-[9px] font-medium p-2">Minimal</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Classic">
+                  <img src="images/style_classic.png" class="h-24 w-full object-cover" alt="Classic style">
+                  <span class="block text-[9px] font-medium p-2">Classic</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Modern Pro">
+                  <img src="images/style_modern_prof.png" class="h-24 w-full object-cover" alt="Modern Pro style">
+                  <span class="block text-[9px] font-medium p-2">Modern Pro</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Creative">
+                  <img src="images/style_creative.png" class="h-24 w-full object-cover" alt="Creative style">
+                  <span class="block text-[9px] font-medium p-2">Creative</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Smart Casual">
+                  <img src="images/style_smart_casual.png" class="h-24 w-full object-cover" alt="Smart Casual style">
+                  <span class="block text-[9px] font-medium p-2">Smart Casual</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Elevated">
+                  <img src="images/style_elevated_everyday.png" class="h-24 w-full object-cover" alt="Elevated Everyday style">
+                  <span class="block text-[9px] font-medium p-2">Elevated</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Soft Tailoring">
+                  <img src="images/outfit_soft_tailoring.png" class="h-24 w-full object-cover" alt="Soft Tailoring style">
+                  <span class="block text-[9px] font-medium p-2">Soft Tailoring</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Relaxed">
+                  <img src="images/outfit_relaxed_structure.png" class="h-24 w-full object-cover" alt="Relaxed style">
+                  <span class="block text-[9px] font-medium p-2">Relaxed</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+                <button type="button" class="select-card relative overflow-hidden rounded-xl border border-[#ECE7E1] bg-white transition-all text-left" aria-pressed="false" data-style="Tonal">
+                  <img src="images/outfit_creative_tonal.png" class="h-24 w-full object-cover" alt="Tonal style">
+                  <span class="block text-[9px] font-medium p-2">Tonal</span>
+                  <span class="check absolute top-2 right-2 size-5 rounded-full bg-[#C89B45] text-white items-center justify-center text-[10px]"><i data-lucide="check" class="size-3"></i></span>
+                </button>
+              </div>
+            </div>
+            <div class="footer"><a href="#screen-f-2" id="save-style-preferences" class="primary">Save Style Preferences</a></div>
+          </div>
+          <div class="nav-note"><b>Independent Style Intelligence task:</b> <a href="#screen-f-2">F-2</a> → Y-11 → <a href="#screen-f-2">F-2</a></div>
+        </article>
+
+        <!-- Y-12 — Style Inspiration -->
+        <article id="screen-y-12" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-12 — STYLE INSPIRATION</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll space-y-4">
+              <div class="topbar"><a href="#screen-f-2" class="icon-btn" aria-label="Back to My Style Profile"><i data-lucide="arrow-left" class="size-4"></i></a><span class="text-[10px] uppercase text-[#9F9387]">Style Intelligence</span></div>
+              <div>
+                <h3 class="font-serif text-[29px] leading-tight">Style Inspiration</h3>
+                <p class="text-xs text-[#6F675F] leading-5 mt-2">Bring together the references that teach Muse your long-term taste.</p>
+              </div>
+
+              <div class="space-y-3">
+                <!-- 1. Personal Looks -->
+                <div class="card p-3 space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="eyebrow">Personal Looks</span>
+                    <span id="looks-count-badge" class="text-[10px] text-[#6F675F] font-medium">0 photos</span>
+                  </div>
+                  <p class="text-xs text-[#6F675F]">Outfit photos and favorite past looks.</p>
+                  <input type="file" id="input-looks" accept="image/*" multiple class="hidden">
+                  <button type="button" id="btn-add-looks" class="secondary w-full h-10 text-[10px]"><i data-lucide="plus" class="size-3.5 mr-1.5"></i>Add Outfit Photos</button>
+                  <div id="looks-preview-grid" class="flex flex-wrap gap-2 pt-1 empty:hidden"></div>
+                </div>
+
+                <!-- 2. Screenshots -->
+                <div class="card p-3 space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span class="eyebrow">Screenshots</span>
+                    <span id="screenshots-count-badge" class="text-[10px] text-[#6F675F] font-medium">0 screenshots</span>
+                  </div>
+                  <p class="text-xs text-[#6F675F]">Saved outfits, shopping, and editorial references.</p>
+                  <input type="file" id="input-screenshots" accept="image/*" multiple class="hidden">
+                  <button type="button" id="btn-add-screenshots" class="secondary w-full h-10 text-[10px]"><i data-lucide="plus" class="size-3.5 mr-1.5"></i>Add Screenshots</button>
+                  <div id="screenshots-preview-grid" class="flex flex-wrap gap-2 pt-1 empty:hidden"></div>
+                </div>
+
+                <!-- 3. Instagram -->
+                <div class="card p-3 space-y-2">
+                  <span class="eyebrow">Instagram</span>
+                  <p class="text-xs text-[#6F675F]">Connect your Instagram profile or saved looks.</p>
+                  <input type="text" id="insta-input" class="h-9 w-full rounded-xl border border-[#ECE7E1] px-3 text-xs" placeholder="@username or profile link">
+                  <p id="insta-status" class="source-status text-[10px] text-[#6F675F]">Not connected · simulated prototype connection.</p>
+                  <button type="button" data-connect="Instagram" aria-pressed="false" class="secondary w-full h-9 text-[10px]">Connect Instagram</button>
+                </div>
+
+                <!-- 4. Pinterest -->
+                <div class="card p-3 space-y-2">
+                  <span class="eyebrow">Pinterest</span>
+                  <p class="text-xs text-[#6F675F]">Connect a style board or Pinterest profile.</p>
+                  <input type="text" id="pinterest-input" class="h-9 w-full rounded-xl border border-[#ECE7E1] px-3 text-xs" placeholder="pinterest.com/board or @handle">
+                  <p id="pinterest-status" class="source-status text-[10px] text-[#6F675F]">Not connected · simulated prototype connection.</p>
+                  <button type="button" data-connect="Pinterest" aria-pressed="false" class="secondary w-full h-9 text-[10px]">Connect Pinterest</button>
+                </div>
+
+                <!-- 5. Creators & Celebrities -->
+                <div class="card p-3 space-y-2">
+                  <span class="eyebrow">Creators &amp; Celebrities</span>
+                  <p class="text-xs text-[#6F675F]">Add icons whose style aligns with yours.</p>
+                  <div class="flex gap-2">
+                    <input id="creator-input" class="h-9 min-w-0 flex-1 rounded-xl border border-[#ECE7E1] px-3 text-xs" placeholder="Name or handle (e.g., Zendaya)">
+                    <button id="add-creator" type="button" class="primary h-9 min-h-0 px-3.5 text-[10px]">Add</button>
+                  </div>
+                  <div id="creator-list" class="flex flex-wrap gap-1.5 pt-1 empty:hidden"></div>
+                </div>
+              </div>
+
+              <p class="text-[10px] text-[#9F9387] leading-4 pt-1">Instagram and Pinterest connections are simulated in this HTML prototype.</p>
+            </div>
+            <div class="footer"><a href="#screen-f-2" id="save-style-inspiration" class="primary">Save Style Inspiration</a></div>
+          </div>
+          <div class="nav-note"><b>Independent Style Intelligence task:</b> <a href="#screen-f-2">F-2</a> → Y-12 → <a href="#screen-f-2">F-2</a></div>
+        </article>
+
+        <!-- Y-13 — Creating Your Style Twin -->
+        <article id="screen-y-13" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-13 — CREATING YOUR STYLE TWIN</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="px-6 pt-6 pb-28 flex-1 flex flex-col items-center justify-center text-center">
+              <p class="eyebrow">Style Twin</p>
+              <h3 class="font-serif text-[31px] leading-tight mt-1">Creating Your<br>Style Twin</h3>
+              <p class="text-xs text-[#6F675F] mt-2">This will take about 30 seconds.</p>
+              
+              <div class="relative size-44 rounded-full border-[5px] border-[#C89B45]/30 mt-8 p-3 shadow-inner bg-[#F8F6F3]">
+                <img src="images/profile_woman.png" class="size-full object-cover object-top rounded-full border-2 border-white" alt="Style Twin source portrait">
+                <span id="twin-percent" class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#1B1716] text-white border-2 border-white rounded-full px-3.5 py-1 text-xs font-bold tabular-nums shadow">0%</span>
+              </div>
+
+              <div id="twin-stages" class="w-full mt-8 space-y-2.5 text-left text-xs">
+                <div class="flex gap-3 items-center rounded-xl bg-[#F8F6F3] p-2.5 border border-[#ECE7E1] transition-all" data-stage>
+                  <span class="stage-icon size-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center shrink-0 text-[10px]"><i data-lucide="loader-circle" class="size-3 animate-spin"></i></span>
+                  <span class="font-medium text-[#1B1716]">1. Capturing face details</span>
+                </div>
+                <div class="flex gap-3 items-center rounded-xl bg-[#F8F6F3] p-2.5 border border-[#ECE7E1] opacity-40 transition-all" data-stage>
+                  <span class="stage-icon size-5 rounded-full border border-[#6F675F]/30 flex items-center justify-center shrink-0 text-[10px]"></span>
+                  <span class="font-medium text-[#6F675F]">2. Capturing body details</span>
+                </div>
+                <div class="flex gap-3 items-center rounded-xl bg-[#F8F6F3] p-2.5 border border-[#ECE7E1] opacity-40 transition-all" data-stage>
+                  <span class="stage-icon size-5 rounded-full border border-[#6F675F]/30 flex items-center justify-center shrink-0 text-[10px]"></span>
+                  <span class="font-medium text-[#6F675F]">3. Understanding proportions</span>
+                </div>
+                <div class="flex gap-3 items-center rounded-xl bg-[#F8F6F3] p-2.5 border border-[#ECE7E1] opacity-40 transition-all" data-stage>
+                  <span class="stage-icon size-5 rounded-full border border-[#6F675F]/30 flex items-center justify-center shrink-0 text-[10px]"></span>
+                  <span class="font-medium text-[#6F675F]">4. Creating your Twin appearance</span>
+                </div>
+              </div>
+            </div>
+            <div class="footer"><button type="button" id="start-twin" class="secondary">Preview Style Twin Setup</button><a id="reveal-twin" href="#screen-y-14" class="primary hidden">Reveal My Style Twin</a></div>
+          </div>
+          <div class="nav-note"><b>Completion:</b> Reveal My Style Twin → <a href="#screen-y-14">Y-14</a></div>
+        </article>
+
+        <!-- Y-14 — Meet Your Style Twin -->
+        <article id="screen-y-14" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN Y-14 — MEET YOUR STYLE TWIN</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-y-13" class="icon-btn" aria-label="Back to Style Twin creation"><i data-lucide="arrow-left" class="size-4"></i></a><span class="eyebrow">Your Twin is ready</span></div>
+              <h3 class="font-serif text-[31px] leading-tight">Meet Your<br>Style Twin</h3>
+              <p class="text-xs text-[#6F675F] mt-2">See proportion and outfit direction across the moments in your day.</p>
+              <div class="grid grid-cols-3 gap-1 card p-1 mt-5" id="scene-tabs">
+                <button type="button" class="rounded-xl bg-[#1B1716] text-white py-2 text-[10px] font-semibold" data-scene="Daytime" aria-pressed="true">Daytime</button>
+                <button type="button" class="rounded-xl py-2 text-[10px] font-semibold text-[#6F675F]" data-scene="Relaxing" aria-pressed="false">Relaxing</button>
+                <button type="button" class="rounded-xl py-2 text-[10px] font-semibold text-[#6F675F]" data-scene="Evening" aria-pressed="false">Evening</button>
+              </div>
+              <div class="h-[330px] rounded-[28px] overflow-hidden mt-3 border border-[#ECE7E1] relative bg-white">
+                <img src="images/avatar_style_twin.png" class="w-full h-full object-cover object-top" alt="Completed Style Twin avatar">
+                <span id="scene-label" class="absolute top-4 left-4 bg-white/95 border border-[#ECE7E1] rounded-full px-3 py-1.5 text-[9px] uppercase text-[#C89B45] font-bold">Daytime</span>
+                <div class="absolute bottom-4 left-4 bg-white/95 border border-[#ECE7E1] rounded-xl p-2">
+                  <span class="text-[8px] uppercase text-[#C89B45] font-bold">Fit Profile</span>
+                  <strong class="block text-xs">100% Calibrated</strong>
+                </div>
+              </div>
+              <div class="card mt-3">
+                <span class="eyebrow">Scene direction</span>
+                <h4 id="scene-title" class="font-serif text-xl mt-1">Polished Day</h4>
+                <p id="scene-copy" class="text-xs text-[#6F675F] mt-1">A composed look for work, errands, and daytime plans.</p>
+              </div>
+            </div>
+            <div class="footer">
+              <a href="#screen-f-1" id="finish-twin" class="primary">Done</a>
+              <a href="#screen-y-3" class="text-center text-xs font-semibold text-[#6F675F] py-1">Edit My Twin</a>
+            </div>
+          </div>
+          <div class="nav-note">Back → <a href="#screen-y-13">Y-13</a> · Done → <a href="#screen-f-1">F-1</a> · Edit My Twin → <a href="#screen-y-3">Y-3</a></div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SECTION A -->
+    <section id="section-a">
+      <div class="border-b-2 border-[#1B1716]/10 pb-4 mb-8">
+        <span class="text-xs uppercase text-[#C89B45] font-semibold">Section A</span>
+        <h2 class="font-serif text-3xl mt-1">SECTION A — TODAY AND DAILY OUTFIT LOOP</h2>
+        <p class="text-sm text-[#6F675F] mt-2">The existing Home experience, with compact setup progress and an in-place zero-closet state.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-16">
+
+        <!-- A-1 — Today / Morning Outfit -->
+        <article id="screen-a-1" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN A-1 — TODAY / MORNING OUTFIT</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="flex-1 overflow-y-auto no-scrollbar px-6 pt-2 pb-24 space-y-4">
+              <div>
+                <h3 class="font-serif text-[31px] leading-tight">Good morning,<br>Amelia</h3>
+                <p class="text-xs text-[#6F675F] mt-2 flex gap-2 items-center"><i data-lucide="cloud-sun" class="size-4"></i>18°C · Office day · Light rain later</p>
+              </div>
+
+              <!-- Muse Quick Bar -->
+              <div class="card flex gap-3 items-center p-3">
+                <img src="images/muse_portrait.png" class="size-10 rounded-full object-cover border border-[#ECE7E1]" alt="Muse">
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-semibold">Muse</div>
+                  <p class="text-[10px] text-[#6F675F] truncate">I’ve balanced polish with today’s weather.</p>
+                </div>
+                <a href="#screen-a-5" class="text-[10px] font-semibold text-[#C89B45] whitespace-nowrap">Ask Muse →</a>
+              </div>
+
+              <!-- Main Home Content / Early-Value Starter Card for Zero Closet -->
+              <div id="home-empty" class="card p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="eyebrow">Muse Starter Look</span>
+                  <span class="text-[9px] bg-[#FFF9ED] text-[#C89B45] border border-[#E8D7B4] px-2 py-0.5 rounded-full font-semibold">Profile Inspiration</span>
+                </div>
+                <h4 class="font-serif text-xl">A direction to begin with</h4>
+                <div class="rounded-2xl overflow-hidden h-44 border border-[#ECE7E1] relative">
+                  <img src="images/outfit_soft_tailoring.png" class="w-full h-full object-cover object-top" alt="Muse Starter Look">
+                  <span class="absolute bottom-3 left-3 bg-white/95 rounded-full px-2.5 py-1 text-[9px] font-medium text-[#6F675F]">Inspiration-based</span>
+                </div>
+                <p class="text-xs text-[#6F675F] leading-5 text-pretty">This look is based on your initial profile. Recommendations will become more personal as you add Closet items and style preferences.</p>
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                  <a href="#screen-c-2" class="primary text-[10px]">Add First Item</a>
+                  <a href="#screen-e-4" class="secondary text-[10px]">Import Purchases</a>
+                  <a href="#screen-a-5" class="secondary text-[10px] col-span-2">Ask Muse</a>
+                </div>
+              </div>
+
+              <!-- Populated State -->
+              <div id="home-populated" class="hidden card p-4 space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="eyebrow">Muse’s Pick</span>
+                  <span class="text-[9px] bg-[#F8F6F3] text-[#1B1716] border border-[#ECE7E1] px-2 py-0.5 rounded-full font-semibold">Closet Outfit</span>
+                </div>
+                <div class="rounded-2xl overflow-hidden h-52 border border-[#ECE7E1] relative">
+                  <img src="images/outfit_soft_tailoring.png" class="w-full h-full object-cover" alt="Muse's selected outfit">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <button type="button" class="primary text-[10px]">Wear This</button>
+                  <button type="button" class="secondary text-[10px]">See Another</button>
+                </div>
+              </div>
+
+              <!-- Compact Setup Progress Module Below Main Content -->
+              <div class="card p-3">
+                <div class="flex justify-between items-center border-b border-[#ECE7E1] pb-2 mb-2">
+                  <div>
+                    <h5 class="text-xs font-semibold">Complete Your StyleIQ</h5>
+                    <p class="text-[9px] text-[#6F675F]">Personalize your experience</p>
+                  </div>
+                  <span id="home-total-progress" class="font-serif text-lg font-bold tabular-nums">38%</span>
+                </div>
+                <div class="space-y-1.5 text-[10px]">
+                  <a href="#screen-f-2" class="flex justify-between items-center rounded-xl bg-[#F8F6F3] px-3 py-2 hover:bg-[#F3EFE9] transition-colors">
+                    <span class="font-medium">Style Intelligence</span>
+                    <b id="home-style-progress" class="tabular-nums">50%</b>
+                  </a>
+                  <a href="#screen-c-1" class="flex justify-between items-center rounded-xl bg-[#F8F6F3] px-3 py-2 hover:bg-[#F3EFE9] transition-colors">
+                    <span class="font-medium">Closet Readiness</span>
+                    <span><b data-closet-readiness class="tabular-nums">0%</b> · <span data-closet-count>0</span> items</span>
+                  </a>
+                  <a href="#screen-y-3" class="flex justify-between items-center rounded-xl bg-[#F8F6F3] px-3 py-2 hover:bg-[#F3EFE9] transition-colors">
+                    <span class="font-medium">Style Twin <em class="not-italic text-[#C89B45] ml-1 font-semibold">Optional</em></span>
+                    <b data-twin-status class="capitalize">Not Started</b>
+                  </a>
+                </div>
+              </div>
+            </div>
+            <nav class="bottom-nav" aria-label="Primary"><a class="active" href="#screen-a-1"><i data-lucide="sun" class="size-5"></i>Today</a><a href="#screen-c-1"><i data-lucide="shirt" class="size-5"></i>Closet</a><a href="#screen-d-1"><i data-lucide="calendar" class="size-5"></i>Planner</a><a href="#screen-g-1"><i data-lucide="compass" class="size-5"></i>Discover</a><a href="#screen-f-1"><i data-lucide="user-round" class="size-5"></i>Profile</a></nav>
+          </div>
+          <div class="nav-note">Progress → <a href="#screen-f-2">F-2</a> · <a href="#screen-c-1">C-1</a> · <a href="#screen-y-3">Y-3</a> · Ask Muse → <a href="#screen-a-5">A-5 — Existing Master Destination</a></div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SECTION C -->
+    <section id="section-c">
+      <div class="border-b-2 border-[#1B1716]/10 pb-4 mb-8">
+        <span class="text-xs uppercase text-[#C89B45] font-semibold">Section C</span>
+        <h2 class="font-serif text-3xl mt-1">SECTION C — CLOSET</h2>
+        <p class="text-sm text-[#6F675F] mt-2">Closet readiness and the existing ways to add the first—or next—item.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-16">
+
+        <!-- C-1 — My Closet -->
+        <article id="screen-c-1" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN C-1 — MY CLOSET</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="flex-1 overflow-y-auto no-scrollbar px-6 pt-2 pb-24">
+              <div class="flex justify-between items-end">
+                <div>
+                  <p class="eyebrow">Your wardrobe</p>
+                  <h3 class="font-serif text-[31px] mt-1">My Closet</h3>
+                </div>
+                <a href="#screen-c-2" class="icon-btn" aria-label="Add to My Closet"><i data-lucide="plus" class="size-4"></i></a>
+              </div>
+              <div class="card mt-5">
+                <div class="flex justify-between"><span class="text-xs font-semibold">Closet Readiness</span><b class="text-xs tabular-nums" data-closet-readiness>0%</b></div>
+                <div class="progress-track mt-3"><div class="progress-fill" data-closet-fill style="width:0%"></div></div>
+                <div class="grid grid-cols-3 gap-2 mt-4 text-center text-[9px]">
+                  <div><b class="block text-sm font-bold" data-closet-count>0</b>Items</div>
+                  <div><b class="block text-sm font-bold">0/6</b>Categories</div>
+                  <div><b class="block text-sm font-bold">0</b>Looks</div>
+                </div>
+              </div>
+              
+              <!-- Empty State -->
+              <div id="closet-empty" class="card mt-4 text-center py-8">
+                <i data-lucide="shirt" class="size-7 mx-auto text-[#C89B45]"></i>
+                <h4 class="font-serif text-xl mt-3">Your Closet is ready when you are.</h4>
+                <p class="text-xs text-[#6F675F] leading-5 mt-2">Start with one item or import purchases you already made.</p>
+                <div class="flex flex-col gap-2 mt-5">
+                  <a href="#screen-c-2" class="primary">Add First Item</a>
+                  <a href="#screen-e-4" class="secondary">Import Purchases</a>
+                </div>
+              </div>
+
+              <!-- Populated State -->
+              <div id="closet-populated" class="hidden">
+                <div class="mt-5">
+                  <div class="flex justify-between"><h4 class="text-[10px] uppercase font-semibold">Category progress</h4><span class="text-[10px] text-[#6F675F]">4 of 6 ready</span></div>
+                  <div class="grid grid-cols-3 gap-2 mt-3">
+                    <div class="card p-2 text-center text-[9px]">Clothing<br><b>18</b></div>
+                    <div class="card p-2 text-center text-[9px]">Shoes<br><b>6</b></div>
+                    <div class="card p-2 text-center text-[9px]">Bags<br><b>3</b></div>
+                  </div>
+                </div>
+                <div class="card mt-4"><span class="eyebrow">Closet Notes</span><p class="text-xs mt-2">A neutral knit would unlock 8 more combinations.</p></div>
+                <div class="mt-4">
+                  <h4 class="text-[10px] uppercase font-semibold">Recently Added</h4>
+                  <div class="grid grid-cols-2 gap-3 mt-3">
+                    <img src="images/item_blazer.png" class="h-36 w-full object-contain bg-white border rounded-2xl" alt="Camel blazer">
+                    <img src="images/item_silk_shell.png" class="h-36 w-full object-contain bg-white border rounded-2xl" alt="Silk shell">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <nav class="bottom-nav" aria-label="Primary"><a href="#screen-a-1"><i data-lucide="sun" class="size-5"></i>Today</a><a class="active" href="#screen-c-1"><i data-lucide="shirt" class="size-5"></i>Closet</a><a href="#screen-d-1"><i data-lucide="calendar" class="size-5"></i>Planner</a><a href="#screen-g-1"><i data-lucide="compass" class="size-5"></i>Discover</a><a href="#screen-f-1"><i data-lucide="user-round" class="size-5"></i>Profile</a></nav>
+          </div>
+          <div class="nav-note">Add → <a href="#screen-c-2">C-2</a> · Import → <a href="#screen-e-4">E-4</a> · Planner / Discover remain existing master destinations.</div>
+        </article>
+
+        <!-- C-2 — Add to My Closet -->
+        <article id="screen-c-2" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN C-2 — ADD TO MY CLOSET</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-c-1" class="icon-btn" aria-label="Back to My Closet"><i data-lucide="arrow-left" class="size-4"></i></a><span class="text-[10px] uppercase text-[#9F9387]">Add an item</span></div>
+              <h3 class="font-serif text-[31px]">Add to My Closet</h3>
+              <p class="text-xs text-[#6F675F] leading-5 mt-2">Share one clear view. StyleIQ will identify the category, color, material, and details for you.</p>
+              <div class="rounded-[28px] overflow-hidden h-60 mt-6 border border-[#ECE7E1] relative">
+                <img src="images/closet.jpeg" class="w-full h-full object-cover" alt="Clothing in a closet">
+                <span class="absolute bottom-4 left-4 bg-white/95 rounded-xl px-3 py-2 text-[10px] font-medium">Natural light · One item at a time · Full silhouette</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3 mt-5">
+                <a href="#screen-c-3" class="primary"><i data-lucide="camera" class="size-4 mr-2"></i>Take Photo</a>
+                <a href="#screen-c-3" class="secondary"><i data-lucide="image" class="size-4 mr-2"></i>Upload Gallery</a>
+                <a href="#screen-c-4" class="secondary">Add Manually</a>
+                <a href="#screen-e-4" class="secondary">Import Purchases</a>
+              </div>
+            </div>
+          </div>
+          <div class="nav-note">Photo → <a href="#screen-c-3">C-3 — Existing Master Destination</a> · Manual → <a href="#screen-c-4">C-4 — Existing Master Destination</a> · Import → <a href="#screen-e-4">E-4</a></div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SECTION E -->
+    <section id="section-e">
+      <div class="border-b-2 border-[#1B1716]/10 pb-4 mb-8">
+        <span class="text-xs uppercase text-[#C89B45] font-semibold">Section E</span>
+        <h2 class="font-serif text-3xl mt-1">SECTION E — WARDROBE VALUE AND ACTIVITY</h2>
+        <p class="text-sm text-[#6F675F] mt-2">A discoverable route from receipts and historical purchases into the Closet.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-16">
+
+        <!-- E-4 — Import Purchase History -->
+        <article id="screen-e-4" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN E-4 — IMPORT PURCHASE HISTORY</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll space-y-4">
+              <div class="topbar"><a href="#screen-c-1" class="icon-btn" aria-label="Back to My Closet"><i data-lucide="arrow-left" class="size-4"></i></a><span class="text-[10px] uppercase text-[#9F9387]">Import History</span></div>
+              
+              <div>
+                <p class="eyebrow">Build your Closet faster</p>
+                <h3 class="font-serif text-[29px] leading-tight mt-1">Import Purchase History</h3>
+                <p class="text-xs text-[#6F675F] leading-5 mt-2">Build your Closet from purchases you already made.</p>
+              </div>
+
+              <!-- 2. Privacy explanation notice -->
+              <div class="rounded-2xl bg-[#EFECE7] p-3.5 border border-[#ECE7E1]">
+                <div class="flex gap-3 items-start">
+                  <i data-lucide="shield-check" class="size-5 text-[#1B1716] shrink-0 mt-0.5"></i>
+                  <div>
+                    <b class="text-xs block text-[#1B1716]">Permission &amp; Privacy</b>
+                    <p class="text-[10px] text-[#6F675F] mt-1 leading-4">This HTML prototype simulates the connection. No email account is accessed. You choose which detected purchases enter your Closet.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions: 3. Connect Gmail, 4. Upload Receipt, 5. Add Purchase Manually -->
+              <div class="space-y-2.5 pt-1">
+                <div class="space-y-1">
+                  <a href="#screen-e-5" class="primary w-full text-center">Connect Gmail — Prototype</a>
+                  <p class="text-[9px] text-[#9F9387] text-center">This HTML prototype simulates the connection. No email account is accessed.</p>
+                </div>
+                <a href="#screen-e-5" class="secondary w-full text-center">Upload Receipt</a>
+                <a href="#screen-c-4" class="secondary w-full text-center">Add Purchase Manually</a>
+              </div>
+
+              <!-- 6. Supported retailers -->
+              <div class="card p-3">
+                <b class="text-xs block text-[#1B1716]">Supported retailer examples</b>
+                <p class="text-[10px] text-[#6F675F] mt-1.5 leading-4">Nordstrom, COS, Arket, Zara, Net-a-Porter, and marketplace digital receipts.</p>
+              </div>
+            </div>
+          </div>
+          <div class="nav-note"><b>Detected purchases continue to the existing master E-5 screen, then to C-4 for item confirmation.</b><br><a href="#screen-e-5">E-5 — Existing Master Destination</a> · <a href="#screen-c-4">C-4 — Existing Master Destination</a></div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- SECTION F -->
+    <section id="section-f">
+      <div class="border-b-2 border-[#1B1716]/10 pb-4 mb-8">
+        <span class="text-xs uppercase text-[#C89B45] font-semibold">Section F</span>
+        <h2 class="font-serif text-3xl mt-1">SECTION F — PROFILE / MY ATELIER</h2>
+        <p class="text-sm text-[#6F675F] mt-2">The existing profile home, Style Intelligence hub, and editable fit and size details.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-16">
+
+        <!-- F-1 — Profile / My Atelier -->
+        <article id="screen-f-1" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN F-1 — PROFILE / MY ATELIER</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="flex-1 overflow-y-auto no-scrollbar px-6 pt-2 pb-24 space-y-4">
+              <div class="flex items-center gap-4">
+                <a href="#screen-y-3" aria-label="Open Style Twin">
+                  <img src="images/profile_woman.png" class="size-16 rounded-full object-cover object-top border-2 border-white shadow hover:scale-105 transition-transform" alt="Amelia's profile">
+                </a>
+                <div>
+                  <p class="eyebrow">My Atelier</p>
+                  <h3 class="font-serif text-[28px]">Amelia Hart</h3>
+                  <p class="text-[10px] text-[#6F675F]">The Elevated Minimalist</p>
+                </div>
+              </div>
+
+              <!-- Setup Progress Module with Separate Progress Values -->
+              <div class="card p-3">
+                <div class="flex justify-between items-center border-b border-[#ECE7E1] pb-2 mb-2">
+                  <span class="eyebrow">Setup progress</span>
+                  <span id="profile-total-progress" class="text-xs font-bold tabular-nums">38%</span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-[9px]">
+                  <a href="#screen-f-2" class="rounded-xl bg-[#F8F6F3] p-2 hover:bg-[#F3EFE9] transition-colors">
+                    <span class="text-[#6F675F] block">Style Intelligence</span>
+                    <b id="profile-style-progress" class="block mt-1.5 text-xs text-[#1B1716] tabular-nums">50%</b>
+                  </a>
+                  <a href="#screen-c-1" class="rounded-xl bg-[#F8F6F3] p-2 hover:bg-[#F3EFE9] transition-colors">
+                    <span class="text-[#6F675F] block">Closet Readiness</span>
+                    <b class="block mt-1.5 text-xs text-[#1B1716]"><span data-closet-readiness class="tabular-nums">0%</span> · <span data-closet-count>0</span></b>
+                  </a>
+                  <a href="#screen-y-3" class="rounded-xl bg-[#F8F6F3] p-2 hover:bg-[#F3EFE9] transition-colors">
+                    <span class="text-[#6F675F] block">Style Twin <em class="not-italic text-[#C89B45] font-semibold">Optional</em></span>
+                    <b class="block mt-1.5 text-xs text-[#1B1716] capitalize" data-twin-status>Not Started</b>
+                  </a>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <a href="#screen-f-2" class="card p-3"><span class="eyebrow">Style Identity</span><b class="block font-serif text-lg mt-1 text-[#1B1716]">Elevated Minimalist</b></a>
+                <a href="#screen-f-5" class="card p-3"><span class="eyebrow">Style Score</span><b class="block font-serif text-2xl mt-1 text-[#1B1716]">88</b></a>
+                <a href="#screen-g-8" class="card p-3"><i data-lucide="heart" class="size-4 text-[#C89B45]"></i><b class="block text-xs mt-2 text-[#1B1716]">Wishlist</b><span class="text-[9px] text-[#6F675F]">14 saved</span></a>
+                <a href="#screen-a-4" class="card p-3"><i data-lucide="history" class="size-4 text-[#C89B45]"></i><b class="block text-xs mt-2 text-[#1B1716]">Outfit History</b><span class="text-[9px] text-[#6F675F]">26 looks</span></a>
+              </div>
+
+              <div class="space-y-2 text-xs">
+                <a href="#screen-f-7" class="card py-3 px-3 flex justify-between items-center">Style Story <i data-lucide="chevron-right" class="size-4 text-[#9F9387]"></i></a>
+                <a href="#screen-f-9" class="card py-3 px-3 flex justify-between items-center">Style Wrapped <i data-lucide="chevron-right" class="size-4 text-[#9F9387]"></i></a>
+                <a href="#screen-f-10" class="card py-3 px-3 flex justify-between items-center">Style Boards <i data-lucide="chevron-right" class="size-4 text-[#9F9387]"></i></a>
+                <a href="#screen-e-1" class="card py-3 px-3 flex justify-between items-center">Wardrobe Value &amp; Activity <i data-lucide="chevron-right" class="size-4 text-[#9F9387]"></i></a>
+                <a href="#screen-f-3" class="card py-3 px-3 flex justify-between items-center">Preferences &amp; Sizes <i data-lucide="chevron-right" class="size-4 text-[#9F9387]"></i></a>
+              </div>
+            </div>
+            <nav class="bottom-nav" aria-label="Primary"><a href="#screen-a-1"><i data-lucide="sun" class="size-5"></i>Today</a><a href="#screen-c-1"><i data-lucide="shirt" class="size-5"></i>Closet</a><a href="#screen-d-1"><i data-lucide="calendar" class="size-5"></i>Planner</a><a href="#screen-g-1"><i data-lucide="compass" class="size-5"></i>Discover</a><a class="active" href="#screen-f-1"><i data-lucide="user-round" class="size-5"></i>Profile</a></nav>
+          </div>
+          <div class="nav-note">Setup → <a href="#screen-f-2">F-2</a> · <a href="#screen-c-1">C-1</a> · <a href="#screen-y-3">Y-3</a> · Preferences → <a href="#screen-f-3">F-3</a>. Other rich Atelier modules remain existing master destinations.</div>
+        </article>
+
+        <!-- F-2 — My Style Profile -->
+        <article id="screen-f-2" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN F-2 — MY STYLE PROFILE</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-f-1" class="icon-btn" aria-label="Back to My Atelier"><i data-lucide="arrow-left" class="size-4"></i></a><span class="text-[10px] uppercase font-semibold">My Style Profile</span></div>
+              
+              <!-- 4-part Style Intelligence progress area -->
+              <div class="card bg-[#1B1716] text-white">
+                <div class="flex justify-between items-center"><span class="text-[9px] uppercase text-[#C89B45] font-bold tracking-wider">Style Intelligence</span><b id="style-intelligence-percent" class="text-lg tabular-nums">50%</b></div>
+                <div class="h-1.5 bg-white/15 rounded-full mt-3"><div id="style-intelligence-fill" class="h-full bg-[#C89B45] rounded-full transition-all duration-300" style="width:50%"></div></div>
+                <div class="grid grid-cols-2 gap-2 mt-4 text-[9px]">
+                  <a href="#screen-y-11" class="bg-white/10 rounded-xl p-2 hover:bg-white/15 transition-colors"><span data-task-status="preferences" class="text-[#C89B45] font-semibold">Complete</span><b class="block mt-1 font-semibold">Style Preferences</b></a>
+                  <a href="#screen-y-12" class="bg-white/10 rounded-xl p-2 hover:bg-white/15 transition-colors"><span data-task-status="personal" class="text-white/60">Not started</span><b class="block mt-1 font-semibold">Personal Looks &amp; Screenshots</b></a>
+                  <a href="#screen-y-12" class="bg-white/10 rounded-xl p-2 hover:bg-white/15 transition-colors"><span data-task-status="social" class="text-white/60">Not started</span><b class="block mt-1 font-semibold">Instagram &amp; Pinterest</b></a>
+                  <a href="#screen-y-12" class="bg-white/10 rounded-xl p-2 hover:bg-white/15 transition-colors"><span data-task-status="creators" class="text-white/60">Not started</span><b class="block mt-1 font-semibold">Creators &amp; Celebrities</b></a>
+                </div>
+              </div>
+
+              <div class="card mt-4"><span class="eyebrow">Style Identity</span><h3 class="font-serif text-2xl mt-2">The Elevated Minimalist</h3><p class="text-xs text-[#6F675F] leading-5 mt-2">You favor clean lines, neutral colors, and high-quality investment garments. Style confidence <b class="text-[#1B1716]">88/100</b>.</p></div>
+              <div class="mt-4"><h4 class="text-[10px] uppercase font-semibold">Preferred Silhouettes</h4><div class="flex flex-wrap gap-2 mt-2 text-[10px]"><span class="bg-[#1B1716] text-white rounded-full px-3 py-1">Structured Blazers</span><span class="bg-[#1B1716] text-white rounded-full px-3 py-1">Wide-Leg Trousers</span><span class="bg-white border border-[#ECE7E1] rounded-full px-3 py-1">Oversized Knits</span></div></div>
+              <div class="mt-4"><h4 class="text-[10px] uppercase font-semibold">Core Palette</h4><div class="grid grid-cols-4 gap-2 mt-2"><div class="h-9 bg-[#EFECE7] rounded-xl border border-[#ECE7E1]"></div><div class="h-9 bg-[#C89B45] rounded-xl"></div><div class="h-9 bg-[#1B1716] rounded-xl"></div><div class="h-9 bg-[#6F675F] rounded-xl"></div></div></div>
+              <div class="card mt-4"><span class="eyebrow">Styled Occasions</span><p class="text-xs text-[#6F675F] mt-2">Business Meetings · Weekend Casual · Dinners &amp; Galas</p></div>
+              
+              <!-- Actions -->
+              <div class="grid grid-cols-2 gap-2 mt-3">
+                <a href="#screen-y-11" class="secondary text-[10px]">Edit Style Preferences</a>
+                <a href="#screen-y-12" class="secondary text-[10px]">Edit Style Inspiration</a>
+                <a href="#screen-y-7" class="secondary text-[10px]">Edit Brand Fit</a>
+                <a href="#screen-e-4" class="secondary text-[10px]">Import Purchase History</a>
+              </div>
+              
+              <div class="card mt-3"><span class="eyebrow">Brand Fit summary</span><p class="text-[10px] text-[#6F675F] mt-2">Zara: Tops M, Bottoms 40 · COS: Tops S</p></div>
+              <div class="card mt-3"><span class="eyebrow">Style Inspiration summary</span><p id="inspiration-summary" class="text-[10px] text-[#6F675F] mt-2">No personal looks or connected sources yet.</p></div>
+            </div>
+          </div>
+          <div class="nav-note">Style tasks → <a href="#screen-y-11">Y-11</a> / <a href="#screen-y-12">Y-12</a> · Import → <a href="#screen-e-4">E-4</a> · Brand Fit → <a href="#screen-y-7">Y-7 — Existing Master Destination</a></div>
+        </article>
+
+        <!-- F-3 — Preferences & Sizes -->
+        <article id="screen-f-3" class="screen flex flex-col gap-4">
+          <div class="screen-title">SCREEN F-3 — PREFERENCES &amp; SIZES</div>
+          <div class="phone">
+            <div class="status"><span>9:41</span><div class="flex gap-2"><i data-lucide="signal" class="size-4"></i><i data-lucide="wifi" class="size-4"></i><i data-lucide="battery" class="size-4"></i></div></div>
+            <div class="scroll">
+              <div class="topbar"><a href="#screen-f-1" class="icon-btn" aria-label="Back to My Atelier"><i data-lucide="arrow-left" class="size-4"></i></a><span class="text-[10px] uppercase font-semibold">Preferences &amp; Sizes</span></div>
+              <div class="card">
+                <span class="eyebrow">Favorite Brands</span>
+                <div class="flex flex-wrap gap-2 mt-3 text-[10px]"><span class="bg-[#F8F6F3] border rounded px-2 py-1">Toteme</span><span class="bg-[#F8F6F3] border rounded px-2 py-1">Max Mara</span><span class="bg-[#F8F6F3] border rounded px-2 py-1">The Row</span><span class="bg-[#F8F6F3] border rounded px-2 py-1">COS</span></div>
+                <a href="#screen-y-7" class="secondary mt-4 h-10 text-[10px]">Edit Brand Fit</a>
+              </div>
+              
+              <div class="card mt-3">
+                <span class="eyebrow">Sizing Profile</span>
+                <div class="grid grid-cols-2 gap-x-4 gap-y-4 mt-4 text-[10px]">
+                  <div><span class="text-[#6F675F]">Outerwear</span><b class="block mt-1" data-editable>Small (US 4)</b></div>
+                  <div><span class="text-[#6F675F]">Trousers / Bottoms</span><b class="block mt-1" data-editable>US 6 / IT 40</b></div>
+                  <div><span class="text-[#6F675F]">Knitwear / Tops</span><b class="block mt-1" data-editable>Small</b></div>
+                  <div><span class="text-[#6F675F]">Dresses / Suits</span><b class="block mt-1" data-editable>US 6</b></div>
+                  <div><span class="text-[#6F675F]">Shoe size</span><b class="block mt-1" data-editable>EU 38</b></div>
+                  <div><span class="text-[#6F675F]">Usual Clothing Fit</span><b class="block mt-1" data-editable>Relaxed</b></div>
+                </div>
+                <a href="#screen-y-10" class="secondary mt-4 h-10 text-[10px]">Edit Shoe Preferences</a>
+              </div>
+
+              <div class="card mt-3">
+                <span class="eyebrow">Fit Preferences</span>
+                <div class="space-y-3 mt-4 text-[10px]">
+                  <div class="flex justify-between"><span>Tops Fit</span><b data-editable>Oversized / Loose</b></div>
+                  <div class="flex justify-between"><span>Bottoms Fit</span><b data-editable>Tailored / Mid-Rise</b></div>
+                  <div class="flex justify-between"><span>Comfort Zone</span><b data-editable>Premium Investments</b></div>
+                </div>
+              </div>
+
+              <button type="button" id="edit-preferences" class="primary w-full mt-4">Update Preferences</button>
+              <p id="preference-status" class="hidden text-xs text-center text-[#C89B45] mt-3" role="status">Preferences saved locally.</p>
+            </div>
+          </div>
+          <div class="nav-note">Brand Fit → <a href="#screen-y-7">Y-7 — Existing Master Destination</a> · Shoe Preferences → <a href="#screen-y-10">Y-10 — Existing Master Destination</a>. These remain master profile-edit destinations.</div>
+        </article>
+
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const state = {
+      profile: "Women’s",
+      onboarding: false,
+      preferences: true,
+      personal: false,
+      social: false,
+      creators: false,
+      twin: "Not Started",
+      closetCount: 0,
+      looksCount: 0,
+      screenshotsCount: 0,
+      instaConnected: false,
+      pinterestConnected: false
+    };
+
+    const qs = (s, root = document) => root.querySelector(s);
+    const qsa = (s, root = document) => [...root.querySelectorAll(s)];
+
+    function updateProgress() {
+      const prefDone = state.preferences;
+      const personalDone = (state.looksCount > 0 || state.screenshotsCount > 0 || state.personal);
+      const socialDone = (state.instaConnected || state.pinterestConnected || state.social);
+      const creatorsDone = (state.creators || qsa("#creator-list > *").length > 0);
+
+      const stylePercent = (prefDone ? 25 : 0) + (personalDone ? 25 : 0) + (socialDone ? 25 : 0) + (creatorsDone ? 25 : 0);
+      const closetReady = Math.min(100, state.closetCount * 8);
+      const twinProgress = state.twin === "Complete" ? 100 : state.twin === "In Progress" ? 50 : 0;
+      
+      const total = Math.round((stylePercent + closetReady + twinProgress) / 3);
+
+      if (qs("#style-intelligence-percent")) qs("#style-intelligence-percent").textContent = stylePercent + "%";
+      if (qs("#style-intelligence-fill")) qs("#style-intelligence-fill").style.width = stylePercent + "%";
+      if (qs("#home-style-progress")) qs("#home-style-progress").textContent = stylePercent + "%";
+      if (qs("#profile-style-progress")) qs("#profile-style-progress").textContent = stylePercent + "%";
+      if (qs("#home-total-progress")) qs("#home-total-progress").textContent = total + "%";
+      if (qs("#profile-total-progress")) qs("#profile-total-progress").textContent = total + "%";
+
+      qsa("[data-closet-count]").forEach(el => el.textContent = state.closetCount);
+      qsa("[data-closet-readiness]").forEach(el => el.textContent = closetReady + "%");
+      qsa("[data-closet-fill]").forEach(el => el.style.width = closetReady + "%");
+      qsa("[data-twin-status]").forEach(el => el.textContent = state.twin);
+
+      qsa('[data-task-status="preferences"]').forEach(el => el.textContent = prefDone ? "Complete" : "Not started");
+      qsa('[data-task-status="personal"]').forEach(el => el.textContent = personalDone ? (state.looksCount + state.screenshotsCount > 0 ? `${state.looksCount + state.screenshotsCount} added` : "Complete") : "Not started");
+      qsa('[data-task-status="social"]').forEach(el => el.textContent = socialDone ? "Connected" : "Not started");
+      qsa('[data-task-status="creators"]').forEach(el => el.textContent = creatorsDone ? "Complete" : "Not started");
+
+      const empty = state.closetCount === 0;
+      if (qs("#home-empty")) qs("#home-empty").classList.toggle("hidden", !empty);
+      if (qs("#home-populated")) qs("#home-populated").classList.toggle("hidden", empty);
+      if (qs("#closet-empty")) qs("#closet-empty").classList.toggle("hidden", !empty);
+      if (qs("#closet-populated")) qs("#closet-populated").classList.toggle("hidden", empty);
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Y-2 Styling choice handler
+    qsa(".choice").forEach(btn => btn.addEventListener("click", () => {
+      qsa(".choice").forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      state.profile = btn.dataset.profile;
+    }));
+    if (qs("#complete-onboarding")) {
+      qs("#complete-onboarding").addEventListener("click", () => {
+        state.onboarding = true;
+        updateProgress();
+      });
+    }
+
+    // Y-11 Style preferences selection
+    qsa("#style-grid .select-card").forEach(btn => btn.addEventListener("click", () => {
+      const selected = qsa('#style-grid .select-card[aria-pressed="true"]');
+      const isPressed = btn.getAttribute("aria-pressed") === "true";
+      if (isPressed) {
+        btn.setAttribute("aria-pressed", "false");
+      } else if (selected.length < 3) {
+        btn.setAttribute("aria-pressed", "true");
+      }
+      const count = qsa('#style-grid .select-card[aria-pressed="true"]').length;
+      if (qs("#style-count")) qs("#style-count").textContent = count + " of 3 selected";
+    }));
+    if (qs("#save-style-preferences")) {
+      qs("#save-style-preferences").addEventListener("click", () => {
+        state.preferences = true;
+        updateProgress();
+      });
+    }
+
+    // Y-12 Style Inspiration upload and connect handlers
+    const btnAddLooks = qs("#btn-add-looks");
+    const inputLooks = qs("#input-looks");
+    const looksGrid = qs("#looks-preview-grid");
+    const looksBadge = qs("#looks-count-badge");
+
+    if (btnAddLooks && inputLooks) {
+      btnAddLooks.addEventListener("click", () => inputLooks.click());
+      inputLooks.addEventListener("change", (e) => {
+        const files = [...e.target.files];
+        files.forEach(file => {
+          state.looksCount++;
+          const url = URL.createObjectURL(file);
+          const thumb = document.createElement("div");
+          thumb.className = "relative size-12 rounded-lg overflow-hidden border border-[#ECE7E1] shrink-0 group";
+          thumb.innerHTML = `<img src="${url}" class="w-full h-full object-cover" alt="Outfit photo"><button type="button" class="absolute top-0.5 right-0.5 size-4 bg-black/70 text-white rounded-full text-[8px] flex items-center justify-center hover:bg-black" aria-label="Remove photo">✕</button>`;
+          thumb.querySelector("button").addEventListener("click", () => {
+            thumb.remove();
+            state.looksCount = Math.max(0, state.looksCount - 1);
+            if (looksBadge) looksBadge.textContent = state.looksCount + " photo" + (state.looksCount === 1 ? "" : "s");
+            updateProgress();
+          });
+          looksGrid.appendChild(thumb);
+        });
+        if (looksBadge) looksBadge.textContent = state.looksCount + " photo" + (state.looksCount === 1 ? "" : "s");
+        state.personal = state.looksCount > 0 || state.screenshotsCount > 0;
+        updateProgress();
+      });
+    }
+
+    const btnAddScreenshots = qs("#btn-add-screenshots");
+    const inputScreenshots = qs("#input-screenshots");
+    const screenshotsGrid = qs("#screenshots-preview-grid");
+    const screenshotsBadge = qs("#screenshots-count-badge");
+
+    if (btnAddScreenshots && inputScreenshots) {
+      btnAddScreenshots.addEventListener("click", () => inputScreenshots.click());
+      inputScreenshots.addEventListener("change", (e) => {
+        const files = [...e.target.files];
+        files.forEach(file => {
+          state.screenshotsCount++;
+          const url = URL.createObjectURL(file);
+          const thumb = document.createElement("div");
+          thumb.className = "relative size-12 rounded-lg overflow-hidden border border-[#ECE7E1] shrink-0 group";
+          thumb.innerHTML = `<img src="${url}" class="w-full h-full object-cover" alt="Screenshot"><button type="button" class="absolute top-0.5 right-0.5 size-4 bg-black/70 text-white rounded-full text-[8px] flex items-center justify-center hover:bg-black" aria-label="Remove screenshot">✕</button>`;
+          thumb.querySelector("button").addEventListener("click", () => {
+            thumb.remove();
+            state.screenshotsCount = Math.max(0, state.screenshotsCount - 1);
+            if (screenshotsBadge) screenshotsBadge.textContent = state.screenshotsCount + " screenshot" + (state.screenshotsCount === 1 ? "" : "s");
+            updateProgress();
+          });
+          screenshotsGrid.appendChild(thumb);
+        });
+        if (screenshotsBadge) screenshotsBadge.textContent = state.screenshotsCount + " screenshot" + (state.screenshotsCount === 1 ? "" : "s");
+        state.personal = state.looksCount > 0 || state.screenshotsCount > 0;
+        updateProgress();
+      });
+    }
+
+    qsa("[data-connect]").forEach(btn => btn.addEventListener("click", () => {
+      const platform = btn.dataset.connect;
+      const isInsta = platform === "Instagram";
+      const inputEl = qs(isInsta ? "#insta-input" : "#pinterest-input");
+      const val = inputEl ? inputEl.value.trim() : "";
+      const connected = btn.getAttribute("aria-pressed") === "true";
+      
+      if (connected) {
+        btn.setAttribute("aria-pressed", "false");
+        btn.textContent = `Connect ${platform}`;
+        btn.classList.replace("primary", "secondary");
+        if (isInsta) state.instaConnected = false;
+        else state.pinterestConnected = false;
+        qs(isInsta ? "#insta-status" : "#pinterest-status").textContent = "Not connected · simulated prototype connection.";
+      } else {
+        btn.setAttribute("aria-pressed", "true");
+        btn.textContent = `Disconnect ${platform}`;
+        btn.classList.replace("secondary", "primary");
+        if (isInsta) state.instaConnected = true;
+        else state.pinterestConnected = true;
+        qs(isInsta ? "#insta-status" : "#pinterest-status").textContent = `Connected ${val ? '(' + val + ')' : 'in prototype'} · no external data accessed.`;
+      }
+      state.social = state.instaConnected || state.pinterestConnected;
+      updateProgress();
+    }));
+
+    if (qs("#add-creator")) {
+      qs("#add-creator").addEventListener("click", () => {
+        const input = qs("#creator-input");
+        const value = input ? input.value.trim() : "";
+        if (!value) return;
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "rounded-full border border-[#ECE7E1] bg-white px-3 py-1 text-[10px] font-medium flex items-center gap-1 hover:border-[#C89B45]";
+        chip.innerHTML = `<span>${value}</span><span class="text-[#6F675F] font-bold">×</span>`;
+        chip.setAttribute("aria-label", "Remove " + value);
+        chip.addEventListener("click", () => {
+          chip.remove();
+          state.creators = qs("#creator-list").children.length > 0;
+          updateProgress();
+        });
+        qs("#creator-list").append(chip);
+        input.value = "";
+        state.creators = true;
+        updateProgress();
+      });
+    }
+
+    if (qs("#save-style-inspiration")) {
+      qs("#save-style-inspiration").addEventListener("click", () => {
+        const count = [
+          state.looksCount > 0 || state.screenshotsCount > 0 || state.personal,
+          state.instaConnected || state.pinterestConnected || state.social,
+          state.creators || qsa("#creator-list > *").length > 0
+        ].filter(Boolean).length;
+        if (qs("#inspiration-summary")) {
+          qs("#inspiration-summary").textContent = count ? `${count} inspiration source groups active.` : "No personal looks or connected sources yet.";
+        }
+        updateProgress();
+      });
+    }
+
+    // Y-6 Select Card
+    qsa("#screen-y-6 .select-card").forEach(btn => btn.addEventListener("click", () => {
+      qsa("#screen-y-6 .select-card").forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+    }));
+
+    // Y-13 Twin creation simulation
+    if (qs("#start-twin")) {
+      qs("#start-twin").addEventListener("click", () => {
+        state.twin = "In Progress";
+        updateProgress();
+        const stages = qsa("#twin-stages [data-stage]");
+        let step = 0;
+        const timer = setInterval(() => {
+          const pct = Math.min(100, (step + 1) * 25);
+          if (qs("#twin-percent")) qs("#twin-percent").textContent = pct + "%";
+          
+          stages.forEach((el, i) => {
+            const iconSpan = el.querySelector(".stage-icon");
+            const textSpan = el.querySelector("span:last-child");
+            if (i < step) {
+              el.classList.remove("opacity-40");
+              if (iconSpan) iconSpan.className = "stage-icon size-5 rounded-full bg-[#1B1716] text-white flex items-center justify-center shrink-0 text-[10px]";
+              if (iconSpan) iconSpan.innerHTML = `<i data-lucide="check" class="size-3"></i>`;
+              if (textSpan) textSpan.className = "font-medium text-[#1B1716]";
+            } else if (i === step) {
+              el.classList.remove("opacity-40");
+              if (iconSpan) iconSpan.className = "stage-icon size-5 rounded-full bg-[#C89B45] text-white flex items-center justify-center shrink-0 text-[10px]";
+              if (iconSpan) iconSpan.innerHTML = `<i data-lucide="loader-circle" class="size-3 animate-spin"></i>`;
+              if (textSpan) textSpan.className = "font-medium text-[#1B1716]";
+            } else {
+              el.classList.add("opacity-40");
+            }
+          });
+          if (window.lucide) lucide.createIcons();
+          step++;
+          if (step === 4) {
+            clearInterval(timer);
+            if (qs("#start-twin")) qs("#start-twin").classList.add("hidden");
+            if (qs("#reveal-twin")) qs("#reveal-twin").classList.remove("hidden");
+          }
+        }, 250);
+      });
+    }
+
+    if (qs("#finish-twin")) {
+      qs("#finish-twin").addEventListener("click", () => {
+        state.twin = "Complete";
+        updateProgress();
+      });
+    }
+
+    // Y-14 Scene toggle
+    const sceneData = {
+      Daytime: ["Polished Day", "A composed look for work, errands, and daytime plans."],
+      Relaxing: ["Soft Structure", "Easy layers that still feel intentional and refined."],
+      Evening: ["Quiet Drama", "A sleek evening direction with confident proportions."]
+    };
+    qsa("[data-scene]").forEach(btn => btn.addEventListener("click", () => {
+      qsa("[data-scene]").forEach(b => {
+        b.setAttribute("aria-pressed", "false");
+        b.classList.remove("bg-[#1B1716]", "text-white");
+        b.classList.add("text-[#6F675F]");
+      });
+      btn.setAttribute("aria-pressed", "true");
+      btn.classList.remove("text-[#6F675F]");
+      btn.classList.add("bg-[#1B1716]", "text-white");
+      if (qs("#scene-label")) qs("#scene-label").textContent = btn.dataset.scene;
+      if (qs("#scene-title")) qs("#scene-title").textContent = sceneData[btn.dataset.scene][0];
+      if (qs("#scene-copy")) qs("#scene-copy").textContent = sceneData[btn.dataset.scene][1];
+    }));
+
+    // F-3 Preference inline edit
+    if (qs("#edit-preferences")) {
+      qs("#edit-preferences").addEventListener("click", () => {
+        const editing = qs("#edit-preferences").dataset.editing === "true";
+        qs("#edit-preferences").dataset.editing = String(!editing);
+        qs("#edit-preferences").textContent = editing ? "Update Preferences" : "Save Preferences";
+        qsa("#screen-f-3 [data-editable]").forEach(el => el.contentEditable = String(!editing));
+        if (qs("#preference-status")) qs("#preference-status").classList.toggle("hidden", !editing);
+      });
+    }
+
+    // Init
+    if (window.lucide) lucide.createIcons();
+    updateProgress();
+  </script>
+</body>
+</html>
