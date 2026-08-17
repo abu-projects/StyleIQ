@@ -1,11 +1,11 @@
 # StyleIQ — Complete Screen Reference
 
 **Document type:** Functional screen inventory, content reference, interaction map, and navigation specification  
-**Prototype source:** `index(13).html`  
+**Prototype source:** `index.html`
 **Product name:** StyleIQ  
-**Current screen count:** 89 app screens  
+**Current screen count:** 101 app screens
 **Excluded from the screen count:** Z-1 and Z-2 reusable patterns, shared confirmation overlays, drawers, toasts, and local UI states.
-**Update coverage:** Brand Fit, Style Inspiration, Y-flow renumbering, Profile edit entry points, Wishlist discoverability, and Style Budget–Wishlist planning integration.
+**Update coverage:** Brand Fit, Style Inspiration, Profile edit entry points, Wishlist discoverability, Style Budget–Wishlist planning integration, and Style Studio “Dress My Twin.”
 
 ---
 
@@ -40,15 +40,16 @@ The current HTML prototype is the primary source of truth for screen names, cont
 | Section | Product area | Screens |
 |---|---|---:|
 | X | Authentication | 4 |
-| Y | Onboarding and Style Twin | 20 |
+| Y | Onboarding and Style Twin | 14 |
 | A | Today and Daily Outfit Loop | 6 |
 | B | Saved Looks | 2 |
 | C | Closet | 20 |
 | D | Planner | 5 |
 | E | Wardrobe Value and Activity | 7 |
-| F | Profile / My Atelier | 13 |
+| F | Profile / My Atelier | 14 |
 | G | Discover and Shopping | 12 |
-| **Total** |  | **89** |
+| H | Style Studio and Creator Intelligence | 17 |
+| **Total** |  | **101** |
 
 ---
 
@@ -2689,6 +2690,77 @@ Apple and Google buttons are navigation shortcuts. Email verification is simulat
 
 ---
 
+# Section H — Style Studio and Creator Intelligence
+
+Section H is the canonical outfit-composition workspace. It connects the user's Style Twin and owned Closet to one persistent Studio draft; it does not add a sixth bottom-navigation destination.
+
+Canonical product loop: `Style Twin → Closet → H-3 Choose Items → H-4 Interactive Dress My Twin → H-5 Review → Saved Looks / Planner / Boards`.
+
+## H-1 — Style Studio Home
+
+### Purpose
+
+Introduces Studio as the place to build looks from the Closet, dress a completed Style Twin, or co-create with Muse.
+
+### Main content and actions
+
+- Continue Studio Draft restores the existing draft and its last display mode.
+- Start From My Closet opens H-3.
+- Blank Canvas opens H-2.
+- Co-create With Muse seeds a draft and opens H-4 with the Muse drawer.
+- Recreate a Creator Look enters the existing Creator Intelligence flow and converges on H-4.
+
+## H-3 — Choose Closet Items
+
+### Purpose and behavior
+
+Lets the user select starting pieces before entering the shared canvas. Selected pieces are mapped by category into the canonical roles: Tops → Base, Bottoms → Bottom, Outerwear → Main layer, Shoes → Shoes, and bags/accessories → Accessory. Dresses use the Base role in the HTML prototype. If multiple selected pieces map to one role, the final selected compatible piece occupies that role.
+
+Open Canvas and Let Muse Fill the Gaps both seed the same Studio draft, then open H-4. With a completed Twin, a new draft opens On My Twin; otherwise it opens Flat Lay. Review-sample content remains labeled Inspiration and is never added to the owned Closet.
+
+## H-4 — Style Studio / Dress My Twin
+
+### Canonical draft
+
+H-4 is a simple front-facing 2D outfit configurator backed by the existing `canvasItems` Studio draft. Each primary role—Outerwear, Top, Bottom, Shoes, Bag / Accessory, and optional Dress—has at most one active item. Items retain their canonical ID, name, category, role, image, and Owned or Inspiration provenance. Switching between On My Twin and Flat Lay changes only the presentation; the selected pieces, title, occasion, Muse context, and undo history remain shared. Returning from H-5 restores the same editable selections.
+
+### Display modes
+
+- **On My Twin:** Default for a completed Style Twin. One centered, front-facing Twin occupies a quiet neutral fitting stage. Prepared local 2D outfit states visually represent the current selection without oversized SVG garments, product rectangles on the body, or editor controls.
+- **Flat Lay:** Presents the same role selections in simple slots and remains the default when Twin status is Not started or In progress.
+- If the Twin is incomplete, On My Twin remains visible as a mode but shows contextual copy and a Create Style Twin or Continue Style Twin CTA to Y-3. Flat Lay stays fully usable.
+
+### Category selector and Closet carousel
+
+Directly below the Twin, horizontally scrollable tabs expose All, Tops, Bottoms, Outerwear, Shoes, and Bags. The compact item carousel reads from the same Closet/Studio inventory used by H-3. Each option emphasizes its thumbnail and short name, retains Owned or Inspiration provenance, and shows a checkmark when worn.
+
+Tap-to-wear is the primary interaction. Tapping an item automatically assigns it to its role and immediately replaces the previous item in that role. The Twin briefly crossfades to the corresponding prepared state; the user never positions, scales, rotates, or aligns clothing manually.
+
+### Interactions
+
+| Action | Result |
+|---|---|
+| Tap a category | Filters the item carousel without changing the outfit. |
+| Tap a Closet item | Wears it automatically; an existing item in the same role is replaced, never duplicated. |
+| Undo | Restores the previous item selection, including a replaced shoe or outer layer. |
+| Reset Outfit | Clears selected clothes while leaving the Twin and Closet intact; Undo restores the cleared look. |
+| Switch to Flat Lay | Shows the same canonical selections in role slots. |
+| Review Outfit | Requires at least two pieces. Otherwise H-4 remains active and shows a prototype toast. |
+
+### Muse Co-Designer
+
+The existing prompts remain: Make It More Polished, Make It More Relaxed, Add Contrast, Simplify This Look, What Is Missing, and Try Another Shoe. Applying a suggestion performs the same category replacement as a carousel tap, then updates the Twin, Flat Lay, item list, and review context. This is a local deterministic simulation, not a backend AI call.
+
+### Prototype limitation
+
+On My Twin switches among prepared local, front-facing 2D Twin/outfit images to communicate the selection flow. It does not dynamically warp arbitrary Closet photography and does not perform body segmentation, cloth simulation, exact fit prediction, photorealistic virtual try-on, multiple viewing angles, continuous rotation, or true 3D. Production virtual try-on would require a separate rendering or AI system.
+
+## H-5 — Outfit Review
+
+H-5 continues to show the outfit title, current item names and roles, ownership/provenance label, Why This Works, and context tags. When a completed Twin reaches review from On My Twin, H-5 reuses the current prepared Twin image as a clean, non-interactive preview. The preview never replaces `canvasItems`. Flat Lay and users without a completed Twin retain the existing outfit-image review.
+
+Back returns to H-4 without resetting the outfit or mode. Save Look, Add to Planner, Create Variants, Save to Style Board, Ask Muse for a Change, and Back to Studio retain their existing destinations. H-6, H-7, and H-8 remain unchanged.
+
 ---
 
 # 6. Canonical Product Entities Referenced by the Screens
@@ -2696,13 +2768,13 @@ Apple and Google buttons are navigation shortcuts. Email verification is simulat
 | Entity | Primary screens | Notes |
 |---|---|---|
 | User Account | X-1–X-4 | Authentication and onboarding-completion routing. |
-| Style Twin | Y-3–Y-14, F-1, F-2 | Face/body references, profile details, preferences, inspiration inputs, processing, scene preview, and later editing. |
+| Style Twin | Y-3–Y-14, F-1, F-2, H-4–H-5 | Face/body references, profile details, preferences, inspiration inputs, processing, scene preview, later editing, and previewing manually composed Studio outfits on a completed Twin. |
 | General Size Profile | Y-6, F-3 | Usual top, bottom, dress/suit, shoe, and general fit starting points. |
 | Brand Fit Profile | Y-7, F-2 | Canonical per-brand size and fit-note records; reused in onboarding and profile edit mode. |
 | Style Inspiration | Y-12, F-2 | Personal looks, screenshots, simulated Instagram/Pinterest connections, and creator/celebrity references. |
 | Style Preferences / Style DNA | Y-11, F-2, F-3, F-6 | Preferred style directions, identity, palette, silhouette, fabrics, occasions, and later fine-tuning. |
-| Closet Item | Y-16–Y-19, C-1–C-20 | One canonical owned-item record with attributes, source, wear history, similarity, lifecycle, and optional listing link. |
-| Outfit / Look | A-1–A-6, B-1–B-2, D-1–D-5, G-6 | Generated, saved, planned, worn, rated, or included in travel planning. |
+| Closet Item | C-1–C-20 | One canonical owned-item record with attributes, source, wear history, similarity, lifecycle, and optional listing link. |
+| Outfit / Look | A-1–A-6, B-1–B-2, D-1–D-5, G-6, H-1–H-8 | Generated, manually composed, previewed on a Style Twin or Flat Lay, saved, planned, worn, rated, or included in travel planning. |
 | Wear Record | A-4, C-7, C-15, C-18, F-7 | Date, occasion, notes, feedback, and downstream cost-per-wear/history effects. |
 | Wishlist Item | F-1, G-1, G-4, G-7–G-10, G-12, E-1–E-2, E-5 | One canonical saved-item flow with status, collection, reminders, price, availability, compatibility, budget context, purchase state, and closet handoff. |
 | External Resale Listing | C-7–C-11, E-7, A-6, G-1, G-10, G-11 | Platform, URL, status, asking/final price, review state, and external responsibility. |
@@ -2721,11 +2793,8 @@ Apple and Google buttons are navigation shortcuts. Email verification is simulat
 | Y-8–Y-11 | Complete body, hair, footwear, and style preferences | Y-12 |
 | Y-12 | Save or skip Style Inspiration | Y-13 |
 | Y-13 | Complete simulated Twin processing | Y-14 |
-| Y-14 | Explore Looks | Y-15 |
-| Y-15 | Add first item | Y-16 → Y-17 → Y-18 → Y-19 |
-| Y-15 | Skip closet setup | Y-20 |
-| Y-19 | Continue to first style snapshot | Y-20 |
-| Y-20 | Enter application | A-1 |
+| Y-14 / F-1 | Open Style Studio with a completed Twin | H-1 → H-3 → H-4 On My Twin |
+| Y-14 | Done | F-1 |
 | F-2 | Edit Brand Fit | Y-7 edit mode → F-2 |
 | F-2 | Edit Inspiration | Y-12 edit mode → F-2 |
 | F-2 / Y-14 | Fine-tune / Edit My Twin | Y-11 edit mode → F-2 |
@@ -2733,6 +2802,14 @@ Apple and Google buttons are navigation shortcuts. Email verification is simulat
 | A-1 / A-2 | Alternatives | A-3 |
 | A-1 / A-2 / A-3 / D-3 | Wear / choose look | A-4 |
 | A-1 | Ask Muse | A-5 → A-6 |
+| A-1 / C-1 / F-1 | Open Style Studio | H-1 |
+| H-1 | Start From My Closet | H-3 |
+| H-1 | Blank Canvas | H-2 → H-3 |
+| H-3 | Open Canvas / Let Muse Fill the Gaps | H-4 On My Twin or Flat Lay, based on Twin status |
+| H-4 | Review a draft with at least two pieces | H-5 |
+| H-5 | Back / Ask Muse for a Change | H-4 with draft and mode preserved |
+| H-5 | Create Variants | H-6 → H-7 |
+| H-5 | Save to Style Board | H-8 |
 | A-1 / G-6 | Save look | B-1 |
 | C-1 | Browse closet | C-6 → C-7 |
 | C-1 / C-6 | Add item | C-2 → C-3 → C-4 → C-5 |
