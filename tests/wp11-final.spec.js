@@ -79,7 +79,7 @@ test('Saved Looks selection and Planner handoff retain the selected look', async
   await expect(page.locator('#screen-d-3')).toContainText('Dinner');
 });
 
-test('every primary bottom nav is local and keeps exactly five destinations', async ({ page }) => {
+test('every primary bottom nav is local and keeps exactly five destinations with More', async ({ page }) => {
   await page.goto('/index.html#screen-a-1');
   const result = await page.locator('.bottom-nav[aria-label="Primary"]').evaluateAll(navs => navs.map(nav =>
     [...nav.querySelectorAll(':scope > a')].map(link => ({ label: link.textContent.trim(), href: link.getAttribute('href') }))
@@ -89,7 +89,7 @@ test('every primary bottom nav is local and keeps exactly five destinations', as
     ['Closet', '#screen-c-1'],
     ['Planner', '#screen-d-1'],
     ['Discover', '#screen-g-1'],
-    ['Profile', '#screen-f-1']
+    ['More', '#styleiq-more']
   ];
   for (const nav of result) {
     expect(nav).toHaveLength(5);
