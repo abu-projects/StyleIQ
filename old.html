@@ -1153,6 +1153,45 @@ lucide.createIcons({icons});\``);if(typeof c>"u")throw new Error("`createIcons()
 @media(max-width:430px){#section-g .wp15-look.featured .wp15-look-main>img{height:292px}#section-g .wp15-look-main>img{height:198px}#section-g .wp15-detail-hero{height:318px}}
 @media(prefers-reduced-motion:reduce){#section-g .wp15-look,#section-g .wp15-listing{transition:none}}
 </style>
+<style id="styleiq-single-screen-preview-styles">
+  :root{--preview-rail:340px;--preview-ink:#1d1917;--preview-rail-soft:#2c2724;--preview-line:rgba(255,255,255,.12);--preview-gold:#c89b45;--preview-canvas:#efece7}
+  body.styleiq-preview-mode{min-height:100dvh!important;margin:0!important;padding:0!important;display:block!important;overflow:hidden!important;background:var(--preview-canvas)!important}
+  body.styleiq-preview-mode>#styleiq-preview-sidebar{display:flex}
+  #styleiq-preview-sidebar{position:fixed;z-index:1000;inset:0 auto 0 0;width:var(--preview-rail);display:none;flex-direction:column;background:var(--preview-ink);color:#f8f6f3;border-right:1px solid rgba(27,23,22,.45);font-family:Inter,Arial,sans-serif}
+  .preview-sidebar-head{flex:none;padding:30px 24px 24px;border-bottom:1px solid var(--preview-line)}
+  .preview-wordmark{margin:0;font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;font-weight:500;line-height:1;letter-spacing:-.03em}
+  .preview-subtitle{max-width:250px;margin:14px 0 0;color:#bdb4ad;font-size:12px;line-height:1.55}
+  .preview-progress{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:20px;color:#d9d0c9;font-size:11px}
+  .preview-progress b{font-variant-numeric:tabular-nums}
+  .preview-progress-line{height:3px;margin-top:9px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.12)}
+  .preview-progress-line span{display:block;width:100%;height:100%;background:var(--preview-gold)}
+  .preview-sidebar-tools{flex:none;display:grid;grid-template-columns:minmax(0,1fr) 86px;gap:9px;padding:16px;border-bottom:1px solid var(--preview-line)}
+  .preview-sidebar-tools input,.preview-sidebar-tools select{min-width:0;height:44px;border:1px solid rgba(255,255,255,.16);border-radius:13px;background:var(--preview-rail-soft);color:#fff;padding:0 13px;font-size:12px;outline:none}
+  .preview-sidebar-tools input::placeholder{color:#998f88}.preview-sidebar-tools select{appearance:auto;cursor:pointer}
+  .preview-sidebar-tools input:focus-visible,.preview-sidebar-tools select:focus-visible,.preview-screen-link:focus-visible,.preview-mobile-toggle:focus-visible{outline:2px solid var(--preview-gold);outline-offset:2px}
+  #styleiq-preview-list{flex:1;min-height:0;overflow:auto;padding:8px 10px 30px;scrollbar-width:thin;scrollbar-color:#736960 transparent}
+  .preview-section-label{position:sticky;z-index:2;top:0;margin:0;padding:14px 10px 8px;background:var(--preview-ink);color:#d3aaa6;font-size:9px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+  .preview-screen-link{display:grid;width:100%;grid-template-columns:48px 24px minmax(0,1fr);gap:8px;align-items:center;border:0;border-radius:13px;background:transparent;color:#d3cbc5;padding:10px;text-align:left;cursor:pointer;transition:background-color .18s ease,color .18s ease,transform .18s ease}
+  .preview-screen-link:hover{background:rgba(255,255,255,.07);color:#fff}.preview-screen-link:active{transform:scale(.985)}
+  .preview-screen-link[aria-current="page"]{background:#3a332f;color:#fff;box-shadow:inset 3px 0 #d3aaa6}
+  .preview-screen-id{color:var(--preview-gold);font-size:10px;font-weight:800;font-variant-numeric:tabular-nums}.preview-screen-icon{display:grid;place-items:center;color:#a69d96}.preview-screen-icon svg{width:16px;height:16px}.preview-screen-name{overflow:hidden;font-size:12px;line-height:1.3;text-overflow:ellipsis;white-space:nowrap}
+  #styleiq-preview-stage{position:fixed;z-index:1;inset:0 0 0 var(--preview-rail);display:flex;align-items:flex-start;justify-content:center;overflow:auto;background:radial-gradient(circle at 52% 12%,#f8f5f1 0,#efece7 58%,#e8e3dd 100%);padding:36px 30px 54px}
+  body.styleiq-preview-mode> :not(#styleiq-preview-sidebar):not(#styleiq-preview-stage):not(script):not(style){display:none!important}
+  #styleiq-preview-stage>[id^="section-"]{width:100%!important;max-width:none!important;min-height:calc(100dvh - 90px);display:none!important;align-items:flex-start!important;justify-content:center!important;margin:0!important;padding:0!important}
+  #styleiq-preview-stage>[id^="section-"].preview-active-section{display:flex!important}
+  #styleiq-preview-stage>.preview-active-section>:not(.preview-active-grid){display:none!important}
+  #styleiq-preview-stage .preview-active-grid{width:100%!important;display:flex!important;align-items:flex-start!important;justify-content:center!important;margin:0!important;padding:0!important;gap:0!important}
+  #styleiq-preview-stage .preview-screen-unit{display:none!important;margin:0!important;padding:0!important}
+  #styleiq-preview-stage .preview-screen-unit.preview-active-screen{display:flex!important;flex-direction:column!important;align-items:center!important;gap:14px!important}
+  #styleiq-preview-stage .preview-active-screen>.screen-title,#styleiq-preview-stage .preview-active-screen>h2:first-child{max-width:375px;color:#6f675f;font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+  #styleiq-preview-stage .preview-active-screen>.nav-note{margin-top:0!important}
+  #styleiq-section-navigation{display:none!important}
+  .preview-empty{margin:auto;color:#6f675f;text-align:center}.preview-empty b{display:block;margin-bottom:6px;color:#1b1716;font-family:Georgia,serif;font-size:24px}
+  .preview-mobile-toggle{display:none;position:fixed;z-index:1100;top:14px;left:14px;width:44px;height:44px;border:1px solid #ded8d1;border-radius:50%;background:#fff;color:#1b1716;box-shadow:0 10px 28px rgba(48,38,31,.14)}
+  @media(max-width:900px){:root{--preview-rail:290px}#styleiq-preview-sidebar{transform:translateX(-100%);transition:transform .22s ease}body.preview-sidebar-open #styleiq-preview-sidebar{transform:none}.preview-mobile-toggle{display:grid;place-items:center}#styleiq-preview-stage{inset-left:0;left:0;padding:76px 16px 36px}}
+  @media(max-width:430px){#styleiq-preview-stage{justify-content:flex-start}#styleiq-preview-stage .preview-active-grid{justify-content:flex-start!important}#styleiq-preview-stage .preview-active-screen{width:100%!important}#styleiq-preview-stage .preview-active-screen .phone,#styleiq-preview-stage .preview-active-screen[id^="screen-"]{max-width:100%!important}}
+  @media(prefers-reduced-motion:reduce){.preview-screen-link,#styleiq-preview-sidebar{transition:none}}
+</style>
 </head>
 <body data-styleiq-version="vNext-wp00-wp01-wp02-wp03-wp04-wp05-wp06-wp07-wp08-wp09-wp10-wp11-wp12-wp13-wp14-wp15-wp16-wp17-wp18-wp19" class="min-h-screen p-6 md:p-12 flex flex-col items-center justify-start gap-16">
 
@@ -9301,6 +9340,37 @@ function install(){renderX1();renderAuth();renderAuthRouteCopy();renderY2();inst
   new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true});
   window.addEventListener('hashchange',()=>{closeLayer(false);schedule()});
   window.StyleIQConnectedNavigation={openMore,openSearch,openNotifications,close:closeLayer,catalog};
+})();
+</script>
+<script id="styleiq-single-screen-preview-behavior">
+(function installSingleScreenPreview(){
+  const sectionTitles={x:'Core Entry & Authentication',y:'Personalization Flows',z:'Components & Behaviors',a:'Daily Outfit Loop',b:'Saved Looks',c:'Closet & Wardrobe Intelligence',d:'Planner',e:'Wardrobe Value & Activity',f:'Profile / My Style Profile',g:'Discover & Intentional Shopping',h:'Style Studio & Creator Intelligence'};
+  const layerIcon='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m12 3-8 4 8 4 8-4-8-4Z"/><path d="m4 12 8 4 8-4M4 17l8 4 8-4"/></svg>';
+  const menuIcon='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
+  const clean=value=>String(value||'').replace(/^screen\s*/i,'').replace(/^[a-z]-?\d+\s*[—–-]\s*/i,'').replace(/\s+/g,' ').trim();
+  const idLabel=id=>id.replace('screen-','').toUpperCase();
+  const allScreens=[...document.querySelectorAll('[id^="screen-"]')].filter((screen,index,list)=>list.findIndex(item=>item.id===screen.id)===index&&!screen.dataset.vnextRetired&&screen.closest('[id^="section-"]'));
+  const unitFor=screen=>{if(screen.classList.contains('screen'))return screen;const parent=screen.parentElement;return parent&&parent.querySelectorAll(':scope > [id^="screen-"]').length===1?parent:screen};
+  const nameFor=screen=>clean(screen.querySelector(':scope > .screen-title')?.textContent||screen.querySelector('.screen-title')?.textContent||screen.parentElement?.querySelector(':scope > h2')?.textContent||screen.getAttribute('aria-label')||screen.querySelector('h1,h2,h3,h4')?.textContent||idLabel(screen.id));
+  const catalog=allScreens.map(screen=>{const section=screen.closest('[id^="section-"]'),key=screen.id.split('-')[1],unit=unitFor(screen);unit.classList.add('preview-screen-unit');return{id:screen.id,key,section,unit,name:nameFor(screen),group:sectionTitles[key]||clean(section?.querySelector(':scope > div h2')?.textContent)||'StyleIQ'}});
+  const sections=[...new Set(catalog.map(item=>item.section))];
+  const stage=document.createElement('main');stage.id='styleiq-preview-stage';stage.setAttribute('aria-label','Active StyleIQ screen preview');
+  sections.forEach(section=>stage.append(section));
+  const sidebar=document.createElement('aside');sidebar.id='styleiq-preview-sidebar';sidebar.setAttribute('aria-label','StyleIQ screen index');sidebar.innerHTML=`<header class="preview-sidebar-head"><h1 class="preview-wordmark">StyleIQ</h1><p class="preview-subtitle">Master prototype · single-screen flow preview</p><div class="preview-progress"><span>Implementation inventory</span><b id="preview-count">${catalog.length} / ${catalog.length}</b></div><div class="preview-progress-line"><span></span></div></header><div class="preview-sidebar-tools"><input id="preview-search" type="search" placeholder="Find a screen…" aria-label="Find a screen" autocomplete="off"><select id="preview-filter" aria-label="Filter screen section"><option value="all">All</option>${[...new Set(catalog.map(item=>item.key))].map(key=>`<option value="${key}">${key.toUpperCase()}</option>`).join('')}</select></div><nav id="styleiq-preview-list" aria-label="All prototype screens"></nav>`;
+  const toggle=document.createElement('button');toggle.className='preview-mobile-toggle';toggle.type='button';toggle.setAttribute('aria-label','Open screen index');toggle.innerHTML=menuIcon;
+  document.body.prepend(stage);document.body.prepend(sidebar);document.body.prepend(toggle);document.body.classList.add('styleiq-preview-mode');
+  let activeId='',query='',filter='all';
+  function listMarkup(){const normalized=query.trim().toLowerCase();let html='';for(const key of [...new Set(catalog.map(item=>item.key))]){const items=catalog.filter(item=>item.key===key&&(filter==='all'||filter===key)&&(!normalized||`${item.id} ${item.name} ${item.group}`.toLowerCase().includes(normalized)));if(!items.length)continue;html+=`<p class="preview-section-label">${key.toUpperCase()} · ${sectionTitles[key]||items[0].group}</p>${items.map(item=>`<button type="button" class="preview-screen-link" data-screen-id="${item.id}" aria-current="${item.id===activeId?'page':'false'}"><span class="preview-screen-id">${idLabel(item.id)}</span><span class="preview-screen-icon">${layerIcon}</span><span class="preview-screen-name">${item.name}</span></button>`).join('')}`}return html||'<div class="preview-empty"><b>No matching screen</b>Try another name or section.</div>'}
+  function renderList(){const list=document.getElementById('styleiq-preview-list');list.innerHTML=listMarkup();list.querySelectorAll('[data-screen-id]').forEach(button=>button.addEventListener('click',()=>{location.hash=button.dataset.screenId;document.body.classList.remove('preview-sidebar-open')}));document.getElementById('preview-count').textContent=`${catalog.filter(item=>(filter==='all'||item.key===filter)&&(!query.trim()||`${item.id} ${item.name} ${item.group}`.toLowerCase().includes(query.trim().toLowerCase()))).length} / ${catalog.length}`}
+  function showScreen(id,{replace=false}={}){let item=catalog.find(entry=>entry.id===id);if(!item){const sectionKey=id.startsWith('section-')?id.slice(-1):'';item=catalog.find(entry=>entry.key===sectionKey)||catalog.find(entry=>entry.id==='screen-a-1')||catalog[0]}if(!item)return;activeId=item.id;sections.forEach(section=>section.classList.remove('preview-active-section'));document.querySelectorAll('.preview-active-grid').forEach(grid=>grid.classList.remove('preview-active-grid'));catalog.forEach(entry=>entry.unit.classList.remove('preview-active-screen'));item.section.classList.add('preview-active-section');item.unit.parentElement?.classList.add('preview-active-grid');item.unit.classList.add('preview-active-screen');stage.scrollTo({top:0,behavior:'auto'});const phoneScroll=item.unit.querySelector('.scroll,.wp12-scroll,.wp13-scroll,.wp14-scroll,.wp15-scroll');if(phoneScroll)phoneScroll.scrollTop=0;document.title=`${idLabel(item.id)} · ${item.name} — StyleIQ`;if(replace||location.hash.slice(1)!==item.id)history.replaceState(null,'',`#${item.id}`);renderList();requestAnimationFrame(()=>document.querySelector(`[data-screen-id="${item.id}"]`)?.scrollIntoView({block:'nearest'}))}
+  document.getElementById('preview-search').addEventListener('input',event=>{query=event.target.value;renderList()});
+  document.getElementById('preview-filter').addEventListener('change',event=>{filter=event.target.value;renderList()});
+  toggle.addEventListener('click',()=>document.body.classList.toggle('preview-sidebar-open'));
+  document.addEventListener('click',event=>{if(innerWidth<=900&&document.body.classList.contains('preview-sidebar-open')&&!sidebar.contains(event.target)&&!toggle.contains(event.target))document.body.classList.remove('preview-sidebar-open')});
+  window.addEventListener('hashchange',()=>showScreen(location.hash.slice(1)));
+  window.addEventListener('keydown',event=>{if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName))return;const index=catalog.findIndex(item=>item.id===activeId);if(event.key==='ArrowRight'&&index<catalog.length-1)location.hash=catalog[index+1].id;if(event.key==='ArrowLeft'&&index>0)location.hash=catalog[index-1].id;if(event.key==='Escape')document.body.classList.remove('preview-sidebar-open')});
+  showScreen(location.hash.slice(1),{replace:true});
+  window.StyleIQPreview={catalog,showScreen};
 })();
 </script>
 </body>
