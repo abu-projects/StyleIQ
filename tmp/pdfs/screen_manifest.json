@@ -1,0 +1,932 @@
+{
+  "source": "al.html",
+  "count": 132,
+  "generatedAt": "2026-08-31T17:29:46.917Z",
+  "pageErrors": [],
+  "screens": [
+    {
+      "id": "S-00",
+      "section": "S",
+      "title": "StyleIQ splash",
+      "index": 1,
+      "filename": "001_S-00.png"
+    },
+    {
+      "id": "S-01",
+      "section": "S",
+      "title": "Meet Muse",
+      "index": 2,
+      "filename": "002_S-01.png"
+    },
+    {
+      "id": "S-02",
+      "section": "S",
+      "title": "Who are we styling?",
+      "index": 3,
+      "filename": "003_S-02.png"
+    },
+    {
+      "id": "A-01",
+      "section": "A",
+      "title": "Sign up or sign in",
+      "index": 4,
+      "filename": "004_A-01.png"
+    },
+    {
+      "id": "A-02",
+      "section": "A",
+      "title": "Create account · Name",
+      "index": 5,
+      "filename": "005_A-02.png"
+    },
+    {
+      "id": "A-03",
+      "section": "A",
+      "title": "Email sign-up",
+      "index": 6,
+      "filename": "006_A-03.png"
+    },
+    {
+      "id": "A-04",
+      "section": "A",
+      "title": "Verify email · OTP",
+      "index": 7,
+      "filename": "007_A-04.png"
+    },
+    {
+      "id": "A-05",
+      "section": "A",
+      "title": "Profile setup · Occupation",
+      "index": 8,
+      "filename": "008_A-05.png"
+    },
+    {
+      "id": "A-06",
+      "section": "A",
+      "title": "Wardrobe preference",
+      "index": 9,
+      "filename": "009_A-06.png"
+    },
+    {
+      "id": "A-07",
+      "section": "A",
+      "title": "Style Twin introduction",
+      "index": 10,
+      "filename": "010_A-07.png"
+    },
+    {
+      "id": "A-08",
+      "section": "A",
+      "title": "Style Twin photo setup",
+      "index": 11,
+      "filename": "011_A-08.png"
+    },
+    {
+      "id": "A-09",
+      "section": "A",
+      "title": "How did you hear about us?",
+      "index": 12,
+      "filename": "012_A-09.png"
+    },
+    {
+      "id": "A-10",
+      "section": "A",
+      "title": "Style preferences · Brands",
+      "index": 13,
+      "filename": "013_A-10.png"
+    },
+    {
+      "id": "A-11",
+      "section": "A",
+      "title": "First-run Today",
+      "index": 14,
+      "filename": "014_A-11.png"
+    },
+    {
+      "id": "A-12",
+      "section": "A",
+      "title": "Closet import introduction",
+      "index": 15,
+      "filename": "015_A-12.png"
+    },
+    {
+      "id": "A-13",
+      "section": "A",
+      "title": "Empty Closet",
+      "index": 16,
+      "filename": "016_A-13.png"
+    },
+    {
+      "id": "A-14",
+      "section": "A",
+      "title": "Empty Saved Looks",
+      "index": 17,
+      "filename": "017_A-14.png"
+    },
+    {
+      "id": "A-15",
+      "section": "A",
+      "title": "Empty Trips",
+      "index": 18,
+      "filename": "018_A-15.png"
+    },
+    {
+      "id": "B-01",
+      "section": "B",
+      "title": "Global Add sheet",
+      "index": 19,
+      "filename": "019_B-01.png"
+    },
+    {
+      "id": "B-02",
+      "section": "B",
+      "title": "Photo picker",
+      "index": 20,
+      "filename": "020_B-02.png"
+    },
+    {
+      "id": "B-03",
+      "section": "B",
+      "title": "Prettify guide",
+      "index": 21,
+      "filename": "021_B-03.png"
+    },
+    {
+      "id": "B-04",
+      "section": "B",
+      "title": "Import search",
+      "index": 22,
+      "filename": "022_B-04.png"
+    },
+    {
+      "id": "B-05",
+      "section": "B",
+      "title": "Search results",
+      "index": 23,
+      "filename": "023_B-05.png"
+    },
+    {
+      "id": "B-06",
+      "section": "B",
+      "title": "Confirmation",
+      "index": 24,
+      "filename": "024_B-06.png"
+    },
+    {
+      "id": "B-07",
+      "section": "B",
+      "title": "Prettifying",
+      "index": 25,
+      "filename": "025_B-07.png"
+    },
+    {
+      "id": "B-08",
+      "section": "B",
+      "title": "Result",
+      "index": 26,
+      "filename": "026_B-08.png"
+    },
+    {
+      "id": "B-09",
+      "section": "B",
+      "title": "Receipt forwarding",
+      "index": 27,
+      "filename": "027_B-09.png"
+    },
+    {
+      "id": "B-10",
+      "section": "B",
+      "title": "Draft imports",
+      "index": 28,
+      "filename": "028_B-10.png"
+    },
+    {
+      "id": "B-11",
+      "section": "B",
+      "title": "Success",
+      "index": 29,
+      "filename": "029_B-11.png"
+    },
+    {
+      "id": "C-01",
+      "section": "C",
+      "title": "Closet grid",
+      "index": 30,
+      "filename": "030_C-01.png"
+    },
+    {
+      "id": "C-02",
+      "section": "C",
+      "title": "Item detail",
+      "index": 31,
+      "filename": "031_C-02.png"
+    },
+    {
+      "id": "C-03",
+      "section": "C",
+      "title": "Image tools",
+      "index": 32,
+      "filename": "032_C-03.png"
+    },
+    {
+      "id": "C-04",
+      "section": "C",
+      "title": "Core metadata",
+      "index": 33,
+      "filename": "033_C-04.png"
+    },
+    {
+      "id": "C-05",
+      "section": "C",
+      "title": "Styling metadata",
+      "index": 34,
+      "filename": "034_C-05.png"
+    },
+    {
+      "id": "C-06",
+      "section": "C",
+      "title": "Intelligence",
+      "index": 35,
+      "filename": "035_C-06.png"
+    },
+    {
+      "id": "C-07",
+      "section": "C",
+      "title": "Style this item",
+      "index": 36,
+      "filename": "036_C-07.png"
+    },
+    {
+      "id": "D-01",
+      "section": "D",
+      "title": "Before Closet data",
+      "index": 37,
+      "filename": "037_D-01.png"
+    },
+    {
+      "id": "D-02",
+      "section": "D",
+      "title": "After first item",
+      "index": 38,
+      "filename": "038_D-02.png"
+    },
+    {
+      "id": "D-03",
+      "section": "D",
+      "title": "Loading",
+      "index": 39,
+      "filename": "039_D-03.png"
+    },
+    {
+      "id": "D-04",
+      "section": "D",
+      "title": "Outfit families",
+      "index": 40,
+      "filename": "040_D-04.png"
+    },
+    {
+      "id": "D-05",
+      "section": "D",
+      "title": "Carousel",
+      "index": 41,
+      "filename": "041_D-05.png"
+    },
+    {
+      "id": "D-06",
+      "section": "D",
+      "title": "Missing category",
+      "index": 42,
+      "filename": "042_D-06.png"
+    },
+    {
+      "id": "E-01",
+      "section": "E",
+      "title": "Heart",
+      "index": 43,
+      "filename": "043_E-01.png"
+    },
+    {
+      "id": "E-02",
+      "section": "E",
+      "title": "Pencil",
+      "index": 44,
+      "filename": "044_E-02.png"
+    },
+    {
+      "id": "E-03",
+      "section": "E",
+      "title": "Dislike",
+      "index": 45,
+      "filename": "045_E-03.png"
+    },
+    {
+      "id": "E-04",
+      "section": "E",
+      "title": "Send",
+      "index": 46,
+      "filename": "046_E-04.png"
+    },
+    {
+      "id": "E-05",
+      "section": "E",
+      "title": "Create Avatar",
+      "index": 47,
+      "filename": "047_E-05.png"
+    },
+    {
+      "id": "E-06",
+      "section": "E",
+      "title": "Swipe",
+      "index": 48,
+      "filename": "048_E-06.png"
+    },
+    {
+      "id": "F-01",
+      "section": "F",
+      "title": "Header",
+      "index": 49,
+      "filename": "049_F-01.png"
+    },
+    {
+      "id": "F-02",
+      "section": "F",
+      "title": "Flat lay",
+      "index": 50,
+      "filename": "050_F-02.png"
+    },
+    {
+      "id": "F-03",
+      "section": "F",
+      "title": "Avatar entry",
+      "index": 51,
+      "filename": "051_F-03.png"
+    },
+    {
+      "id": "F-04",
+      "section": "F",
+      "title": "Context",
+      "index": 52,
+      "filename": "052_F-04.png"
+    },
+    {
+      "id": "F-05",
+      "section": "F",
+      "title": "Category layer",
+      "index": 53,
+      "filename": "053_F-05.png"
+    },
+    {
+      "id": "F-06",
+      "section": "F",
+      "title": "Add layer",
+      "index": 54,
+      "filename": "054_F-06.png"
+    },
+    {
+      "id": "F-07",
+      "section": "F",
+      "title": "Manual selector",
+      "index": 55,
+      "filename": "055_F-07.png"
+    },
+    {
+      "id": "F-08",
+      "section": "F",
+      "title": "Multi-select layers",
+      "index": 56,
+      "filename": "056_F-08.png"
+    },
+    {
+      "id": "F-09",
+      "section": "F",
+      "title": "Provenance",
+      "index": 57,
+      "filename": "057_F-09.png"
+    },
+    {
+      "id": "F-10",
+      "section": "F",
+      "title": "Missing item",
+      "index": 58,
+      "filename": "058_F-10.png"
+    },
+    {
+      "id": "F-11",
+      "section": "F",
+      "title": "Draft persistence",
+      "index": 59,
+      "filename": "059_F-11.png"
+    },
+    {
+      "id": "F-12",
+      "section": "F",
+      "title": "Creator discovery",
+      "index": 60,
+      "filename": "060_F-12.png"
+    },
+    {
+      "id": "F-13",
+      "section": "F",
+      "title": "Creator profile",
+      "index": 61,
+      "filename": "061_F-13.png"
+    },
+    {
+      "id": "F-14",
+      "section": "F",
+      "title": "Creator Closet",
+      "index": 62,
+      "filename": "062_F-14.png"
+    },
+    {
+      "id": "F-15",
+      "section": "F",
+      "title": "Creator outfit boards",
+      "index": 63,
+      "filename": "063_F-15.png"
+    },
+    {
+      "id": "F-16",
+      "section": "F",
+      "title": "Creator Look detail",
+      "index": 64,
+      "filename": "064_F-16.png"
+    },
+    {
+      "id": "F-17",
+      "section": "F",
+      "title": "Recreate with my Closet",
+      "index": 65,
+      "filename": "065_F-17.png"
+    },
+    {
+      "id": "F-18",
+      "section": "F",
+      "title": "Style patterns & recipes",
+      "index": 66,
+      "filename": "066_F-18.png"
+    },
+    {
+      "id": "F-19",
+      "section": "F",
+      "title": "Style Pack",
+      "index": 67,
+      "filename": "067_F-19.png"
+    },
+    {
+      "id": "F-20",
+      "section": "F",
+      "title": "Creator impact",
+      "index": 68,
+      "filename": "068_F-20.png"
+    },
+    {
+      "id": "G-01",
+      "section": "G",
+      "title": "Looks grid",
+      "index": 69,
+      "filename": "069_G-01.png"
+    },
+    {
+      "id": "G-02",
+      "section": "G",
+      "title": "Look detail",
+      "index": 70,
+      "filename": "070_G-02.png"
+    },
+    {
+      "id": "G-03",
+      "section": "G",
+      "title": "Items",
+      "index": 71,
+      "filename": "071_G-03.png"
+    },
+    {
+      "id": "G-04",
+      "section": "G",
+      "title": "Classification",
+      "index": 72,
+      "filename": "072_G-04.png"
+    },
+    {
+      "id": "G-05",
+      "section": "G",
+      "title": "Value",
+      "index": 73,
+      "filename": "073_G-05.png"
+    },
+    {
+      "id": "G-06",
+      "section": "G",
+      "title": "Visibility",
+      "index": 74,
+      "filename": "074_G-06.png"
+    },
+    {
+      "id": "G-07",
+      "section": "G",
+      "title": "Social metrics",
+      "index": 75,
+      "filename": "075_G-07.png"
+    },
+    {
+      "id": "G-08",
+      "section": "G",
+      "title": "Delete",
+      "index": 76,
+      "filename": "076_G-08.png"
+    },
+    {
+      "id": "H-01",
+      "section": "H",
+      "title": "Introduction",
+      "index": 77,
+      "filename": "077_H-01.png"
+    },
+    {
+      "id": "H-02",
+      "section": "H",
+      "title": "Face guidance",
+      "index": 78,
+      "filename": "078_H-02.png"
+    },
+    {
+      "id": "H-03",
+      "section": "H",
+      "title": "Face upload",
+      "index": 79,
+      "filename": "079_H-03.png"
+    },
+    {
+      "id": "H-04",
+      "section": "H",
+      "title": "Body reference",
+      "index": 80,
+      "filename": "080_H-04.png"
+    },
+    {
+      "id": "H-05",
+      "section": "H",
+      "title": "Measurements",
+      "index": 81,
+      "filename": "081_H-05.png"
+    },
+    {
+      "id": "H-06",
+      "section": "H",
+      "title": "Appearance",
+      "index": 82,
+      "filename": "082_H-06.png"
+    },
+    {
+      "id": "H-07",
+      "section": "H",
+      "title": "Pose",
+      "index": 83,
+      "filename": "083_H-07.png"
+    },
+    {
+      "id": "H-08",
+      "section": "H",
+      "title": "Tuck preference",
+      "index": 84,
+      "filename": "084_H-08.png"
+    },
+    {
+      "id": "H-09",
+      "section": "H",
+      "title": "Usage limit",
+      "index": 85,
+      "filename": "085_H-09.png"
+    },
+    {
+      "id": "H-10",
+      "section": "H",
+      "title": "Result",
+      "index": 86,
+      "filename": "086_H-10.png"
+    },
+    {
+      "id": "I-01",
+      "section": "I",
+      "title": "Calendar month",
+      "index": 87,
+      "filename": "087_I-01.png"
+    },
+    {
+      "id": "I-02",
+      "section": "I",
+      "title": "Dashboard",
+      "index": 88,
+      "filename": "088_I-02.png"
+    },
+    {
+      "id": "I-03",
+      "section": "I",
+      "title": "Day menu",
+      "index": 89,
+      "filename": "089_I-03.png"
+    },
+    {
+      "id": "I-04",
+      "section": "I",
+      "title": "Add Event",
+      "index": 90,
+      "filename": "090_I-04.png"
+    },
+    {
+      "id": "I-05",
+      "section": "I",
+      "title": "Validation",
+      "index": 91,
+      "filename": "091_I-05.png"
+    },
+    {
+      "id": "I-06",
+      "section": "I",
+      "title": "Share Calendar",
+      "index": 92,
+      "filename": "092_I-06.png"
+    },
+    {
+      "id": "J-01",
+      "section": "J",
+      "title": "Trips list",
+      "index": 93,
+      "filename": "093_J-01.png"
+    },
+    {
+      "id": "J-02",
+      "section": "J",
+      "title": "Destination",
+      "index": 94,
+      "filename": "094_J-02.png"
+    },
+    {
+      "id": "J-03",
+      "section": "J",
+      "title": "Multi-city",
+      "index": 95,
+      "filename": "095_J-03.png"
+    },
+    {
+      "id": "J-04",
+      "section": "J",
+      "title": "Bag selection",
+      "index": 96,
+      "filename": "096_J-04.png"
+    },
+    {
+      "id": "J-05",
+      "section": "J",
+      "title": "Must-have items",
+      "index": 97,
+      "filename": "097_J-05.png"
+    },
+    {
+      "id": "J-06",
+      "section": "J",
+      "title": "Activities",
+      "index": 98,
+      "filename": "098_J-06.png"
+    },
+    {
+      "id": "J-07",
+      "section": "J",
+      "title": "Building Trip",
+      "index": 99,
+      "filename": "099_J-07.png"
+    },
+    {
+      "id": "J-08",
+      "section": "J",
+      "title": "Packing review",
+      "index": 100,
+      "filename": "100_J-08.png"
+    },
+    {
+      "id": "J-09",
+      "section": "J",
+      "title": "Suggested items",
+      "index": 101,
+      "filename": "101_J-09.png"
+    },
+    {
+      "id": "J-10",
+      "section": "J",
+      "title": "Trip Looks",
+      "index": 102,
+      "filename": "102_J-10.png"
+    },
+    {
+      "id": "J-11",
+      "section": "J",
+      "title": "Add Look menu",
+      "index": 103,
+      "filename": "103_J-11.png"
+    },
+    {
+      "id": "J-12",
+      "section": "J",
+      "title": "Ask Stylist",
+      "index": 104,
+      "filename": "104_J-12.png"
+    },
+    {
+      "id": "J-13",
+      "section": "J",
+      "title": "Review & create",
+      "index": 105,
+      "filename": "105_J-13.png"
+    },
+    {
+      "id": "J-14",
+      "section": "J",
+      "title": "Trip created",
+      "index": 106,
+      "filename": "106_J-14.png"
+    },
+    {
+      "id": "K-01",
+      "section": "K",
+      "title": "Feed",
+      "index": 107,
+      "filename": "107_K-01.png"
+    },
+    {
+      "id": "K-02",
+      "section": "K",
+      "title": "Unified search",
+      "index": 108,
+      "filename": "108_K-02.png"
+    },
+    {
+      "id": "K-03",
+      "section": "K",
+      "title": "Filters",
+      "index": 109,
+      "filename": "109_K-03.png"
+    },
+    {
+      "id": "K-04",
+      "section": "K",
+      "title": "Look detail",
+      "index": 110,
+      "filename": "110_K-04.png"
+    },
+    {
+      "id": "K-05",
+      "section": "K",
+      "title": "Try on me",
+      "index": 111,
+      "filename": "111_K-05.png"
+    },
+    {
+      "id": "K-06",
+      "section": "K",
+      "title": "Restyle",
+      "index": 112,
+      "filename": "112_K-06.png"
+    },
+    {
+      "id": "K-07",
+      "section": "K",
+      "title": "Follow/like/comment",
+      "index": 113,
+      "filename": "113_K-07.png"
+    },
+    {
+      "id": "K-08",
+      "section": "K",
+      "title": "Report",
+      "index": 114,
+      "filename": "114_K-08.png"
+    },
+    {
+      "id": "L-01",
+      "section": "L",
+      "title": "Profile",
+      "index": 115,
+      "filename": "115_L-01.png"
+    },
+    {
+      "id": "L-02",
+      "section": "L",
+      "title": "Edit profile",
+      "index": 116,
+      "filename": "116_L-02.png"
+    },
+    {
+      "id": "L-03",
+      "section": "L",
+      "title": "My content",
+      "index": 117,
+      "filename": "117_L-03.png"
+    },
+    {
+      "id": "L-04",
+      "section": "L",
+      "title": "About you",
+      "index": 118,
+      "filename": "118_L-04.png"
+    },
+    {
+      "id": "L-05",
+      "section": "L",
+      "title": "Style preferences",
+      "index": 119,
+      "filename": "119_L-05.png"
+    },
+    {
+      "id": "L-06",
+      "section": "L",
+      "title": "Brands",
+      "index": 120,
+      "filename": "120_L-06.png"
+    },
+    {
+      "id": "L-07",
+      "section": "L",
+      "title": "Budget",
+      "index": 121,
+      "filename": "121_L-07.png"
+    },
+    {
+      "id": "L-08",
+      "section": "L",
+      "title": "Events",
+      "index": 122,
+      "filename": "122_L-08.png"
+    },
+    {
+      "id": "L-09",
+      "section": "L",
+      "title": "Avatar",
+      "index": 123,
+      "filename": "123_L-09.png"
+    },
+    {
+      "id": "L-10",
+      "section": "L",
+      "title": "Auto-Prettify",
+      "index": 124,
+      "filename": "124_L-10.png"
+    },
+    {
+      "id": "L-11",
+      "section": "L",
+      "title": "Settings",
+      "index": 125,
+      "filename": "125_L-11.png"
+    },
+    {
+      "id": "L-12",
+      "section": "L",
+      "title": "Tutorial",
+      "index": 126,
+      "filename": "126_L-12.png"
+    },
+    {
+      "id": "L-13",
+      "section": "L",
+      "title": "Notification settings",
+      "index": 127,
+      "filename": "127_L-13.png"
+    },
+    {
+      "id": "L-14",
+      "section": "L",
+      "title": "Help center",
+      "index": 128,
+      "filename": "128_L-14.png"
+    },
+    {
+      "id": "L-15",
+      "section": "L",
+      "title": "Privacy & visibility",
+      "index": 129,
+      "filename": "129_L-15.png"
+    },
+    {
+      "id": "M-01",
+      "section": "M",
+      "title": "Ask Muse",
+      "index": 130,
+      "filename": "130_M-01.png"
+    },
+    {
+      "id": "M-02",
+      "section": "M",
+      "title": "Why this Look",
+      "index": 131,
+      "filename": "131_M-02.png"
+    },
+    {
+      "id": "M-03",
+      "section": "M",
+      "title": "Wardrobe gap",
+      "index": 132,
+      "filename": "132_M-03.png"
+    }
+  ]
+}
