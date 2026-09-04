@@ -1,0 +1,508 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: zero-html-baseline.spec.js >> legacy outfit-action hashes open canonical sheets or canonical jobs
+- Location: tests/zero-html-baseline.spec.js:752:1
+
+# Error details
+
+```
+Error: Channel closed
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - complementary "Complete screen index" [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: StyleIQ
+      - paragraph [ref=e8]: Adaptive wardrobe intelligenceEditorial liquid-material system
+      - generic [ref=e9]:
+        - generic [ref=e10]: Screen inventory
+        - generic [ref=e11]: 123 / 123
+    - generic [ref=e14]:
+      - searchbox "Find a screen" [ref=e15]
+      - combobox "Filter by phase" [ref=e16]:
+        - option "All" [selected]
+        - option "P1"
+        - option "P2"
+        - option "P3"
+    - generic [ref=e17]:
+      - generic [ref=e18]: S · Welcome & walkthrough
+      - button "S-00 StyleIQ splash" [ref=e19] [cursor=pointer]:
+        - generic [ref=e20]: S-00
+        - generic [ref=e24]: StyleIQ splash
+      - button "S-01 Meet Muse" [ref=e25] [cursor=pointer]:
+        - generic [ref=e26]: S-01
+        - generic [ref=e30]: Meet Muse
+      - button "S-02 Who are we styling?" [ref=e31] [cursor=pointer]:
+        - generic [ref=e32]: S-02
+        - generic [ref=e36]: Who are we styling?
+      - generic [ref=e37]: A · Authentication & first use
+      - button "A-01 Sign up or sign in" [ref=e38] [cursor=pointer]:
+        - generic [ref=e39]: A-01
+        - generic [ref=e44]: Sign up or sign in
+      - button "A-02 Create account · Name" [ref=e45] [cursor=pointer]:
+        - generic [ref=e46]: A-02
+        - generic [ref=e51]: Create account · Name
+      - button "A-03 Email sign-up" [ref=e52] [cursor=pointer]:
+        - generic [ref=e53]: A-03
+        - generic [ref=e58]: Email sign-up
+      - button "A-04 Verify email · OTP" [ref=e59] [cursor=pointer]:
+        - generic [ref=e60]: A-04
+        - generic [ref=e65]: Verify email · OTP
+      - button "A-05 Choose a first goal" [ref=e66] [cursor=pointer]:
+        - generic [ref=e67]: A-05
+        - generic [ref=e71]: Choose a first goal
+      - button "A-06 Wardrobe context · compatibility alias" [ref=e72] [cursor=pointer]:
+        - generic [ref=e73]: A-06
+        - generic [ref=e77]: Wardrobe context · compatibility alias
+      - button "A-07 Style Twin · entry alias" [ref=e78] [cursor=pointer]:
+        - generic [ref=e79]: A-07
+        - generic [ref=e87]: Style Twin · entry alias
+      - button "A-08 Style Twin · photo alias" [ref=e88] [cursor=pointer]:
+        - generic [ref=e89]: A-08
+        - generic [ref=e94]: Style Twin · photo alias
+      - button "A-09 First-use goal · alias" [ref=e95] [cursor=pointer]:
+        - generic [ref=e96]: A-09
+        - generic [ref=e101]: First-use goal · alias
+      - button "A-10 Wardrobe context · alias" [ref=e102] [cursor=pointer]:
+        - generic [ref=e103]: A-10
+        - generic [ref=e110]: Wardrobe context · alias
+      - button "A-11 Today · first-value alias" [ref=e111] [cursor=pointer]:
+        - generic [ref=e112]: A-11
+        - generic [ref=e120]: Today · first-value alias
+      - button "A-12 Add to Closet · alias" [ref=e121] [cursor=pointer]:
+        - generic [ref=e122]: A-12
+        - generic [ref=e128]: Add to Closet · alias
+      - button "A-13 Closet · empty-state alias" [ref=e129] [cursor=pointer]:
+        - generic [ref=e130]: A-13
+        - generic [ref=e134]: Closet · empty-state alias
+      - button "A-14 My Looks · alias" [ref=e135] [cursor=pointer]:
+        - generic [ref=e136]: A-14
+        - generic [ref=e140]: My Looks · alias
+      - button "A-15 Trip planning · alias" [ref=e141] [cursor=pointer]:
+        - generic [ref=e142]: A-15
+        - generic [ref=e149]: Trip planning · alias
+      - generic [ref=e150]: B · Import & Closet creation
+      - button "B-01 Global Add sheet" [ref=e151] [cursor=pointer]:
+        - generic [ref=e152]: B-01
+        - generic [ref=e158]: Global Add sheet
+      - button "B-02 Photo picker" [ref=e159] [cursor=pointer]:
+        - generic [ref=e160]: B-02
+        - generic [ref=e166]: Photo picker
+      - button "B-03 Automatic photo cleanup" [ref=e167] [cursor=pointer]:
+        - generic [ref=e168]: B-03
+        - generic [ref=e174]: Automatic photo cleanup
+      - button "B-04 Import search" [ref=e175] [cursor=pointer]:
+        - generic [ref=e176]: B-04
+        - generic [ref=e182]: Import search
+      - button "B-05 Search results" [ref=e183] [cursor=pointer]:
+        - generic [ref=e184]: B-05
+        - generic [ref=e190]: Search results
+      - button "B-06 Item review" [ref=e191] [cursor=pointer]:
+        - generic [ref=e192]: B-06
+        - generic [ref=e198]: Item review
+      - button "B-07 Photo recovery" [ref=e199] [cursor=pointer]:
+        - generic [ref=e200]: B-07
+        - generic [ref=e206]: Photo recovery
+      - button "B-08 Item review result" [ref=e207] [cursor=pointer]:
+        - generic [ref=e208]: B-08
+        - generic [ref=e214]: Item review result
+      - button "B-09 Receipt forwarding" [ref=e215] [cursor=pointer]:
+        - generic [ref=e216]: B-09
+        - generic [ref=e222]: Receipt forwarding
+      - button "B-10 Draft imports" [ref=e223] [cursor=pointer]:
+        - generic [ref=e224]: B-10
+        - generic [ref=e230]: Draft imports
+      - button "B-11 Success" [ref=e231] [cursor=pointer]:
+        - generic [ref=e232]: B-11
+        - generic [ref=e238]: Success
+      - generic [ref=e239]: C · Closet
+      - button "C-01 Closet grid" [ref=e240] [cursor=pointer]:
+        - generic [ref=e241]: C-01
+        - generic [ref=e245]: Closet grid
+      - button "C-02 Item detail" [ref=e246] [cursor=pointer]:
+        - generic [ref=e247]: C-02
+        - generic [ref=e251]: Item detail
+      - button "C-03 Item detail · photo tools" [ref=e252] [cursor=pointer]:
+        - generic [ref=e253]: C-03
+        - generic [ref=e257]: Item detail · photo tools
+      - button "C-04 Core metadata" [ref=e258] [cursor=pointer]:
+        - generic [ref=e259]: C-04
+        - generic [ref=e263]: Core metadata
+      - button "C-05 Styling metadata" [ref=e264] [cursor=pointer]:
+        - generic [ref=e265]: C-05
+        - generic [ref=e269]: Styling metadata
+      - button "C-06 Intelligence" [ref=e270] [cursor=pointer]:
+        - generic [ref=e271]: C-06
+        - generic [ref=e275]: Intelligence
+      - button "C-07 Style this item" [ref=e276] [cursor=pointer]:
+        - generic [ref=e277]: C-07
+        - generic [ref=e281]: Style this item
+      - generic [ref=e282]: D · Home & daily styling
+      - button "D-01 Before Closet data" [ref=e283] [cursor=pointer]:
+        - generic [ref=e284]: D-01
+        - generic [ref=e292]: Before Closet data
+      - button "D-02 After first item" [ref=e293] [cursor=pointer]:
+        - generic [ref=e294]: D-02
+        - generic [ref=e302]: After first item
+      - button "D-03 Loading" [ref=e303] [cursor=pointer]:
+        - generic [ref=e304]: D-03
+        - generic [ref=e312]: Loading
+      - button "D-04 Outfit families" [ref=e313] [cursor=pointer]:
+        - generic [ref=e314]: D-04
+        - generic [ref=e322]: Outfit families
+      - button "D-05 Carousel" [ref=e323] [cursor=pointer]:
+        - generic [ref=e324]: D-05
+        - generic [ref=e332]: Carousel
+      - button "D-06 Missing category" [ref=e333] [cursor=pointer]:
+        - generic [ref=e334]: D-06
+        - generic [ref=e342]: Missing category
+      - generic [ref=e343]: E · Outfit actions
+      - button "E-01 Save Look · sheet alias" [ref=e344] [cursor=pointer]:
+        - generic [ref=e345]: E-01
+        - generic [ref=e353]: Save Look · sheet alias
+      - button "E-02 Customize · Studio alias" [ref=e354] [cursor=pointer]:
+        - generic [ref=e355]: E-02
+        - generic [ref=e363]: Customize · Studio alias
+      - button "E-03 Dislike reason · sheet alias" [ref=e364] [cursor=pointer]:
+        - generic [ref=e365]: E-03
+        - generic [ref=e373]: Dislike reason · sheet alias
+      - button "E-04 Share · sheet alias" [ref=e374] [cursor=pointer]:
+        - generic [ref=e375]: E-04
+        - generic [ref=e383]: Share · sheet alias
+      - button "E-05 Style Twin · entry alias" [ref=e384] [cursor=pointer]:
+        - generic [ref=e385]: E-05
+        - generic [ref=e393]: Style Twin · entry alias
+      - button "E-06 Outfit variation · state alias" [ref=e394] [cursor=pointer]:
+        - generic [ref=e395]: E-06
+        - generic [ref=e403]: Outfit variation · state alias
+      - generic [ref=e404]: F · Style Studio / Canvas
+      - button "F-01 Style Studio" [ref=e405] [cursor=pointer]:
+        - generic [ref=e406]: F-01
+        - generic [ref=e412]: Style Studio
+      - button "F-02 Style Studio · flat-lay alias" [ref=e413] [cursor=pointer]:
+        - generic [ref=e414]: F-02
+        - generic [ref=e420]: Style Studio · flat-lay alias
+      - button "F-03 Style Studio · Twin alias" [ref=e421] [cursor=pointer]:
+        - generic [ref=e422]: F-03
+        - generic [ref=e428]: Style Studio · Twin alias
+      - button "F-04 Style Studio · context alias" [ref=e429] [cursor=pointer]:
+        - generic [ref=e430]: F-04
+        - generic [ref=e436]: Style Studio · context alias
+      - button "F-05 Style Studio · layers alias" [ref=e437] [cursor=pointer]:
+        - generic [ref=e438]: F-05
+        - generic [ref=e444]: Style Studio · layers alias
+      - button "F-06 Style Studio · add-layer alias" [ref=e445] [cursor=pointer]:
+        - generic [ref=e446]: F-06
+        - generic [ref=e452]: Style Studio · add-layer alias
+      - button "F-07 Style Studio · picker alias" [ref=e453] [cursor=pointer]:
+        - generic [ref=e454]: F-07
+        - generic [ref=e460]: Style Studio · picker alias
+      - button "F-08 Style Studio · multi-select alias" [ref=e461] [cursor=pointer]:
+        - generic [ref=e462]: F-08
+        - generic [ref=e468]: Style Studio · multi-select alias
+      - button "F-09 Style Studio · sources alias" [ref=e469] [cursor=pointer]:
+        - generic [ref=e470]: F-09
+        - generic [ref=e476]: Style Studio · sources alias
+      - button "F-10 Style Studio · missing-item alias" [ref=e477] [cursor=pointer]:
+        - generic [ref=e478]: F-10
+        - generic [ref=e484]: Style Studio · missing-item alias
+      - button "F-11 Style Studio · draft alias" [ref=e485] [cursor=pointer]:
+        - generic [ref=e486]: F-11
+        - generic [ref=e492]: Style Studio · draft alias
+      - generic [ref=e493]: G · Saved Looks
+      - button "G-01 My Looks" [ref=e494] [cursor=pointer]:
+        - generic [ref=e495]: G-01
+        - generic [ref=e499]: My Looks
+      - button "G-02 Saved Look" [ref=e500] [cursor=pointer]:
+        - generic [ref=e501]: G-02
+        - generic [ref=e505]: Saved Look
+      - button "G-03 Saved Look · items alias" [ref=e506] [cursor=pointer]:
+        - generic [ref=e507]: G-03
+        - generic [ref=e511]: Saved Look · items alias
+      - button "G-04 Saved Look · details alias" [ref=e512] [cursor=pointer]:
+        - generic [ref=e513]: G-04
+        - generic [ref=e517]: Saved Look · details alias
+      - button "G-05 Saved Look · value alias" [ref=e518] [cursor=pointer]:
+        - generic [ref=e519]: G-05
+        - generic [ref=e523]: Saved Look · value alias
+      - button "G-06 Saved Look · visibility alias" [ref=e524] [cursor=pointer]:
+        - generic [ref=e525]: G-06
+        - generic [ref=e529]: Saved Look · visibility alias
+      - button "G-07 Saved Look · activity alias" [ref=e530] [cursor=pointer]:
+        - generic [ref=e531]: G-07
+        - generic [ref=e535]: Saved Look · activity alias
+      - button "G-08 Saved Look · delete alias" [ref=e536] [cursor=pointer]:
+        - generic [ref=e537]: G-08
+        - generic [ref=e541]: Saved Look · delete alias
+      - generic [ref=e542]: H · Avatar & Virtual Try-On
+      - button "H-01 Style Twin introduction" [ref=e543] [cursor=pointer]:
+        - generic [ref=e544]: H-01
+        - generic [ref=e552]: Style Twin introduction
+      - button "H-02 Style Twin · photo reference alias" [ref=e553] [cursor=pointer]:
+        - generic [ref=e554]: H-02
+        - generic [ref=e562]: Style Twin · photo reference alias
+      - button "H-03 Style Twin · photo reference alias" [ref=e563] [cursor=pointer]:
+        - generic [ref=e564]: H-03
+        - generic [ref=e572]: Style Twin · photo reference alias
+      - button "H-04 Style Twin · photo reference alias" [ref=e573] [cursor=pointer]:
+        - generic [ref=e574]: H-04
+        - generic [ref=e582]: Style Twin · photo reference alias
+      - button "H-05 Style Twin · no-photo reference" [ref=e583] [cursor=pointer]:
+        - generic [ref=e584]: H-05
+        - generic [ref=e592]: Style Twin · no-photo reference
+      - button "H-06 Style Twin · basic details" [ref=e593] [cursor=pointer]:
+        - generic [ref=e594]: H-06
+        - generic [ref=e602]: Style Twin · basic details
+      - button "H-07 Style Twin · refine alias" [ref=e603] [cursor=pointer]:
+        - generic [ref=e604]: H-07
+        - generic [ref=e612]: Style Twin · refine alias
+      - button "H-08 Style Twin · refine alias" [ref=e613] [cursor=pointer]:
+        - generic [ref=e614]: H-08
+        - generic [ref=e622]: Style Twin · refine alias
+      - button "H-09 Style Twin · refine alias" [ref=e623] [cursor=pointer]:
+        - generic [ref=e624]: H-09
+        - generic [ref=e632]: Style Twin · refine alias
+      - button "H-10 Style Twin · first result" [ref=e633] [cursor=pointer]:
+        - generic [ref=e634]: H-10
+        - generic [ref=e642]: Style Twin · first result
+      - generic [ref=e643]: I · Planner & events
+      - button "I-01 Calendar month" [ref=e644] [cursor=pointer]:
+        - generic [ref=e645]: I-01
+        - generic [ref=e649]: Calendar month
+      - button "I-02 Dashboard" [ref=e650] [cursor=pointer]:
+        - generic [ref=e651]: I-02
+        - generic [ref=e655]: Dashboard
+      - button "I-03 Day menu" [ref=e656] [cursor=pointer]:
+        - generic [ref=e657]: I-03
+        - generic [ref=e661]: Day menu
+      - button "I-04 Add Event" [ref=e662] [cursor=pointer]:
+        - generic [ref=e663]: I-04
+        - generic [ref=e667]: Add Event
+      - button "I-05 Validation" [ref=e668] [cursor=pointer]:
+        - generic [ref=e669]: I-05
+        - generic [ref=e673]: Validation
+      - button "I-06 Share Calendar" [ref=e674] [cursor=pointer]:
+        - generic [ref=e675]: I-06
+        - generic [ref=e679]: Share Calendar
+      - generic [ref=e680]: J · Trips
+      - button "J-01 Trips list" [ref=e681] [cursor=pointer]:
+        - generic [ref=e682]: J-01
+        - generic [ref=e689]: Trips list
+      - button "J-02 Trip input" [ref=e690] [cursor=pointer]:
+        - generic [ref=e691]: J-02
+        - generic [ref=e698]: Trip input
+      - button "J-03 Trip input · alias" [ref=e699] [cursor=pointer]:
+        - generic [ref=e700]: J-03
+        - generic [ref=e707]: Trip input · alias
+      - button "J-04 Trip input · alias" [ref=e708] [cursor=pointer]:
+        - generic [ref=e709]: J-04
+        - generic [ref=e716]: Trip input · alias
+      - button "J-05 Trip input · alias" [ref=e717] [cursor=pointer]:
+        - generic [ref=e718]: J-05
+        - generic [ref=e725]: Trip input · alias
+      - button "J-06 Trip input · alias" [ref=e726] [cursor=pointer]:
+        - generic [ref=e727]: J-06
+        - generic [ref=e734]: Trip input · alias
+      - button "J-07 Trip input · alias" [ref=e735] [cursor=pointer]:
+        - generic [ref=e736]: J-07
+        - generic [ref=e743]: Trip input · alias
+      - button "J-08 Packing review" [ref=e744] [cursor=pointer]:
+        - generic [ref=e745]: J-08
+        - generic [ref=e752]: Packing review
+      - button "J-09 Trip hub · packing alias" [ref=e753] [cursor=pointer]:
+        - generic [ref=e754]: J-09
+        - generic [ref=e761]: Trip hub · packing alias
+      - button "J-10 Trip Looks" [ref=e762] [cursor=pointer]:
+        - generic [ref=e763]: J-10
+        - generic [ref=e770]: Trip Looks
+      - button "J-11 Trip hub · Looks alias" [ref=e771] [cursor=pointer]:
+        - generic [ref=e772]: J-11
+        - generic [ref=e779]: Trip hub · Looks alias
+      - button "J-12 Trip hub · Looks alias" [ref=e780] [cursor=pointer]:
+        - generic [ref=e781]: J-12
+        - generic [ref=e788]: Trip hub · Looks alias
+      - button "J-13 Trip hub · packing alias" [ref=e789] [cursor=pointer]:
+        - generic [ref=e790]: J-13
+        - generic [ref=e797]: Trip hub · packing alias
+      - button "J-14 Trip hub · packing alias" [ref=e798] [cursor=pointer]:
+        - generic [ref=e799]: J-14
+        - generic [ref=e806]: Trip hub · packing alias
+      - generic [ref=e807]: K · Inspiration & community
+      - button "K-01 Feed" [ref=e808] [cursor=pointer]:
+        - generic [ref=e809]: K-01
+        - generic [ref=e814]: Feed
+      - button "K-02 Unified search" [ref=e815] [cursor=pointer]:
+        - generic [ref=e816]: K-02
+        - generic [ref=e821]: Unified search
+      - button "K-03 Filters" [ref=e822] [cursor=pointer]:
+        - generic [ref=e823]: K-03
+        - generic [ref=e828]: Filters
+      - button "K-04 Look detail" [ref=e829] [cursor=pointer]:
+        - generic [ref=e830]: K-04
+        - generic [ref=e835]: Look detail
+      - button "K-05 Try on me" [ref=e836] [cursor=pointer]:
+        - generic [ref=e837]: K-05
+        - generic [ref=e842]: Try on me
+      - button "K-06 Restyle" [ref=e843] [cursor=pointer]:
+        - generic [ref=e844]: K-06
+        - generic [ref=e849]: Restyle
+      - button "K-07 Follow/like/comment" [ref=e850] [cursor=pointer]:
+        - generic [ref=e851]: K-07
+        - generic [ref=e856]: Follow/like/comment
+      - button "K-08 Report" [ref=e857] [cursor=pointer]:
+        - generic [ref=e858]: K-08
+        - generic [ref=e863]: Report
+      - generic [ref=e864]: L · Profile & settings
+      - button "L-01 Profile" [ref=e865] [cursor=pointer]:
+        - generic [ref=e866]: L-01
+        - generic [ref=e871]: Profile
+      - button "L-02 Inline profile · compatibility alias" [ref=e872] [cursor=pointer]:
+        - generic [ref=e873]: L-02
+        - generic [ref=e878]: Inline profile · compatibility alias
+      - button "L-03 My content" [ref=e879] [cursor=pointer]:
+        - generic [ref=e880]: L-03
+        - generic [ref=e885]: My content
+      - button "L-04 About you" [ref=e886] [cursor=pointer]:
+        - generic [ref=e887]: L-04
+        - generic [ref=e892]: About you
+      - button "L-05 Style preferences" [ref=e893] [cursor=pointer]:
+        - generic [ref=e894]: L-05
+        - generic [ref=e899]: Style preferences
+      - button "L-06 Brands" [ref=e900] [cursor=pointer]:
+        - generic [ref=e901]: L-06
+        - generic [ref=e906]: Brands
+      - button "L-07 Budget" [ref=e907] [cursor=pointer]:
+        - generic [ref=e908]: L-07
+        - generic [ref=e913]: Budget
+      - button "L-08 Events" [ref=e914] [cursor=pointer]:
+        - generic [ref=e915]: L-08
+        - generic [ref=e920]: Events
+      - button "L-09 Avatar" [ref=e921] [cursor=pointer]:
+        - generic [ref=e922]: L-09
+        - generic [ref=e927]: Avatar
+      - button "L-10 Photo originals" [ref=e928] [cursor=pointer]:
+        - generic [ref=e929]: L-10
+        - generic [ref=e934]: Photo originals
+      - button "L-11 Settings" [ref=e935] [cursor=pointer]:
+        - generic [ref=e936]: L-11
+        - generic [ref=e941]: Settings
+      - button "L-12 Tutorial" [ref=e942] [cursor=pointer]:
+        - generic [ref=e943]: L-12
+        - generic [ref=e948]: Tutorial
+      - button "L-13 Notification settings" [ref=e949] [cursor=pointer]:
+        - generic [ref=e950]: L-13
+        - generic [ref=e955]: Notification settings
+      - button "L-14 Help center" [ref=e956] [cursor=pointer]:
+        - generic [ref=e957]: L-14
+        - generic [ref=e962]: Help center
+      - button "L-15 Privacy & visibility" [ref=e963] [cursor=pointer]:
+        - generic [ref=e964]: L-15
+        - generic [ref=e969]: Privacy & visibility
+      - generic [ref=e970]: M · Muse stylist
+      - button "M-01 Ask Muse" [ref=e971] [cursor=pointer]:
+        - generic [ref=e972]: M-01
+        - generic [ref=e976]: Ask Muse
+      - button "M-02 Why this Look" [ref=e977] [cursor=pointer]:
+        - generic [ref=e978]: M-02
+        - generic [ref=e982]: Why this Look
+      - button "M-03 Wardrobe gap" [ref=e983] [cursor=pointer]:
+        - generic [ref=e984]: M-03
+        - generic [ref=e988]: Wardrobe gap
+  - main [ref=e989]:
+    - generic [ref=e990]:
+      - generic [ref=e992]:
+        - generic: 9:41
+        - generic [ref=e994]:
+          - generic [ref=e995]:
+            - button "Back" [ref=e996] [cursor=pointer]
+            - heading "Today" [level=1] [ref=e1000]
+            - button "Ask Muse about this screen" [ref=e1001]
+          - generic [ref=e1004]:
+            - paragraph [ref=e1005]: Styled around your blazer
+            - heading "Five ways to wear it" [level=2] [ref=e1006]
+            - generic [ref=e1007]:
+              - button "Business casual" [ref=e1008] [cursor=pointer]
+              - button "Party" [ref=e1009] [cursor=pointer]
+              - button "Dressy" [ref=e1010] [cursor=pointer]
+              - button "Professional" [ref=e1011] [cursor=pointer]
+              - button "Semi-formal" [ref=e1012] [cursor=pointer]
+            - figure [ref=e1014]:
+              - img "Espresso blazer, ivory silk top, black trousers, oxblood bag, and loafers" [ref=e1015]
+              - generic [ref=e1016]: Office · Cairo
+              - generic [ref=e1017]: 1 / 4
+            - generic [ref=e1018]:
+              - generic [ref=e1019]:
+                - paragraph [ref=e1020]: Business casual
+                - heading "Quiet structure" [level=3] [ref=e1021]
+                - paragraph [ref=e1022]: 28° · Office · 3 owned pieces
+              - button "Why this Look?" [ref=e1023]
+            - generic [ref=e1024]:
+              - button "Make it mine" [ref=e1025] [cursor=pointer]
+              - button "Try on" [ref=e1029] [cursor=pointer]
+            - generic "Pieces in this Look" [ref=e1033]:
+              - button "Blazer Owned Blazer From Closet" [ref=e1034]:
+                - generic [ref=e1035]:
+                  - img "Blazer" [ref=e1036]
+                  - emphasis [ref=e1037]: Owned
+                - generic [ref=e1038]: Blazer
+                - generic [ref=e1039]: From Closet
+              - button "Ivory top Owned Ivory top From Closet" [ref=e1040]:
+                - generic [ref=e1041]:
+                  - img "Ivory top" [ref=e1042]
+                  - emphasis [ref=e1043]: Owned
+                - generic [ref=e1044]: Ivory top
+                - generic [ref=e1045]: From Closet
+              - button "Trousers Owned Trousers From Closet" [ref=e1046]:
+                - generic [ref=e1047]:
+                  - img "Trousers" [ref=e1048]
+                  - emphasis [ref=e1049]: Owned
+                - generic [ref=e1050]: Trousers
+                - generic [ref=e1051]: From Closet
+              - button "Oxblood bag Suggested Oxblood bag Useful addition" [ref=e1052]:
+                - generic [ref=e1053]:
+                  - img "Oxblood bag" [ref=e1054]
+                  - emphasis [ref=e1055]: Suggested
+                - generic [ref=e1056]: Oxblood bag
+                - generic [ref=e1057]: Useful addition
+            - generic [ref=e1058]:
+              - button "Save Look" [ref=e1059] [cursor=pointer]: Save
+              - button "Not for me" [ref=e1062] [cursor=pointer]: × Not for me
+              - button "Share" [ref=e1063] [cursor=pointer]: ↗ Share
+          - navigation "Primary navigation" [ref=e1064]:
+            - button "Today" [ref=e1065] [cursor=pointer]
+            - button "Closet" [ref=e1072] [cursor=pointer]
+            - button "Planner" [ref=e1075] [cursor=pointer]
+            - button "Discover" [ref=e1078] [cursor=pointer]
+            - button "Open More menu" [ref=e1082] [cursor=pointer]: More
+        - status
+      - complementary [ref=e1087]:
+        - generic [ref=e1088]: Phase 2
+        - paragraph [ref=e1089]: E-06 · Outfit actions
+        - heading "Outfit variation · state alias" [level=2] [ref=e1090]
+        - paragraph [ref=e1091]: Renders the canonical outfit-family state.
+        - generic [ref=e1092]:
+          - generic [ref=e1093]:
+            - generic [ref=e1094]: Surface
+            - text: Mobile screen / state
+          - generic [ref=e1095]:
+            - generic [ref=e1096]: Style
+            - text: Warm pearl, espresso, restrained plum
+          - generic [ref=e1097]:
+            - generic [ref=e1098]: Inventory
+            - text: 48 of 123
+          - generic [ref=e1099]:
+            - generic [ref=e1100]: Keyboard
+            - generic [ref=e1101]: ← →
+        - generic [ref=e1102]:
+          - button "Previous screen" [ref=e1103] [cursor=pointer]
+          - button "Next screen" [ref=e1104] [cursor=pointer]
+```

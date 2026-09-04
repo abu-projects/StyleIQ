@@ -370,10 +370,10 @@ test('creator inspiration centers owned equivalents and one Make It Mine action'
 
 test('minimum email onboarding asks for the styling goal then delivers Today value', async ({ page }) => {
   await page.goto('/0.html#A-01');
-  await page.getByRole('button', { name: 'Continue with email' }).click();
+  await page.getByRole('button', { name: 'Sign in with email' }).click();
   await page.getByRole('button', { name: 'Use this name', exact: true }).click();
   await page.getByRole('button', { name: 'Create my account', exact: true }).click();
-  await page.getByRole('button', { name: 'Verify and continue' }).click();
+  await page.getByRole('button', { name: 'Verify email', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'What should StyleIQ help with first?' })).toBeVisible();
   await page.getByRole('button', { name: /Wear more of my Closet/ }).click();
   await expect(page).toHaveURL(/#D-02$/);
@@ -459,22 +459,14 @@ test('core visual jobs lead with meaningful outfit or garment imagery', async ({
   }
 });
 
-test('key empty states use a large visual preview and one clear next action', async ({ page }) => {
-  const states = [
-    ['A-13', 'Your first piece', 'Add to Closet'],
-    ['A-14', 'A Look to return to', 'Create a Look'],
-    ['A-15', 'Pack visually', 'Plan a Trip']
-  ];
-
-  for (const [id, imageName, actionName] of states) {
-    await page.goto(`/0.html#${id}`);
-    const image = page.getByRole('img', { name: imageName, exact: true });
-    await expect(image).toBeVisible();
-    await expect(page.getByRole('button', { name: actionName, exact: true })).toBeVisible();
-    const box = await image.boundingBox();
-    expect(box.height).toBeGreaterThan(250);
-    await expect(page.locator('#app .screen')).toHaveCount(1);
-  }
+test('the remaining true empty state uses a large visual preview and one clear action', async ({ page }) => {
+  await page.goto('/0.html#D-01');
+  const image = page.getByRole('img', { name: 'From photo to outfit', exact: true });
+  await expect(image).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Add an item', exact: true })).toBeVisible();
+  const box = await image.boundingBox();
+  expect(box.height).toBeGreaterThan(250);
+  await expect(page.locator('#app .screen')).toHaveCount(1);
 });
 
 test('user-facing routes do not rely on generic Continue or Next buttons', async ({ page }) => {
@@ -716,13 +708,13 @@ test('minimum onboarding excludes occupation, attribution, brands, and Style Twi
   const visited = [];
   await page.goto('/0.html#A-01');
   visited.push(await page.locator('#app').getAttribute('data-screen'));
-  await page.getByRole('button', { name: 'Continue with email' }).click();
+  await page.getByRole('button', { name: 'Sign in with email' }).click();
   visited.push(await page.locator('#app').getAttribute('data-screen'));
   await page.getByRole('button', { name: 'Use this name' }).click();
   visited.push(await page.locator('#app').getAttribute('data-screen'));
   await page.getByRole('button', { name: 'Create my account' }).click();
   visited.push(await page.locator('#app').getAttribute('data-screen'));
-  await page.getByRole('button', { name: 'Verify and continue' }).click();
+  await page.getByRole('button', { name: 'Verify email', exact: true }).click();
   visited.push(await page.locator('#app').getAttribute('data-screen'));
 
   expect(visited).toEqual(['A-01', 'A-02', 'A-03', 'A-04', 'A-05']);
@@ -740,7 +732,7 @@ test('the onboarding goal opens its useful destination immediately', async ({ pa
 
   for (const [label, id] of goals) {
     await page.goto('/0.html#A-01');
-    await page.getByRole('button', { name: 'Continue with Google' }).click();
+    await page.getByRole('button', { name: 'Sign in with Google' }).click();
     await page.getByRole('button', { name: new RegExp(label) }).click();
     await expect(page.locator('#app')).toHaveAttribute('data-screen', id);
   }
@@ -1000,6 +992,25 @@ test('legacy Trip setup routes collapse into the shared description step', async
   }
 });
 
+test('compatibility-only route families render their canonical user job', async ({ page }) => {
+  const cases = [
+    ['A-13', 'Wardrobe · 12 pieces'],
+    ['A-14', 'Canonical collection'],
+    ['A-15', 'Where are you going?'],
+    ...['F-02', 'F-03', 'F-04', 'F-05', 'F-06', 'F-07', 'F-08', 'F-09', 'F-10', 'F-11'].map(id => [id, 'Style Studio']),
+    ...['G-03', 'G-04', 'G-05', 'G-06', 'G-07', 'G-08'].map(id => [id, 'Created by Me']),
+    ...['J-09', 'J-13', 'J-14'].map(id => [id, 'Your trip is ready']),
+    ...['J-11', 'J-12'].map(id => [id, 'Your trip is ready'])
+  ];
+
+  for (const [id, canonicalCopy] of cases) {
+    await page.goto(`/0.html#${id}`);
+    await expect(page.locator('#app')).toHaveAttribute('data-screen', id);
+    await expect(page.locator('#app')).toContainText(canonicalCopy);
+    await expect(page.locator('#app .screen')).toHaveCount(1);
+  }
+});
+
 test('Weekly recap uses concrete wardrobe behavior and prepares next week directly', async ({ page }) => {
   await page.goto('/0.html#I-02');
   const metrics = page.getByLabel('Weekly wardrobe metrics');
@@ -1028,10 +1039,11 @@ test('final visual system keeps neutral editorial surfaces without decorative ca
   await page.goto('/0.html#I-02');
   const styles = await page.locator('.planner-intent-card').evaluate(element => {
     const value = getComputedStyle(element);
-    return { backgroundImage: value.backgroundImage, boxShadow: value.boxShadow };
+    return { backgroundImage: value.backgroundImage, boxShadow: value.boxShadow, backdropFilter: value.backdropFilter };
   });
   expect(styles.backgroundImage).toBe('none');
   expect(styles.boxShadow).not.toContain('0px 14px 34px');
+  expect(styles.backdropFilter).toBe('none');
   await expect(page.getByRole('img', { name: 'Favorite outfit worn this week' })).toBeVisible();
   await expect(page.locator('body')).not.toContainText('ChatGPT');
 });
@@ -1046,6 +1058,9 @@ test('provisional semantic color tokens drive shared surfaces without layout cha
     expect(name).toMatch(/^--/);
     expect(value).not.toBe('');
   }
+  const palette = Object.fromEntries(tokens);
+  expect(palette['--accent']).toBe('#c89b45');
+  expect(palette['--accent-soft']).toBe('#f5ead2');
   await page.evaluate(() => document.documentElement.style.setProperty('--surface', 'rgb(250, 240, 230)'));
   await expect(page.getByRole('button', { name: 'Wear', exact: true })).toHaveCSS('background-color', 'rgb(36, 29, 26)');
   await expect(page.getByRole('button', { name: 'Try On', exact: true })).toHaveCSS('background-color', 'rgb(250, 240, 230)');
