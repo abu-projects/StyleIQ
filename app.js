@@ -661,7 +661,6 @@ const defaultCanvas = () => ({
     ["Top", 0],
     ["Bottom", 0],
     ["Shoes", 0],
-    ["Accessory", 0],
   ].map(([role, idx], i) => makeItem(role, idx, `${role}-${i}`)),
   history: [],
 });
@@ -4370,6 +4369,8 @@ function openStudioLens() {
   openLens();
 }
 function studioPieceArt(piece) {
+  if (Number.isInteger(piece.instantVariant) && instantWardrobe[piece.accessoryType || piece.role])
+    return instantWardrobeArt(piece.accessoryType || piece.role, piece.instantVariant);
   const name = piece.name.toLowerCase();
   let file = "",
     cell = null;
@@ -4525,7 +4526,137 @@ function studioLensMarkup() {
   }
   return markup;
 }
+// Registered demo photography keeps each wardrobe row independently interactive.
+const instantWardrobe = {
+  Top: ['Ivory cotton shirt', 'Rust square-neck knit', 'Black silk shell', 'Blue cotton shirt'],
+  Bottom: ['Black tailored trousers', 'Cream wide-leg trousers', 'Charcoal trousers', 'Straight blue jeans'],
+  Shoes: ['Tan suede loafers', 'White sneakers', 'Black ankle boots', 'Black ballet flats'],
+  Outerwear: ['Black open blazer', 'Camel open blazer', 'Blue denim jacket', 'Olive utility jacket'],
+  Dress: ['Black midi dress', 'Sage A-line dress', 'Burgundy wrap dress', 'Ivory midi dress'],
+  Glasses: ['Black sunglasses', 'Tortoiseshell cat-eye glasses', 'Gold aviator glasses'],
+  Earrings: ['Gold hoop earrings', 'Pearl stud earrings', 'Silver drop earrings'],
+  Watch: ['Silver bracelet watch', 'Tan leather watch', 'Black leather watch'],
+};
+const instantLabels = { Top:'Tops', Bottom:'Bottoms', Shoes:'Shoes', Outerwear:'Jackets', Dress:'Dresses', Glasses:'Sunglasses', Earrings:'Earrings', Watch:'Watches' };
+const instantAccessoryRoles = ['Glasses', 'Earrings', 'Watch'];
+const instantOptionalRoles = ['Outerwear', 'Dress', ...instantAccessoryRoles];
+function instantPieceMatches(piece, role) {
+  return instantAccessoryRoles.includes(role)
+    ? piece.role === 'Accessory' && (piece.accessoryType === role || instantWardrobe[role].includes(piece.name))
+    : piece.role === role;
+}
+function instantWardrobeIndex(role) {
+  const piece = canvasState.items.find(x => instantPieceMatches(x, role) && x.visible !== false);
+  const exact = instantWardrobe[role].indexOf(piece?.name);
+  if (exact >= 0) return exact;
+  if (instantOptionalRoles.includes(role)) return -1;
+  const name = piece?.name?.toLowerCase() || '';
+  if (/rust|cream|wide-leg|sneaker/.test(name)) return 1;
+  if (/shell|charcoal|boot/.test(name)) return 2;
+  if (/blue|jeans|flat/.test(name)) return 3;
+  return 0;
+}
+function instantWardrobeArt(role, index) {
+  return `<span class="instant-piece-art art-${role.toLowerCase()}" style="--variant:${index}" aria-hidden="true"></span>`;
+}
+function instantAvatarMarkup() {
+  const dress = instantWardrobeIndex('Dress');
+  const base = dress >= 0 ? ['Dress', 'Shoes'] : ['Bottom', 'Shoes', 'Top'];
+  const worn = [...base, ...['Outerwear', ...instantAccessoryRoles].filter(role => instantWardrobeIndex(role) >= 0)];
+  const jacket = instantWardrobeIndex('Outerwear');
+  const chips = dress >= 0 ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
+  return `<div class="instant-avatar" role="img" aria-label="Outfit preview: ${worn.map(role => instantWardrobe[role][instantWardrobeIndex(role)]).join(', ')}">
+    ${base.map(role => `<span class="instant-avatar-layer layer-${role.toLowerCase()}" style="--variant:${instantWardrobeIndex(role)}"></span>`).join('')}
+    ${jacket >= 0 ? `<span class="instant-jacket jacket-left" style="--variant:${jacket}"></span><span class="instant-jacket jacket-right" style="--variant:${jacket}"></span>` : ''}
+    ${instantAccessoryRoles.filter(role => instantWardrobeIndex(role) >= 0).map(role => role === 'Earrings' ? ['left', 'right'].map(side => `<span class="instant-wearable wearable-earrings earring-${side}">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('') : `<span class="instant-wearable wearable-${role.toLowerCase()}">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('')}
+  </div>${chips.map(role => `<span class="instant-worn worn-${role.toLowerCase()}" aria-hidden="true">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('')}`;
+}
+function setInstantPiece(role, index) {
+  const existing = canvasState.items.find(x => instantPieceMatches(x, role));
+  canvasState.items = canvasState.items.filter(x => !instantPieceMatches(x, role));
+  if (index < 0) return;
+  const accessory = instantAccessoryRoles.includes(role);
+  canvasState.items.push({ id: existing?.id || `${role}-${Date.now()}`, role: accessory ? 'Accessory' : role,
+    ...(accessory ? {accessoryType:role} : {}), index, name: instantWardrobe[role][index], brand:'StyleIQ',
+    image: `images/${accessory ? 'studio-accessories.png' : role === 'Outerwear' ? 'studio-jackets.png' : role === 'Dress' ? 'studio-dresses.jpg' : 'studio-avatar-wardrobe.jpg'}`,
+    owned:false, visible:true, instantVariant:index });
+}
+function restoreInstantSeparates() {
+  canvasState.items = canvasState.items.filter(x => !['Dress', 'Top', 'Bottom'].includes(x.role));
+  for (const role of ['Top', 'Bottom']) {
+    const saved = canvasState.instantSeparates?.find(x => x.role === role);
+    if (saved) canvasState.items.push({...saved, visible:true});
+    else setInstantPiece(role, 0);
+  }
+}
+function refreshInstantWardrobe() {
+  const dress = instantWardrobeIndex('Dress') >= 0;
+  app.querySelector('.instant-avatar-stage').innerHTML = instantAvatarMarkup();
+  app.querySelector('.instant-dress-context').hidden = !dress;
+  app.querySelectorAll('[data-instant-role]').forEach(row => {
+    const role = row.dataset.instantRole, selected = instantWardrobeIndex(role);
+    row.hidden = dress && ['Top', 'Bottom'].includes(role);
+    row.querySelectorAll('.instant-option').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.index) === selected)));
+    row.querySelector('.instant-row-choice').textContent = selected < 0 ? (role === 'Dress' ? 'Wear separates' : 'None') : instantWardrobe[role][selected];
+  });
+}
+function chooseInstantPiece(role, index) {
+  if (!instantWardrobe[role] || (index === -1 ? !instantOptionalRoles.includes(role) : !instantWardrobe[role][index])) return;
+  const wasDress = instantWardrobeIndex('Dress') >= 0;
+  if (role === 'Dress' && index >= 0) {
+    if (!wasDress) {
+      for (const separate of ['Top', 'Bottom']) setInstantPiece(separate, instantWardrobeIndex(separate));
+      canvasState.instantSeparates = canvasState.items.filter(x => ['Top', 'Bottom'].includes(x.role)).map(x => ({...x}));
+    }
+    canvasState.items = canvasState.items.filter(x => !['Top', 'Bottom'].includes(x.role));
+  } else if (wasDress && (['Top', 'Bottom'].includes(role) || (role === 'Dress' && index < 0))) restoreInstantSeparates();
+  setInstantPiece(role, index);
+  persist();
+  refreshInstantWardrobe();
+  const row = app.querySelector(`[data-instant-role="${role}"]`), rail = row.querySelector('.instant-rail');
+  const selected = rail.querySelector(`[data-index="${index}"]`);
+  if (selected) rail.scrollTo({left:selected.offsetLeft - rail.offsetLeft - (rail.clientWidth - selected.clientWidth) / 2,
+    behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+  app.querySelector('.instant-announcement').textContent = index < 0 ? `${instantLabels[role]} removed` : `${instantWardrobe[role][index]} selected`;
+}
+function instantRailKey(event, role) {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+  event.preventDefault(); event.stopPropagation();
+  const buttons = [...event.currentTarget.querySelectorAll('button')];
+  const index = event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1
+    : Math.max(0, Math.min(buttons.length - 1, buttons.indexOf(document.activeElement) + (event.key === 'ArrowRight' ? 1 : -1)));
+  buttons[index].focus({preventScroll:true});
+  chooseInstantPiece(role, Number(buttons[index].dataset.index));
+}
+function saveInstantLook() {
+  const roles = instantWardrobeIndex('Dress') >= 0 ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
+  for (const role of roles) setInstantPiece(role, instantWardrobeIndex(role));
+  persist();
+  toast('Draft saved on this device');
+}
+function instantWardrobeRow(role, names) {
+  const selected = instantWardrobeIndex(role), optional = instantOptionalRoles.includes(role);
+  const hidden = instantWardrobeIndex('Dress') >= 0 && ['Top', 'Bottom'].includes(role);
+  const choices = [...(optional ? [{index:-1, name:role === 'Dress' ? 'Wear separates' : `No ${instantLabels[role].toLowerCase()}`}] : []), ...names.map((name,index) => ({name,index}))];
+  return `<section class="instant-row" data-instant-role="${role}" aria-label="${instantLabels[role]}" ${hidden ? 'hidden' : ''}>
+    <div class="instant-row-heading"><h3>${instantLabels[role]}</h3><span class="instant-row-choice">${selected < 0 ? (role === 'Dress' ? 'Wear separates' : 'None') : names[selected]}</span></div>
+    <div class="instant-rail" role="group" aria-label="${role} options" onkeydown="instantRailKey(event,'${role}')">${choices.map(({name,index}) => `<button class="instant-option" data-index="${index}" aria-label="${index < 0 ? name : `Try ${name}`}" aria-pressed="${selected === index}" onclick="chooseInstantPiece('${role}',${index})">${index < 0 ? '<span class="instant-none" aria-hidden="true">∅</span><span class="instant-none-label">None</span>' : instantWardrobeArt(role,index)}<span class="instant-selection-dot"></span></button>`).join('')}</div>
+  </section>`;
+}
+function instantStudio() {
+  return `<section class="screen studio-instant"><div class="content no-nav instant-content">
+    <header class="instant-header"><button class="instant-icon-button" aria-label="Back" onclick="backScreen()">${icon('back')}</button><div><p>STYLE STUDIO</p><h2>${escapeMarkup(canvasState.title)}</h2></div><button class="instant-save" onclick="saveInstantLook()">Save draft</button></header>
+    <div class="instant-avatar-stage">${instantAvatarMarkup()}</div>
+    <p class="instant-hint">Make it yours. Scroll for more pieces.</p>
+    <section class="instant-wardrobe" aria-label="Choose your outfit">
+    <div class="instant-dress-context" ${instantWardrobeIndex('Dress') < 0 ? 'hidden' : ''}><span>One-piece Look · Dress + shoes</span><button onclick="chooseInstantPiece('Dress',-1)">Wear separates</button></div>
+    ${Object.entries(instantWardrobe).map(([role,names]) => instantWardrobeRow(role,names)).join('')}
+    </section><div class="instant-footer"><span>Interactive outfit preview</span><button onclick="go('F-05')">Edit Look details ${icon('chevron-right')}</button></div>
+    <span class="sr-only instant-announcement" role="status" aria-live="polite"></span>
+  </div></section>`;
+}
 function canonicalStudio() {
+  if (currentId === 'F-01') return instantStudio();
   const twin = canvasState.mode === "avatar",
     create = canvasState.studioMode === "create";
   const simpleActions = [

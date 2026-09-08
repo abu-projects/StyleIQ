@@ -12364,3 +12364,88 @@ body {
     background: rgba(250, 246, 241, 0.94);
   }
 }
+
+/* F-01: direct outfit selection, with independently scrollable wardrobe rows. */
+.app .studio-instant { background: #f5f3ef; }
+.app .studio-instant .instant-content { padding: 8px 20px 105px; }
+.instant-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.instant-header > div { min-width: 0; text-align: center; }
+.instant-header p { margin: 0 0 4px; font-size: 9px; letter-spacing: 1.8px; color: #77736f; }
+.instant-header h2 { margin: 0; font-size: 15px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.instant-icon-button, .instant-save { min-height: 44px; min-width: 44px; padding: 8px; border: 0; background: transparent; color: #242321; }
+.instant-save { font-size: 12px; font-weight: 600; }
+.instant-icon-button .icon { width: 20px; height: 20px; }
+.instant-avatar-stage { display: flex; justify-content: center; height: 300px; margin: 8px 0 0; overflow: hidden; }
+.instant-avatar { position: relative; height: 100%; aspect-ratio: 384 / 1024; isolation: isolate; }
+.instant-avatar-layer { position: absolute; inset: 0; background: url('images/studio-avatar-wardrobe.jpg') no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
+.instant-avatar .layer-bottom { clip-path: inset(34.6% 0 12.8%); }
+.instant-avatar .layer-shoes { clip-path: inset(87.2% 0 0); }
+.instant-avatar .layer-top { clip-path: polygon(0 0,100% 0,100% 55%,77% 55%,77% 34.6%,23% 34.6%,23% 55%,0 55%); }
+.instant-hint { text-align: center; margin: 0 0 14px; color: #77736f; font-size: 10px; }
+.instant-wardrobe { border-top: 1px solid #dedbd5; }
+.instant-row { padding: 6px 0 0; }
+.instant-row-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.instant-row-heading h3 { margin: 0; font-size: 11px; font-weight: 600; }
+.instant-row-choice { font-size: 9px; color: #77736f; }
+.instant-rail { position: relative; display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; padding: 5px 2px 4px; }
+.instant-rail::-webkit-scrollbar { display: none; }
+.instant-option { position: relative; flex: 0 0 64px; margin-inline: 8px; display: grid; place-items: center; height: 64px; padding: 3px; border: 1px solid transparent; border-radius: 50%; background: transparent; opacity: .44; scroll-snap-align: center; touch-action: pan-x; }
+.instant-option[aria-pressed='true'] { opacity: 1; border-color: #9e978d; background: #ffffff70; }
+.instant-option:active { transform: scale(.96); opacity: 1; }
+.instant-option:focus-visible { outline: 2px solid #51493f; outline-offset: 2px; }
+.instant-piece-art { display: block; background-image: url('images/studio-avatar-wardrobe.jpg'); background-repeat: no-repeat; mix-blend-mode: multiply; pointer-events: none; }
+.instant-piece-art.art-top { width: 42px; height: 44px; background-size: 224px 149.33px; background-position: calc(-7px - var(--variant) * 56px) -23px; clip-path: polygon(18% 0,82% 0,100% 100%,0 100%); }
+.instant-piece-art.art-bottom { width: 38px; height: 49px; background-size: 140px 93.33px; background-position: calc(1.5px - var(--variant) * 35px) -32.3px; clip-path: inset(0 20% 0 20%); }
+.instant-piece-art.art-shoes { width: 48px; height: 25px; background-size: 224px 149.33px; background-position: calc(-4px - var(--variant) * 56px) -127px; }
+.instant-selection-dot { position: absolute; bottom: -1px; width: 4px; height: 4px; background: #272624; border-radius: 50%; opacity: 0; }
+.instant-option[aria-pressed='true'] .instant-selection-dot { opacity: 1; }
+.instant-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 9px; color: #8a857f; margin-top: 6px; }
+.instant-footer button { display: flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; font-size: 10px; color: #625c55; }
+.instant-footer .icon { width: 12px; height: 12px; }
+@media (max-width: 600px) {
+  .instant-avatar-stage { height: clamp(210px, 34svh, 300px); }
+  .app .studio-instant .instant-content { padding-inline: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .instant-option:active { transform: none; }
+}
+.instant-avatar-stage { position: relative; }
+.instant-worn { position: absolute; display: grid; place-items: center; width: 44px; height: 48px; border: 1px solid #d8d4ce; border-radius: 6px; background: #f5f3ef; }
+.instant-worn .instant-piece-art { transform: scale(.8); }
+.instant-worn.worn-top { top: 24%; left: 8%; }
+.instant-worn.worn-bottom { top: 51%; right: 8%; }
+.instant-worn.worn-shoes { top: 78%; left: 10%; }
+
+/* Keep the avatar in view while the extensible wardrobe scrolls independently. */
+.app .studio-instant .instant-content { display: flex; flex-direction: column; overflow: hidden; }
+.instant-header, .instant-hint, .instant-avatar-stage, .instant-footer { flex-shrink: 0; }
+.instant-avatar-stage { height: 260px; }
+.instant-wardrobe { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: #d3cec6 transparent; padding-bottom: 12px; }
+.instant-row[hidden], .instant-dress-context[hidden] { display: none; }
+.instant-row { padding-top: 8px; }
+.instant-option { touch-action: auto; }
+.instant-none { font-size: 24px; font-weight: 300; line-height: 1; color: #726b63; }
+.instant-none-label { font-size: 8px; color: #726b63; }
+.instant-dress-context { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 10px; padding: 4px 0; border-bottom: 1px solid #dedbd5; }
+.instant-dress-context button { min-height: 44px; padding: 4px 8px; border: 0; background: transparent; text-decoration: underline; font-size: 10px; }
+.instant-avatar .layer-dress { background-image: url('images/studio-dresses.jpg'); clip-path: inset(0 0 12.8%); }
+.instant-piece-art.art-dress { width: 36px; height: 53px; background-image: url('images/studio-dresses.jpg'); background-size: 144px 96px; background-position: calc(var(--variant) * -36px) -16px; }
+.instant-piece-art.art-outerwear { width: 48px; height: 48px; background-image: url('images/studio-jackets.png'); background-size: 192px 128px; background-position: calc(var(--variant) * -48px) -27px; mix-blend-mode: normal; }
+.instant-jacket { position: absolute; left: 6%; top: 5%; width: 88%; height: 55%; background: url('images/studio-jackets.png') no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
+.instant-jacket.jacket-left { clip-path: polygon(42% 21.5%,31% 24%,12% 28%,5% 39%,0 74%,12% 74%,20% 45%,21% 70%,31% 74%,42% 67%,45% 50%,43% 35%,41% 26%); }
+.instant-jacket.jacket-right { clip-path: polygon(59% 21.5%,69% 24%,87% 28%,96% 42%,100% 74%,87% 74%,79% 44%,79% 70%,69% 74%,59% 67%,55% 50%,57% 35%,60% 26%); }
+.instant-piece-art.art-glasses, .instant-piece-art.art-earrings, .instant-piece-art.art-watch { width: 52px; height: 52px; background-image: url('images/studio-accessories.png'); background-size: 300% 300%; background-position-x: calc(var(--variant) * 50%); mix-blend-mode: normal; }
+.instant-piece-art.art-glasses { background-position-y: 0; }
+.instant-piece-art.art-earrings { background-position-y: 50%; clip-path: inset(0 0 7%); }
+.instant-piece-art.art-watch { background-position-y: 100%; }
+.instant-wearable { position: absolute; pointer-events: none; aspect-ratio: 1; }
+.instant-wearable .instant-piece-art { width: 100%; height: 100%; }
+.wearable-glasses { width: 30%; left: 35%; top: 2.8%; }
+.wearable-earrings { width: 20%; top: 6.4%; }
+.wearable-earrings.earring-left { left: 31%; clip-path: inset(0 50% 0 0); }
+.wearable-earrings.earring-right { left: 48%; clip-path: inset(0 0 0 50%); }
+.wearable-watch { width: 12%; left: 75%; top: 45%; transform: rotate(-8deg); }
+.instant-worn.worn-dress { top: 32%; left: 8%; height: 60px; }
+@media (max-width: 600px) {
+  .instant-avatar-stage { height: clamp(190px, 29svh, 260px); }
+}
