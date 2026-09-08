@@ -12377,7 +12377,7 @@ body {
 .instant-icon-button .icon { width: 20px; height: 20px; }
 .instant-avatar-stage { display: flex; justify-content: center; height: 300px; margin: 8px 0 0; overflow: hidden; }
 .instant-avatar { position: relative; height: 100%; aspect-ratio: 384 / 1024; isolation: isolate; }
-.instant-avatar-layer { position: absolute; inset: 0; background: url('images/studio-avatar-wardrobe.jpg') no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
+.instant-avatar-layer { position: absolute; inset: 0; background-image: var(--avatar-sheet, url('images/studio-avatar-wardrobe.jpg')); background-repeat: no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
 .instant-avatar .layer-bottom { clip-path: inset(34.6% 0 12.8%); }
 .instant-avatar .layer-shoes { clip-path: inset(87.2% 0 0); }
 .instant-avatar .layer-top { clip-path: polygon(0 0,100% 0,100% 55%,77% 55%,77% 34.6%,23% 34.6%,23% 55%,0 55%); }
@@ -12387,7 +12387,7 @@ body {
 .instant-row-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .instant-row-heading h3 { margin: 0; font-size: 11px; font-weight: 600; }
 .instant-row-choice { font-size: 9px; color: #77736f; }
-.instant-rail { position: relative; display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; padding: 5px 2px 4px; }
+.instant-rail { position: relative; display: flex; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 5px max(0px, calc(50% - 40px)) 4px; }
 .instant-rail::-webkit-scrollbar { display: none; }
 .instant-option { position: relative; flex: 0 0 64px; margin-inline: 8px; display: grid; place-items: center; height: 64px; padding: 3px; border: 1px solid transparent; border-radius: 50%; background: transparent; opacity: .44; scroll-snap-align: center; touch-action: pan-x; }
 .instant-option[aria-pressed='true'] { opacity: 1; border-color: #9e978d; background: #ffffff70; }
@@ -12410,6 +12410,25 @@ body {
   .instant-option:active { transform: none; }
 }
 .instant-avatar-stage { position: relative; }
+.instant-avatar-stage.is-posing .instant-avatar { animation: instant-pose-neutral .62s cubic-bezier(.22,.8,.24,1); transform-origin: 50% 82%; }
+.instant-avatar-stage.is-posing[data-pose^="top-"] .instant-avatar { animation-name: instant-pose-top; }
+.instant-avatar-stage.is-posing[data-pose^="bottom-"] .instant-avatar { animation-name: instant-pose-bottom; }
+.instant-avatar-stage.is-posing[data-pose^="shoes-"] .instant-avatar { animation-name: instant-pose-shoes; }
+.instant-avatar-stage.is-posing[data-pose^="outerwear-"] .instant-avatar { animation-name: instant-pose-jacket; }
+.instant-avatar-stage.is-posing[data-pose^="dress-"] .instant-avatar { animation-name: instant-pose-dress; }
+.instant-avatar-stage.is-posing[data-pose^="glasses-"] .instant-avatar,
+.instant-avatar-stage.is-posing[data-pose^="earrings-"] .instant-avatar,
+.instant-avatar-stage.is-posing[data-pose^="watch-"] .instant-avatar { animation-name: instant-pose-accessory; transform-origin: 50% 42%; }
+@keyframes instant-pose-neutral { 0% { transform: translateY(0) rotate(0); } 38% { transform: translateY(-3px) rotate(-.6deg); } 100% { transform: translateY(0) rotate(0); } }
+@keyframes instant-pose-top { 0% { transform: translateX(0) rotate(0); } 32% { transform: translateX(-4px) rotate(-1deg); } 100% { transform: translateX(0) rotate(0); } }
+@keyframes instant-pose-bottom { 0% { transform: translateY(0) rotate(0); } 34% { transform: translateY(3px) rotate(.7deg); } 100% { transform: translateY(0) rotate(0); } }
+@keyframes instant-pose-shoes { 0% { transform: translateX(0) rotate(0); } 35% { transform: translateX(4px) rotate(.8deg); } 100% { transform: translateX(0) rotate(0); } }
+@keyframes instant-pose-jacket { 0% { transform: translateX(0) rotate(0); } 30% { transform: translateX(-3px) rotate(-.8deg); } 60% { transform: translateX(2px) rotate(.5deg); } 100% { transform: translateX(0) rotate(0); } }
+@keyframes instant-pose-dress { 0% { transform: rotate(0) scale(1); } 38% { transform: rotate(-1deg) scale(1.015); } 100% { transform: rotate(0) scale(1); } }
+@keyframes instant-pose-accessory { 0% { transform: rotate(0) translateY(0); } 30% { transform: rotate(1.2deg) translateY(-2px); } 100% { transform: rotate(0) translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .instant-avatar-stage.is-posing .instant-avatar { animation: none; }
+}
 .instant-worn { position: absolute; display: grid; place-items: center; width: 44px; height: 48px; border: 1px solid #d8d4ce; border-radius: 6px; background: #f5f3ef; }
 .instant-worn .instant-piece-art { transform: scale(.8); }
 .instant-worn.worn-top { top: 24%; left: 8%; }
@@ -12431,7 +12450,7 @@ body {
 .instant-avatar .layer-dress { background-image: url('images/studio-dresses.jpg'); clip-path: inset(0 0 12.8%); }
 .instant-piece-art.art-dress { width: 36px; height: 53px; background-image: url('images/studio-dresses.jpg'); background-size: 144px 96px; background-position: calc(var(--variant) * -36px) -16px; }
 .instant-piece-art.art-outerwear { width: 48px; height: 48px; background-image: url('images/studio-jackets.png'); background-size: 192px 128px; background-position: calc(var(--variant) * -48px) -27px; mix-blend-mode: normal; }
-.instant-jacket { position: absolute; left: 6%; top: 5%; width: 88%; height: 55%; background: url('images/studio-jackets.png') no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
+.instant-jacket { position: absolute; left: 6%; top: 0; width: 88%; height: 100%; background: url('images/studio-jackets.png') no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
 .instant-jacket.jacket-left { clip-path: polygon(42% 21.5%,31% 24%,12% 28%,5% 39%,0 74%,12% 74%,20% 45%,21% 70%,31% 74%,42% 67%,45% 50%,43% 35%,41% 26%); }
 .instant-jacket.jacket-right { clip-path: polygon(59% 21.5%,69% 24%,87% 28%,96% 42%,100% 74%,87% 74%,79% 44%,79% 70%,69% 74%,59% 67%,55% 50%,57% 35%,60% 26%); }
 .instant-piece-art.art-glasses, .instant-piece-art.art-earrings, .instant-piece-art.art-watch { width: 52px; height: 52px; background-image: url('images/studio-accessories.png'); background-size: 300% 300%; background-position-x: calc(var(--variant) * 50%); mix-blend-mode: normal; }

@@ -4565,7 +4565,8 @@ function instantAvatarMarkup() {
   const worn = [...base, ...['Outerwear', ...instantAccessoryRoles].filter(role => instantWardrobeIndex(role) >= 0)];
   const jacket = instantWardrobeIndex('Outerwear');
   const chips = dress >= 0 ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
-  return `<div class="instant-avatar" role="img" aria-label="Outfit preview: ${worn.map(role => instantWardrobe[role][instantWardrobeIndex(role)]).join(', ')}">
+  const poseSheet = canvasState.poseSet === 1 ? 'images/studio-avatar-poses.jpg' : 'images/studio-avatar-wardrobe.jpg';
+  return `<div class="instant-avatar" style="--avatar-sheet:url('${poseSheet}')" role="img" aria-label="Outfit preview: ${worn.map(role => instantWardrobe[role][instantWardrobeIndex(role)]).join(', ')}">
     ${base.map(role => `<span class="instant-avatar-layer layer-${role.toLowerCase()}" style="--variant:${instantWardrobeIndex(role)}"></span>`).join('')}
     ${jacket >= 0 ? `<span class="instant-jacket jacket-left" style="--variant:${jacket}"></span><span class="instant-jacket jacket-right" style="--variant:${jacket}"></span>` : ''}
     ${instantAccessoryRoles.filter(role => instantWardrobeIndex(role) >= 0).map(role => role === 'Earrings' ? ['left', 'right'].map(side => `<span class="instant-wearable wearable-earrings earring-${side}">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('') : `<span class="instant-wearable wearable-${role.toLowerCase()}">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('')}
@@ -4600,7 +4601,19 @@ function refreshInstantWardrobe() {
     row.querySelector('.instant-row-choice').textContent = selected < 0 ? (role === 'Dress' ? 'Wear separates' : 'None') : instantWardrobe[role][selected];
   });
 }
-function chooseInstantPiece(role, index) {
+function animateInstantPose(role, index) {
+  const stage = app.querySelector('.instant-avatar-stage');
+  if (!stage) return;
+  const pose = `${role.toLowerCase()}-${Math.max(0, index) % 4}`;
+  stage.dataset.pose = pose;
+  stage.classList.remove('is-posing');
+  // Force a new animation cycle so repeated taps still feel responsive.
+  void stage.offsetWidth;
+  stage.classList.add('is-posing');
+  clearTimeout(stage._poseTimer);
+  stage._poseTimer = setTimeout(() => stage.classList.remove('is-posing'), 620);
+}
+function chooseInstantPiece(role, index, center = true) {
   if (!instantWardrobe[role] || (index === -1 ? !instantOptionalRoles.includes(role) : !instantWardrobe[role][index])) return;
   const wasDress = instantWardrobeIndex('Dress') >= 0;
   if (role === 'Dress' && index >= 0) {
@@ -4610,14 +4623,54 @@ function chooseInstantPiece(role, index) {
     }
     canvasState.items = canvasState.items.filter(x => !['Top', 'Bottom'].includes(x.role));
   } else if (wasDress && (['Top', 'Bottom'].includes(role) || (role === 'Dress' && index < 0))) restoreInstantSeparates();
+  // Alternate complete model photography on every choice, including accessories.
+  canvasState.poseSet = canvasState.poseSet === 1 ? 0 : 1;
   setInstantPiece(role, index);
   persist();
   refreshInstantWardrobe();
-  const row = app.querySelector(`[data-instant-role="${role}"]`), rail = row.querySelector('.instant-rail');
-  const selected = rail.querySelector(`[data-index="${index}"]`);
-  if (selected) rail.scrollTo({left:selected.offsetLeft - rail.offsetLeft - (rail.clientWidth - selected.clientWidth) / 2,
-    behavior:matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'});
+  animateInstantPose(role, index);
+  if (center) centerInstantRail(app.querySelector(`[data-instant-role="${role}"] .instant-rail`), true);
   app.querySelector('.instant-announcement').textContent = index < 0 ? `${instantLabels[role]} removed` : `${instantWardrobe[role][index]} selected`;
+}
+function centerInstantRail(rail, animate = false) {
+  const selected = rail?.querySelector('[aria-pressed="true"]');
+  if (!selected || !rail.clientWidth) return;
+  const itemRect = selected.getBoundingClientRect(), railRect = rail.getBoundingClientRect();
+  rail.scrollTo({left:rail.scrollLeft + itemRect.left + itemRect.width / 2 - railRect.left - rail.clientWidth / 2,
+    behavior:animate && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'instant'});
+}
+let instantRailObserver;
+function installInstantRailScrolling() {
+  instantRailObserver?.disconnect();
+  const rails = app.querySelectorAll('.instant-rail');
+  if (!rails.length) return;
+  instantRailObserver = new ResizeObserver(entries => entries.forEach(({target}) => centerInstantRail(target)));
+  rails.forEach(rail => {
+    const role = rail.closest('[data-instant-role]').dataset.instantRole;
+    let timer, touching = false;
+    const settle = () => {
+      clearTimeout(timer);
+      if (touching || !rail.isConnected || !rail.clientWidth) return;
+      const middle = rail.getBoundingClientRect().left + rail.clientWidth / 2;
+      const selected = [...rail.querySelectorAll('.instant-option')].reduce((nearest, button) => {
+        const rect = button.getBoundingClientRect();
+        const distance = Math.abs(rect.left + rect.width / 2 - middle);
+        return !nearest || distance < nearest.distance ? {button, distance} : nearest;
+      }, null);
+      const index = Number(selected.button.dataset.index);
+      if (index !== instantWardrobeIndex(role)) chooseInstantPiece(role, index, false);
+    };
+    // Keep native touch momentum and vertical scrolling; debounce covers browsers without scrollend.
+    const queueSettle = () => { clearTimeout(timer); timer = setTimeout(settle, 160); };
+    rail.addEventListener('scroll', queueSettle, {passive:true});
+    rail.addEventListener('scrollend', settle, {passive:true});
+    rail.addEventListener('touchstart', () => { touching = true; clearTimeout(timer); }, {passive:true});
+    const release = event => { touching = event.touches.length > 0; if (!touching) queueSettle(); };
+    rail.addEventListener('touchend', release, {passive:true});
+    rail.addEventListener('touchcancel', release, {passive:true});
+    centerInstantRail(rail);
+    instantRailObserver.observe(rail);
+  });
 }
 function instantRailKey(event, role) {
   if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -4647,7 +4700,7 @@ function instantStudio() {
   return `<section class="screen studio-instant"><div class="content no-nav instant-content">
     <header class="instant-header"><button class="instant-icon-button" aria-label="Back" onclick="backScreen()">${icon('back')}</button><div><p>STYLE STUDIO</p><h2>${escapeMarkup(canvasState.title)}</h2></div><button class="instant-save" onclick="saveInstantLook()">Save draft</button></header>
     <div class="instant-avatar-stage">${instantAvatarMarkup()}</div>
-    <p class="instant-hint">Make it yours. Scroll for more pieces.</p>
+    <p class="instant-hint">Swipe sideways to try on · Scroll down for more</p>
     <section class="instant-wardrobe" aria-label="Choose your outfit">
     <div class="instant-dress-context" ${instantWardrobeIndex('Dress') < 0 ? 'hidden' : ''}><span>One-piece Look · Dress + shoes</span><button onclick="chooseInstantPiece('Dress',-1)">Wear separates</button></div>
     ${Object.entries(instantWardrobe).map(([role,names]) => instantWardrobeRow(role,names)).join('')}
@@ -4843,6 +4896,7 @@ function render() {
   decorateVisualSearchEntries();
   decorateWishlistSurfaces();
   ensureAppNavigation();
+  installInstantRailScrolling();
   mountWishlistDialog();
   window.lucide?.createIcons({ attrs: { "stroke-width": 1.5 } });
   installLiquidNav(previousNavLens);
