@@ -6,7 +6,7 @@ const sections = {
   D: "Home & daily styling",
   E: "Outfit actions",
   F: "Style Studio / Canvas",
-  G: "Saved Looks",
+  G: "Saved Looks & Wishlist",
   H: "Avatar & Virtual Try-On",
   I: "Planner & events",
   J: "Trips",
@@ -65,7 +65,7 @@ const raw = {
     ["Success", "Toast, Closet update, Home transformation."],
   ],
   C: [
-    ["Closet grid", "Closet/Wishlist, sort, filters, categories."],
+    ["Closet grid", "Owned items, sort, filters, categories."],
     ["Item detail", "Hero image and editable metadata."],
     ["Image tools", "Crop and photo repair."],
     [
@@ -88,7 +88,7 @@ const raw = {
     ["Missing category", "Explicit missing compatible item."],
   ],
   E: [
-    ["Heart", "Save Look."],
+    ["Save Look", "Bookmark a complete outfit."],
     ["Pencil", "Open Customize Outfit."],
     ["Dislike", "Capture negative feedback."],
     ["Send", "Open sharing flow."],
@@ -119,10 +119,8 @@ const raw = {
     ["Saved Look · value alias", "Canonical Saved Look detail."],
     ["Saved Look · visibility alias", "Canonical Saved Look detail."],
     ["Saved Look · activity alias", "Canonical Saved Look detail."],
-    [
-      "Saved Look · delete alias",
-      "Canonical detail with explicit delete confirmation.",
-    ],
+    ["My Wishlist", "Individual products to consider, filter, and review."],
+    ["Before You Buy", "Wishlist product details, Closet fit, and purchase handoff."],
   ],
   H: [
     ["Style Twin introduction", "Optional private visualization entry."],
@@ -468,10 +466,6 @@ const compatibilityAliases = {
     "Saved Look · activity alias",
     "Opens the canonical Saved Look detail.",
   ],
-  "G-08": [
-    "Saved Look · delete alias",
-    "Opens the canonical Saved Look detail and its delete confirmation.",
-  ],
   "H-02": [
     "Style Twin · photo reference alias",
     "Opens step 1 of the canonical four-step setup.",
@@ -541,10 +535,10 @@ Object.entries(compatibilityAliases).forEach(([id, [title, detail]]) =>
   ),
 );
 if (
-  screens.length !== 124 ||
+  screens.length !== 125 ||
   new Set(screens.map((screen) => screen.id)).size !== screens.length
 )
-  throw new Error("Screen inventory must contain 124 unique routes");
+  throw new Error("Screen inventory must contain 125 unique routes");
 const iconMap = {
   back: "arrow-left",
   home: "sun",
@@ -719,7 +713,7 @@ let tripState = (() => {
     return defaultTripState();
   }
 })();
-let currentId = location.hash.slice(1) || "S-00",
+let currentId = ({ "G-8": "G-08", "G-9": "G-09" })[location.hash.slice(1)] || location.hash.slice(1) || "S-00",
   overlay = null,
   lightweightPanel = null,
   accountMenuOpen = false,
@@ -853,7 +847,7 @@ let closetState = {
     collection: "All pieces",
     sort: "Recently added",
   },
-  selectedClosetItemId = "closet-1";
+  selectedClosetItemId = localStorage.getItem("styleiqSelectedClosetItemV1") || "closet-1";
 let closetLifecycle = (() => {
   try {
     return JSON.parse(localStorage.getItem("styleiqClosetLifecycleV1")) || {};
@@ -876,6 +870,336 @@ const escapeMarkup = (value) =>
         character
       ],
   );
+// Product records are separate from owned Closet items and complete Saved Looks.
+const wishlistCollections = ["Everyday", "Workwear", "Travel", "Occasionwear", "Inspiration"];
+const wishlistStatuses = ["All", "Saved", "Review Later", "Ready to Buy", "Purchased", "Unavailable"];
+const wishlistStorageKey = "styleiqWishlistV1";
+function readWishlistData(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key));
+    return Array.isArray(value) ? value : fallback;
+  } catch { return fallback; }
+}
+function wishlistDate(offset = 0) {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+const shoppingProducts = [
+  { id: "leather-loafers", name: "Leather Loafers", brand: "Vagabond", image: "images/alta-tan-suede-loafers.png", category: "Shoes", price: 214, previousPrice: 236, collection: "Everyday", compatibility: 88, outfitCount: 14, duplicateRisk: "Low", similarClosetId: "closet-5", gap: "Everyday Shoes", gapValue: "High", gapId: "everyday-shoes", style: "A clean shape that works with your straight trousers and relaxed tailoring.", recommendation: "A practical replacement for worn work shoes. The shape works across 14 outfit ideas; check the condition of your current suede pair before replacing it." },
+  { id: "tailored-blazer", name: "Camel Tailored Blazer", brand: "Balmain", image: assets.blazer, category: "Outerwear", price: 320, collection: "Workwear", compatibility: 76, outfitCount: 6, duplicateRisk: "Medium", similarClosetId: "closet-1", gap: "Workwear layers", gapValue: "Medium", style: "Strong style alignment with your tailored silhouettes, with a warmer color but a similar shape to your owned blazer.", recommendation: "Your black tailored blazer already does this job and has only three wears. Compare the two before adding another work layer." },
+  { id: "ivory-knit", name: "Ivory Silk Shell", brand: "Aritzia", image: assets.top, category: "Tops", price: 180, collection: "Everyday", availability: "Unavailable", compatibility: 84, outfitCount: 9, duplicateRisk: "Medium", similarClosetId: "closet-2", gap: "Light base layers", gapValue: "Medium", style: "Ivory fits your neutral palette and layers under existing jackets.", recommendation: "Your existing silk shell already covers this role. Keep it for a seasonal review while it is unavailable." },
+  { id: "rust-knit", name: "Rust Square-neck Knit", brand: "StyleIQ Atelier", image: assets.top2, category: "Tops", price: 95, collection: "Workwear", compatibility: 82, outfitCount: 6, duplicateRisk: "High", similarClosetId: "closet-3", gap: "Lightweight layers", gapValue: "Low", gapId: "lightweight-layers", style: "Rust follows your warm palette and works under your black blazer.", recommendation: "You already own a rust square-neck knit. Try that piece in six combinations before deciding whether a replacement is needed." },
+  { id: "shoulder-bag", name: "Leather Shoulder Bag", brand: "Cuyana", image: "images/alta-oxblood-crescent-bag.png", category: "Bags", price: 248, collection: "Everyday", compatibility: 80, outfitCount: 8, duplicateRisk: "High", similarClosetId: "closet-6", gap: "Everyday bags", gapValue: "Low", style: "Oxblood works with the warm neutrals you wear most.", recommendation: "Your crescent bag covers a similar role and has only four wears. Compare capacity and comfort before choosing another everyday bag." },
+].map((product) => ({ retailer: product.brand, productUrl: "", availability: "In stock", previousPrice: null, ...product }));
+let wishlistItems = readWishlistData(wishlistStorageKey, shoppingProducts.slice(0, 4).map((product, index) => ({
+  ...product, dateSaved: wishlistDate(-12 + index),
+  status: ["Ready to Buy", "Saved", "Saved", "Review Later"][index],
+  note: index === 0 ? "Replace worn work loafers." : "",
+  reminder: index === 3 ? wishlistDate(30) : "", purchaseDate: null, closetId: null,
+})));
+let purchasedClosetItems = readWishlistData("styleiqClosetPurchasesV1", []);
+if (localStorage.getItem(wishlistStorageKey) === null) localStorage.setItem(wishlistStorageKey, JSON.stringify(wishlistItems));
+let wishlistFilter = "All", selectedWishlistId = wishlistItems[0]?.id || shoppingProducts[0].id;
+let wishlistDialog = null, wishlistReviewOpen = false, wishlistUndo = null, wishlistReturnFocus = null;
+let closetPurchaseDraft = (() => {
+  try { return currentId === "B-06" ? JSON.parse(localStorage.getItem("styleiqClosetPurchaseDraftV1")) : null; }
+  catch { return null; }
+})();
+const wishlistMoney = (value) => Number.isFinite(value)
+  ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(value)
+  : "Price not provided";
+const wishlistDisplayDate = (value) => value ? new Date(`${value}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "No reminder";
+const wishlistStatus = (item) => item.status === "Purchased" ? "Purchased" : item.availability === "Unavailable" ? "Unavailable" : item.status;
+const wishlistProduct = (id) => wishlistItems.find((item) => item.id === id) || shoppingProducts.find((item) => item.id === id);
+function persistWishlist() { localStorage.setItem(wishlistStorageKey, JSON.stringify(wishlistItems)); }
+function wishlistStats() {
+  const saved = wishlistItems.filter((item) => item.status !== "Purchased");
+  return { saved: saved.length, ready: saved.filter((item) => wishlistStatus(item) === "Ready to Buy").length,
+    drops: saved.filter((item) => item.availability !== "Unavailable" && item.previousPrice > item.price && Number.isFinite(item.price)).length };
+}
+function wishlistRefresh() {
+  const positions = [".content", ".lens-sheet", ".studio-piece-rail"].map((selector) => {
+    const el = app.querySelector(selector);
+    return [selector, el?.scrollTop || 0, el?.scrollLeft || 0];
+  });
+  render();
+  positions.forEach(([selector, top, left]) => { const el = app.querySelector(selector); if (el) { el.scrollTop = top; el.scrollLeft = left; } });
+}
+function wishlistHeart(product) {
+  if (!product || product.owned || purchasedClosetItems.some((item) => item.wishlistId === product.id)) return "";
+  const saved = wishlistItems.some((item) => item.id === product.id);
+  return `<button type="button" class="wishlist-heart ${saved ? "is-saved" : ""}" data-wishlist-heart="${escapeMarkup(product.id)}" aria-pressed="${saved}" aria-label="${saved ? "Wishlist options for" : "Save to Wishlist:"} ${escapeMarkup(product.name)}" onclick="event.stopPropagation();toggleWishlistHeart('${product.id}')">${icon("heart")}</button>`;
+}
+function saveWishlistProduct(id, context = {}) {
+  const existing = wishlistItems.find((item) => item.id === id), product = wishlistProduct(id);
+  if (!product) return;
+  const owned = purchasedClosetItems.find((item) => item.wishlistId === id);
+  if (existing) Object.assign(existing, context);
+  else wishlistItems.unshift({ ...product, dateSaved: wishlistDate(), status: owned ? "Purchased" : "Saved", note: "", reminder: "", purchaseDate: owned?.purchaseDate || null, closetId: owned?.id || null, ...context });
+  persistWishlist();
+}
+function toggleWishlistHeart(id) {
+  if (wishlistItems.some((item) => item.id === id)) { openWishlistDialog("options", id); return; }
+  saveWishlistProduct(id);
+  wishlistRefresh();
+  app.querySelector(`[data-wishlist-heart="${id}"]`)?.focus({ preventScroll: true });
+  toast("Saved to Wishlist.");
+}
+function openWishlistProduct(id) {
+  if (!wishlistProduct(id)) return;
+  selectedWishlistId = id;
+  localStorage.setItem("styleiqWishlistSelectionV1", id);
+  wishlistDialog = null;
+  lensOpen = false;
+  if (currentId === "G-09") render(); else go("G-09");
+}
+function setWishlistFilter(value) { wishlistFilter = value; render(); }
+function wishlistSnapshot(compact = false) {
+  const stats = wishlistStats();
+  return `<section class="wishlist-snapshot ${compact ? "is-compact" : ""}" aria-label="Wishlist summary"><span class="icon-wrap">${icon("heart")}</span><span class="grow"><b>Wishlist</b><small>${stats.saved} saved items · ${stats.ready} ready to buy${!compact ? ` · ${stats.drops} price ${stats.drops === 1 ? "drop" : "drops"}` : ""}</small></span><button class="text-action" onclick="go('G-08')">View Wishlist</button></section>`;
+}
+function wishlistProductCard(product, inWishlist = false) {
+  const saved = wishlistItems.find((item) => item.id === product.id), item = saved || product;
+  const status = saved ? wishlistStatus(saved) : product.availability;
+  const unavailable = status === "Unavailable", purchased = status === "Purchased";
+  if (inWishlist) {
+    const hint = unavailable || purchased ? "" : item.previousPrice > item.price && Number.isFinite(item.price)
+      ? `Price down ${wishlistMoney(item.previousPrice - item.price)}`
+      : ["High", "Medium"].includes(item.duplicateRisk) ? "Compare first"
+      : item.outfitCount ? `${item.outfitCount} outfit ideas` : "";
+    return `<article class="wishlist-product wishlist-product-compact ${unavailable ? "is-unavailable" : ""}" data-product-id="${product.id}">
+      <div class="wishlist-product-media"><button class="wishlist-product-image" aria-label="View ${escapeMarkup(product.name)}" onclick="openWishlistProduct('${product.id}')"><img src="${product.image}" alt="${escapeMarkup(product.name)}" loading="lazy"></button>${wishlistHeart(product)}<span class="wishlist-status">${status}</span></div>
+      <div class="wishlist-product-copy"><button class="wishlist-product-name" onclick="openWishlistProduct('${product.id}')">${escapeMarkup(product.name)}</button><div class="wishlist-price"><b>${wishlistMoney(product.price)}</b></div>${hint ? `<p class="wishlist-decision">${hint}</p>` : ""}</div></article>`;
+  }
+  return `<article class="wishlist-product ${unavailable ? "is-unavailable" : ""}" data-product-id="${product.id}">
+    <div class="wishlist-product-media"><button class="wishlist-product-image" aria-label="View ${escapeMarkup(product.name)}" onclick="openWishlistProduct('${product.id}')"><img src="${product.image}" alt="${escapeMarkup(product.name)}" loading="lazy"></button>${wishlistHeart(product)}<span class="wishlist-status">${status}</span></div>
+    <div class="wishlist-product-copy"><p class="eyebrow">${escapeMarkup(product.brand)}</p><button class="wishlist-product-name" onclick="openWishlistProduct('${product.id}')">${escapeMarkup(product.name)}</button><div class="wishlist-price"><b>${wishlistMoney(product.price)}</b><small>${escapeMarkup(item.collection)}</small></div>
+    ${unavailable ? '<p class="small">Currently unavailable · keep for later</p>' : purchased ? '<p class="small">Purchased · ready for your Closet</p>' : `<p class="wishlist-decision">${item.previousPrice > item.price && Number.isFinite(item.price) ? `Price down ${wishlistMoney(item.previousPrice - item.price)}` : item.duplicateRisk === "High" ? "Similar to an item you own" : item.outfitCount ? `Works in ${item.outfitCount} outfit ideas` : "Review with your Closet"}</p><p class="small">${escapeMarkup(item.gapValue === "High" ? `Fills an ${item.gap} gap` : item.duplicateRisk === "High" ? "Compare before buying" : item.style || "Consider how it fits your wardrobe.")}</p>`}
+    ${inWishlist ? `<small class="wishlist-saved-date">${item.reminder ? `Review ${wishlistDisplayDate(item.reminder)}` : `Saved ${wishlistDisplayDate(item.dateSaved)}`}</small>` : ""}</div></article>`;
+}
+function wishlistReview() {
+  if (!wishlistReviewOpen) return "";
+  const groups = [
+    ["Strong Fit / High Value", (item) => item.availability !== "Unavailable" && item.status !== "Review Later" && item.duplicateRisk === "Low"],
+    ["Compare First", (item) => item.availability !== "Unavailable" && item.status !== "Review Later" && item.duplicateRisk !== "Low"],
+    ["Keep for Later", (item) => item.availability === "Unavailable" || item.status === "Review Later"],
+  ];
+  return `<section class="card wishlist-review"><div class="between"><h3 class="title">A moment to reconsider</h3><button class="icon-btn" aria-label="Dismiss review moment" onclick="wishlistReviewOpen=false;render()">×</button></div>${groups.map(([title, test]) => {
+    const items = wishlistItems.filter((item) => item.status !== "Purchased" && test(item));
+    return `<div class="wishlist-review-group"><b>${title}</b>${items.map((item) => `<button class="text-action" onclick="openWishlistProduct('${item.id}')">${escapeMarkup(item.name)} ${icon("chevron-right")}</button>`).join("") || '<p class="small">Nothing to review here.</p>'}</div>`;
+  }).join("")}</section>`;
+}
+function myWishlist() {
+  const stats = wishlistStats(), items = wishlistItems.filter((item) => wishlistFilter === "All" || wishlistStatus(item) === wishlistFilter);
+  return shell("My Wishlist", `<div class="wishlist-counts"><p><b>${stats.saved}</b> saved <span aria-hidden="true">·</span> <b>${stats.ready}</b> ready to buy</p><button class="text-action" aria-label="Review Wishlist" onclick="wishlistReviewOpen=!wishlistReviewOpen;render()">Review</button></div>${wishlistReview()}<div class="wishlist-filter-rail" role="group" aria-label="Wishlist status">${wishlistStatuses.map((status) => `<button class="chip ${wishlistFilter === status ? "active" : ""}" aria-pressed="${wishlistFilter === status}" onclick="setWishlistFilter('${status}')">${status}</button>`).join("")}</div><div class="wishlist-grid">${items.map((item) => wishlistProductCard(item, true)).join("")}</div>${items.length ? "" : `<section class="wishlist-empty"><span class="icon-wrap">${icon("heart")}</span><h2 class="title">${wishlistItems.length ? "No products in this status" : "A little space for possibility."}</h2><p class="body">${wishlistItems.length ? "Your other saved products are still in Wishlist." : "Tap a product’s heart when something catches your eye. Come back when you’re ready to consider it."}</p><button class="btn primary" onclick="${wishlistItems.length ? "setWishlistFilter('All')" : "go('K-01')"}">${wishlistItems.length ? "View all items" : "Explore Discover"}</button></section>`}`, { surfaceClass: "wishlist-screen" });
+}
+function wishlistDetail() {
+  const id = localStorage.getItem("styleiqWishlistSelectionV1") || selectedWishlistId;
+  const item = wishlistProduct(id) || wishlistItems[0] || shoppingProducts[0];
+  selectedWishlistId = item.id;
+  const saved = wishlistItems.some((entry) => entry.id === item.id), status = saved ? wishlistStatus(item) : item.availability;
+  const unavailable = item.availability === "Unavailable", purchased = item.status === "Purchased";
+  const similar = closetItems().find((entry) => entry.id === item.similarClosetId);
+  return shell("Before You Buy", `<div class="wishlist-detail-media"><img src="${item.image}" alt="${escapeMarkup(item.name)}">${wishlistHeart(item)}</div><div class="wishlist-detail-heading"><p class="eyebrow">${escapeMarkup(item.brand)} · ${escapeMarkup(item.retailer || "Retailer not provided")}</p><h2 class="title">${escapeMarkup(item.name)}</h2><div class="wishlist-price"><b>${wishlistMoney(item.price)}</b>${item.previousPrice > item.price && Number.isFinite(item.price) ? `<del>${wishlistMoney(item.previousPrice)}</del><span class="small">Down ${wishlistMoney(item.previousPrice - item.price)}</span>` : ""}</div><div class="wishlist-detail-meta"><span class="pill">${status}</span><span>${escapeMarkup(item.collection)} · ${escapeMarkup(item.availability)}</span></div><p class="small">${saved ? `Saved ${wishlistDisplayDate(item.dateSaved)}` : "Not yet saved to Wishlist"}</p></div>
+    ${unavailable && !purchased ? '<div class="card"><b>Currently unavailable</b><p class="body">Keep the piece for a later review. Purchase and budget actions will return when it is available.</p></div>' : purchased ? `<div class="card"><b>Purchased ${wishlistDisplayDate(item.purchaseDate)}</b><p class="body">${item.closetId ? "This product is now part of your Closet." : "Your purchase is recorded. Review its details when you’re ready to add it to Closet."}</p><button class="btn primary wide" onclick="${item.closetId ? `openClosetItem('${item.closetId}')` : `prepareWishlistPurchase('${item.id}')`}">${item.closetId ? "View Closet Item" : "Prepare for Closet"}</button></div>` : `<div class="wishlist-retailer">${wishlistRetailerLink(item)}<button class="text-action" onclick="openWishlistDialog('context','${item.id}')">${saved ? "Edit saved context" : "Save for Later"}</button></div>`}
+    <section class="wishlist-evaluation"><h3 class="title">Does it earn its place?</h3><div class="wishlist-evaluation-row"><span>${icon("shirt")}</span><div><b>Closet compatibility${item.compatibility != null ? ` · ${item.compatibility}%` : ""}</b><p class="body">${item.outfitCount ? `Works with ${item.outfitCount} possible outfits from your Closet.` : "Explore a combination with your current Closet."}</p><button class="text-action" onclick="openWishlistDialog('outfits','${item.id}')">Explore Outfit Ideas</button></div></div><div class="wishlist-evaluation-row"><span>${icon("spark")}</span><div><b>Style alignment</b><p class="body">${escapeMarkup(item.style || "Review the color and silhouette against the pieces you wear most.")}</p></div></div><div class="wishlist-evaluation-row"><span>${icon("copy")}</span><div><b>Duplicate risk · ${escapeMarkup(item.duplicateRisk || "Not assessed")}</b><p class="body">${similar ? `Compare with your ${escapeMarkup(similar.name)}.` : "No similar Closet reference is available for this product."}</p>${similar ? `<button class="text-action" onclick="openWishlistDialog('compare','${item.id}')">Compare Similar</button>` : ""}</div></div><div class="wishlist-evaluation-row"><span>${icon("check")}</span><div><b>${escapeMarkup(item.gapValue || "Unassessed")} Gap Value${item.gap ? ` · ${escapeMarkup(item.gap)}` : ""}</b><p class="body">${item.gapValue === "High" ? "Adds a useful role to the pieces you already own." : "Consider whether your owned pieces already meet this need."}</p></div></div></section>
+    <section class="card wishlist-muse"><p class="eyebrow">Muse’s perspective</p><p class="body">${escapeMarkup(item.recommendation || "Try an outfit with owned pieces first. Check for a similar item before deciding to buy.")}</p>${item.note ? `<p class="small">Your reason: “${escapeMarkup(item.note)}”</p>` : ""}</section>
+    ${!unavailable && !purchased ? '<details class="card progressive-card wishlist-budget"><summary><b>Budget context</b><span class="small">Optional</span></summary><p class="body">Compare this price with your per-item budget preferences. No available Style Budget is set. StyleIQ does not hold money, reserve funds, or make purchases.</p><button class="text-action" onclick="go(\'L-07\')">View budget preferences</button></details>' : ""}
+    <section class="card wishlist-context"><div class="between"><h3 class="title">Saved context</h3><button class="text-action" onclick="openWishlistDialog('context','${item.id}')">${saved ? "Edit" : "Save for Later"}</button></div><dl><dt>Note</dt><dd>${escapeMarkup(item.note || "What makes this piece worth considering?")}</dd><dt>Review reminder</dt><dd>${wishlistDisplayDate(item.reminder)}</dd><dt>Collection</dt><dd>${escapeMarkup(item.collection)}</dd></dl>${saved ? `<button class="text-action" onclick="openWishlistDialog('context','${item.id}')">Move Collection</button>` : ""}</section>
+    ${saved ? `<div class="wishlist-detail-actions">${!purchased ? `<div class="row"><button class="btn grow" onclick="setWishlistStatus('${item.id}','Review Later')">Review Later</button>${!unavailable ? `<button class="btn grow" onclick="setWishlistStatus('${item.id}','${item.status === "Ready to Buy" ? "Saved" : "Ready to Buy"}')">${item.status === "Ready to Buy" ? "Keep Saved" : "Ready to Buy"}</button>` : ""}</div>${!unavailable ? `<button class="btn primary wide" onclick="openWishlistDialog('purchase','${item.id}')">Mark as Purchased</button>` : ""}` : ""}<button class="danger-action" onclick="openWishlistDialog('remove','${item.id}')">Remove from Wishlist</button></div>` : ""}`, { surfaceClass: "wishlist-screen" });
+}
+function validWishlistUrl(value) {
+  try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) && !url.username && !url.password ? url.href : ""; } catch { return ""; }
+}
+function wishlistRetailerLink(item) {
+  const url = validWishlistUrl(item.productUrl);
+  return url ? `<a class="btn primary wide" href="${escapeMarkup(url)}" target="_blank" rel="noopener noreferrer">View on Retailer ${icon("external-link")}</a>` : '<button class="btn primary wide" disabled>View on Retailer</button><p class="small">No product link provided. Add one in saved context.</p>';
+}
+function setWishlistStatus(id, status) {
+  const item = wishlistItems.find((entry) => entry.id === id);
+  if (!item || item.status === "Purchased" || !["Saved", "Review Later", "Ready to Buy"].includes(status)) return;
+  if (status === "Ready to Buy" && item.availability === "Unavailable") return;
+  item.status = status;
+  if (status === "Review Later" && !item.reminder) item.reminder = wishlistDate(30);
+  persistWishlist(); render(); toast(status === "Review Later" ? "Kept in Wishlist for a later review." : `Marked ${status}.`);
+}
+function openWishlistDialog(kind, id) {
+  if (!wishlistDialog) wishlistReturnFocus = document.activeElement;
+  wishlistDialog = { kind, id };
+  mountWishlistDialog();
+}
+function closeWishlistDialog() {
+  app.querySelector("#wishlist-dialog")?.close();
+  app.querySelector("#wishlist-dialog")?.remove();
+  wishlistDialog = null;
+  if (wishlistReturnFocus?.isConnected) wishlistReturnFocus.focus({ preventScroll: true });
+}
+function wishlistOutfitPieces(item) {
+  const categories = item.category === "Shoes" ? ["Tops", "Bottoms", "Outerwear"] : item.category === "Tops" ? ["Bottoms", "Shoes", "Bags"] : item.category === "Outerwear" ? ["Tops", "Bottoms", "Shoes"] : ["Tops", "Bottoms", "Shoes"];
+  return categories.map((category) => closetItems().find((owned) => owned.category === category && owned.lifecycle === "Keep" && owned.status === "Available")).filter(Boolean).map((owned) => ({ ...owned, image: wishlistClosetImage(owned) }));
+}
+function wishlistClosetImage(item) {
+  if (item.id === "closet-5") return "images/alta-tan-suede-loafers.png";
+  if (item.id === "closet-6") return "images/alta-oxblood-crescent-bag.png";
+  if (item.id === "closet-4") return "images/alta-black-tailored-trousers.png";
+  return item.image;
+}
+function wishlistDialogMarkup() {
+  if (!wishlistDialog) return "";
+  const { kind, id } = wishlistDialog, item = wishlistProduct(id);
+  if (!item) return "";
+  let title = "Wishlist options", body = "";
+  if (kind === "options") body = `<p class="body">${escapeMarkup(item.name)} is already in your Wishlist.</p><div class="stack"><button class="btn primary" onclick="openWishlistProduct('${id}')">View in Wishlist</button><button class="btn" onclick="openWishlistDialog('context','${id}')">Edit saved context</button><button class="danger-action" onclick="openWishlistDialog('remove','${id}')">Remove from Wishlist</button></div>`;
+  if (kind === "remove") { title = "Remove from Wishlist?"; body = `<p id="wishlist-dialog-description" class="body">Remove ${escapeMarkup(item.name)} from your considered products? Your Closet and Saved Looks stay as they are.</p><button class="btn danger wide" onclick="removeWishlistProduct('${id}')">Remove product</button>`; }
+  if (kind === "purchase") { title = "Already purchased this piece?"; body = `<p id="wishlist-dialog-description" class="body">StyleIQ can mark ${escapeMarkup(item.name)} as Purchased and prepare its details for your Closet. You’ll review and confirm before it is added. No purchase is made here.</p><button class="btn primary wide" onclick="prepareWishlistPurchase('${id}')">Confirm & review for Closet</button>`; }
+  if (kind === "context") {
+    title = wishlistItems.some((entry) => entry.id === id) ? "Saved context" : "Save for Later";
+    body = `<form id="wishlist-context-form" class="stack" onsubmit="saveWishlistContext(event,'${id}')"><div class="field"><label for="wishlist-collection">Collection</label><select id="wishlist-collection" class="input" name="collection">${wishlistCollections.map((collection) => `<option ${item.collection === collection ? "selected" : ""}>${collection}</option>`).join("")}</select></div><div class="field"><label for="wishlist-note">Why do you like this?</label><textarea class="textarea" id="wishlist-note" name="note" maxlength="500">${escapeMarkup(item.note || "")}</textarea></div><div class="field"><label for="wishlist-reminder">Review reminder</label><select class="input" id="wishlist-reminder" name="reminder"><option value="">No reminder</option>${item.reminder ? `<option value="${item.reminder}" selected>Keep · ${wishlistDisplayDate(item.reminder)}</option>` : ""}<option value="${wishlistDate(30)}">Review next month</option><option value="${wishlistDate(90)}">Review before next season</option></select><small class="helper">Shown in Wishlist when you return.</small></div><div class="field"><label for="wishlist-url">Product link <span class="helper">Optional</span></label><input class="input" type="url" name="productUrl" id="wishlist-url" value="${escapeMarkup(item.productUrl || "")}" placeholder="https://retailer.com/product"><span id="wishlist-url-error" class="small" role="alert"></span></div><button class="btn primary wide" type="submit">Save to Wishlist</button></form>`;
+  }
+  if (kind === "compare") {
+    title = "Compare Similar";
+    const similar = closetItems().find((owned) => owned.id === item.similarClosetId);
+    body = similar ? `<div class="wishlist-compare"><div><img src="${item.image}" alt="${escapeMarkup(item.name)}"><small>Considering</small><b>${escapeMarkup(item.name)}</b><span>${wishlistMoney(item.price)}</span></div><div><img src="${wishlistClosetImage(similar)}" alt="${escapeMarkup(similar.name)}"><small>Already owned</small><b>${escapeMarkup(similar.name)}</b><span>Worn ${similar.wears} times</span></div></div><p class="body">${escapeMarkup(item.recommendation)}</p><button class="btn wide" onclick="closeWishlistDialog();openClosetItem('${similar.id}')">View existing Closet item</button>` : '<p class="body">The referenced Closet item is no longer available.</p>';
+  }
+  if (kind === "outfits") {
+    title = "Explore Outfit Ideas";
+    const owned = wishlistOutfitPieces(item);
+    body = `<p class="body">${owned.length} owned pieces + 1 ${item.status === "Purchased" ? "purchased" : "considered"} product. A ${item.collection.toLowerCase()} combination to evaluate.</p><div class="wishlist-outfit-pieces">${[...owned.map((piece) => ({ ...piece, label: "From Closet" })), { ...item, label: "Considering" }].map((piece) => `<div><img src="${piece.image}" alt="${escapeMarkup(piece.name)}"><small>${piece.label}</small><b>${escapeMarkup(piece.name)}</b></div>`).join("")}</div><p class="small">${owned.length < 3 ? "Add more owned pieces to Closet to explore fuller combinations." : "The product fills one role; the other pieces come from your current Closet."}</p><button class="btn primary wide" onclick="openWishlistOutfitInStudio('${id}')">Explore in Style Studio</button>`;
+  }
+  return `<dialog id="wishlist-dialog" class="wishlist-dialog" ${["remove", "purchase"].includes(kind) ? 'role="alertdialog" aria-describedby="wishlist-dialog-description"' : 'role="dialog"'} aria-labelledby="wishlist-dialog-title" oncancel="event.preventDefault();closeWishlistDialog()"><div class="between"><h2 class="title" id="wishlist-dialog-title">${title}</h2><button class="icon-btn" aria-label="Close Wishlist dialog" onclick="closeWishlistDialog()" autofocus>×</button></div>${body}<button class="btn wide" onclick="closeWishlistDialog()">${["remove", "purchase"].includes(kind) ? "Cancel" : "Done"}</button></dialog>`;
+}
+function mountWishlistDialog() {
+  app.querySelector("#wishlist-dialog")?.remove();
+  if (!wishlistDialog) return;
+  app.insertAdjacentHTML("beforeend", wishlistDialogMarkup());
+  app.querySelector("#wishlist-dialog")?.showModal();
+  window.lucide?.createIcons({ attrs: { "stroke-width": 1.5 } });
+}
+function saveWishlistContext(event, id) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget), url = data.get("productUrl").trim();
+  if (url && !validWishlistUrl(url)) { document.getElementById("wishlist-url-error").textContent = "Use a full http or https product link."; return; }
+  saveWishlistProduct(id, { collection: data.get("collection"), note: data.get("note").trim(), reminder: data.get("reminder"), productUrl: url });
+  closeWishlistDialog(); wishlistRefresh(); toast("Saved to Wishlist.");
+}
+function removeWishlistProduct(id) {
+  const index = wishlistItems.findIndex((item) => item.id === id);
+  if (index < 0) return;
+  wishlistUndo = { item: wishlistItems[index], index };
+  wishlistItems.splice(index, 1); persistWishlist(); closeWishlistDialog();
+  wishlistFilter = "All";
+  if (currentId === "G-09") go("G-08"); else wishlistRefresh();
+  toast("Removed from Wishlist.");
+  const button = document.createElement("button"); button.textContent = "Undo"; button.className = "wishlist-undo";
+  button.onclick = undoWishlistRemoval; document.getElementById("toast").append(button);
+  clearTimeout(toast.t); toast.t = setTimeout(() => document.getElementById("toast").classList.remove("show"), 8000);
+}
+function undoWishlistRemoval() {
+  if (!wishlistUndo) return;
+  if (!wishlistItems.some((item) => item.id === wishlistUndo.item.id)) wishlistItems.splice(wishlistUndo.index, 0, wishlistUndo.item);
+  wishlistUndo = null; persistWishlist(); wishlistRefresh(); toast("Restored to Wishlist.");
+}
+function prepareWishlistPurchase(id) {
+  const item = wishlistItems.find((entry) => entry.id === id);
+  if (!item || (item.availability === "Unavailable" && item.status !== "Purchased")) return;
+  const owned = purchasedClosetItems.find((entry) => entry.wishlistId === id);
+  if (owned) { closeWishlistDialog(); openClosetItem(owned.id); return; }
+  item.status = "Purchased"; item.purchaseDate ||= wishlistDate(); item.reminder = ""; persistWishlist();
+  closetPurchaseDraft = { ...item, purchasePrice: item.price, wishlistId: item.id };
+  localStorage.setItem("styleiqClosetPurchaseDraftV1", JSON.stringify(closetPurchaseDraft));
+  batchImportActive = false; importConfidence = "high";
+  closeWishlistDialog(); go("B-06");
+}
+function openWishlistOutfitInStudio(id) {
+  const item = wishlistProduct(id), roles = { Tops: "Top", Bottoms: "Bottom", Outerwear: "Outerwear", Shoes: "Shoes", Bags: "Bag", Accessories: "Accessory" };
+  if (!item) return;
+  const owned = wishlistOutfitPieces(item);
+  canvasState = { ...defaultCanvas(), title: `${item.collection} · ${item.name}`, creationSource: "muse_assisted", items: [
+    ...owned.map((piece) => ({ ...piece, role: roles[piece.category], owned: true, visible: true, index: 0 })),
+    { ...item, id: `considered-${id}`, productId: id, role: roles[item.category] || "Top", owned: false, visible: true, index: 0 },
+  ] };
+  persist(); closeWishlistDialog(); go("F-01");
+}
+// Give suggested Studio pieces stable product IDs; never register owned pieces.
+function shoppingProductForPiece(piece) {
+  if (piece.owned) return null;
+  if (piece.productId && wishlistProduct(piece.productId)) return wishlistProduct(piece.productId);
+  const match = shoppingProducts.find((product) => product.name.toLowerCase() === piece.name.toLowerCase() && product.brand === piece.brand);
+  if (match) return match;
+  const id = `shop-${`${piece.brand}-${piece.name}`.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+  if (!wishlistProduct(id)) shoppingProducts.push({ id, name: piece.name, brand: piece.brand, image: piece.image, retailer: piece.brand, productUrl: "", price: null, previousPrice: null, availability: "In stock", collection: "Inspiration", category: ({ Top: "Tops", Bottom: "Bottoms", Bag: "Bags", Accessory: "Accessories" })[piece.role] || piece.role });
+  return wishlistProduct(id);
+}
+function decorateWishlistSurfaces() {
+  const content = app.querySelector(".content");
+  if (!content) return;
+  if (currentId === "K-01") {
+    content.querySelector(".mirror-search")?.insertAdjacentHTML("afterend", wishlistSnapshot());
+    content.insertAdjacentHTML("beforeend", `<section class="mirror-section" aria-label="Products for your wardrobe"><div class="mirror-section-head"><span><p class="eyebrow">Consider a piece</p><h3>For your wardrobe</h3></span><button class="text-action" onclick="go('K-02')">Explore products</button></div><div class="wishlist-grid">${[wishlistProduct("leather-loafers"), wishlistProduct("shoulder-bag")].map((item) => wishlistProductCard(item)).join("")}</div></section>`);
+    const shortcut = app.querySelector('[aria-label="Open Wishlist"]');
+    if (shortcut) { shortcut.innerHTML = icon("heart"); shortcut.onclick = () => go("G-08"); }
+  }
+  if (["L-01", "L-02"].includes(currentId)) {
+    const entry = content.querySelector('.profile-utility[onclick*="wishlist"]');
+    if (entry) { entry.onclick = () => go("G-08"); entry.querySelector("small").textContent = `${wishlistStats().saved} saved items · ${wishlistStats().ready} ready to buy`; }
+  }
+  if (currentId === "D-02") content.insertAdjacentHTML("beforeend", wishlistSnapshot(true));
+  if (currentId === "B-05") {
+    content.querySelectorAll(".item-card").forEach((card) => {
+      const piece = { name: card.querySelector("b")?.textContent, brand: card.querySelector("small")?.textContent, image: card.querySelector("img")?.getAttribute("src"), role: "Outerwear", owned: false };
+      if (!piece.name) return;
+      const product = shoppingProductForPiece(piece), wrapper = document.createElement("div");
+      wrapper.className = "wishlist-import-product";
+      card.before(wrapper); wrapper.append(card); wrapper.insertAdjacentHTML("beforeend", wishlistHeart(product));
+    });
+  }
+  if (currentId === "M-03") {
+    const card = content.querySelector(".card");
+    if (card) card.outerHTML = `<section class="wishlist-opportunity"><p class="eyebrow">Opportunity · Lightweight layers</p><p class="body">The gap is a wardrobe need. Review a specific product separately, starting with the knit you already own.</p>${wishlistProductCard(wishlistProduct("rust-knit"))}</section>`;
+    const review = [...content.querySelectorAll("button")].find((button) => button.textContent === "Review one suggestion");
+    if (review) review.onclick = () => openWishlistProduct("rust-knit");
+    const claims = content.querySelectorAll(".reason-row small");
+    if (claims[0]) claims[0].textContent = "Compare the suggested knit with your owned rust knit before considering a purchase.";
+    const claimTitle = content.querySelector(".reason-row b");
+    if (claimTitle) claimTitle.textContent = "Check the owned alternative";
+  }
+  if (currentId === "D-06") content.insertAdjacentHTML("beforeend", `<section class="mirror-section"><h3 class="title">Complete this Look</h3>${wishlistProductCard(wishlistProduct("leather-loafers"))}</section>`);
+  if (["D-04", "D-05", "E-01", "E-03", "E-04"].includes(currentId)) {
+    const suggestion = [...content.querySelectorAll(".closet-piece")].find((piece) => piece.textContent.includes("Suggested"));
+    if (suggestion) suggestion.outerHTML = `<div class="wishlist-missing-piece">${wishlistProductCard(wishlistProduct("shoulder-bag"))}</div>`;
+  }
+  if (["G-02", "G-03", "G-04", "G-05", "G-06", "G-07"].includes(currentId)) {
+    content.querySelectorAll(".pack-row").forEach((row, index) => {
+      const piece = canvasState.items[index], product = piece && shoppingProductForPiece(piece);
+      if (product) row.insertAdjacentHTML("beforeend", wishlistHeart(product));
+    });
+  }
+  // A bookmark saves the complete Look; a heart saves only a considered product.
+  app.querySelectorAll('[aria-label="Save Look"], [aria-label="Save outfit"]').forEach((button) => {
+    const saveIcon = button.querySelector("i,svg");
+    if (saveIcon) saveIcon.outerHTML = icon("bookmark");
+    if (currentId === "K-01") button.onclick = (event) => { event.stopPropagation(); openLightweightPanel("save"); };
+  });
+  const menuEntry = app.querySelector('.menu-link[onclick="go(\'G-08\')"] span');
+  if (menuEntry) menuEntry.innerHTML = `Wishlist<small class="wishlist-menu-count">${wishlistStats().saved} saved items</small>`;
+  if (selectedClosetItemId && currentId === "C-02") {
+    const item = selectedClosetItem();
+    if (item.wishlistId) content.insertAdjacentHTML("beforeend", `<section class="card wishlist-context"><h3 class="title">Purchase details</h3><dl><dt>Price paid</dt><dd>${wishlistMoney(item.purchasePrice)}</dd><dt>Purchased</dt><dd>${wishlistDisplayDate(item.purchaseDate)}</dd><dt>Source</dt><dd>${escapeMarkup(item.retailer || "Not provided")}</dd></dl>${wishlistItems.some((entry) => entry.id === item.wishlistId) ? `<button class="text-action" onclick="openWishlistProduct('${item.wishlistId}')">View Wishlist record</button>` : '<p class="small">Originally considered in Wishlist.</p>'}</section>`);
+  }
+}
+let wishlistSearchQuery = "";
+function updateWishlistSearch(value) {
+  wishlistSearchQuery = value;
+  const results = app.querySelector("#shopping-product-results");
+  if (!results) return;
+  const products = shoppingProducts.filter((item) => `${item.name} ${item.brand} ${item.category}`.toLowerCase().includes(value.toLowerCase().trim()));
+  results.innerHTML = products.map((product) => wishlistProductCard(product)).join("") || '<p class="body">No matching products. Try a brand or category.</p>';
+  window.lucide?.createIcons({ attrs: { "stroke-width": 1.5 } });
+}
+function wishlistProductSearch() {
+  return `<section class="mirror-section" aria-label="Shopping products"><div class="mirror-section-head"><span><p class="eyebrow">Individual products</p><h3>Consider for your wardrobe</h3></span></div><label class="field"><span>Search products</span><input class="input" type="search" value="${escapeMarkup(wishlistSearchQuery)}" placeholder="Product, brand, or category" oninput="updateWishlistSearch(this.value)"></label><div class="wishlist-grid" id="shopping-product-results">${shoppingProducts.filter((item) => `${item.name} ${item.brand} ${item.category}`.toLowerCase().includes(wishlistSearchQuery.toLowerCase().trim())).map((product) => wishlistProductCard(product)).join("")}</div></section>`;
+}
 function closetItems() {
   return Array.from({ length: closetState.size }, (_, index) => {
     const id = `closet-${index + 1}`;
@@ -889,10 +1213,11 @@ function closetItems() {
       lifecycle: closetLifecycle[id] || "Keep",
       location: closetLocations[id] || "",
     };
-  });
+  }).concat(purchasedClosetItems.map((item) => ({ ...item, lifecycle: closetLifecycle[item.id] || "Keep", location: closetLocations[item.id] || "" })));
 }
 function openClosetItem(id) {
   selectedClosetItemId = id;
+  localStorage.setItem("styleiqSelectedClosetItemV1", id);
   go("C-02");
 }
 function selectedClosetItem() {
@@ -967,7 +1292,7 @@ function lifecycleItemDetail() {
     states = ["Keep", "Won’t wear", "Sell", "Donate", "Rent", "Archive"];
   return shell(
     "Item detail",
-    `<img class="hero-img" src="${item.image}" alt="${item.name}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${item.name}</h2></span><button class="icon-btn" aria-label="Edit item photo" onclick="toast('Photo editor opened inline')">${icon("edit")}</button></div>${approvalCard("Ready to style", "Category and color are high confidence. Optional details stay collapsed until you need them.")}<div class="inline-edit-grid" style="margin-top:14px">${inlineEditRow("Name", item.name)}${inlineEditRow("Brand", item.brand)}${inlineEditRow("Category", item.category)}</div><details class="card progressive-card" open style="margin-top:12px"><summary><b>Item status</b><span class="small">${item.lifecycle} · one status at a time</span></summary><p class="body" style="margin-top:10px">Choose what you intend to do with this piece. Wear history and details stay intact.</p><div class="chips" role="group" aria-label="Item lifecycle status">${states.map((value) => `<button class="chip ${item.lifecycle === value ? "active" : ""}" aria-pressed="${item.lifecycle === value}" onclick="setItemLifecycle(&quot;${value}&quot;)">${value}</button>`).join("")}</div></details><details class="card progressive-card" style="margin-top:10px"><summary><b>Styling details</b><span class="small">${item.category} · All seasons</span></summary><div class="chips" style="margin-top:12px"><button class="chip active">Warm neutral</button><button class="chip">All seasons</button><button class="chip">Business casual</button></div></details><details class="card progressive-card" style="margin-top:10px"><summary><b>Wear & value</b><span class="small">Worn ${item.wears} times</span></summary><p class="body" style="margin-top:10px">Wear history is retained when this status changes.</p></details><button class="btn primary wide" style="margin-top:14px" onclick="go('C-07')">Style this item</button>`,
+    `<img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${escapeMarkup(item.name)}</h2></span><button class="icon-btn" aria-label="Edit item photo" onclick="toast('Photo editor opened inline')">${icon("edit")}</button></div>${approvalCard("Ready to style", "Category and color are high confidence. Optional details stay collapsed until you need them.")}<div class="inline-edit-grid" style="margin-top:14px">${inlineEditRow("Name", item.name)}${inlineEditRow("Brand", item.brand)}${inlineEditRow("Category", item.category)}</div><details class="card progressive-card" open style="margin-top:12px"><summary><b>Item status</b><span class="small">${item.lifecycle} · one status at a time</span></summary><p class="body" style="margin-top:10px">Choose what you intend to do with this piece. Wear history and details stay intact.</p><div class="chips" role="group" aria-label="Item lifecycle status">${states.map((value) => `<button class="chip ${item.lifecycle === value ? "active" : ""}" aria-pressed="${item.lifecycle === value}" onclick="setItemLifecycle(&quot;${value}&quot;)">${value}</button>`).join("")}</div></details><details class="card progressive-card" style="margin-top:10px"><summary><b>Styling details</b><span class="small">${escapeMarkup(item.category)} · All seasons</span></summary><div class="chips" style="margin-top:12px"><button class="chip active">Warm neutral</button><button class="chip">All seasons</button><button class="chip">Business casual</button></div></details><details class="card progressive-card" style="margin-top:10px"><summary><b>Wear & value</b><span class="small">Worn ${item.wears} times</span></summary><p class="body" style="margin-top:10px">Wear history is retained when this status changes.</p></details><button class="btn primary wide" style="margin-top:14px" onclick="go('C-07')">Style this item</button>`,
     { active: "closet" },
   );
 }
@@ -995,7 +1320,7 @@ function decorateConsolidatedItemDetail() {
     wear.querySelector(".body")?.remove();
     wear.insertAdjacentHTML(
       "beforeend",
-      `<div class="item-metrics"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>$${Math.max(48, Math.round(1890 / Math.max(item.wears, 1)))}</b><small>Cost / wear</small></span><span class="item-metric"><b>4</b><small>Compatible Looks</small></span></div>`,
+      `<div class="item-metrics"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${item.wishlistId ? (item.wears && Number.isFinite(item.purchasePrice) ? wishlistMoney(item.purchasePrice / item.wears) : "Not worn yet") : "$" + Math.max(48, Math.round(1890 / Math.max(item.wears, 1)))}</b><small>Cost / wear</small></span><span class="item-metric"><b>4</b><small>Compatible Looks</small></span></div>`,
     );
   }
   content.insertAdjacentHTML(
@@ -1042,12 +1367,6 @@ window.setClosetDemoSize = function (size) {
   if (currentId === "C-01") render();
 };
 function scalableCloset() {
-  if (closetTab === "wishlist")
-    return shell(
-      "Closet",
-      `<div class="closet-results-head" style="margin-top:2px"><span><p class="eyebrow">Saved for later</p><h3>Wishlist</h3></span><button class="text-action" onclick="setClosetTab('closet')">Back to Closet</button></div><div class="closet-grid"><button class="closet-item" onclick="go('K-04')"><span class="closet-item-media"><img src="${assets.bag}" alt="Leather shoulder bag"><em>Suggested</em></span><span class="closet-item-copy"><b>Leather shoulder bag</b><small>Fills one wardrobe gap</small></span></button><button class="closet-item" onclick="go('M-03')"><span class="closet-item-media"><img src="${assets.top2}" alt="Warm lightweight knit"><em>Useful in 6 Looks</em></span><span class="closet-item-copy"><b>Warm lightweight knit</b><small>Matches your saved palette</small></span></button></div>`,
-      { active: "closet" },
-    );
   const all = closetItems(),
     q = closetState.query.trim().toLowerCase();
   const collectionTests = {
@@ -1073,7 +1392,7 @@ function scalableCloset() {
         item.category === closetState.category) &&
       (collectionTests[closetState.collection]?.(item) ?? true) &&
       (!q ||
-        `${item.name} ${item.brand} ${item.category} ${item.location}`
+        `${escapeMarkup(item.name)} ${escapeMarkup(item.brand)} ${escapeMarkup(item.category)} ${item.location}`
           .toLowerCase()
           .includes(q)),
   );
@@ -1113,7 +1432,7 @@ function scalableCloset() {
   ];
   return shell(
     "Closet",
-    `<div class="mirror-page-head"><span><p class="eyebrow">Wardrobe · ${all.length} ${all.length === 1 ? "piece" : "pieces"}</p><h2 class="mirror-title">Closet</h2></span><button class="mirror-circle-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button></div><div class="closet-toolbar"><label class="closet-search">${icon("search")}<span class="sr-only">Search Closet</span><input aria-label="Search Closet" type="search" value="${closetState.query.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" placeholder="Search pieces or brands" oninput="updateClosetQuery(this.value)"></label><button class="closet-sort" aria-label="Sort: ${closetState.sort}" onclick="cycleClosetSort()">${icon("arrow-up-down")}</button></div><div class="closet-collections" role="group" aria-label="Smart collections">${collections.map(([name, count]) => `<button class="closet-collection" aria-pressed="${closetState.collection === name}" onclick="setClosetCollection('${name}')"><b>${name}</b><small>${count} ${count === 1 ? "piece" : "pieces"}</small></button>`).join("")}</div><div class="closet-category-rail" role="group" aria-label="Closet categories">${categories.map((name) => `<button class="chip ${closetState.category === name ? "active" : ""}" aria-pressed="${closetState.category === name}" onclick="setClosetCategory('${name}')">${name}</button>`).join("")}</div><div class="closet-results-head"><span><p class="eyebrow">${closetState.collection}</p><h3>${visible.length} ${visible.length === 1 ? "piece" : "pieces"}</h3></span><small>${closetState.sort}</small></div><div class="closet-grid">${visible.length ? visible.map((item) => `<button class="closet-item" onclick="go('C-02')"><span class="closet-item-media"><img src="${item.image}" alt="${item.name}"><em>${item.status}</em></span><span class="closet-item-copy"><b>${item.name}</b><small>${item.brand} · worn ${item.wears}×</small></span></button>`).join("") : `<div class="closet-no-results"><b>No matching pieces</b><small>Try another category, collection, or search.</small><button class="btn small-btn" style="margin-top:12px" onclick="resetClosetFilters()">Clear filters</button></div>`}</div>`,
+    `<div class="mirror-page-head"><span><p class="eyebrow">Wardrobe · ${all.length} ${all.length === 1 ? "piece" : "pieces"}</p><h2 class="mirror-title">Closet</h2></span><button class="mirror-circle-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button></div><div class="closet-toolbar"><label class="closet-search">${icon("search")}<span class="sr-only">Search Closet</span><input aria-label="Search Closet" type="search" value="${closetState.query.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" placeholder="Search pieces or brands" oninput="updateClosetQuery(this.value)"></label><button class="closet-sort" aria-label="Sort: ${closetState.sort}" onclick="cycleClosetSort()">${icon("arrow-up-down")}</button></div><div class="closet-collections" role="group" aria-label="Smart collections">${collections.map(([name, count]) => `<button class="closet-collection" aria-pressed="${closetState.collection === name}" onclick="setClosetCollection('${name}')"><b>${name}</b><small>${count} ${count === 1 ? "piece" : "pieces"}</small></button>`).join("")}</div><div class="closet-category-rail" role="group" aria-label="Closet categories">${categories.map((name) => `<button class="chip ${closetState.category === name ? "active" : ""}" aria-pressed="${closetState.category === name}" onclick="setClosetCategory('${name}')">${name}</button>`).join("")}</div><div class="closet-results-head"><span><p class="eyebrow">${closetState.collection}</p><h3>${visible.length} ${visible.length === 1 ? "piece" : "pieces"}</h3></span><small>${closetState.sort}</small></div><div class="closet-grid">${visible.length ? visible.map((item) => `<button class="closet-item" onclick="go('C-02')"><span class="closet-item-media"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><em>${item.status}</em></span><span class="closet-item-copy"><b>${escapeMarkup(item.name)}</b><small>${escapeMarkup(item.brand)} · worn ${item.wears}×</small></span></button>`).join("") : `<div class="closet-no-results"><b>No matching pieces</b><small>Try another category, collection, or search.</small><button class="btn small-btn" style="margin-top:12px" onclick="resetClosetFilters()">Clear filters</button></div>`}</div>`,
     { active: "closet" },
   );
 }
@@ -1133,7 +1452,8 @@ function toast(message) {
   toast.t = setTimeout(() => el.classList.remove("show"), 1800);
 }
 function setClosetTab(tab) {
-  closetTab = tab;
+  if (tab === "wishlist") { closetTab = "closet"; go("G-08"); return; }
+  closetTab = "closet";
   if (currentId === "C-01") render();
   else go("C-01");
 }
@@ -1200,7 +1520,8 @@ const backRoutes = {
   "G-05": "G-02",
   "G-06": "G-02",
   "G-07": "G-02",
-  "G-08": "G-02",
+  "G-08": "K-01",
+  "G-09": "G-08",
   "H-01": "F-01",
   "H-02": "H-01",
   "H-03": "H-02",
@@ -1280,6 +1601,11 @@ const museContexts = {
   M: "an open styling question",
 };
 function museContextFor(id = currentId) {
+  if (["G-08", "G-09"].includes(id)) {
+    const item = wishlistProduct(selectedWishlistId);
+    return { label: id === "G-09" && item ? `Wishlist · ${escapeMarkup(item.name)}` : "My Wishlist",
+      prompt: id === "G-09" && item ? `Help me evaluate ${escapeMarkup(item.name)} against my Closet, its ${escapeMarkup(item.duplicateRisk || "unassessed")} duplicate risk, and my ${escapeMarkup(item.collection)} needs.` : "Help me review my considered products for useful gaps and duplicates.", origin: id };
+  }
   const section = id.charAt(0),
     label = museContexts[section] || "the current screen";
   const prompts = {
@@ -1308,8 +1634,11 @@ function openMuse(context = museContextFor()) {
   go("M-01");
 }
 function go(id, { record = true } = {}) {
+  if (id === "G-8") id = "G-08";
+  if (id === "G-9") id = "G-09";
   if (!screens.some((s) => s.id === id)) return;
   if (id === currentId) {
+    if (accountMenuOpen || wishlistDialog) { accountMenuOpen = false; wishlistDialog = null; render(); }
     presentStudioRoute(true);
     return;
   }
@@ -1324,6 +1653,8 @@ function go(id, { record = true } = {}) {
     navHistory.push(currentId);
     if (navHistory.length > 80) navHistory.shift();
   }
+  if (currentId === "B-06" && id !== "B-06") { closetPurchaseDraft = null; localStorage.removeItem("styleiqClosetPurchaseDraftV1"); }
+  wishlistDialog = null;
   currentId = id;
   location.hash = id;
   overlay = null;
@@ -1336,6 +1667,7 @@ function go(id, { record = true } = {}) {
     ?.scrollIntoView({ block: "nearest" });
 }
 function backScreen() {
+  if (wishlistDialog) { closeWishlistDialog(); return; }
   if (currentId === "E-06") {
     leaveTryOn();
     return;
@@ -1515,7 +1847,7 @@ function logoutDialog() {
 }
 function inlineEditRow(label, value, extra = "") {
   const id = `inline-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-  return `<div class="inline-edit-row"><label for="${id}">${label}</label><input id="${id}" class="input" value="${value}" ${extra}></div>`;
+  return `<div class="inline-edit-row"><label for="${id}">${label}</label><input id="${id}" class="input" value="${escapeMarkup(value)}" ${extra}></div>`;
 }
 function approvalCard(title, description) {
   return `<div class="approval-card"><span class="icon-wrap">${icon("check")}</span><span><b>${title}</b><small>${description}</small></span></div>`;
@@ -1530,10 +1862,6 @@ function openLightweightPanel(kind) {
 }
 function closeLightweightPanel() {
   lightweightPanel = null;
-  if (currentId === "G-08") {
-    go("G-02");
-    return;
-  }
   if (["E-01", "E-03", "E-04"].includes(currentId)) {
     go("D-04");
     return;
@@ -1600,8 +1928,8 @@ function approveLightweightPanel(kind) {
     );
   }
   lightweightPanel = null;
-  if (["E-01", "E-03", "E-04", "G-08"].includes(currentId))
-    go(currentId === "G-08" ? "G-02" : "D-04");
+  if (["E-01", "E-03", "E-04"].includes(currentId))
+    go("D-04");
   else render();
   const messages = {
     save: "Look saved",
@@ -1967,7 +2295,7 @@ function decorateContextualIntelligence() {
       contextualInsight(
         "Useful in your wardrobe",
         "5 outfit directions",
-        "This blazer connects your office, dinner, and travel pieces; no separate intelligence page is needed.",
+        selectedClosetItem().wishlistId ? "Try this piece with the items you already own. Outfit suggestions use your current Closet." : "This blazer connects your office, dinner, and travel pieces; no separate intelligence page is needed.",
       ),
     );
   }
@@ -2263,8 +2591,8 @@ function lensResult() {
       title: "Useful, but close to what you own.",
       image: assets.top2,
       body: "82% compatible · works in 6 owned Looks · high duplicate risk against your warm knit. Muse suggests comparing before buying.",
-      extra: lensMatches(),
-      actions: `<div class="row"><button class="btn grow primary" onclick="lensDestination('C-01')">Compare owned</button><button class="btn grow" onclick="lensDestination('D-04')">See outfit ideas</button></div>`,
+      extra: `<div class="wishlist-lens-product"><b>Rust Square-neck Knit</b>${wishlistHeart(wishlistProduct("rust-knit"))}</div>${lensMatches()}`,
+      actions: `<div class="row"><button class="btn grow primary" onclick="openWishlistDialog('compare','rust-knit')">Compare owned</button><button class="btn grow" onclick="openWishlistProduct('rust-knit')">Before You Buy</button></div><button class="text-action" onclick="openWishlistDialog('context','rust-knit')">Save for Later</button>`,
     },
     recreate: {
       eyebrow: "Outfit formula detected",
@@ -2430,7 +2758,7 @@ function decorateInspirationProfile() {
 }
 function decorateLookProvenance() {
   if (
-    !["G-02", "G-03", "G-04", "G-05", "G-06", "G-07", "G-08"].includes(
+    !["G-02", "G-03", "G-04", "G-05", "G-06", "G-07"].includes(
       currentId,
     )
   )
@@ -2518,12 +2846,35 @@ function reviewUncertainImport() {
   go("B-06");
 }
 function confidenceImportReview() {
-  const uncertain = importConfidence === "low";
+  const draft = closetPurchaseDraft, uncertain = !draft && importConfidence === "low";
+  const item = draft || { name: "Black tailored blazer", brand: "Balmain", category: "Outerwear", image: assets.blazer };
   return shell(
     "Review item",
-    `<img class="hero-img" src="${assets.blazer}" alt="Black tailored blazer"><div class="stack" style="margin-top:14px">${approvalCard(uncertain ? "Two details need you" : "Processed automatically", uncertain ? "The photo is usable, but brand and category conflict. Confirm both here once." : "Prototype preview: crop, isolation, image balance, category, and brand are high confidence.")} ${uncertain ? `<div class="card"><div class="field"><label for="uncertain-brand">Brand</label><select id="uncertain-brand" class="input"><option>Balmain</option><option>Unknown</option></select></div><div class="field" style="margin-top:10px"><label for="uncertain-category">Category</label><select id="uncertain-category" class="input"><option>Outerwear</option><option>Dresses & Suits</option></select></div></div><button class="btn primary wide" onclick="go('B-11')">Confirm 2 details & add</button>` : `<button class="btn primary wide" onclick="go('B-11')">Looks right · Add</button><details class="card progressive-card"><summary><b>Edit details</b><span class="small">Only if something is wrong</span></summary><div class="inline-edit-grid" style="margin-top:12px">${inlineEditRow("Item name", "Black tailored blazer")}${inlineEditRow("Brand", "Balmain")}${inlineEditRow("Category", "Outerwear")}</div></details><details class="card progressive-card"><summary><b>What StyleIQ prepared</b><span class="small">Crop · background · metadata</span></summary><p class="body" style="margin-top:10px">Garment isolated, image normalized, category classified as Outerwear, and brand matched to Balmain.</p></details>`}</div>`,
+    `<form onsubmit="confirmReviewedClosetItem(event)"><img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="stack" style="margin-top:14px">${approvalCard(draft ? "Purchase ready to review" : uncertain ? "Two details need you" : "Processed automatically", draft ? "Details came from your Wishlist product. Confirm below to add this owned piece to your Closet." : uncertain ? "The photo is usable, but brand and category conflict. Confirm both here once." : "Prototype preview: crop, isolation, image balance, category, and brand are high confidence.")}
+    ${uncertain ? `<div class="card"><div class="field"><label for="uncertain-brand">Brand</label><select id="uncertain-brand" class="input"><option>Balmain</option><option>Unknown</option></select></div><div class="field" style="margin-top:10px"><label for="uncertain-category">Category</label><select id="uncertain-category" class="input"><option>Outerwear</option><option>Dresses &amp; Suits</option></select></div></div><button type="submit" class="btn primary wide">Confirm 2 details &amp; add</button>` : `<details class="card progressive-card" ${draft ? "open" : ""}><summary><b>Edit details</b><span class="small">Review before adding</span></summary><div class="inline-edit-grid" style="margin-top:12px">${inlineEditRow("Item name", item.name, 'required maxlength="120"')}${inlineEditRow("Brand", item.brand, 'maxlength="100"')}${inlineEditRow("Category", item.category, 'required')}${draft ? `${inlineEditRow("Purchase price", item.purchasePrice ?? "", 'type="number" min="0" step="0.01"')}${inlineEditRow("Purchase date", item.purchaseDate, 'type="date" required')}${inlineEditRow("Retailer / source", item.retailer, 'maxlength="200"')}<p class="small">From Wishlist · ${escapeMarkup(item.name)}</p>` : ""}</div></details><button type="submit" class="btn primary wide">Looks right · Add</button>${draft ? '<button type="button" class="btn wide" onclick="go(\'G-09\')">Keep purchased · add later</button>' : '<details class="card progressive-card"><summary><b>What StyleIQ prepared</b><span class="small">Crop · background · metadata</span></summary><p class="body" style="margin-top:10px">Garment isolated, image normalized, category classified as Outerwear, and brand matched to Balmain.</p></details>'}`}</div></form>`,
     { noNav: true },
   );
+}
+function confirmReviewedClosetItem(event) {
+  event.preventDefault();
+  if (!closetPurchaseDraft) { go("B-11"); return; }
+  const draft = closetPurchaseDraft;
+  const value = (id) => app.querySelector(`#inline-${id}`)?.value.trim() || "";
+  const item = {
+    id: `purchased-${draft.wishlistId}`, wishlistId: draft.wishlistId,
+    name: value("item-name"), brand: value("brand"), category: value("category"),
+    image: draft.image, purchasePrice: value("purchase-price") === "" ? null : Number(value("purchase-price")),
+    purchaseDate: value("purchase-date"), retailer: value("retailer-source"),
+    productUrl: draft.productUrl, status: "Available", lifecycle: "Keep", wears: 0,
+  };
+  if (!item.name || !item.category || !item.purchaseDate) return;
+  if (!purchasedClosetItems.some((owned) => owned.wishlistId === item.wishlistId)) purchasedClosetItems.unshift(item);
+  localStorage.setItem("styleiqClosetPurchasesV1", JSON.stringify(purchasedClosetItems));
+  const wishlistItem = wishlistItems.find((entry) => entry.id === item.wishlistId);
+  if (wishlistItem) { wishlistItem.closetId = item.id; wishlistItem.purchaseDate = item.purchaseDate; wishlistItem.purchasePrice = item.purchasePrice; persistWishlist(); }
+  closetPurchaseDraft = null;
+  localStorage.removeItem("styleiqClosetPurchaseDraftV1");
+  openClosetItem(item.id); toast("Added to your Closet.");
 }
 function emptyState(s) {
   const map = {
@@ -2754,7 +3105,7 @@ function discoverScreen(s) {
   if (idx === 2)
     return shell(
       "Search",
-      `<input class="input" value="tailored neutrals"><div class="chips" style="margin:12px 0">${["Looks", "People", "Products", "Brands"].map((x, i) => `<button class="chip ${i === 0 ? "active" : ""}">${x}</button>`).join("")}</div>${feed}`,
+      `${wishlistSnapshot(true)}${wishlistProductSearch()}<details class="card progressive-card"><summary><b>Outfit inspiration</b><span class="small">Complete Looks</span></summary>${feed}</details>`,
       { active: "discover" },
     );
   if (idx === 3)
@@ -3308,7 +3659,6 @@ function twinRefine() {
   );
 }
 function leanSavedLook() {
-  if (currentId === "G-08") lightweightPanel = "lookManage";
   return shell(
     "Saved Look",
     `<img class="hero-img" style="height:330px" src="${assets.look}" alt="Saved soft tailoring outfit"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${lookSourceLabel(canvasState.creationSource)}</p><h2 class="title">${canvasState.title}</h2><p class="body">${canvasState.date} · ${canvasState.location}</p></span><button class="icon-btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">${icon("more")}</button></div><div class="saved-look-primary" aria-label="Saved Look actions"><button class="btn primary" onclick="toast('Marked to wear today')">Wear</button><button class="btn" onclick="go('H-01')">Try On</button><button class="btn" onclick="go('F-01')">Edit</button><button class="btn" onclick="go('I-01')">Plan</button></div><details class="card progressive-card" open style="margin-top:12px"><summary><b>Items</b><span class="small">${canvasState.items.length} pieces</span></summary>${canvasState.items
@@ -3730,7 +4080,7 @@ function studioPreview() {
 }
 function studioCandidateRail(candidates, closeLens = false) {
   const selected = canvasState.items.find((x) => x.role === studioUI.role);
-  return `<div class="studio-piece-rail" aria-label="Piece alternatives">${candidates.map((piece) => `<button class="studio-piece-option" aria-label="Choose ${escapeMarkup(piece.name)}" aria-pressed="${selected?.name === piece.name}" onclick="chooseStudioCandidate('${piece.key}')">${studioPieceArt(piece)}${selected?.name === piece.name ? `<span class="studio-selected-check">${icon("check")}</span>` : ""}<b>${escapeMarkup(piece.name)}</b><small>${piece.owned ? "Owned" : "Suggested"}${selected?.name === piece.name ? " · Selected" : ""}</small></button>`).join("")}${candidates.length ? "" : '<p class="body">No pieces match. Try another source or category.</p>'}</div>`;
+  return `<div class="studio-piece-rail" aria-label="Piece alternatives">${candidates.map((piece) => `<div class="studio-shopping-option"><button class="studio-piece-option" aria-label="Choose ${escapeMarkup(piece.name)}" aria-pressed="${selected?.name === piece.name}" onclick="chooseStudioCandidate('${piece.key}')">${studioPieceArt(piece)}${selected?.name === piece.name ? `<span class="studio-selected-check">${icon("check")}</span>` : ""}<b>${escapeMarkup(piece.name)}</b><small>${piece.owned ? "Owned" : "Suggested"}${selected?.name === piece.name ? " · Selected" : ""}</small></button>${wishlistHeart(shoppingProductForPiece(piece))}</div>`).join("")}${candidates.length ? "" : '<p class="body">No pieces match. Try another source or category.</p>'}</div>`;
 }
 function studioPicker() {
   const roles = studioRoles.filter(
@@ -3809,6 +4159,8 @@ function phaseOneCanonicalScreen(s) {
   return null;
 }
 function mirrorScreen(s) {
+  if (s.id === "G-08") return myWishlist();
+  if (s.id === "G-09") return wishlistDetail();
   if (s.id === "E-06") return tryOnResult();
   const phaseOne = phaseOneCanonicalScreen(s);
   if (phaseOne) return phaseOne;
@@ -3852,7 +4204,7 @@ function mirrorScreen(s) {
   if (["B-02", "B-03"].includes(s.id)) return batchPhotoImport();
   if (s.id === "B-10" && batchImportActive) return batchImportReview();
   if (s.id === "B-11" && batchImportActive) return batchImportSuccess();
-  if (["G-02", "G-03", "G-04", "G-05", "G-06", "G-07", "G-08"].includes(s.id))
+  if (["G-02", "G-03", "G-04", "G-05", "G-06", "G-07"].includes(s.id))
     return leanSavedLook();
   return null;
 }
@@ -3927,7 +4279,9 @@ function render() {
   decorateLookProvenance();
   decorateWeeklyRecapEntry();
   decorateVisualSearchEntries();
+  decorateWishlistSurfaces();
   ensureAppNavigation();
+  mountWishlistDialog();
   window.lucide?.createIcons({ attrs: { "stroke-width": 1.5 } });
   installLiquidNav(previousNavLens);
   renderNotes(s);
@@ -3985,7 +4339,8 @@ document.getElementById("mobile-index").addEventListener("click", () => {
   if (id) go(id.toUpperCase());
 });
 window.addEventListener("hashchange", () => {
-  const id = location.hash.slice(1);
+  const requestedId = location.hash.slice(1);
+  const id = ({ "G-8": "G-08", "G-9": "G-09" })[requestedId] || requestedId;
   if (currentId === "E-06" && id.startsWith("H-")) {
     leaveTryOn();
     return;
@@ -3993,6 +4348,8 @@ window.addEventListener("hashchange", () => {
   if (pendingTryOn && currentId.startsWith("H-") && !id.startsWith("H-"))
     clearPendingTryOn();
   if (id && id !== currentId && screens.some((s) => s.id === id)) {
+    if (currentId === "B-06") { closetPurchaseDraft = null; localStorage.removeItem("styleiqClosetPurchaseDraftV1"); }
+    wishlistDialog = null;
     navHistory.push(currentId);
     currentId = id;
     lightweightPanel = null;
@@ -4002,7 +4359,7 @@ window.addEventListener("hashchange", () => {
   }
 });
 window.addEventListener("keydown", (e) => {
-  if (["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) return;
+  if (wishlistDialog || ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName)) return;
   if (e.key === "ArrowRight") openNextInventoryScreen();
   if (e.key === "ArrowLeft") openPreviousInventoryScreen();
   if (e.key === "Escape" && lightweightPanel) closeLightweightPanel();
@@ -4043,6 +4400,7 @@ function searchStyleIQ(value) {
       detail: `Closet · ${item.brand || ""} · ${item.location || ""}`,
       action: `openClosetItem(${JSON.stringify(item.id)})`,
     }));
+  wishlistItems.forEach((item) => entries.push({ title: item.name, detail: `Wishlist · ${item.brand} · ${wishlistStatus(item)}`, action: `openWishlistProduct(${JSON.stringify(item.id)})` }));
   Object.entries(tryOnLooks).forEach(([key, look]) =>
     entries.push({
       title: look.title,
@@ -4065,6 +4423,7 @@ function searchStyleIQ(value) {
     ["Today", "D-02"],
     ["Closet", "C-01"],
     ["Saved Looks", "G-01"],
+    ["Wishlist", "G-08"],
     ["Style Studio", "F-01"],
     ["Planner", "I-01"],
     ["Discover", "K-01"],
@@ -4100,7 +4459,8 @@ function accountMenuV2() {
       [
         ["spark", "Muse", "M-01"],
         ["user", "Profile", "L-01"],
-        ["heart", "Saved Looks", "G-01"],
+        ["bookmark", "Saved Looks", "G-01"],
+        ["heart", "Wishlist", "G-08"],
         ["spark", "Style Studio", "F-01"],
         ["calendar", "Planner", "I-01"],
         ["bag", "Trips", "J-01"],
