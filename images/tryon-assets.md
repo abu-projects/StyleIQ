@@ -5,7 +5,7 @@ Generated with the built-in `image_gen` tool. These are prepared prototype views
 - `images/tryon-tailoring-views.png`: four columns (Front, 3/4, Side, Back), two rows (Coffee Meeting, Soft Tailoring).
 - `images/tryon-reference-dress-views.png`: four columns (Front, 3/4, Side, Back), one row. Dress and boots inspired by the supplied WhatsApp video, sampled at 3 and 7 seconds.
 
-`tryOnLooks` in `1.html` holds the selected formula and asset manifest. `tryOnSession` binds that selection to the completed Twin ID and stores angle, background context, origin, and return route. A production renderer can replace the prepared assets with outputs keyed by Twin ID and Look ID. Background context is currently `neutral`; no background-changing UI is implied.
+`tryOnLooks` in `app.js` holds the selected formula and asset manifest. `tryOnSession` binds that selection to the completed Twin ID and stores angle, background context, origin, and return route. A production renderer can replace the prepared assets with outputs keyed by Twin ID and Look ID. Background context is currently `neutral`; no background-changing UI is implied.
 
 ## Final prompt: tailoring views
 

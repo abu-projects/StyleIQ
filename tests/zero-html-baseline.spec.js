@@ -7,7 +7,7 @@ const ROOT_DESTINATIONS = [
 ];
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/0.html#D-02');
+  await page.goto('/old/0.html#D-02');
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'D-02');
 });
 
@@ -71,7 +71,7 @@ test('More exposes secondary jobs without nesting another screen', async ({ page
 });
 
 test('entry walkthrough can reach useful Today value without required setup', async ({ page }) => {
-  await page.goto('/0.html#S-00');
+  await page.goto('/old/0.html#S-00');
   await page.getByRole('button', { name: 'Explore StyleIQ' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'S-01');
   await page.getByRole('button', { name: 'Skip to Today' }).click();
@@ -119,7 +119,7 @@ test('saving a recommendation uses one approval sheet and preserves Today contex
 });
 
 test('lightweight feedback captures a reason without routing away from the outfit', async ({ page }) => {
-  await page.goto('/0.html#D-04');
+  await page.goto('/old/0.html#D-04');
   await page.getByRole('button', { name: 'Not for me' }).click();
   const dialog = page.getByRole('dialog', { name: 'What missed?' });
   const reason = dialog.getByRole('button', { name: 'Wrong Color' });
@@ -131,7 +131,7 @@ test('lightweight feedback captures a reason without routing away from the outfi
 });
 
 test('high-confidence item processing is automatic with one compact review', async ({ page }) => {
-  await page.goto('/0.html#B-06');
+  await page.goto('/old/0.html#B-06');
   await expect(page.getByText('Processed automatically')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Looks right · Add' })).toBeVisible();
   await expect(page.getByLabel('Item name')).not.toBeVisible();
@@ -147,7 +147,7 @@ test('high-confidence item processing is automatic with one compact review', asy
 });
 
 test('failed item processing offers transparent recovery without an internal AI stage', async ({ page }) => {
-  await page.goto('/0.html#B-07');
+  await page.goto('/old/0.html#B-07');
   await expect(page.getByRole('heading', { name: 'We couldn’t isolate one clear item.' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Choose another photo' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Keep original and review' })).toBeVisible();
@@ -157,7 +157,7 @@ test('failed item processing offers transparent recovery without an internal AI 
 });
 
 test('uncertain import fields are grouped into one interruption', async ({ page }) => {
-  await page.goto('/0.html#B-10');
+  await page.goto('/old/0.html#B-10');
   await page.locator('#app').getByRole('button', { name: 'Review once' }).first().click();
   await expect(page.getByText('Two details need you')).toBeVisible();
   await expect(page.getByLabel('Brand')).toBeVisible();
@@ -170,20 +170,20 @@ test('uncertain import fields are grouped into one interruption', async ({ page 
 
 test('Prettify is removed as a standalone workflow and automatic cleanup stays contextual', async ({ page }) => {
   for (const id of ['B-03', 'B-06', 'B-07', 'B-08', 'C-03', 'L-10']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.locator('#app').getByText(/Prettify|Prettifying/i)).toHaveCount(0);
     await expect(page.locator('#app .screen')).toHaveCount(1);
   }
-  await page.goto('/0.html#B-03');
+  await page.goto('/old/0.html#B-03');
   await expect(page.getByRole('heading', { name: 'Add garment photos' })).toBeVisible();
-  await page.goto('/0.html#L-10');
+  await page.goto('/old/0.html#L-10');
   await expect(page.getByRole('heading', { name: 'Photo handling', level: 2 })).toBeVisible();
   await expect(page.getByText('Automatic cleanup · Always on')).toBeVisible();
   await expect(page.getByText('Keep original photos · On')).toBeVisible();
 });
 
 test('photo repair is secondary to canonical Item Detail', async ({ page }) => {
-  await page.goto('/0.html#C-03');
+  await page.goto('/old/0.html#C-03');
   await expect(page.getByRole('heading', { name: 'Black tailored blazer' })).toBeVisible();
   await page.getByRole('button', { name: 'Edit item photo' }).click();
   const sheet = page.getByRole('dialog', { name: 'Edit without leaving' });
@@ -194,7 +194,7 @@ test('photo repair is secondary to canonical Item Detail', async ({ page }) => {
 });
 
 test('batch import processes together, reviews only uncertainty, skips duplicates, and commits once', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   await page.getByRole('button', { name: 'Add an item' }).click();
   await page.getByRole('button', { name: /Photos/ }).click();
   const selected = page.getByRole('group', { name: 'Selected garment photos' });
@@ -217,7 +217,7 @@ test('batch import processes together, reviews only uncertainty, skips duplicate
 });
 
 test('photo batch picker covers empty, partial, and retry states', async ({ page }) => {
-  await page.goto('/0.html#B-02');
+  await page.goto('/old/0.html#B-02');
   const photos = page.getByRole('group', { name: 'Selected garment photos' }).getByRole('button');
   await photos.nth(0).click();
   await photos.nth(1).click();
@@ -225,14 +225,14 @@ test('photo batch picker covers empty, partial, and retry states', async ({ page
   await photos.nth(2).click();
   await photos.nth(3).click();
   await expect(page.getByRole('button', { name: 'Select at least one photo' })).toBeDisabled();
-  await page.goto('/0.html#B-07');
+  await page.goto('/old/0.html#B-07');
   await page.getByRole('button', { name: 'Choose another photo' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'B-02');
   await expect(page.getByRole('heading', { name: 'Add garment photos' })).toBeVisible();
 });
 
 test('Learn from my photos turns historical outfits into editable non-Closet signals', async ({ page }) => {
-  await page.goto('/0.html#L-01');
+  await page.goto('/old/0.html#L-01');
   await page.evaluate(() => localStorage.removeItem('styleiqPhotoLearningV1'));
   await page.reload();
   const entry = page.getByRole('region', { name: 'Learn from my photos' });
@@ -256,7 +256,7 @@ test('Learn from my photos turns historical outfits into editable non-Closet sig
 });
 
 test('photo learning uses the same entry from Muse without a feature detour', async ({ page }) => {
-  await page.goto('/0.html#M-01');
+  await page.goto('/old/0.html#M-01');
   const entry = page.getByRole('region', { name: 'Learn from my photos' });
   await expect(entry).toBeVisible();
   await entry.getByRole('button', { name: /Choose outfit photos|Review photo insights/ }).click();
@@ -268,7 +268,7 @@ test('photo learning uses the same entry from Muse without a feature detour', as
 
 test('StyleIQ Lens is persistently available on every primary root without replacing navigation', async ({ page }) => {
   for (const id of ['D-02', 'C-01', 'I-01', 'K-01', 'L-01']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.getByRole('button', { name: 'Open StyleIQ Lens' })).toBeVisible();
     await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeVisible();
     await expect(page.locator('#app .screen')).toHaveCount(1);
@@ -277,7 +277,7 @@ test('StyleIQ Lens is persistently available on every primary root without repla
 
 test('Lens accepts camera, library, and screenshot inputs in one reusable overlay', async ({ page }) => {
   for (const source of ['Camera', 'Photo library', 'Screenshot']) {
-    await page.goto('/0.html#D-02');
+    await page.goto('/old/0.html#D-02');
     await page.getByRole('button', { name: 'Open StyleIQ Lens' }).click();
     const lens = page.getByRole('dialog', { name: 'StyleIQ Lens' });
     await lens.getByRole('button', { name: source }).click();
@@ -300,7 +300,7 @@ test('Lens routes all visual jobs through contextual results and canonical desti
     ['Find owned alternatives', 'View owned alternatives', 'C-01']
   ];
   for (const [intent, action, destination] of jobs) {
-    await page.goto('/0.html#D-02');
+    await page.goto('/old/0.html#D-02');
     await page.getByRole('button', { name: 'Open StyleIQ Lens' }).click();
     const lens = page.getByRole('dialog', { name: 'StyleIQ Lens' });
     await lens.getByRole('button', { name: 'Camera' }).click();
@@ -314,7 +314,7 @@ test('Lens routes all visual jobs through contextual results and canonical desti
 
 test('Lens purchase and screenshot search prioritize owned visual alternatives', async ({ page }) => {
   for (const intent of ['Should I buy this?', 'Shop my Closet', 'Find owned alternatives']) {
-    await page.goto('/0.html#K-01');
+    await page.goto('/old/0.html#K-01');
     await page.getByRole('button', { name: 'Open StyleIQ Lens' }).click();
     const lens = page.getByRole('dialog', { name: 'StyleIQ Lens' });
     await lens.getByRole('button', { name: 'Screenshot' }).click();
@@ -327,7 +327,7 @@ test('Lens purchase and screenshot search prioritize owned visual alternatives',
 });
 
 test('Profile makes Style Inspiration and creator references explicit and manageable', async ({ page }) => {
-  await page.goto('/0.html#L-01');
+  await page.goto('/old/0.html#L-01');
   const inspiration = page.getByRole('region', { name: 'Style Inspiration' });
   await expect(inspiration.getByText(/photos, screenshots, Instagram, Pinterest, creators, and celebrities/i)).toBeVisible();
   await inspiration.getByRole('button', { name: 'Manage inspiration' }).click();
@@ -342,7 +342,7 @@ test('Profile makes Style Inspiration and creator references explicit and manage
 });
 
 test('Profile and My Looks use canonical counts and creation-source filters', async ({ page }) => {
-  await page.goto('/0.html#L-01');
+  await page.goto('/old/0.html#L-01');
   const summary = page.getByRole('region', { name: 'My Looks summary' });
   await expect(summary.getByRole('heading', { name: '5 Looks' })).toBeVisible();
   await expect(summary.getByRole('button', { name: /2 Created by me/i })).toBeVisible();
@@ -358,7 +358,7 @@ test('Profile and My Looks use canonical counts and creation-source filters', as
 });
 
 test('creator inspiration centers owned equivalents and one Make It Mine action', async ({ page }) => {
-  await page.goto('/0.html#K-04');
+  await page.goto('/old/0.html#K-04');
   await expect(page.getByRole('heading', { name: 'Make the formula yours.' })).toBeVisible();
   await expect(page.getByText(/own equivalents for 3 of 4 roles/i)).toBeVisible();
   await expect(page.getByRole('region', { name: 'Owned visual matches' })).toBeVisible();
@@ -369,7 +369,7 @@ test('creator inspiration centers owned equivalents and one Make It Mine action'
 });
 
 test('minimum email onboarding asks for the styling goal then delivers Today value', async ({ page }) => {
-  await page.goto('/0.html#A-01');
+  await page.goto('/old/0.html#A-01');
   await page.getByRole('button', { name: 'Sign in with email' }).click();
   await page.getByRole('button', { name: 'Use this name', exact: true }).click();
   await page.getByRole('button', { name: 'Create my account', exact: true }).click();
@@ -382,7 +382,7 @@ test('minimum email onboarding asks for the styling goal then delivers Today val
 
 test('legacy item-detail routes resolve to one progressively disclosed editor', async ({ page }) => {
   for (const id of ['C-02', 'C-03', 'C-04', 'C-05', 'C-06']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.getByRole('heading', { name: 'Black tailored blazer' })).toBeVisible();
     await expect(page.getByLabel('Name')).toHaveValue('Black tailored blazer');
     await expect(page.getByText('Styling details')).toBeVisible();
@@ -391,7 +391,7 @@ test('legacy item-detail routes resolve to one progressively disclosed editor', 
 
 test('legacy saved-look detail routes resolve to one canonical detail surface', async ({ page }) => {
   for (const id of ['G-02', 'G-03', 'G-04', 'G-05', 'G-06', 'G-07']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.getByRole('heading', { name: 'Design Review' })).toBeVisible();
     await expect(page.locator('#app').getByText('Items', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Edit', exact: true })).toBeVisible();
@@ -406,7 +406,7 @@ test('Muse carries the current screen context into one global entry', async ({ p
     ['L-01', 'Ask Muse about profile', /From your style profile/i]
   ];
   for (const [id, action, context] of contexts) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await page.getByRole('button', { name: action }).click();
     await expect(page.locator('#app')).toHaveAttribute('data-screen', 'M-01');
     await expect(page.getByText(context)).toBeVisible();
@@ -414,7 +414,7 @@ test('Muse carries the current screen context into one global entry', async ({ p
 });
 
 test('Not for Me uses the approved reasons and only Other reveals detail', async ({ page }) => {
-  await page.goto('/0.html#D-04');
+  await page.goto('/old/0.html#D-04');
   await page.getByRole('button', { name: 'Not for me' }).click();
   const dialog = page.getByRole('dialog', { name: 'What missed?' });
   for (const reason of ['Too Formal', 'Too Casual', 'Wrong Color', 'Don’t Like This Item', 'Not My Style', 'Other']) {
@@ -431,7 +431,7 @@ test('Not for Me uses the approved reasons and only Other reveals detail', async
 });
 
 test('Saved Look keeps styling actions primary and management in overflow', async ({ page }) => {
-  await page.goto('/0.html#G-02');
+  await page.goto('/old/0.html#G-02');
   const actions = page.getByLabel('Saved Look actions');
   for (const action of ['Wear', 'Try On', 'Edit', 'Plan']) await expect(actions.getByRole('button', { name: action, exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Delete Look' })).toHaveCount(0);
@@ -450,7 +450,7 @@ test('core visual jobs lead with meaningful outfit or garment imagery', async ({
   ];
 
   for (const [id, imageName] of surfaces) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     const image = page.getByRole('img', { name: imageName, exact: true });
     await expect(image).toBeVisible();
     const box = await image.boundingBox();
@@ -460,7 +460,7 @@ test('core visual jobs lead with meaningful outfit or garment imagery', async ({
 });
 
 test('the remaining true empty state uses a large visual preview and one clear action', async ({ page }) => {
-  await page.goto('/0.html#D-01');
+  await page.goto('/old/0.html#D-01');
   const image = page.getByRole('img', { name: 'From photo to outfit', exact: true });
   await expect(image).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add an item', exact: true })).toBeVisible();
@@ -476,7 +476,7 @@ test('user-facing routes do not rely on generic Continue or Next buttons', async
   const genericActions = [];
 
   for (const id of ids) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     const labels = await page.locator('#app button').evaluateAll(buttons =>
       buttons.map(button => button.textContent.trim()).filter(label => /^(Continue|Next)$/i.test(label))
     );
@@ -487,7 +487,7 @@ test('user-facing routes do not rely on generic Continue or Next buttons', async
 });
 
 test('saved Look visibility opens as a dismissible contextual sheet', async ({ page }) => {
-  await page.goto('/0.html#G-02');
+  await page.goto('/old/0.html#G-02');
   await page.getByRole('button', { name: 'Manage this Look' }).click();
   await page.getByRole('dialog', { name: 'Manage this Look' }).getByRole('button', { name: /Visibility/ }).click();
   const dialog = page.getByRole('dialog', { name: 'Who can see this Look?' });
@@ -499,7 +499,7 @@ test('saved Look visibility opens as a dismissible contextual sheet', async ({ p
 });
 
 test('Planner day choices open in a sheet without leaving Planner', async ({ page }) => {
-  await page.goto('/0.html#I-01');
+  await page.goto('/old/0.html#I-01');
   await page.getByRole('img', { name: 'Open outfit slot' }).click();
   const dialog = page.getByRole('dialog', { name: 'Plan this day' });
   await expect(dialog).toBeVisible();
@@ -511,13 +511,13 @@ test('Planner day choices open in a sheet without leaving Planner', async ({ pag
 });
 
 test('simple Look and profile fields edit in their original context', async ({ page }) => {
-  await page.goto('/0.html#G-02');
+  await page.goto('/old/0.html#G-02');
   await page.locator('#app').getByText('Context & styling').click();
   await page.getByLabel('Look title').fill('Monday client review');
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'G-02');
   await expect(page.getByRole('heading', { name: 'Design Review' })).toBeVisible();
 
-  await page.goto('/0.html#L-01');
+  await page.goto('/old/0.html#L-01');
   await page.getByText('Profile details').click();
   await page.getByLabel('Profile location').fill('Cairo, Egypt');
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'L-01');
@@ -525,15 +525,15 @@ test('simple Look and profile fields edit in their original context', async ({ p
 });
 
 test('Muse, Planner, and Trips accept intent in the user’s own words', async ({ page }) => {
-  await page.goto('/0.html#M-01');
+  await page.goto('/old/0.html#M-01');
   await expect(page.getByLabel('Ask in your own words')).toBeVisible();
 
-  await page.goto('/0.html#I-01');
+  await page.goto('/old/0.html#I-01');
   await page.getByRole('img', { name: 'Open outfit slot' }).click();
   await expect(page.getByLabel('Describe the day')).toBeVisible();
   await expect(page.getByText(/Prototype preview: Muse structures/)).toBeVisible();
 
-  await page.goto('/0.html#J-02');
+  await page.goto('/old/0.html#J-02');
   await expect(page.getByLabel('Tell StyleIQ about the trip')).toHaveValue(/Three days in Alexandria/);
   await page.getByRole('button', { name: 'Structure my trip' }).click();
   await expect(page.getByRole('status')).toContainText('Trip details structured below');
@@ -541,7 +541,7 @@ test('Muse, Planner, and Trips accept intent in the user’s own words', async (
 });
 
 test('Style Studio defaults to simple wardrobe actions and makes Create explicit', async ({ page }) => {
-  await page.goto('/0.html#F-01');
+  await page.goto('/old/0.html#F-01');
   await expect(page.getByRole('img', { name: 'Flat lay of selected outfit' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Simple Everyday changes/ })).toHaveAttribute('aria-pressed', 'true');
   const simple = page.getByLabel('Simple wardrobe actions');
@@ -555,7 +555,7 @@ test('Style Studio defaults to simple wardrobe actions and makes Create explicit
 });
 
 test('lightweight contextual chips are readable, reversible, and stay in place', async ({ page }) => {
-  await page.goto('/0.html#D-04');
+  await page.goto('/old/0.html#D-04');
   const occasion = page.getByRole('group', { name: 'Outfit occasion' });
   const party = occasion.getByRole('button', { name: 'Party' });
   await party.click();
@@ -563,21 +563,21 @@ test('lightweight contextual chips are readable, reversible, and stay in place',
   await expect(occasion.getByRole('button', { name: 'Business casual' })).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'D-04');
 
-  await page.goto('/0.html#J-02');
+  await page.goto('/old/0.html#J-02');
   const context = page.getByRole('group', { name: 'Trip context' });
   await context.getByRole('button', { name: 'Work' }).click();
   await expect(context.getByRole('button', { name: 'Work' })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('gestures accelerate alternatives while visible controls remain available', async ({ page }) => {
-  await page.goto('/0.html#D-04');
+  await page.goto('/old/0.html#D-04');
   const preview = page.getByLabel('Outfit preview. Swipe or use arrow keys for another occasion.');
   await preview.focus();
   await preview.press('ArrowRight');
   await expect(page.getByRole('button', { name: 'Party' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'D-04');
 
-  await page.goto('/0.html#G-02');
+  await page.goto('/old/0.html#G-02');
   const look = page.getByLabel('Saved Look preview. Press and hold for quick share.');
   await look.dispatchEvent('pointerdown', { pointerType: 'touch' });
   await page.waitForTimeout(600);
@@ -585,7 +585,7 @@ test('gestures accelerate alternatives while visible controls remain available',
 });
 
 test('Create mode reorders the same draft and preserves it when returning to Simple', async ({ page }) => {
-  await page.goto('/0.html#F-01');
+  await page.goto('/old/0.html#F-01');
   await page.getByRole('button', { name: /Create Advanced control/ }).click();
   const before = await page.evaluate(() => JSON.parse(localStorage.getItem('styleiqAltaCanvasV2')).items.map(item => item.role));
   await page.getByRole('button', { name: 'Move Top down' }).click();
@@ -598,7 +598,7 @@ test('Create mode reorders the same draft and preserves it when returning to Sim
 
 test('Style Twin reaches first value in four meaningful steps for both setup methods', async ({ page }) => {
   for (const method of ['Use my photos', 'Create without personal photos']) {
-    await page.goto('/0.html#H-01');
+    await page.goto('/old/0.html#H-01');
     await page.getByRole('button', { name: new RegExp(`^${method}`) }).click();
     await expect(page.getByText('2 · Reference')).toBeVisible();
     await page.getByRole('button', { name: 'Use this reference' }).click();
@@ -610,7 +610,7 @@ test('Style Twin reaches first value in four meaningful steps for both setup met
 });
 
 test('Pose and tuck live after the first Style Twin result', async ({ page }) => {
-  await page.goto('/0.html#H-10');
+  await page.goto('/old/0.html#H-10');
   await page.getByRole('button', { name: 'Refine Style Twin' }).click();
   await expect(page.getByRole('heading', { name: 'Fine-tune when it matters.' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Pose Standing/ })).toBeVisible();
@@ -623,7 +623,7 @@ test('Closet and Discover initiate image search through the shared Lens state', 
     ['K-02', 'Search Discover with an image', 'Shop my Closet']
   ];
   for (const [id, entry, intent] of entries) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await page.getByRole('button', { name: new RegExp(entry) }).click();
     const lens = page.getByRole('dialog', { name: 'StyleIQ Lens' });
     await expect(lens).toBeVisible();
@@ -635,12 +635,12 @@ test('Closet and Discover initiate image search through the shared Lens state', 
 });
 
 test('styling intelligence stays beside the decision it explains', async ({ page }) => {
-  await page.goto('/0.html#D-02');
+  await page.goto('/old/0.html#D-02');
   await page.getByText('Why this Look works').click();
   await expect(page.getByText(/light layer handles the cooler morning/)).toBeVisible();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'D-02');
 
-  await page.goto('/0.html#C-06');
+  await page.goto('/old/0.html#C-06');
   await page.getByText('Useful in your wardrobe').click();
   await expect(page.getByText(/connects your office, dinner, and travel pieces/)).toBeVisible();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'C-06');
@@ -656,7 +656,7 @@ test('Today launches common jobs without requiring feature knowledge', async ({ 
   ];
 
   for (const [label, id] of jobs) {
-    await page.goto('/0.html#D-02');
+    await page.goto('/old/0.html#D-02');
     await page.getByRole('region', { name: 'Start with your goal' }).getByRole('button', { name: label, exact: true }).click();
     await expect(page.locator('#app')).toHaveAttribute('data-screen', id);
     await expect(page.locator('#app .screen')).toHaveCount(1);
@@ -664,13 +664,13 @@ test('Today launches common jobs without requiring feature knowledge', async ({ 
 });
 
 test('new interaction patterns inherit the editorial material system and semantic color tokens', async ({ page }) => {
-  await page.goto('/0.html#B-06');
+  await page.goto('/old/0.html#B-06');
   const approval = page.locator('.approval-card');
   await expect(approval).toBeVisible();
   await page.evaluate(() => document.documentElement.style.setProperty('--success-soft', 'rgb(1, 2, 3)'));
   await expect(approval).toHaveCSS('background-color', 'rgb(1, 2, 3)');
 
-  await page.goto('/0.html#D-02');
+  await page.goto('/old/0.html#D-02');
   const heading = page.getByRole('heading', { name: 'Good morning, Amelia' });
   await expect(heading).toHaveCSS('font-family', /Playfair Display/);
   await page.getByRole('button', { name: 'Save outfit' }).click();
@@ -681,7 +681,7 @@ test('new interaction patterns inherit the editorial material system and semanti
 });
 
 test('one styling context choice is concise, persisted, and reused by its legacy edit alias', async ({ page }) => {
-  await page.goto('/0.html#S-02');
+  await page.goto('/old/0.html#S-02');
   await expect(page.getByRole('heading', { name: 'Which wardrobe should Muse style?' })).toBeVisible();
   const group = page.getByRole('group', { name: 'Styling context' });
   await expect(group.getByRole('button')).toHaveCount(3);
@@ -695,7 +695,7 @@ test('one styling context choice is concise, persisted, and reused by its legacy
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'A-01');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('styleiqStylingContextV1'))).toBe('Menswear');
 
-  await page.goto('/0.html#A-06');
+  await page.goto('/old/0.html#A-06');
   const editGroup = page.getByRole('group', { name: 'Styling context' });
   await expect(editGroup.getByRole('button', { name: /Menswear/ })).toHaveAttribute('aria-pressed', 'true');
   await expect(editGroup.getByRole('button')).toHaveCount(3);
@@ -706,7 +706,7 @@ test('one styling context choice is concise, persisted, and reused by its legacy
 
 test('minimum onboarding excludes occupation, attribution, brands, and Style Twin', async ({ page }) => {
   const visited = [];
-  await page.goto('/0.html#A-01');
+  await page.goto('/old/0.html#A-01');
   visited.push(await page.locator('#app').getAttribute('data-screen'));
   await page.getByRole('button', { name: 'Sign in with email' }).click();
   visited.push(await page.locator('#app').getAttribute('data-screen'));
@@ -731,7 +731,7 @@ test('the onboarding goal opens its useful destination immediately', async ({ pa
   ];
 
   for (const [label, id] of goals) {
-    await page.goto('/0.html#A-01');
+    await page.goto('/old/0.html#A-01');
     await page.getByRole('button', { name: 'Sign in with Google' }).click();
     await page.getByRole('button', { name: new RegExp(label) }).click();
     await expect(page.locator('#app')).toHaveAttribute('data-screen', id);
@@ -739,12 +739,12 @@ test('the onboarding goal opens its useful destination immediately', async ({ pa
 });
 
 test('a completed onboarding returns straight to useful Today value', async ({ page }) => {
-  await page.goto('/0.html#A-05');
+  await page.goto('/old/0.html#A-05');
   await page.getByRole('button', { name: /Wear more of my Closet/ }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'D-02');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('styleiqOnboardingCompleteV1'))).toBe('true');
 
-  await page.goto('/0.html#S-00');
+  await page.goto('/old/0.html#S-00');
   await page.getByRole('button', { name: 'Open StyleIQ' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'D-02');
 });
@@ -757,7 +757,7 @@ test('legacy outfit-action hashes open canonical sheets or canonical jobs', asyn
   ];
 
   for (const [id, dialogName] of sheets) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.locator('#app')).toHaveAttribute('data-screen', id);
     await expect(page.getByRole('heading', { name: 'Five ways to wear it' })).toBeVisible();
     const dialog = page.getByRole('dialog', { name: dialogName });
@@ -769,7 +769,7 @@ test('legacy outfit-action hashes open canonical sheets or canonical jobs', asyn
   }
 
   for (const [id, heading] of [['E-02', 'Design Review'], ['E-05', 'Create your Style Twin'], ['E-06', 'Five ways to wear it']]) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.getByRole('heading', { name: heading })).toBeVisible();
     if (id === 'E-02') await expect(page.getByRole('group', { name: 'Studio mode' })).toBeVisible();
     await expect(page.locator('#app .screen')).toHaveCount(1);
@@ -777,31 +777,31 @@ test('legacy outfit-action hashes open canonical sheets or canonical jobs', asyn
 });
 
 test('occupation is absent and the profile edit hash renders the canonical inline editor', async ({ page }) => {
-  await page.goto('/0.html#L-02');
+  await page.goto('/old/0.html#L-02');
   await expect(page.getByRole('heading', { name: 'Amelia Hart', level: 2 })).toBeVisible();
   await expect(page.locator('#app').getByText('Profile details', { exact: true })).toBeVisible();
   await expect(page.getByLabel('Profile name')).toHaveValue('Amelia Hart');
   await expect(page.locator('#app').getByText(/Occupation/i)).toHaveCount(0);
 
-  await page.goto('/0.html#L-04');
+  await page.goto('/old/0.html#L-04');
   await expect(page.locator('#app').getByText(/Occupation/i)).toHaveCount(0);
   await expect(page.locator('#screen-list').getByText(/Occupation/i)).toHaveCount(0);
 });
 
 test('Style Twin begins only from intentional Try On and remains optional', async ({ page }) => {
-  await page.goto('/0.html#D-02');
+  await page.goto('/old/0.html#D-02');
   await page.locator('#app').getByRole('button', { name: 'Try On', exact: true }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'H-01');
   await expect(page.getByRole('heading', { name: 'Create your Style Twin' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Skip for now/ })).toBeVisible();
 
-  await page.goto('/0.html#D-02');
+  await page.goto('/old/0.html#D-02');
   await page.getByRole('button', { name: 'Make From My Closet' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-screen', 'F-01');
 });
 
 test('Closet keeps one coherent layout from 1 to 100+ pieces', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   for (const size of [1, 10, 101]) {
     await page.evaluate(count => window.setClosetDemoSize(count), size);
     await expect(page.locator('.closet-results-head').getByRole('heading', { name: `${size} piece${size === 1 ? '' : 's'}` })).toBeVisible();
@@ -815,7 +815,7 @@ test('Closet keeps one coherent layout from 1 to 100+ pieces', async ({ page }) 
 });
 
 test('empty Closet prioritizes one useful action and retains import and Wishlist paths', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   await page.evaluate(() => window.setClosetDemoSize(0));
   await expect(page.getByRole('heading', { name: 'Start with one piece.' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Add your first item' })).toBeVisible();
@@ -825,7 +825,7 @@ test('empty Closet prioritizes one useful action and retains import and Wishlist
 });
 
 test('large Closet search, category, collection, and sorting stay on the canonical surface', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   await page.evaluate(() => window.setClosetDemoSize(101));
   await page.getByRole('searchbox', { name: 'Search Closet' }).fill('Balmain');
   await expect(page.locator('.closet-item')).toHaveCount(9);
@@ -841,7 +841,7 @@ test('large Closet search, category, collection, and sorting stay on the canonic
 });
 
 test('Closet is an owned-item wardrobe rather than a readiness dashboard', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   await expect(page.locator('.closet-item')).toHaveCount(12);
   await expect(page.locator('.closet-item').first()).toBeInViewport();
   await expect(page.locator('#app').getByText(/readiness|analytics/i)).toHaveCount(0);
@@ -855,7 +855,7 @@ test('Closet is an owned-item wardrobe rather than a readiness dashboard', async
 });
 
 test('Closet exposes complete shared-wardrobe categories from item metadata', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   const categories = ['All', 'Tops', 'Bottoms', 'Dresses & Suits', 'Outerwear', 'Shoes', 'Bags', 'Accessories'];
   const rail = page.getByRole('group', { name: 'Closet categories' });
   for (const category of categories) {
@@ -868,7 +868,7 @@ test('Closet exposes complete shared-wardrobe categories from item metadata', as
 });
 
 test('item lifecycle is mutually exclusive, persistent, and keeps item metadata', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   await page.evaluate(() => localStorage.removeItem('styleiqClosetLifecycleV1'));
   await page.reload();
   await page.getByRole('button', { name: /Black tailored blazer Available/ }).click();
@@ -885,7 +885,7 @@ test('item lifecycle is mutually exclusive, persistent, and keeps item metadata'
 });
 
 test('lifecycle changes surface in Closet collections without a new screen', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   await page.evaluate(() => localStorage.removeItem('styleiqClosetLifecycleV1'));
   await page.reload();
   await page.getByRole('button', { name: /Black tailored blazer Available/ }).click();
@@ -899,7 +899,7 @@ test('lifecycle changes surface in Closet collections without a new screen', asy
 });
 
 test('smart collections expose favorites, underused pieces, and each lifecycle intent', async ({ page }) => {
-  await page.goto('/0.html#C-01');
+  await page.goto('/old/0.html#C-01');
   await page.evaluate(() => localStorage.removeItem('styleiqClosetLifecycleV1'));
   await page.reload();
   const collections = page.getByRole('group', { name: 'Smart collections' });
@@ -915,7 +915,7 @@ test('smart collections expose favorites, underused pieces, and each lifecycle i
 
 test('all legacy item routes resolve to one progressive Item Detail surface', async ({ page }) => {
   for (const id of ['C-02', 'C-03', 'C-04', 'C-05', 'C-06', 'C-07']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.getByRole('heading', { name: 'Black tailored blazer' })).toBeVisible();
     await expect(page.locator('#app').getByRole('button', { name: 'Style this item', exact: true })).toHaveCount(1);
     await expect(page.getByRole('textbox', { name: 'Brand' })).toHaveValue('Balmain');
@@ -927,7 +927,7 @@ test('all legacy item routes resolve to one progressive Item Detail surface', as
 });
 
 test('Item Detail keeps styling primary and photo tools in a dismissible sheet', async ({ page }) => {
-  await page.goto('/0.html#C-02');
+  await page.goto('/old/0.html#C-02');
   const primary = page.locator('#app').getByRole('button', { name: 'Style this item', exact: true });
   await expect(primary).toBeVisible();
   const precedesMetadata = await primary.evaluate(button => Boolean(button.compareDocumentPosition(document.querySelector('.inline-edit-grid')) & Node.DOCUMENT_POSITION_FOLLOWING));
@@ -945,7 +945,7 @@ test('Item Detail keeps styling primary and photo tools in a dismissible sheet',
 });
 
 test('Planner turns one natural-language intent into a persistent interpreted plan', async ({ page }) => {
-  await page.goto('/0.html#I-01');
+  await page.goto('/old/0.html#I-01');
   await page.evaluate(() => localStorage.removeItem('styleiqPlannerIntentV1'));
   await page.reload();
   await page.getByRole('button', { name: 'Describe my day' }).click();
@@ -961,7 +961,7 @@ test('Planner turns one natural-language intent into a persistent interpreted pl
 
 test('legacy Planner form routes resolve to the same intent-first surface', async ({ page }) => {
   for (const id of ['I-03', 'I-04', 'I-05']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.getByRole('heading', { name: 'What are you dressing for?' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Event title' })).toHaveCount(0);
     await expect(page.locator('#app .screen')).toHaveCount(1);
@@ -969,7 +969,7 @@ test('legacy Planner form routes resolve to the same intent-first surface', asyn
 });
 
 test('Trip planning is a three-stage natural-language journey with one generated hub', async ({ page }) => {
-  await page.goto('/0.html#J-02');
+  await page.goto('/old/0.html#J-02');
   const progress = page.getByLabel('Trip progress');
   await expect(progress.locator('span')).toHaveCount(3);
   await expect(page.getByLabel('Tell StyleIQ about the trip')).toHaveValue(/Alexandria/);
@@ -985,7 +985,7 @@ test('Trip planning is a three-stage natural-language journey with one generated
 
 test('legacy Trip setup routes collapse into the shared description step', async ({ page }) => {
   for (const id of ['J-03', 'J-04', 'J-05', 'J-06', 'J-07']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.getByRole('heading', { name: 'Where are you going?' })).toBeVisible();
     await expect(page.getByLabel('Trip progress').locator('span')).toHaveCount(3);
     await expect(page.locator('#app .screen')).toHaveCount(1);
@@ -1004,7 +1004,7 @@ test('compatibility-only route families render their canonical user job', async 
   ];
 
   for (const [id, canonicalCopy] of cases) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await expect(page.locator('#app')).toHaveAttribute('data-screen', id);
     await expect(page.locator('#app')).toContainText(canonicalCopy);
     await expect(page.locator('#app .screen')).toHaveCount(1);
@@ -1012,7 +1012,7 @@ test('compatibility-only route families render their canonical user job', async 
 });
 
 test('Weekly recap uses concrete wardrobe behavior and prepares next week directly', async ({ page }) => {
-  await page.goto('/0.html#I-02');
+  await page.goto('/old/0.html#I-02');
   const metrics = page.getByLabel('Weekly wardrobe metrics');
   await expect(metrics.getByText('outfits worn')).toBeVisible();
   await expect(metrics.getByText('Closet pieces used')).toBeVisible();
@@ -1028,7 +1028,7 @@ test('Weekly recap uses concrete wardrobe behavior and prepares next week direct
 
 test('Weekly recap is discoverable from Today and Profile without a nested flow', async ({ page }) => {
   for (const id of ['D-02', 'L-01']) {
-    await page.goto(`/0.html#${id}`);
+    await page.goto(`/old/0.html#${id}`);
     await page.getByRole('button', { name: /Your week in clothes/ }).click();
     await expect(page.locator('#app')).toHaveAttribute('data-screen', 'I-02');
     await expect(page.getByRole('heading', { name: 'Your wardrobe worked harder.' })).toBeVisible();
@@ -1036,7 +1036,7 @@ test('Weekly recap is discoverable from Today and Profile without a nested flow'
 });
 
 test('final visual system keeps neutral editorial surfaces without decorative card gradients', async ({ page }) => {
-  await page.goto('/0.html#I-02');
+  await page.goto('/old/0.html#I-02');
   const styles = await page.locator('.planner-intent-card').evaluate(element => {
     const value = getComputedStyle(element);
     return { backgroundImage: value.backgroundImage, boxShadow: value.boxShadow, backdropFilter: value.backdropFilter };
@@ -1049,7 +1049,7 @@ test('final visual system keeps neutral editorial surfaces without decorative ca
 });
 
 test('provisional semantic color tokens drive shared surfaces without layout changes', async ({ page }) => {
-  await page.goto('/0.html#G-02');
+  await page.goto('/old/0.html#G-02');
   const tokens = await page.evaluate(() => {
     const styles = getComputedStyle(document.documentElement);
     return ['--app-background','--surface','--surface-elevated','--text-primary','--text-secondary','--border','--accent','--accent-soft','--success','--warning','--danger','--overlay','--glass-surface','--glass-edge','--editor-surface-dark','--focus-ring'].map(name => [name, styles.getPropertyValue(name).trim()]);

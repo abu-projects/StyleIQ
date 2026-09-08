@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 async function openToday(page, completed = true) {
-  await page.goto('/1.html#D-02');
+  await page.goto('/index.html#D-02');
   if (completed) {
     await page.evaluate(() => localStorage.setItem('styleiqTwinSetupV2', JSON.stringify({
       method: 'photo', step: 4, complete: true, id: 'existing-twin'
@@ -116,7 +116,7 @@ test('E-06 is unique and direct entry shares the Today result and angle state', 
   expect(new Set(ids).size).toBe(ids.length);
   expect(ids.filter(id => id === 'E-06')).toHaveLength(1);
   // Direct hash entry is also the path used by the mobile inventory.
-  await page.goto('/1.html#E-06');
+  await page.goto('/index.html#E-06');
   await expect(page.locator('.tryon-screen')).toBeVisible();
   await expect(page.locator('.tryon-copy h2')).toHaveText('Asymmetric Black Dress');
   expect(await page.locator('.tryon-frame').evaluate(el => ({image:getComputedStyle(el).backgroundImage,position:getComputedStyle(el).backgroundPosition}))).toEqual(view);
@@ -126,7 +126,7 @@ test('E-06 is unique and direct entry shares the Today result and angle state', 
 });
 
 test('fresh E-06 deep link previews the result without marking Twin setup completed', async ({ page }) => {
-  await page.goto('/1.html#E-06');
+  await page.goto('/index.html#E-06');
   await expect(page.locator('.tryon-stage')).toBeVisible();
   await page.getByRole('button', { name: 'Next view', exact: true }).click();
   await expect(page.locator('.tryon-frame')).toHaveAttribute('aria-label', /3\/4 view/);

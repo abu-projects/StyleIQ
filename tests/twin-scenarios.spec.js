@@ -3,7 +3,7 @@ const {test,expect}=require('@playwright/test');
 test('customer preview switch changes Profile entry and preserves both Twin flows',async({page})=>{
   // The reviewer controls are intentionally outside the mobile product screen.
   await page.setViewportSize({width:1500,height:1100});
-  await page.goto('/1.html#L-01');
+  await page.goto('/index.html#L-01');
   const controls=page.locator('.twin-demo-controls');
   await controls.getByRole('button',{name:'Existing customer'}).click();
   await page.locator('.profile-utility').filter({hasText:'Style Twin'}).click();

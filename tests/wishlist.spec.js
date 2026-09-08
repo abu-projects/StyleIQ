@@ -4,7 +4,7 @@ const app = page => page.locator('#app');
 const product = (page, id) => page.locator(`[data-product-id="${id}"]`);
 const heart = (page, id) => page.locator(`[data-wishlist-heart="${id}"]`);
 const route = async (page, id) => {
-  await page.goto(`/1.html#${id}`);
+  await page.goto(`/index.html#${id}`);
   await expect(app(page)).toHaveAttribute('data-screen', id);
 };
 const filter = (page, name) => page.getByRole('group', { name: 'Wishlist status' }).getByRole('button', { name, exact: true });

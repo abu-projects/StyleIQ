@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 
 test('F routes open their requested tools while retaining the same recreation draft',async({page})=>{
-  await page.goto('/1.html#D-02');
+  await page.goto('/index.html#D-02');
   await page.locator('.today-look-card').filter({hasText:'Soft Tailoring'}).click();
   await page.locator('.today-actions').getByRole('button',{name:'Make it mine'}).click();
   const navigate=async id=>{await page.evaluate(id=>go(id),id);await expect(page.locator('#app')).toHaveAttribute('data-screen',id)};
@@ -28,7 +28,7 @@ test('F routes open their requested tools while retaining the same recreation dr
 
 
 async function studioWithTwin(page){
-  await page.goto('/1.html#D-02');
+  await page.goto('/index.html#D-02');
   await page.evaluate(()=>localStorage.setItem('styleiqTwinSetupV2',JSON.stringify({id:'studio-test-twin',complete:true,step:4,method:'photo'})));
   await page.reload();
   await page.locator('.today-actions').getByRole('button',{name:'Make it mine'}).click();
@@ -76,7 +76,7 @@ test('one Look synchronizes visual edits, sources, view modes, layers and Save',
 });
 
 test('new Look starts visually and Lens returns a chosen Closet match to the same draft',async({page})=>{
-  await page.goto('/1.html#F-01');
+  await page.goto('/index.html#F-01');
   await page.getByRole('button',{name:'New Look',exact:true}).click();
   await expect(page.getByLabel('Start your Look',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Use Lens',exact:true}).click();

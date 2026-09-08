@@ -10239,6 +10239,10 @@ body {
 .tryon-frame-preview.reference {
   background-size: 400% 100%;
 }
+.tryon-frame-preview.remote-photo {
+  background-size: cover;
+  background-position: center !important;
+}
 .today-hero > .tryon-frame-preview {
   width: 50%;
   margin: auto;
@@ -11571,7 +11575,7 @@ body {
   z-index: 0;
   inset: -8%;
   pointer-events: none;
-  background: url("images/screen_07_hero.png") center 42% / cover no-repeat;
+  background: url("https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1600&q=85") center 42% / cover no-repeat;
   filter: blur(14px) saturate(0.78);
   opacity: 0.28;
   transform: scale(1.08);
