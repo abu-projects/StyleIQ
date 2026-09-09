@@ -2,15 +2,16 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './tests',
-  outputDir: './_archive_not_used_by_zero_html/runtime-test-results',
+  testIgnore: '**/zero-html-baseline.spec.js', // Historical old/0.html, outside the active prototype.
+  outputDir: './test-results',
   reporter: 'line',
   use: {
-    baseURL: 'http://127.0.0.1:4174',
+    baseURL: 'http://127.0.0.1:4188',
     trace: 'retain-on-failure'
   },
   webServer: {
-    command: 'python3 -m http.server 4174 --bind 127.0.0.1',
-    url: 'http://127.0.0.1:4174/index.html',
+    command: 'python3 -m http.server 4188 --bind 127.0.0.1',
+    url: 'http://127.0.0.1:4188/index.html',
     reuseExistingServer: true
   },
   projects: [

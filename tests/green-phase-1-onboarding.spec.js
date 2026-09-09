@@ -21,7 +21,9 @@ test.describe("Green Phase 1 onboarding", () => {
     await expect(app.getByRole("button", { name: "Sign up with Apple" })).toBeVisible();
     await app.getByRole("button", { name: /Continue with email/ }).click();
     await app.getByRole("button", { name: "Use this name" }).click();
+    await app.getByLabel("Email address", { exact: true }).fill("test@example.com");
     await app.getByRole("button", { name: "Create my account" }).click();
+    for (const [index, digit] of [..."123456"].entries()) await app.getByLabel(`Digit ${index + 1}`, { exact: true }).fill(digit);
     await app.getByRole("button", { name: "Verify email" }).click();
     await expect(app.getByRole("heading", { name: "What can StyleIQ help with?" })).toBeVisible();
   });

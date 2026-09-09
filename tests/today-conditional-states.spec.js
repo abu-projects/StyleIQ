@@ -12,12 +12,12 @@ test.describe("Today conditional states", () => {
   test("loading and missing-category states have real exits", async ({ page }) => {
     await page.evaluate(() => localStorage.setItem("styleiqTodayModeV1", "loading"));
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Muse is checking the details." })).toBeVisible();
-    await page.getByRole("button", { name: "Show my Look" }).click();
+    await expect(page.locator("#app").getByRole("heading", { name: "Muse is checking the details." })).toBeVisible();
+    await page.locator("#app").getByRole("button", { name: "Show my Look" }).click();
     await page.evaluate(() => localStorage.setItem("styleiqTodayModeV1", "missing-category"));
     await page.reload();
-    await expect(page.getByRole("heading", { name: "This Look needs a complete base." })).toBeVisible();
-    await page.getByRole("button", { name: "Continue with this Look" }).click();
-    await expect(page.getByRole("heading", { name: "Today" })).toBeVisible();
+    await expect(page.locator("#app").getByRole("heading", { name: "This Look needs a complete base." })).toBeVisible();
+    await page.locator("#app").getByRole("button", { name: "Continue with this Look" }).click();
+    await expect(page.locator("#app").getByRole("heading", { name: "Today" })).toBeVisible();
   });
 });

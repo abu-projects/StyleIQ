@@ -12651,3 +12651,26 @@ body {
 @media (max-width: 600px) {
   .instant-avatar-stage { height: clamp(190px, 29svh, 260px); }
 }
+
+/* Weekly suggestions keep readable context and reachable actions on narrow screens. */
+.planner-intent-card .planner-week-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+}
+.planner-week-row > span { min-width: 0; }
+.planner-week-row > div {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.planner-week-row .text-action { min-height: 44px; padding: 8px 12px; }
+.trip-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.receipt-ready-row { grid-template-columns: minmax(0, 1fr); }
+.receipt-ready-row small { display: block; }
+
+.owned-search-card .copy { display: block; padding: 12px; }
+.owned-search-card .copy b, .owned-search-card .copy small { display: block; }
+.owned-search-card .copy button { margin-top: 10px; }

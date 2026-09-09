@@ -7,21 +7,21 @@ test("trip uses basics, activities, generation, and one result hub", async ({ pa
   await page.locator("#trip-destination").fill("Lisbon");
   await page.locator("#trip-start-date").fill("2099-09-01");
   await page.locator("#trip-end-date").fill("2099-09-04");
-  await page.getByRole("button", { name: "Choose vibe & activities" }).click();
-  await page.getByRole("button", { name: "Dinners" }).click();
-  await page.getByRole("button", { name: "Sightseeing" }).click();
-  await page.getByRole("button", { name: "Create My Packing Plan" }).click();
-  await expect(page.getByRole("heading", { name: "Building your trip" })).toBeVisible();
-  await page.getByRole("button", { name: "Open completed trip" }).click();
-  await expect(page.getByRole("heading", { name: "Lisbon is ready" })).toBeVisible();
-  await page.getByRole("button", { name: "Outfits" }).click();
-  await page.getByRole("button", { name: "Days" }).click();
-  await expect(page.getByText("Day 1")).toBeVisible();
+  await page.locator("#app").getByRole("button", { name: "Choose vibe & activities" }).click();
+  await page.locator("#app").getByRole("button", { name: "Dinners" }).click();
+  await page.locator("#app").getByRole("button", { name: "Sightseeing" }).click();
+  await page.locator("#app").getByRole("button", { name: "Create My Packing Plan" }).click();
+  await expect(page.locator("#app").getByRole("heading", { name: "Building your trip" })).toBeVisible();
+  await page.locator("#app").getByRole("button", { name: "Open completed trip" }).click();
+  await expect(page.locator("#app").getByRole("heading", { name: "Lisbon is ready" })).toBeVisible();
+  await page.locator("#app").getByRole("button", { name: "Outfits" }).click();
+  await page.locator("#app").getByRole("button", { name: "Days" }).click();
+  await expect(page.locator("#app").getByText("Day 1")).toBeVisible();
 });
 
 test("trip basics remain editable before generation", async ({ page }) => {
   await page.goto("/index.html#J-02");
-  await page.getByRole("button", { name: "Choose vibe & activities" }).click();
-  await page.getByRole("button", { name: "Edit trip basics" }).click();
+  await page.locator("#app").getByRole("button", { name: "Choose vibe & activities" }).click();
+  await page.locator("#app").getByRole("button", { name: "Edit trip basics" }).click();
   await expect(page.locator("#trip-destination")).toBeVisible();
 });

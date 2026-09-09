@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 async function openIssuePicker(page) {
   await page.goto("/index.html#B-07");
   const app = page.locator("#app");
-  await app.getByRole("button", { name: "Choose a different issue" }).click();
+  await app.getByText("Choose a different issue", { exact: true }).click();
   return app;
 }
 
@@ -43,7 +43,7 @@ test.describe("Green Phase 3 upload recovery", () => {
     await page.evaluate(() => localStorage.clear());
     await page.reload();
     const app = page.locator("#app");
-    await app.getByRole("button", { name: "Choose a different issue" }).click();
+    await app.getByText("Choose a different issue", { exact: true }).click();
     await app.getByRole("button", { name: "Non-fashion image", exact: true }).click();
     await app.getByRole("button", { name: "Choose another photo" }).click();
     await expect(app).toHaveAttribute("data-screen", "B-02");

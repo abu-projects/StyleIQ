@@ -779,21 +779,34 @@ let plannerLookChoice = plannerEvent?.lookId || "coffee";
 let nextWeekPrepared =
   localStorage.getItem("styleiqNextWeekPreparedV1") === "true";
 let proactiveWeek = readWishlistData("styleiqProactiveWeekV1", []);
+let proactiveEditIndex = null;
 function planMyWeek() {
-  proactiveWeek = [
-    { day: "MON", context: "Office", look: "Tailored ease", image: assets.look3 },
-    { day: "TUE", context: "Dinner", look: "Dinner classic", image: assets.look2 },
-    { day: "WED", context: "Casual", look: "Quiet layers", image: assets.look4 },
-    { day: "THU", context: "Office", look: "Modern neutral", image: assets.look },
-  ];
+  const today = new Date();
+  today.setDate(today.getDate() + (8-today.getDay())%7);
+  const looks = Object.values(tryOnLooks);
+  proactiveWeek = ['Office','Dinner','Casual','Office'].map((context,index) => {
+    const date = new Date(today); date.setDate(date.getDate()+index);
+    const look = looks[index%looks.length];
+    return { day: ['MON','TUE','WED','THU'][index], date: `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`, context, lookId: look.id, look: look.title, image: look.sheet };
+  });
   localStorage.setItem("styleiqProactiveWeekV1", JSON.stringify(proactiveWeek));
   render();
 }
 function changeProactiveLook(index) {
-  if (!proactiveWeek[index]) return;
-  proactiveWeek[index].look = proactiveWeek[index].look === "Modern neutral" ? "Tailored ease" : "Modern neutral";
+  const entry = proactiveWeek[index];
+  if (!entry) return;
+  const looks = Object.values(tryOnLooks), next = looks[(looks.findIndex(look => look.id === entry.lookId)+1)%looks.length];
+  Object.assign(entry, { lookId: next.id, look: next.title, image: next.sheet });
   localStorage.setItem("styleiqProactiveWeekV1", JSON.stringify(proactiveWeek));
   render();
+}
+function editProactiveContext(index) {
+  const entry = proactiveWeek[index]; if (!entry) return;
+  proactiveEditIndex = index;
+  plannerEventDraft = { date: entry.date || wishlistDate(index+1), time: entry.time || '', daypart: entry.daypart || 'All day', occasion: ({Office:'Work',Casual:'Weekend'})[entry.context] || entry.context, title: entry.title || '', location: entry.location || '', weather: entry.weather || '' };
+  plannerLookChoice = entry.lookId || 'coffee';
+  plannerValidationErrors = [];
+  go('I-03');
 }
 function removeProactiveLook(index) {
   proactiveWeek.splice(index, 1);
@@ -1033,7 +1046,7 @@ function saveWishlistFromLens(id) {
 function lensWishlistAction(id) {
   const product = wishlistProduct(id), saved = wishlistItems.some((item) => item.id === id);
   if (!product) return "";
-  return `<div class="lens-wishlist-action ${saved ? "is-saved" : ""}" aria-live="polite"><div class="lens-wishlist-copy"><span class="icon-wrap">${icon("heart")}</span><span><b>${saved ? "Added to Wishlist" : "Save this item to Wishlist"}</b><small>${saved ? "You can review it anytime in your Wishlist." : "Keep it here while you compare before buying."}</small></span></div><button class="btn ${saved ? "" : "primary"} lens-wishlist-button" type="button" aria-pressed="${saved}" onclick="${saved ? "go('G-08')" : `saveWishlistFromLens('${id}')`}">${saved ? "View Wishlist" : "Add to Wishlist"}</button></div>`;
+  return `<div class="lens-wishlist-action ${saved ? "is-saved" : ""}" aria-live="polite"><div class="lens-wishlist-copy"><span class="icon-wrap">${icon("heart")}</span><span><b>${saved ? "Added to Wishlist" : "Save this item to Wishlist"}</b><small>${saved ? "You can review it anytime in your Wishlist." : "Keep it here while you compare before buying."}</small></span></div><button class="btn ${saved ? "" : "primary"} lens-wishlist-button" type="button" aria-pressed="${saved}" onclick="${saved ? "lensDestination('G-08')" : `saveWishlistFromLens('${id}')`}">${saved ? "View Wishlist" : "Add to Wishlist"}</button></div>`;
 }
 function openWishlistProduct(id) {
   if (!wishlistProduct(id)) return;
@@ -1234,15 +1247,6 @@ function decorateWishlistSurfaces() {
     if (entry) { entry.onclick = () => go("G-08"); entry.querySelector("small").textContent = `${wishlistStats().saved} saved items · ${wishlistStats().ready} ready to buy`; }
   }
   if (currentId === "D-02") content.insertAdjacentHTML("beforeend", wishlistSnapshot(true));
-  if (currentId === "B-05") {
-    content.querySelectorAll(".item-card").forEach((card) => {
-      const piece = { name: card.querySelector("b")?.textContent, brand: card.querySelector("small")?.textContent, image: card.querySelector("img")?.getAttribute("src"), role: "Outerwear", owned: false };
-      if (!piece.name) return;
-      const product = shoppingProductForPiece(piece), wrapper = document.createElement("div");
-      wrapper.className = "wishlist-import-product";
-      card.before(wrapper); wrapper.append(card); wrapper.insertAdjacentHTML("beforeend", wishlistHeart(product));
-    });
-  }
   if (currentId === "M-03") {
     const card = content.querySelector(".card");
     if (card) card.outerHTML = `<section class="wishlist-opportunity"><p class="eyebrow">Opportunity · Lightweight layers</p><p class="body">The gap is a wardrobe need. Review a specific product separately, starting with the knit you already own.</p>${wishlistProductCard(wishlistProduct("rust-knit"))}</section>`;
@@ -1277,17 +1281,89 @@ function decorateWishlistSurfaces() {
     if (item.wishlistId) content.insertAdjacentHTML("beforeend", `<section class="card wishlist-context"><h3 class="title">Purchase details</h3><dl><dt>Price paid</dt><dd>${wishlistMoney(item.purchasePrice)}</dd><dt>Purchased</dt><dd>${wishlistDisplayDate(item.purchaseDate)}</dd><dt>Source</dt><dd>${escapeMarkup(item.retailer || "Not provided")}</dd></dl>${wishlistItems.some((entry) => entry.id === item.wishlistId) ? `<button class="text-action" onclick="openWishlistProduct('${item.wishlistId}')">View Wishlist record</button>` : '<p class="small">Originally considered in Wishlist.</p>'}</section>`);
   }
 }
-let wishlistSearchQuery = "";
+let wishlistSearchQuery = "", ownedSearchQuery = "blazer", selectedShoppingSearchId = shoppingProducts[0].id;
+function searchProducts(query) {
+  const terms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  return shoppingProducts.filter(item => terms.every(term => `${item.name} ${item.brand} ${item.category}`.toLowerCase().includes(term)));
+}
+function shoppingSearchResults() {
+  const products = searchProducts(wishlistSearchQuery);
+  if (!products.length) return '<p class="body" role="status">No matching products. Try a brand or category.</p>';
+  if (!products.some(item => item.id === selectedShoppingSearchId)) selectedShoppingSearchId = products[0].id;
+  return `${products.map(product => wishlistProductCard(product)).join('')}<label class="field">Choose a product<select id="shopping-selection" class="input" onchange="selectedShoppingSearchId=this.value">${products.map(item => `<option value="${item.id}" ${item.id === selectedShoppingSearchId ? 'selected' : ''}>${escapeMarkup(item.name)} · ${escapeMarkup(item.brand)}</option>`).join('')}</select></label><div class="row"><button class="btn grow" onclick="openWishlistProduct(selectedShoppingSearchId)">Check this piece</button><button class="btn grow" onclick="saveWishlistProduct(selectedShoppingSearchId);render();toast('Saved to Wishlist')">Save to Wishlist</button></div>`;
+}
 function updateWishlistSearch(value) {
   wishlistSearchQuery = value;
   const results = app.querySelector("#shopping-product-results");
-  if (!results) return;
-  const products = shoppingProducts.filter((item) => `${item.name} ${item.brand} ${item.category}`.toLowerCase().includes(value.toLowerCase().trim()));
-  results.innerHTML = products.map((product) => wishlistProductCard(product)).join("") || '<p class="body">No matching products. Try a brand or category.</p>';
+  if (results) results.innerHTML = shoppingSearchResults();
   window.lucide?.createIcons({ attrs: { "stroke-width": 1.5 } });
 }
 function wishlistProductSearch() {
-  return `<section class="mirror-section" aria-label="Shopping products"><div class="mirror-section-head"><span><p class="eyebrow">Individual products</p><h3>Consider for your wardrobe</h3></span></div><label class="field"><span>Search products</span><input class="input" type="search" value="${escapeMarkup(wishlistSearchQuery)}" placeholder="Product, brand, or category" oninput="updateWishlistSearch(this.value)"></label><div class="wishlist-grid" id="shopping-product-results">${shoppingProducts.filter((item) => `${item.name} ${item.brand} ${item.category}`.toLowerCase().includes(wishlistSearchQuery.toLowerCase().trim())).map((product) => wishlistProductCard(product)).join("")}</div></section>`;
+  return `<section class="mirror-section" aria-label="Shopping products"><label class="field">Search products<input class="input" placeholder="Search products or brands" value="${escapeMarkup(wishlistSearchQuery)}" oninput="updateWishlistSearch(this.value)"></label><div id="shopping-product-results">${shoppingSearchResults()}</div></section>`;
+}
+function searchOwnedItem(event) {
+  event.preventDefault(); ownedSearchQuery = event.currentTarget.querySelector('input').value.trim(); go('B-05');
+}
+function selectOwnedSearchProduct(id) {
+  const product = shoppingProducts.find(item => item.id === id);
+  if (!product) return;
+  closetPurchaseDraft = { name: product.name, brand: product.brand, category: product.category, image: product.image, source: 'owned-search' };
+  importConfidence = 'high';
+  localStorage.setItem('styleiqClosetPurchaseDraftV1', JSON.stringify(closetPurchaseDraft));
+  go('B-06');
+}
+function ownedSearchResults() {
+  const products = searchProducts(ownedSearchQuery);
+  return `<p class="eyebrow">Closet Search results</p><p class="small">${products.length} results for “${escapeMarkup(ownedSearchQuery)}”</p><div class="item-grid">${products.map(item => `<article class="item-card owned-search-card"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span class="copy"><b>${escapeMarkup(item.name)}</b><small class="body">${escapeMarkup(item.brand)}</small><button class="btn small-btn" onclick="selectOwnedSearchProduct('${item.id}')">Add to My Closet</button></span></article>`).join('')}</div>${products.length ? '' : '<p class="body">No matching items. Try a brand or category.</p>'}<button class="btn wide" onclick="go('B-04')">Edit search</button>`;
+}
+let closetItemEdits = (() => {
+  try { return JSON.parse(localStorage.getItem("styleiqClosetItemEditsV1")) || {}; }
+  catch { return {}; }
+})();
+function updateClosetItem(id, changes) {
+  const owned = purchasedClosetItems.find(item => item.id === id);
+  if (owned) { Object.assign(owned, changes); persistClosetItems(); }
+  else {
+    closetItemEdits[id] = { ...closetItemEdits[id], ...changes };
+    localStorage.setItem("styleiqClosetItemEditsV1", JSON.stringify(closetItemEdits));
+  }
+}
+let photoEditDraft = null;
+function selectPhotoEdit(mode) { photoEditDraft.mode = mode; render(); }
+function readItemPhoto(input) {
+  const file = input.files?.[0];
+  if (!file || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+    toast("Choose a JPG, PNG, or WebP photo."); return;
+  }
+  const target = photoEditDraft;
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (photoEditDraft !== target) return;
+    photoEditDraft.source = reader.result;
+    photoEditDraft.mode = 'original'; render();
+  };
+  reader.readAsDataURL(file);
+}
+async function saveItemPhoto() {
+  const draft = photoEditDraft;
+  if (!draft) return;
+  let image = draft.source;
+  try {
+    if (draft.mode === 'crop') {
+      const photo = new Image(); photo.src = image; await photo.decode();
+      const size = Math.min(photo.naturalWidth, photo.naturalHeight) * 0.8;
+      const canvas = document.createElement('canvas'); canvas.width = canvas.height = Math.min(1000, Math.round(size));
+      canvas.getContext('2d').drawImage(photo, (photo.naturalWidth-size)/2, (photo.naturalHeight-size)/2, size, size, 0, 0, canvas.width, canvas.height);
+      image = canvas.toDataURL('image/png');
+    }
+    if (photoEditDraft !== draft || lightweightPanel !== 'image') return;
+    updateClosetItem(draft.itemId, { image, originalImage: draft.original });
+    photoEditDraft = null; lightweightPanel = null; render(); toast('Item photo updated');
+  } catch { toast('We could not edit this photo. Choose another photo and try again.'); }
+}
+function itemPhotoEditor() {
+  const draft = photoEditDraft || { source: selectedClosetItem().image, mode: 'original' };
+  return `<div style="height:220px;overflow:hidden;border-radius:16px"><img alt="Item photo preview" src="${draft.source}" style="width:100%;height:100%;object-fit:contain;${draft.mode === 'crop' ? 'transform:scale(1.25)' : ''}"></div><p class="body">Preview a centered crop or choose a replacement. Save applies it to this item only.</p><div class="chips" role="group" aria-label="Photo edit"><button class="chip" aria-pressed="${draft.mode === 'crop'}" onclick="selectPhotoEdit('crop')">Crop</button><button class="chip" aria-pressed="${draft.mode === 'original'}" onclick="photoEditDraft.source=photoEditDraft.original;selectPhotoEdit('original')">Original</button></div><label class="field">Replace photo<input type="file" accept="image/jpeg,image/png,image/webp" onchange="readItemPhoto(this)"></label>`;
 }
 function closetItems() {
   return Array.from({ length: closetState.size }, (_, index) => {
@@ -1299,6 +1375,7 @@ function closetItems() {
         index < closetSeed.length
           ? closetSeed[index].name
           : `${closetSeed[index % closetSeed.length].name} ${Math.floor(index / closetSeed.length) + 1}`,
+      ...closetItemEdits[id],
       lifecycle: closetLifecycle[id] || "Keep",
       location: closetLocations[id] || "",
     };
@@ -1345,16 +1422,9 @@ function setItemLifecycle(value) {
   toast(`Item marked ${value}`);
 }
 function markSelectedItemWorn() {
-  const owned = purchasedClosetItems.find((item) => item.id === selectedClosetItemId);
-  if (owned) {
-    owned.wears = (owned.wears || 0) + 1;
-    persistClosetItems();
-  } else {
-    const index = Number(String(selectedClosetItemId).replace("closet-", "")) - 1;
-    if (closetSeed[index]) closetSeed[index].wears = (closetSeed[index].wears || 0) + 1;
-  }
+  const item = selectedClosetItem();
+  updateClosetItem(item.id, { wears: (item.wears || 0) + 1 });
   render();
-  toast("Wear recorded");
 }
 function saveItemLocation(event) {
   event.preventDefault();
@@ -1404,20 +1474,47 @@ function decorateClosetLifecycle() {
       );
   }
 }
+function itemIntelligence(item) {
+  const normalize = value => value.toLowerCase().trim();
+  const looks = Object.values(tryOnLooks).filter(look => look.pieces.some(piece => normalize(piece[1]) === normalize(item.name)));
+  const names = new Set(looks.flatMap(look => look.pieces.map(piece => normalize(piece[1]))));
+  return { looks, matches: closetItems().filter(other => other.id !== item.id && names.has(normalize(other.name))).length };
+}
+function tryOnSelectedClosetItem() {
+  const item = selectedClosetItem();
+  const role = ({Tops:'Top', Bottoms:'Bottom', Outerwear:'Outerwear', Jackets:'Outerwear', Shoes:'Shoes', Bags:'Bag', Accessories:'Accessory', 'Dresses & Suits':'Dress'})[item.category] || 'Outerwear';
+  const base = itemIntelligence(item).looks[0] || tryOnLooks.coffee;
+  const pieces = base.pieces.filter(piece => piece[0] !== role);
+  pieces.unshift([role, item.name, item.image]);
+  const look = { ...base, id: `item-${item.id}`, title: `${item.name} · Try On`, context: 'From your Closet', pieces };
+  startTryOn(look.id, { lookData: look, sourceType: 'closet-item', closetItemId: item.id });
+}
+function saveItemDetails(event) {
+  event.preventDefault();
+  const form = event.currentTarget, value = id => form.querySelector(`#inline-${id}`)?.value.trim();
+  updateClosetItem(selectedClosetItem().id, {name:value('name'),brand:value('brand'),category:value('category')});
+  render(); toast('Item details saved');
+}
+function saveItemPurchase(event) {
+  event.preventDefault();
+  const form = event.currentTarget, price = form.querySelector('#inline-purchase-price').value;
+  updateClosetItem(selectedClosetItem().id, { purchasePrice: price === '' ? null : Number(price), purchaseDate: form.querySelector('#inline-purchase-date').value, retailer: form.querySelector('#inline-retailer').value.trim() });
+  render(); toast('Purchase details saved');
+}
 function lifecycleItemDetail() {
-  const item = selectedClosetItem(),
+  const item = selectedClosetItem(), intelligence = itemIntelligence(item),
     states = ["Keep", "Won’t wear", "Sell", "Donate", "Rent", "Archive"];
   const tabs = [["overview", "Overview"], ["details", "Details"], ["purchase", "Purchase Info"], ["photo", "Photos"], ["activity", "Wear History"]];
   const tabBar = `<div class="chips" role="tablist" aria-label="Closet item detail sections" style="margin-top:14px">${tabs.map(([id, label]) => `<button class="chip ${closetDetailTab === id ? "active" : ""}" role="tab" aria-selected="${closetDetailTab === id}" onclick="setClosetDetailTab('${id}')">${label}</button>`).join("")}</div>`;
   const overview = `<div>${approvalCard("Ready to style", "Category and color are high confidence. Optional details stay collapsed until you need them.")}<details class="card progressive-card" open style="margin-top:12px"><summary><b>Item status</b><span class="small">${item.lifecycle} · one status at a time</span></summary><p class="body" style="margin-top:10px">Choose what you intend to do with this piece. Wear history and details stay intact.</p><div class="chips" role="group" aria-label="Item lifecycle status">${states.map((value) => `<button class="chip ${item.lifecycle === value ? "active" : ""}" aria-pressed="${item.lifecycle === value}" onclick="setItemLifecycle(&quot;${value}&quot;)">${value}</button>`).join("")}</div></details><button class="btn primary wide" style="margin-top:14px" onclick="styleSelectedClosetItem()">Style this item</button></div>`;
-  const details = `<div class="inline-edit-grid" style="margin-top:14px">${inlineEditRow("Name", item.name)}${inlineEditRow("Brand", item.brand)}${inlineEditRow("Category", item.category)}</div>${storageLocationForm(item)}<details class="card progressive-card" open style="margin-top:12px"><summary><b>Styling details</b><span class="small">${escapeMarkup(item.category)} · All seasons</span></summary><div class="chips" style="margin-top:12px"><button class="chip active">Warm neutral</button><button class="chip">All seasons</button><button class="chip">Business casual</button></div></details>`;
-  const purchase = `<section class="card" style="margin-top:14px"><p class="eyebrow">Purchase Info</p><h3 class="title">Ownership details</h3><p class="body">${escapeMarkup(item.brand || "Brand not set")} · ${item.purchaseDate ? escapeMarkup(item.purchaseDate) : "Purchase date not added"}</p><button class="btn wide" onclick="setClosetDetailTab('details')">Edit purchase details</button></section>`;
+  const details = `<form onsubmit="saveItemDetails(event)"><div class="inline-edit-grid" style="margin-top:14px">${inlineEditRow("Name", item.name, 'required')}${inlineEditRow("Brand", item.brand)}${inlineEditRow("Category", item.category, 'required')}</div><button class="btn primary wide" type="submit">Save item details</button></form>${storageLocationForm(item)}`;
+  const purchase = `<section class="card" style="margin-top:14px"><p class="eyebrow">Purchase Info</p><h3 class="title">Ownership details</h3><form onsubmit="saveItemPurchase(event)">${inlineEditRow("Purchase price", item.purchasePrice ?? '', 'type="number" min="0" step="0.01"')}${inlineEditRow("Purchase date", item.purchaseDate || '', 'type="date"')}${inlineEditRow("Retailer", item.retailer || '')}<button class="btn primary wide" type="submit">Save purchase details</button></form></section>`;
   const photo = `<section class="card" style="margin-top:14px"><p class="eyebrow">Photo tools</p><h3 class="title">Keep the item presentation current.</h3><p class="body">Replace, crop, clean the background, or return to the original. Changes are previewed before saving.</p><button class="btn primary wide" style="margin-top:12px" onclick="openLightweightPanel('image')">Edit item photo</button><button class="btn wide" style="margin-top:8px" onclick="setClosetDetailTab('overview')">Cancel</button></section>`;
-  const activity = `<section class="card" style="margin-top:14px"><p class="eyebrow">Wear activity</p><h3 class="title">Useful facts about this piece</h3><div class="item-metrics"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>$${Math.max(48, Math.round(1890 / Math.max(item.wears, 1)))}</b><small>Cost / wear</small></span><span class="item-metric"><b>4</b><small>Compatible Looks</small></span></div><p class="body" style="margin-top:12px">Wear history stays intact when you update the item or its lifecycle.</p><button class="btn wide" style="margin-top:10px" onclick="setItemLifecycle('Keep')">Mark available</button></section>`;
+  const activity = `<section class="card" style="margin-top:14px"><p class="eyebrow">Wear activity</p><h3 class="title">Useful facts about this piece</h3><div class="item-metrics"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${Number.isFinite(item.purchasePrice) && item.wears ? wishlistMoney(item.purchasePrice / item.wears) : "Not available"}</b><small>Cost / wear</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Compatible Looks</small></span></div><p class="body" style="margin-top:12px">Wear history stays intact when you update the item or its lifecycle.</p><button class="btn wide" style="margin-top:10px" onclick="setItemLifecycle('Keep')">Mark available</button></section>`;
   const body = { overview, details, purchase, photo, activity }[closetDetailTab] || overview;
   return shell(
     "Item detail",
-    `<img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${escapeMarkup(item.name)}</h2></span><button class="icon-btn" aria-label="Edit item" onclick="setClosetDetailTab('details')">${icon("edit")}</button></div><div class="row" style="margin-top:12px"><button class="btn primary grow" onclick="styleSelectedClosetItem()">Style It</button><button class="btn grow" onclick="startTryOn('coffee', { sourceType: 'closet-item', closetItemId: '${item.id}' })">Try On</button></div><div class="item-metrics" style="margin-top:14px"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>18</b><small>Closet matches</small></span><span class="item-metric"><b>6</b><small>Looks ready</small></span></div><p class="small">Great for Work · Dinner · Travel</p><div class="chips"><button class="chip" onclick="markSelectedItemWorn()">Mark Worn</button><button class="chip" onclick="setItemLifecycle('Sell')">Sell</button><button class="chip" onclick="setItemLifecycle('Archive')">Archive</button></div>${tabBar}${body}`,
+    `<img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${escapeMarkup(item.name)}</h2></span><button class="icon-btn" aria-label="Edit item" onclick="setClosetDetailTab('details')">${icon("edit")}</button></div><div class="row" style="margin-top:12px"><button class="btn primary grow" onclick="styleSelectedClosetItem()">Style It</button><button class="btn grow" onclick="tryOnSelectedClosetItem()">Try On</button></div><div class="item-metrics" style="margin-top:14px"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${intelligence.matches}</b><small>Closet matches</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Looks ready</small></span></div><p class="small">${intelligence.looks.length ? "Known Looks: " + intelligence.looks.map(look => escapeMarkup(look.title)).join(" · ") : "Style this piece to explore new combinations."}</p><div class="chips"><button class="chip" onclick="markSelectedItemWorn()">Mark Worn</button><button class="chip" onclick="setItemLifecycle('Sell')">Sell</button><button class="chip" onclick="setItemLifecycle('Archive')">Archive</button></div>${tabBar}${body}`,
     { active: "closet" },
   );
 }
@@ -1764,6 +1861,7 @@ function go(id, { record = true } = {}) {
     id !== "E-06"
   )
     clearPendingTryOn();
+  if (proactiveEditIndex !== null && ["I-03","I-04","I-05"].includes(currentId) && !["I-03","I-04","I-05"].includes(id)) proactiveEditIndex = null;
   if (record) {
     navHistory.push(currentId);
     if (navHistory.length > 80) navHistory.shift();
@@ -1848,7 +1946,7 @@ function head(title) {
       actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about Closet">${icon("spark")}</button><button class="root-action" onclick="openSharedSearch('closet')" aria-label="Search Closet">${icon("search")}</button><button class="root-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button>`,
     },
     "I-01": {
-      label: "October 12–18",
+      label: "Your Week",
       title: "Planner",
       actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}</button><button class="root-action" onclick="go('I-03')" aria-label="Plan a new Look">${icon("plus")}</button>`,
     },
@@ -1979,9 +2077,14 @@ function openLightweightPanel(kind) {
   notificationsOpen = false;
   lightweightPanel = kind;
   if (kind === "feedback") feedbackReason = "";
+  if (kind === "image") {
+    const item = selectedClosetItem();
+    photoEditDraft = { itemId: item.id, source: item.image, original: item.originalImage || item.image, mode: 'original' };
+  }
   render();
 }
 function closeLightweightPanel() {
+  photoEditDraft = null;
   lightweightPanel = null;
   if (["E-01", "E-03", "E-04"].includes(currentId)) {
     go("D-04");
@@ -2002,6 +2105,7 @@ function chooseFeedbackReason(reason) {
   render();
 }
 function approveLightweightPanel(kind) {
+  if (kind === "image") { saveItemPhoto(); return; }
   if (kind === "learn" && photoLearningStage === "picker") {
     photoLearningStage = "review";
     render();
@@ -2076,10 +2180,8 @@ function lightweightPanelMarkup() {
       action: "Save Look",
     },
     image: {
-      eyebrow: "Item photo",
-      title: "Edit without leaving",
-      body: `<div class="lightweight-preview"><img src="${selectedClosetItem().image}" alt="${selectedClosetItem().name}"><span><b>${selectedClosetItem().name}</b><small>The original stays available until you save.</small></span></div><div class="chips" role="group" aria-label="Photo edit" style="margin-top:14px"><button class="chip active" aria-pressed="true" onclick="selectChip(this)">Clean background</button><button class="chip" aria-pressed="false" onclick="selectChip(this)">Crop</button><button class="chip" aria-pressed="false" onclick="selectChip(this)">Original</button></div>`,
-      action: "Save photo",
+      eyebrow: "Item photo", title: "Edit without leaving",
+      body: itemPhotoEditor(), action: "Save photo",
     },
     learn: {
       eyebrow: "Historical outfits",
@@ -2435,8 +2537,8 @@ function decorateContextualIntelligence() {
       "afterend",
       contextualInsight(
         "Useful in your wardrobe",
-        "5 outfit directions",
-        selectedClosetItem().wishlistId ? "Try this piece with the items you already own. Outfit suggestions use your current Closet." : "This blazer connects your office, dinner, and travel pieces; no separate intelligence page is needed.",
+        `${itemIntelligence(selectedClosetItem()).looks.length} known Looks`,
+        selectedClosetItem().wishlistId ? "Try this piece with the items you already own. Outfit suggestions use your current Closet." : "Explore Looks using this piece, or style it to build another combination.",
       ),
     );
   }
@@ -2457,8 +2559,8 @@ function decorateContextualIntelligence() {
       "afterend",
       contextualInsight(
         "Trip check",
-        "12 pieces · 3 days",
-        "Every activity has a compatible Look and the carry-on still has room for one weather layer.",
+        tripSummary(),
+        "Review your daily Looks and mark the pieces you have packed.",
       ),
     );
   }
@@ -2582,6 +2684,31 @@ function entryScreen(s) {
   }
   return stylingContextSurface(false);
 }
+const otpSession = (() => {
+  try { return JSON.parse(localStorage.getItem('styleiqOtpSessionV1')) || {}; } catch { return {}; }
+})();
+Object.assign(otpSession, { email: otpSession.email || '', digits: otpSession.digits || '', attempts: otpSession.attempts || 0, resendAt: otpSession.resendAt ?? Date.now()+28000, expiresAt: otpSession.expiresAt ?? Date.now()+300000, blockedUntil: otpSession.blockedUntil || 0 });
+function persistOtp() { otpSession.state = otpState; otpSession.attempts = otpAttempts; localStorage.setItem('styleiqOtpSessionV1', JSON.stringify(otpSession)); }
+function beginOtp() {
+  const input = app.querySelector('#signup-email');
+  if (!input?.reportValidity()) return;
+  Object.assign(otpSession, { email: input.value, digits: '', attempts: 0, resendAt: Date.now()+28000, expiresAt: Date.now()+300000, blockedUntil: 0 });
+  otpState = 'idle'; otpAttempts = 0; persistOtp(); go('A-04');
+}
+function otpWait() { return Math.max(0, Math.ceil((Math.max(otpSession.resendAt, otpSession.blockedUntil)-Date.now())/1000)); }
+function otpTiming() {
+  const seconds = otpWait();
+  return seconds ? `${otpSession.blockedUntil > Date.now() ? 'Retry' : 'Resend available'} in ${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,'0')}` : 'You can request a new code.';
+}
+function saveOtpDigits() { otpSession.digits = [...app.querySelectorAll('.otp input')].map(input => input.value).join(''); persistOtp(); }
+function otpTick() {
+  if (currentId !== 'A-04') return;
+  if (otpState === 'blocked' && otpSession.blockedUntil <= Date.now()) { otpAttempts = 0; otpState = 'idle'; persistOtp(); render(); }
+  else if (!['expired','blocked','sendFailed'].includes(otpState) && otpSession.expiresAt <= Date.now()) { otpState = 'expired'; otpSession.resendAt = 0; persistOtp(); render(); }
+  const label = app.querySelector('#otp-timing'); if (label) label.textContent = otpTiming();
+  const resend = app.querySelector('#otp-resend'); if (resend) resend.disabled = otpWait() > 0;
+}
+setInterval(otpTick, 500);
 function onboarding(s) {
   const commonTop = `<div class="onboard-top"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button>${brandLockup("micro")}<span></span></div>`;
   let main = "";
@@ -2592,9 +2719,9 @@ function onboarding(s) {
   else if (s.id === "A-02")
     main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">About you</p><h1 class="display">What should we call you?</h1><p class="body">Tell us the name you would like to see across your StyleIQ wardrobe.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="signup-first-name">First name</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="signup-first-name" class="input auth-screen-input" autocomplete="given-name" value="Amelia"></div></div><div class="field"><div class="auth-field-label"><label for="signup-last-name">Last name</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="signup-last-name" class="input auth-screen-input" autocomplete="family-name" value="Hart"></div></div><button class="btn primary wide auth-primary" type="button" onclick="go('A-03')">Use this name</button></div></div></div></div>`;
   else if (s.id === "A-03")
-    main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Add your email.</h1><p class="body">Use this email to sign in and recognize shopping receipts you choose to forward.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="signup-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" autocomplete="email" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="go('A-04')">Create my account</button></div></div></div></div>`;
+    main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Add your email.</h1><p class="body">Use this email to sign in and recognize shopping receipts you choose to forward.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="signup-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="beginOtp()">Create my account</button></div></div></div></div>`;
   else if (s.id === "A-04")
-    main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Verify email</p><h1 class="display">Check your inbox.</h1><p class="body">Enter the six-digit code we sent to your email.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-form">${otpState === "expired" ? '<p class="error" role="alert">This code has expired. Request a new code.</p>' : otpState === "invalid" ? '<p class="error" role="alert">That code is invalid. Try again.</p>' : otpState === "blocked" ? '<p class="error" role="alert">Too many attempts. Please wait before trying again.</p>' : otpState === "resent" ? '<p class="success-badge" role="status">A new code was sent.</p>' : otpState === "resendFailed" ? '<p class="error" role="alert">We couldn’t resend the code. Try again.</p>' : otpState === "sendFailed" ? '<p class="error" role="alert">We couldn’t send a code. Try again.</p>' : ""}<div class="otp">${Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" aria-label="Digit ${i + 1}">`).join("")}</div><div class="between" style="margin-top:12px"><span class="helper">${otpState === "blocked" ? "Retry in 1:00" : "Resend available in 0:28"}</span><button class="auth-inline-link" type="button" onclick="resendOtp(true)">${otpState === "expired" ? "Send New Code" : "Resend code"}</button></div><button class="btn primary wide auth-primary" type="button" style="margin-top:14px" onclick="verifyOtp()" ${otpState === "blocked" ? "disabled" : ""}>Verify email</button><details><summary>Prototype states</summary><div class="chips"><button class="chip" onclick="setOtpState('valid')">Valid</button><button class="chip" onclick="setOtpState('invalid')">Invalid</button><button class="chip" onclick="setOtpState('expired')">Expired</button><button class="chip" onclick="resendOtp(false)">Resend failure</button><button class="chip" onclick="setOtpState('sendFailed')">Send failure</button></div></details></div></div></div></div>`;
+    main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Verify email</p><h1 class="display">Check your inbox.</h1><p class="body">Enter the six-digit code we sent to ${escapeMarkup(otpSession.email || "your email")}.</p><p class="small">Prototype code: 123456</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-form">${otpState === "expired" ? '<p class="error" role="alert">This code has expired. Request a new code.</p>' : otpState === "invalid" ? '<p class="error" role="alert">That code is invalid. Try again.</p>' : otpState === "blocked" ? '<p class="error" role="alert">Too many attempts. Please wait before trying again.</p>' : otpState === "resent" ? '<p class="success-badge" role="status">A new code was sent.</p>' : otpState === "resendFailed" ? '<p class="error" role="alert">We couldn’t resend the code. Try again.</p>' : otpState === "sendFailed" ? '<p class="error" role="alert">We couldn’t send a code. Try again.</p>' : ""}<div class="otp">${Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" value="${otpSession.digits[i] || ''}" oninput="saveOtpDigits()" aria-label="Digit ${i + 1}">`).join("")}</div><div class="between" style="margin-top:12px"><span id="otp-timing" class="helper" role="status">${otpTiming()}</span><button id="otp-resend" class="auth-inline-link" type="button" ${otpWait() ? "disabled" : ""} onclick="resendOtp(true)">${otpState === "expired" ? "Send New Code" : "Resend code"}</button></div><button class="btn primary wide auth-primary" type="button" style="margin-top:14px" onclick="verifyOtp()" ${otpState === "blocked" ? "disabled" : ""}>Verify email</button><details><summary>Prototype states</summary><div class="chips"><button class="chip" onclick="setOtpState('valid')">Valid</button><button class="chip" onclick="setOtpState('invalid', true)">Invalid</button><button class="chip" onclick="setOtpState('expired')">Expired</button><button class="chip" onclick="setOtpState('resendFailed')">Resend failure</button><button class="chip" onclick="setOtpState('sendFailed')">Send failure</button></div></details></div></div></div></div>`;
   else if (s.id === "A-05")
     main = `<div class="onboard-main auth-step-main goal-step-main"><div class="auth-shell goal-card"><div class="goal-card-art" aria-hidden="true"></div><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-heading goal-card-heading"><p class="eyebrow">Start with your goal</p><h1 class="display">What can StyleIQ help with?</h1><p class="body">Choose one. You can use everything else whenever you need it.</p></div><div class="choice-list">${[
       ["shirt", "Get dressed faster"],
@@ -2619,8 +2746,8 @@ let importConfidence = "high",
   batchSelectedCount = 12,
   uploadIssue = "unable",
   receiptState = "idle",
-  otpState = "idle",
-  otpAttempts = 0,
+  otpState = otpSession.state || "idle",
+  otpAttempts = otpSession.attempts || 0,
   photoLearningStage = "picker";
 const uploadIssueDefinitions = {
   blurry: { label: "Low-quality / blurry", title: "This photo is too blurry.", body: "We need a sharper view to crop and identify one garment.", primary: "Retry photo", secondary: "Choose another photo" },
@@ -2631,22 +2758,92 @@ const uploadIssueDefinitions = {
   unable: { label: "Unable to detect item", title: "We couldn’t detect one clear item.", body: "Try a photo with one garment in even light, or continue manually and correct the details yourself.", primary: "Retry photo", secondary: "Continue manually" },
   multiple: { label: "Multiple items detected", title: "We found more than one item.", body: "Separate the garments into individual photos so each Closet record stays accurate.", primary: "Choose another photo", secondary: "Continue manually" },
 };
-function setReceiptState(state) { receiptState = state; render(); }
+let receiptPurchases = readWishlistData("styleiqReceiptDraftsV1", []);
+function persistReceiptDrafts() { localStorage.setItem("styleiqReceiptDraftsV1", JSON.stringify(receiptPurchases)); }
+function setReceiptState(state) {
+  receiptState = state;
+  if (state === 'complete' || state === 'mixed') {
+    receiptPurchases = [
+      { id: newClosetItemId(), name: 'Silk shell', brand: 'Aritzia', category: 'Tops', image: assets.top, ready: true },
+      ...(state === 'mixed' ? [{ id: newClosetItemId(), name: 'Leather loafers', brand: 'Vagabond', category: 'Shoes', image: assets.shoes, ready: true }, { id: newClosetItemId(), name: '', brand: 'Unknown', category: 'Outerwear', image: assets.blazer, ready: false }] : [])
+    ];
+    persistReceiptDrafts();
+  }
+  if (state === 'cancel') { receiptPurchases = []; persistReceiptDrafts(); receiptState = 'idle'; }
+  render();
+}
+function saveReceiptException(event) {
+  event.preventDefault();
+  const pending = receiptPurchases.find(item => !item.ready);
+  if (!pending) return;
+  pending.name = event.currentTarget.querySelector('#receipt-item-name').value.trim();
+  if (!pending.name) return;
+  pending.ready = true; persistReceiptDrafts(); render();
+}
+function skipReceiptException() {
+  const pending = receiptPurchases.find(item => !item.ready);
+  if (pending) receiptPurchases = receiptPurchases.filter(item => item.id !== pending.id);
+  persistReceiptDrafts(); render();
+}
+function importReadyReceipts() {
+  const ready = receiptPurchases.filter(item => item.ready);
+  if (!ready.length) return;
+  purchasedClosetItems.unshift(...ready.map(({ ready, ...item }) => ({ ...item, status: 'Available', lifecycle: 'Keep', wears: 0, source: 'receipt-import' })));
+  persistClosetItems();
+  receiptPurchases = receiptPurchases.filter(item => !item.ready); persistReceiptDrafts();
+  finishOnboardingClosetImport(); toast(`${ready.length} purchases added`);
+}
+function reviewReceiptPurchase() {
+  const item = receiptPurchases.find(item => item.ready);
+  if (!item) return;
+  closetPurchaseDraft = { ...item, source: 'receipt-import' };
+  localStorage.setItem('styleiqClosetPurchaseDraftV1', JSON.stringify(closetPurchaseDraft));
+  go('B-06');
+}
+function reviewManualReceipt(event) {
+  event.preventDefault();
+  const name = event.currentTarget.querySelector('#manual-purchase').value.trim();
+  if (!name) return;
+  closetPurchaseDraft = { id: newClosetItemId(), name, brand: 'Unknown', category: 'Outerwear', image: assets.blazer, source: 'receipt-import' };
+  localStorage.setItem('styleiqClosetPurchaseDraftV1', JSON.stringify(closetPurchaseDraft));
+  go('B-06');
+}
 function receiptImportSurface() {
-  if (receiptState === "idle") return `<div class="empty"><div><div class="empty-art">${icon("bag")}</div><h2 class="title">Forward shopping receipts</h2><p class="body">Send receipts from your verified shopping address. StyleIQ extracts items into editable drafts.</p><div class="card" style="margin-top:18px"><p class="eyebrow">Your private import address</p><b>add@styleiq.app</b></div><button class="btn primary wide" style="margin-top:14px" onclick="setReceiptState('complete')">Preview complete receipt</button><button class="btn wide" onclick="setReceiptState('mixed')">Preview mixed receipt</button><button class="btn wide" onclick="setReceiptState('failed')">Preview failed receipt</button></div></div>`;
-  if (receiptState === "complete") return `${approvalCard("Purchase detected", "All item information is ready to import.")}<button class="btn primary wide" onclick="go('B-06')">Review purchase</button><button class="btn wide" onclick="setReceiptState('idle')">Cancel import</button>`;
-  if (receiptState === "mixed") return `<p class="eyebrow">Receipt result</p><h2 class="title">We found 3 purchases.</h2><p class="body">2 are ready. 1 needs your help.</p><div class="pack-row"><span><b>Silk shell</b><small class="body">Ready</small></span><span class="success-badge">Ready</span></div><div class="pack-row"><span><b>Leather loafers</b><small class="body">Ready</small></span><span class="success-badge">Ready</span></div><div class="card"><label for="receipt-item-name">Missing item information</label><input id="receipt-item-name" class="input" placeholder="Enter item name"><button class="btn primary wide" style="margin-top:10px" onclick="setReceiptState('complete')">Save uncertain item</button><button class="btn wide" onclick="setReceiptState('complete')">Skip this item</button></div><button class="text-action" onclick="setReceiptState('idle')">Cancel import</button>`;
-  const failureTitles = { failed: "We couldn’t read this receipt.", failedFashion: "Could not identify a fashion purchase.", failedUnclear: "Receipt image is unclear.", failedMissing: "Item information is missing.", failedUnsupported: "This receipt is unsupported." };
-  return `<p class="eyebrow">Receipt needs help</p><h2 class="title">${failureTitles[receiptState] || failureTitles.failed}</h2><p class="body">Choose the recovery that keeps the successful items and fits this receipt.</p><div class="chips"><button class="chip" onclick="setReceiptState('failedFashion')">Not fashion</button><button class="chip" onclick="setReceiptState('failedUnclear')">Unclear</button><button class="chip" onclick="setReceiptState('failedMissing')">Missing info</button><button class="chip" onclick="setReceiptState('failedUnsupported')">Unsupported</button></div><div class="stack"><button class="btn primary wide" onclick="setReceiptState('idle')">Retry</button><button class="btn wide" onclick="setReceiptState('idle')">Upload another receipt</button><button class="btn wide" onclick="setReceiptState('manual')">Enter purchase manually</button><button class="text-action" onclick="setReceiptState('complete')">Skip this item</button><button class="text-action" onclick="setReceiptState('idle')">Cancel import</button></div>${receiptState === "manual" ? '<div class="card"><label for="manual-purchase">Purchase name</label><input id="manual-purchase" class="input" placeholder="Item name"><button class="btn primary wide" onclick="go(\'B-06\')">Continue manually</button></div>' : ""}`;
+  if (receiptState === 'idle') return `<div class="stack"><h2 class="title">Forward shopping receipts</h2><p class="body">Review purchases extracted from your receipts before adding them.</p><b>add@styleiq.app</b>${receiptPurchases.length ? '<button class="btn wide" onclick="receiptState=&quot;mixed&quot;;render()">Resume receipt import</button>' : ''}<button class="btn primary wide" onclick="setReceiptState('complete')">Preview complete receipt</button><button class="btn wide" onclick="setReceiptState('mixed')">Preview mixed receipt</button><button class="btn wide" onclick="setReceiptState('failed')">Preview failed receipt</button></div>`;
+  if (['complete', 'mixed'].includes(receiptState)) {
+    const ready = receiptPurchases.filter(item => item.ready), pending = receiptPurchases.find(item => !item.ready);
+    return `<h2 class="title">${receiptState === 'complete' ? 'Purchase detected' : `We found ${receiptPurchases.length} purchases.`}</h2><p class="body">${ready.length} are ready. ${receiptPurchases.length-ready.length} needs your help.</p>${ready.map(item => `<div class="pack-row receipt-ready-row"><span><b>${escapeMarkup(item.name)}</b><small class="body">Ready</small></span></div>`).join('')}${pending ? `<form class="card" onsubmit="saveReceiptException(event)"><label for="receipt-item-name">Missing item information</label><input id="receipt-item-name" class="input" placeholder="Enter item name" required><button class="btn wide" type="submit">Save uncertain item</button><button class="btn wide" type="button" onclick="skipReceiptException()">Skip this item</button></form>` : ''}${receiptState === 'complete' ? '<button class="btn wide" onclick="reviewReceiptPurchase()">Review purchase</button>' : ''}<button class="btn primary wide" onclick="importReadyReceipts()" ${ready.length ? '' : 'disabled'}>Add ${ready.length} ready purchases</button><button class="text-action" onclick="setReceiptState('cancel')">Cancel import</button>`;
+  }
+  const titles = { failed: 'We couldn’t read this receipt.', failedFashion: 'Could not identify a fashion purchase.', failedUnclear: 'Receipt image is unclear.', failedMissing: 'Item information is missing.', failedUnsupported: 'This receipt is unsupported.', manual: 'Enter purchase manually' };
+  return `<h2 class="title">${titles[receiptState] || titles.failed}</h2><p class="body">Your other purchase drafts remain available.</p><div class="chips">${[['failedFashion','Not fashion'],['failedUnclear','Unclear'],['failedMissing','Missing info'],['failedUnsupported','Unsupported']].map(([state,label])=>`<button class="chip" onclick="setReceiptState('${state}')">${label}</button>`).join('')}</div><div class="stack"><button class="btn wide" onclick="setReceiptState('idle')">Retry</button><button class="btn wide" onclick="setReceiptState('idle')">Upload another receipt</button><button class="btn wide" onclick="setReceiptState('manual')">Enter purchase manually</button><button class="text-action" onclick="setReceiptState('cancel')">Cancel import</button></div>${receiptState === 'manual' ? `<form class="card" onsubmit="reviewManualReceipt(event)"><label for="manual-purchase">Purchase name</label><input id="manual-purchase" class="input" required><button class="btn primary wide" type="submit">Continue manually</button></form>` : ''}`;
 }
-function setOtpState(state) { otpState = state; render(); }
+function setOtpState(state, demo = false) {
+  otpState = state;
+  if (state === 'valid') otpSession.digits = '123456';
+  if (state === 'invalid' && demo) otpSession.digits = '000000';
+  if (state === 'expired') { otpSession.expiresAt = 0; otpSession.resendAt = 0; }
+  if (['sendFailed','resendFailed'].includes(state)) otpSession.resendAt = 0;
+  persistOtp(); render();
+}
 function verifyOtp() {
-  if (["idle", "valid", "resent"].includes(otpState)) { otpAttempts = 0; go("A-05"); return; }
+  if (otpSession.blockedUntil > Date.now()) return;
+  if (otpSession.expiresAt <= Date.now()) { setOtpState('expired'); return; }
+  saveOtpDigits();
+  if (otpSession.digits === '123456' && otpState !== 'sendFailed') {
+    otpAttempts = 0; otpState = 'valid'; persistOtp(); go('A-05'); return;
+  }
   otpAttempts += 1;
-  if (otpAttempts >= 3) return setOtpState("blocked");
-  setOtpState(otpState === "expired" ? "expired" : "invalid");
+  if (otpAttempts >= 3) {
+    otpSession.blockedUntil = Date.now()+60000; setOtpState('blocked'); return;
+  }
+  setOtpState('invalid');
 }
-function resendOtp(success = true) { otpAttempts = 0; setOtpState(success ? "resent" : "resendFailed"); }
+function resendOtp(success = true) {
+  if (otpWait() > 0) return;
+  if (!success) { setOtpState('resendFailed'); return; }
+  Object.assign(otpSession, { digits: '', expiresAt: Date.now()+300000, resendAt: Date.now()+28000, blockedUntil: 0 });
+  otpAttempts = 0; setOtpState('resent');
+}
 const batchCandidateCatalog = [
   { id: "batch-01", name: "Black tailored blazer", brand: "Balmain", category: "Jackets", image: assets.blazer, confidence: "HIGH" },
   { id: "batch-02", name: "Ivory silk shell", brand: "Aritzia", category: "Tops", image: assets.top, confidence: "HIGH" },
@@ -2661,11 +2858,25 @@ const batchCandidateCatalog = [
   { id: "batch-11", name: "Tan suede loafers", brand: "Vagabond", category: "Shoes", image: assets.shoes, confidence: "NEEDS_REVIEW" },
   { id: "batch-12", name: "Black leather loafers", brand: "Unknown", category: "Shoes", image: assets.shoes, confidence: "NEEDS_REVIEW" },
 ];
+let batchSessionCandidates = [];
 function batchCandidates() {
-  return batchCandidateCatalog.slice(0, batchSelectedCount);
+  return batchSessionCandidates;
+}
+function savedBatchDrafts() {
+  try { const drafts = JSON.parse(localStorage.getItem("styleiqBatchImportDraftsV1") || "[]"); return Array.isArray(drafts) ? drafts : []; }
+  catch { return []; }
+}
+function resumeBatchDrafts() {
+  batchSessionCandidates = savedBatchDrafts();
+  if (!batchSessionCandidates.length) return;
+  batchImportActive = true;
+  batchUncertainResolved = false;
+  batchReviewIndex = 0;
+  if (currentId === "B-10") render();
+  else go("B-10");
 }
 function batchReadyCandidates() {
-  return batchCandidates().filter((item) => item.confidence === "HIGH" || batchUncertainResolved);
+  return batchCandidates().filter((item) => item.confidence === "HIGH" || item.reviewed);
 }
 function batchReviewCandidates() {
   return batchCandidates().filter((item) => item.confidence === "NEEDS_REVIEW");
@@ -3068,6 +3279,9 @@ function toggleBatchPhoto(button) {
   }
 }
 function startBatchImport() {
+  const selected = [...app.querySelectorAll('.batch-photo[aria-pressed="true"]')].map(button => button.dataset.candidate);
+  batchSessionCandidates = batchCandidateCatalog.filter(item => selected.includes(item.id)).map(item => ({ ...item, id: newClosetItemId() }));
+  if (!batchSessionCandidates.length) return;
   batchImportActive = true;
   batchUncertainResolved = false;
   batchReviewIndex = 0;
@@ -3079,7 +3293,7 @@ function batchPhotoImport() {
   batchSelectedCount = photos.length;
   return shell(
     "Add Photos",
-    `<div class="mirror-upload-intro"><p class="eyebrow">Batch import</p><h2>Add garment photos</h2><p class="body">Choose several items at once. StyleIQ prepares confident pieces automatically and isolates only the ones that need your help.</p></div><div class="batch-photo-grid" role="group" aria-label="Selected garment photos">${photos.map((item) => `<button class="batch-photo" aria-pressed="true" onclick="toggleBatchPhoto(this)"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span>Selected</span></button>`).join("")}</div><p id="batch-photo-count" class="mirror-upload-count">${photos.length} photos selected · automatic cleanup and classification</p><div class="mirror-upload-actions"><button id="batch-process" class="btn primary wide" onclick="startBatchImport()">Process ${photos.length} photos</button><button class="btn wide" onclick="go('B-03')">Process one photo</button><button class="btn wide" onclick="importConfidence='high';go('B-06')">Review first item only</button></div>`,
+    `<div class="mirror-upload-intro"><p class="eyebrow">Batch import</p><h2>Add garment photos</h2><p class="body">Choose several items at once. StyleIQ prepares confident pieces automatically and isolates only the ones that need your help.</p></div><div class="batch-photo-grid" role="group" aria-label="Selected garment photos">${photos.map((item) => `<button class="batch-photo" data-candidate="${item.id}" aria-pressed="true" onclick="toggleBatchPhoto(this)"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span>Selected</span></button>`).join("")}</div><p id="batch-photo-count" class="mirror-upload-count">${photos.length} photos selected · automatic cleanup and classification</p><div class="mirror-upload-actions"><button id="batch-process" class="btn primary wide" onclick="startBatchImport()">Process ${photos.length} photos</button><button class="btn wide" onclick="go('B-03')">Process one photo</button><button class="btn wide" onclick="importConfidence='high';go('B-06')">Review first item only</button></div>`,
     { active: "closet", noNav: true },
   );
 }
@@ -3090,17 +3304,18 @@ function singleImportResult() {
   return shell("Processed item", `<img class="hero-img" src="${assets.blazer}" alt="Processed black tailored blazer"><p class="eyebrow" style="margin-top:14px">Ready to review</p><h2 class="title">Your item is ready.</h2><p class="body">We cleaned the image and identified a black tailored blazer. Review the details before adding it to your Closet.</p><div class="row" style="margin-top:16px"><button class="btn grow" onclick="go('B-02')">Retry photo</button><button class="btn primary grow" onclick="go('B-06')">Review item</button></div>`, { active: "closet", noNav: true });
 }
 function batchImportReview() {
-  const candidates = batchCandidates(), readyItems = batchReadyCandidates(), exceptions = batchReviewCandidates();
+  if (!batchImportActive) return shell("Import drafts", `<h2 class="title">Continue building your Closet</h2><p class="body">Choose photos to prepare a new batch.</p><button class="btn primary wide" onclick="go('B-02')">Choose photos</button>${savedBatchDrafts().length ? `<button class="btn wide" onclick="resumeBatchDrafts()">Resume ${savedBatchDrafts().length} saved import drafts</button>` : ""}`, { active: "closet" });
+  const candidates = batchCandidates(), readyItems = batchReadyCandidates(), exceptions = batchReviewCandidates().filter(item => !item.reviewed);
   const ready = readyItems.length, categoryCounts = candidates.reduce((counts, item) => {
     counts[item.category] = (counts[item.category] || 0) + 1;
     return counts;
   }, {});
   const categorySummary = Object.entries(categoryCounts).map(([category, count]) => `${count} ${category.toLowerCase()}`).join(" · ");
   const readyRows = readyItems.map((item) => `<div class="pack-row batch-ready-row"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">Ready · ${escapeMarkup(item.category)}</small></span><span class="success-badge">Ready</span></div>`).join("");
-  const exceptionRows = exceptions.map((item, index) => `<div class="pack-row batch-exception-row"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">Needs review · ${escapeMarkup(item.category)}</small></span>${batchUncertainResolved ? '<span class="success-badge">Ready</span>' : `<button class="btn small-btn" onclick="reviewBatchExceptions(${index})">Review</button>`}</div>`).join("");
+  const exceptionRows = exceptions.map((item, index) => `<div class="pack-row batch-exception-row"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">Needs review · ${escapeMarkup(item.category)}</small></span>${batchUncertainResolved ? '<span class="success-badge">Ready</span>' : `<button class="btn small-btn" onclick="reviewBatchExceptions(${batchReviewCandidates().indexOf(item)})">Review</button>`}</div>`).join("");
   return shell(
     "Batch review",
-    `<div class="between"><span><p class="eyebrow">AI batch result</p><h2 class="title">Found ${candidates.length} pieces ✨</h2></span><span class="pill gold">${ready} ready</span></div><p class="body">${categorySummary}</p>${approvalCard(`${ready} ready · ${exceptions.length} need your help`, "Confident items are prepared for Closet. Nothing is added until you confirm the batch.")}<div class="batch-summary"><details class="card batch-result-group" open><summary><b>${ready} Ready items</b><span class="small">Prepared automatically</span></summary>${readyRows}</details><details class="card batch-result-group" ${exceptions.length && !batchUncertainResolved ? "open" : ""}><summary><b>${exceptions.length} Need your help</b><span class="small">Review exceptions only</span></summary>${!batchUncertainResolved && exceptions.length ? `<button class="btn wide" onclick="reviewBatchExceptions(0)">Review ${exceptions.length}</button>` : ""}${exceptionRows}</details></div><button class="btn primary wide" style="margin-top:14px" onclick="go('B-11')">Add ${ready} Ready Items</button><button class="btn wide" style="margin-top:8px" onclick="cancelBatchImport()">Cancel batch</button>`,
+    `<div class="between"><span><p class="eyebrow">AI batch result</p><h2 class="title">Found ${candidates.length} pieces ✨</h2></span><span class="pill gold">${ready} ready</span></div><p class="body">${categorySummary}</p>${approvalCard(`${ready} ready · ${exceptions.length} need your help`, "Confident items are prepared for Closet. Nothing is added until you confirm the batch.")}<div class="batch-summary"><details class="card batch-result-group" open><summary><b>${ready} Ready items</b><span class="small">Prepared automatically</span></summary>${readyRows}</details><details class="card batch-result-group" ${exceptions.length && !batchUncertainResolved ? "open" : ""}><summary><b>${exceptions.length} Need your help</b><span class="small">Review exceptions only</span></summary>${!batchUncertainResolved && exceptions.length ? `<button class="btn wide" onclick="reviewBatchExceptions()">Review ${exceptions.length}</button>` : ""}${exceptionRows}</details></div><button class="btn primary wide" style="margin-top:14px" onclick="go('B-11')" ${ready ? "" : "disabled"}>Add ${ready} Ready Items</button><button class="btn wide" style="margin-top:8px" onclick="cancelBatchImport()">Cancel batch</button>`,
     { active: "closet", noNav: true },
   );
 }
@@ -3113,14 +3328,17 @@ function batchImportSuccess() {
   );
 }
 function commitBatchImport() {
+  if (!batchImportActive) return;
   const readyItems = batchReadyCandidates();
+  if (!readyItems.length) return;
   const added = readyItems.length;
   purchasedClosetItems.unshift(...readyItems.map((item) => ({
-    id: newClosetItemId(), status: "Available", lifecycle: "Keep", wears: 0,
-    source: "photo-import", ...item, confidence: item.confidence,
+    ...item, id: newClosetItemId(), status: "Available", lifecycle: "Keep", wears: 0,
+    source: "photo-import", confidence: "HIGH",
   })));
   persistClosetItems();
-  const unresolved = batchUncertainResolved ? [] : batchReviewCandidates();
+  const sessionIds = new Set(batchCandidates().map(item => item.id));
+  const unresolved = [...savedBatchDrafts().filter(item => !sessionIds.has(item.id)), ...batchReviewCandidates().filter(item => !item.reviewed)];
   if (unresolved.length)
     localStorage.setItem("styleiqBatchImportDraftsV1", JSON.stringify(unresolved));
   else localStorage.removeItem("styleiqBatchImportDraftsV1");
@@ -3138,27 +3356,32 @@ function cancelBatchImport() {
   go("B-01");
 }
 function decorateBatchImport() {
-  // Batch exceptions use their own form submit handler so review never creates
-  // a synthetic single-item record.
+  if (currentId !== "B-01") return;
+  const count = savedBatchDrafts().length;
+  if (count) app.querySelector(".content")?.insertAdjacentHTML("afterbegin", `<button class="btn wide" onclick="resumeBatchDrafts()">Resume ${count} saved import drafts</button>`);
 }
 function reviewUncertainImport() {
   importConfidence = "low";
   batchReviewIndex = 0;
   go("B-06");
 }
+let uploadDuplicateId = null;
 function chooseUploadIssue(issue) {
   uploadIssue = issue;
+  if (['duplicate', 'alreadyOwned'].includes(issue)) uploadDuplicateId = closetItems().find(item => item.image === (closetPurchaseDraft?.image || assets.blazer))?.id || closetItems()[0]?.id || null;
   render();
 }
 function recoverUploadIssue(action) {
   if (action === "existing") {
-    selectedClosetItemId = "closet-1";
-    go("C-02");
+    if (!uploadDuplicateId) { toast("No matching Closet item. Add this piece manually."); return; }
+    openClosetItem(uploadDuplicateId);
     return;
   }
   if (action === "replace") {
+    if (!uploadDuplicateId) { toast("No matching Closet item. Add this piece manually."); return; }
     uploadIssue = null;
-    go("B-03");
+    openClosetItem(uploadDuplicateId);
+    openLightweightPanel("image");
     return;
   }
   if (action === "manual") {
@@ -3176,16 +3399,23 @@ function recoverUploadIssue(action) {
   uploadIssue = null;
   go("B-02");
 }
-function reviewBatchExceptions(index = 0) {
-  batchReviewIndex = index;
+function reviewBatchExceptions(index) {
+  batchReviewIndex = index ?? batchReviewCandidates().findIndex(item => !item.reviewed);
+  if (batchReviewIndex < 0) return;
   importConfidence = "low";
   go("B-06");
 }
 function confirmBatchException(event) {
   event.preventDefault();
-  if (batchReviewIndex < batchReviewCandidates().length - 1) {
-    batchReviewIndex += 1;
-    go("B-06");
+  const exceptions = batchReviewCandidates(), item = exceptions[batchReviewIndex];
+  if (!item) return;
+  item.brand = event.currentTarget.querySelector("#uncertain-brand").value;
+  item.category = event.currentTarget.querySelector("#uncertain-category").value;
+  item.reviewed = true;
+  const next = exceptions.findIndex(candidate => !candidate.reviewed);
+  if (next >= 0) {
+    batchReviewIndex = next;
+    render();
   } else {
     batchUncertainResolved = true;
     importConfidence = "high";
@@ -3198,27 +3428,31 @@ function confidenceImportReview() {
   const reviewLabel = batchException ? `Review exception ${batchReviewIndex + 1} of ${batchReviewCandidates().length}` : "Two details need you";
   return shell(
     "Review item",
-    `<form onsubmit="${batchException ? "confirmBatchException" : "confirmReviewedClosetItem"}(event)"><img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="stack" style="margin-top:14px">${approvalCard(draft ? "Purchase ready to review" : uncertain ? reviewLabel : "Processed automatically", draft ? "Details came from your Wishlist product. Confirm below to add this owned piece to your Closet." : uncertain ? "The photo is usable, but brand and category conflict. Confirm both here once." : "Prototype preview: crop, isolation, image balance, category, and brand are high confidence.")}
-    ${uncertain ? `<div class="card"><div class="field"><label for="uncertain-brand">Brand</label><select id="uncertain-brand" class="input"><option>Balmain</option><option>Unknown</option></select></div><div class="field" style="margin-top:10px"><label for="uncertain-category">Category</label><select id="uncertain-category" class="input"><option>Outerwear</option><option>Dresses &amp; Suits</option></select></div></div><button type="submit" class="btn primary wide">Confirm 2 details &amp; add</button>` : `<details class="card progressive-card" ${draft ? "open" : ""}><summary><b>Edit details</b><span class="small">Review before adding</span></summary><div class="inline-edit-grid" style="margin-top:12px">${inlineEditRow("Item name", item.name, 'required maxlength="120"')}${inlineEditRow("Brand", item.brand, 'maxlength="100"')}${inlineEditRow("Category", item.category, 'required')}${draft ? `${inlineEditRow("Purchase price", item.purchasePrice ?? "", 'type="number" min="0" step="0.01"')}${inlineEditRow("Purchase date", item.purchaseDate, 'type="date" required')}${inlineEditRow("Retailer / source", item.retailer, 'maxlength="200"')}<p class="small">From Wishlist · ${escapeMarkup(item.name)}</p>` : ""}</div></details><button type="submit" class="btn primary wide">Looks right · Add</button>${draft ? '<button type="button" class="btn wide" onclick="go(\'G-09\')">Keep purchased · add later</button>' : '<details class="card progressive-card"><summary><b>What StyleIQ prepared</b><span class="small">Crop · background · metadata</span></summary><p class="body" style="margin-top:10px">Garment isolated, image normalized, category classified as Outerwear, and brand matched to Balmain.</p></details>'}`}</div></form>`,
+    `<form onsubmit="${batchException ? "confirmBatchException" : "confirmReviewedClosetItem"}(event)"><img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="stack" style="margin-top:14px">${approvalCard(draft ? "Purchase ready to review" : uncertain ? reviewLabel : "Processed automatically", draft ? (draft.wishlistId ? "Details came from your Wishlist product. Confirm below to add this owned piece to your Closet." : "Confirm these details before adding this purchase to your Closet.") : uncertain ? "The photo is usable, but brand and category conflict. Confirm both here once." : "Prototype preview: crop, isolation, image balance, category, and brand are high confidence.")}
+    ${uncertain ? `<div class="card"><div class="field"><label for="uncertain-brand">Brand</label><select id="uncertain-brand" class="input">${[...new Set([item.brand, "Balmain", "Unknown"])].map(value => `<option>${escapeMarkup(value)}</option>`).join("")}</select></div><div class="field" style="margin-top:10px"><label for="uncertain-category">Category</label><select id="uncertain-category" class="input">${[...new Set([item.category, "Tops", "Bottoms", "Outerwear", "Dresses & Suits", "Shoes", "Bags", "Accessories"])].map(value => `<option>${escapeMarkup(value)}</option>`).join("")}</select></div></div><button type="submit" class="btn primary wide">Confirm 2 details &amp; add</button>` : `<details class="card progressive-card" ${draft ? "open" : ""}><summary><b>Edit details</b><span class="small">Review before adding</span></summary><div class="inline-edit-grid" style="margin-top:12px">${inlineEditRow("Item name", item.name, 'required maxlength="120"')}${inlineEditRow("Brand", item.brand, 'maxlength="100"')}${inlineEditRow("Category", item.category, 'required')}${draft?.wishlistId ? `${inlineEditRow("Purchase price", item.purchasePrice ?? "", 'type="number" min="0" step="0.01"')}${inlineEditRow("Purchase date", item.purchaseDate, 'type="date" required')}${inlineEditRow("Retailer / source", item.retailer, 'maxlength="200"')}<p class="small">From Wishlist · ${escapeMarkup(item.name)}</p>` : ""}</div></details><button type="submit" class="btn primary wide">Looks right · Add</button>${draft?.wishlistId ? '<button type="button" class="btn wide" onclick="go(\'G-09\')">Keep purchased · add later</button>' : '<details class="card progressive-card"><summary><b>What StyleIQ prepared</b><span class="small">Crop · background · metadata</span></summary><p class="body" style="margin-top:10px">Garment isolated, image normalized, category classified as Outerwear, and brand matched to Balmain.</p></details>'}`}</div></form>`,
     { noNav: true },
   );
 }
 function confirmReviewedClosetItem(event) {
   event.preventDefault();
-  if (!closetPurchaseDraft) {
+  if (!closetPurchaseDraft?.wishlistId) {
+    const draft = closetPurchaseDraft;
     const value = (id, fallback = "") => app.querySelector(`#inline-${id}`)?.value.trim() || fallback;
     purchasedClosetItems.unshift({
       id: newClosetItemId(),
-      name: value("item-name", "Black tailored blazer"),
-      brand: value("brand", "Balmain"),
-      category: value("category", "Outerwear"),
-      image: assets.blazer,
+      name: value("item-name", draft?.name || "Black tailored blazer"),
+      brand: app.querySelector("#uncertain-brand")?.value || value("brand", draft?.brand || "Balmain"),
+      category: app.querySelector("#uncertain-category")?.value || value("category", draft?.category || "Outerwear"),
+      image: draft?.image || assets.blazer,
       status: "Available",
       lifecycle: "Keep",
       wears: 0,
-      source: "photo-import",
+      source: draft?.source || "photo-import",
     });
     persistClosetItems();
+    if (draft?.source === 'receipt-import') {
+      receiptPurchases = receiptPurchases.filter(item => item.id !== draft.id); persistReceiptDrafts();
+    }
     go("B-11");
     return;
   }
@@ -3338,18 +3572,8 @@ function importScreen(s) {
         .join("")}</div>`,
       { noNav: true },
     );
-  if (s.id === "B-04")
-    return shell(
-      "Search your item",
-      `<p class="eyebrow">Closet Search · owned item</p><h2 class="title">Find something you already own.</h2><div class="field"><label>Product or URL</label><input class="input" value="black tailored blazer" placeholder="Search or paste product URL"><span class="helper">Shared product search, scoped to adding an owned item.</span></div><button class="btn primary wide" style="margin-top:14px" onclick="go('B-05')">Search My Item</button>`,
-      { noNav: true },
-    );
-  if (s.id === "B-05")
-    return shell(
-      "Search results",
-      `<p class="eyebrow">Closet Search results</p><p class="small">18 results for “black tailored blazer”</p><div class="item-grid">${[assets.blazer, "images/screen_23_item.png", "images/screen_23_item_man.png", "images/cat_clothing.png"].map((x, i) => `<article class="item-card"><img src="${x}" alt="Search result"><span class="copy"><b>${["Tailored blazer", "Single-breasted blazer", "Wool suit jacket", "Relaxed jacket"][i]}</b><small class="body" style="display:block">${["Balmain", "The Row", "Zegna", "COS"][i]}</small><button class="btn small-btn" onclick="importConfidence='high';go('B-06')">Add to My Closet</button></span></article>`).join("")}</div>`,
-      { noNav: true },
-    );
+  if (s.id === "B-04") return shell("Search your item", `<p class="eyebrow">Closet Search · owned item</p><h2 class="title">Find something you already own.</h2><form onsubmit="searchOwnedItem(event)"><label class="field">Product or brand<input class="input" value="${escapeMarkup(ownedSearchQuery)}" placeholder="Search products or brands" required></label><button class="btn primary wide" type="submit">Search My Item</button></form>`, { noNav: true });
+  if (s.id === "B-05") return shell("Search results", ownedSearchResults(), { noNav: true });
   if (["B-06", "B-08"].includes(s.id)) return confidenceImportReview();
   if (s.id === "B-07")
     {
@@ -3478,7 +3702,7 @@ function discoverScreen(s) {
   if (idx === 2)
     return shell(
       "Discover Search",
-      `<p class="eyebrow">Discover Search · consider a product</p><h2 class="title">Find something worth considering.</h2><p class="body">Evaluate products against your Closet before you save or shop.</p>${wishlistSnapshot(true)}${wishlistProductSearch()}<div class="row"><button class="btn grow">Check this piece</button><button class="btn grow">Save to Wishlist</button></div><details class="card progressive-card"><summary><b>Outfit inspiration</b><span class="small">Complete Looks</span></summary>${feed}</details>`,
+      `<p class="eyebrow">Discover Search · consider a product</p><h2 class="title">Find something worth considering.</h2><p class="body">Evaluate products against your Closet before you save or shop.</p>${wishlistSnapshot(true)}${wishlistProductSearch()}<details class="card progressive-card"><summary><b>Outfit inspiration</b><span class="small">Complete Looks</span></summary>${feed}</details>`,
       { active: "discover" },
     );
   if (idx === 3)
@@ -3560,15 +3784,13 @@ function todayCarouselState() {
   return shell("Today", `<div class="today-visual-head"><span><p class="eyebrow">Three good directions</p><h2 class="title">Choose today’s Look</h2></span><span class="pill">Carousel</span></div><p class="body">Swipe or select a recommendation; the chosen Look becomes the active Today context.</p><div class="today-look-rail" style="margin-top:16px">${Object.values(tryOnLooks).map((look) => `<button class="today-look-card" onclick="selectTodayLook('${look.id}');setTodayMode('normal')"><span class="tryon-frame-preview" role="img" aria-label="${escapeMarkup(look.title)}" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context)}</small></span></button>`).join("")}</div>`, { active: "home" });
 }
 function mirrorPlanner() {
-  const days = [
-    ["M", "12"],
-    ["T", "13"],
-    ["W", "14"],
-    ["T", "15"],
-    ["F", "16"],
-    ["S", "17"],
-    ["S", "18"],
-  ];
+  const weekStart = proactiveWeek[0]?.date ? new Date(`${proactiveWeek[0].date}T12:00:00`) : new Date();
+  if (!proactiveWeek[0]?.date) weekStart.setDate(weekStart.getDate() + (8-weekStart.getDay())%7);
+  else weekStart.setDate(weekStart.getDate() - (weekStart.getDay()+6)%7);
+  const days = Array.from({length:7}, (_,index) => {
+    const day = new Date(weekStart); day.setDate(day.getDate()+index);
+    return [day.toLocaleDateString('en-US',{weekday:'narrow'}), day.getDate()];
+  });
   const planned = plannerEvent || plannerIntent || {
     title: "No event planned yet",
     time: "Choose a time or daypart",
@@ -3576,11 +3798,11 @@ function mirrorPlanner() {
   };
   const plannedLook = plannerEvent ? plannerLook(plannerEvent.lookId) : null;
   const proactive = proactiveWeek.length
-    ? `<section class="planner-intent-card"><div class="between"><span><p class="eyebrow">Your Week</p><h2 class="title">StyleIQ planned ${proactiveWeek.length} looks.</h2></span><button class="text-action" onclick="planMyWeek()">Regenerate</button></div><div class="stack">${proactiveWeek.map((entry, index) => `<div class="pack-row"><img src="${entry.image}" alt="${escapeMarkup(entry.look)}"><span><b>${entry.day} · ${escapeMarkup(entry.context)}</b><small class="body">${escapeMarkup(entry.look)}</small></span><div><button class="text-action" onclick="changeProactiveLook(${index})">Change Look</button><button class="text-action" onclick="go('I-03')">Edit context</button><button class="text-action" onclick="removeProactiveLook(${index})">Remove</button></div></div>`).join("")}</div></section>`
+    ? `<section class="planner-intent-card"><div class="between"><span><p class="eyebrow">Your Week</p><h2 class="title">StyleIQ planned ${proactiveWeek.length} looks.</h2></span><button class="text-action" onclick="planMyWeek()">Regenerate</button></div><div class="stack">${proactiveWeek.map((entry, index) => `<div class="pack-row planner-week-row"><img src="${entry.image}" alt="${escapeMarkup(entry.look)}"><span><b>${entry.day} · ${escapeMarkup(entry.context)}</b><small class="body" style="display:block">${escapeMarkup(entry.look)} · ${escapeMarkup(entry.date || "")}</small></span><div><button class="text-action" onclick="changeProactiveLook(${index})">Change Look</button><button class="text-action" onclick="editProactiveContext(${index})">Edit context</button><button class="text-action" onclick="removeProactiveLook(${index})">Remove</button></div></div>`).join("")}</div></section>`
     : `<section class="planner-intent-card"><p class="eyebrow">Proactive planning</p><h2 class="title">Let StyleIQ plan your week.</h2><p class="body">Generate four local sample Looks from your Closet and known contexts.</p><button class="btn primary wide" onclick="planMyWeek()">Plan My Week</button></section>`;
   return shell(
     "Planner",
-    `<div class="mirror-week">${days.map(([d, n], i) => `<button class="mirror-day ${i === 2 ? "active" : ""}" onclick="go('I-03')"><span>${d}</span><b>${n}</b><small>${i === 2 ? "●" : "○"}</small></button>`).join("")}</div>${proactive}<section class="planner-intent-card"><p class="eyebrow">Manual planning</p><h2 class="title">${plannerEvent ? "Your planned Look" : "Add a specific event"}</h2><p class="body">Manual event creation remains available whenever you need it.</p><button class="btn wide" onclick="go('I-03')">Add Event</button></section>${plannerEventCreated ? `<button class="mirror-plan" onclick="go('I-04')"><img src="${plannedLook?.sheet || assets.look2}" alt="${escapeMarkup(planned.lookTitle || planned.title)}"><span class="mirror-plan-copy"><p class="eyebrow">Planned event · ${escapeMarkup(planned.occasion || "Event")}</p><h3>${escapeMarkup(planned.lookTitle || planned.title)}</h3><small class="body">${escapeMarkup(planned.time || planned.daypart || "Time not set")} · ${escapeMarkup(planned.location || "Location not set")}</small><b style="display:block;margin-top:13px;font-size:9px">Review event →</b></span></button>` : ""}${
+    `<div class="mirror-week">${days.map(([d, n], i) => `<button class="mirror-day" onclick="go('I-03')"><span>${d}</span><b>${n}</b><small>○</small></button>`).join("")}</div>${proactive}<section class="planner-intent-card"><p class="eyebrow">Manual planning</p><h2 class="title">${plannerEvent ? "Your planned Look" : "Add a specific event"}</h2><p class="body">Manual event creation remains available whenever you need it.</p><button class="btn wide" onclick="go('I-03')">Add Event</button></section>${plannerEventCreated ? `<button class="mirror-plan" onclick="go('I-04')"><img src="${plannedLook?.sheet || assets.look2}" alt="${escapeMarkup(planned.lookTitle || planned.title)}"><span class="mirror-plan-copy"><p class="eyebrow">Planned event · ${escapeMarkup(planned.occasion || "Event")}</p><h3>${escapeMarkup(planned.lookTitle || planned.title)}</h3><small class="body">${escapeMarkup(planned.time || planned.daypart || "Time not set")} · ${escapeMarkup(planned.location || "Location not set")}</small><b style="display:block;margin-top:13px;font-size:9px">Review event →</b></span></button>` : ""}${
       nextWeekPrepared
         ? `<section style="margin-top:16px"><div class="between"><span><p class="eyebrow">Prepared from your recap</p><h3 class="title">Next week</h3></span><button class="text-action" onclick="go('I-02')">Review recap</button></div><div class="planner-prepared">${[
             [assets.look3, "Monday", "Office"],
@@ -3598,6 +3820,18 @@ function mirrorPlanner() {
   );
 }
 
+function tripDates(draft = tripDraft) {
+  const start = Date.parse(`${draft.startDate}T00:00:00Z`), end = Date.parse(`${draft.endDate}T00:00:00Z`);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start || end-start > 365*86400000) return [];
+  return Array.from({length: Math.round((end-start)/86400000)+1}, (_,index) => new Date(start+index*86400000).toISOString().slice(0,10));
+}
+function tripPackingItems() {
+  return tripState.items || [{name:'Black blazer',image:assets.blazer},{name:'Silk shell',image:assets.top},{name:'Leather loafers',image:assets.shoes}];
+}
+function tripSummary() {
+  const draft = tripState.basics || tripDraft;
+  return `${tripDates(draft).length} days · ${tripPackingItems().length} pieces · ${tripState.looks.length} outfits`;
+}
 function tripStepNav(step) {
   return `<div class="trip-meaningful-steps" aria-label="Trip progress"><span class="${step >= 1 ? "on" : ""}">1 · Trip Basics</span><span class="${step >= 2 ? "on" : ""}">2 · Vibe & Activities</span><span class="${step >= 3 ? "on" : ""}">3 · Trip Result</span></div>`;
 }
@@ -3611,6 +3845,8 @@ function tripIntentScreen() {
 function saveTripDetails(event) {
   event.preventDefault();
   const data = new FormData(event.currentTarget);
+  const startDate = String(data.get("startDate") || ''), endDate = String(data.get("endDate") || '');
+  if (!tripDates({startDate,endDate}).length) { toast('Choose valid dates in order, up to one year apart.'); return; }
   tripDraft = {
     ...tripDraft,
     destination: String(data.get("destination") || "").trim() || "Alexandria",
@@ -3629,16 +3865,18 @@ function tripDetailsScreen() {
   );
 }
 function generateSimplifiedTrip() {
-  tripDraft.luggage ||= "Carry on";
-  tripState.packed = { "Black blazer": true, "Silk shell": true, "Leather loafers": true };
-  tripState.looks = [
-    { date: tripDraft.startDate || "Day 1", title: "Arrival Look" },
-    { date: tripDraft.endDate || "Day 2", title: "Dinner Look" },
-  ];
-  tripState.building = true;
-  tripState.created = false;
-  persistTrip();
-  go("J-07");
+  const dates = tripDates();
+  if (!dates.length) { go('J-02'); toast('Choose valid trip dates first.'); return; }
+  tripDraft.luggage ||= 'Carry on';
+  tripState.basics = JSON.parse(JSON.stringify(tripDraft));
+  tripState.items = closetItems().filter(item => !['Archive','Sell','Donate'].includes(item.lifecycle)).slice(0,6).map(item => ({id:item.id,name:item.name,image:item.image}));
+  tripState.packed = Object.fromEntries(tripState.items.map(item => [item.name, Boolean(tripState.packed[item.name])]));
+  const options = Object.values(tryOnLooks);
+  tripState.looks = dates.map((date,index) => {
+    const look = options[index%options.length], context = tripDraft.occasions[index%Math.max(tripDraft.occasions.length,1)] || 'Casual';
+    return { date, title: `${context} · ${look.title}`, image: look.sheet, lookId: look.id };
+  });
+  tripState.building = true; tripState.created = false; persistTrip(); go('J-07');
 }
 function toggleTripOccasion(occasion) {
   tripDraft.occasions = tripDraft.occasions.includes(occasion)
@@ -3687,12 +3925,7 @@ function swapTripLook(index) {
   render();
 }
 function tripPackingEditor() {
-  const items = [["Black blazer", assets.blazer], ["Silk shell", assets.top], ["Leather loafers", assets.shoes]];
-  return shell(
-    "Edit Packing",
-    `${tripStepNav(2)}<p class="eyebrow">${escapeMarkup(tripDraft.destination)} · ${escapeMarkup(tripDraft.luggage)}</p><h2 class="title">Edit the packing list</h2><p class="body">Keep, remove, or add practical pieces without losing the Trip draft.</p><div class="stack" style="margin-top:16px">${items.map(([name, image]) => `<button class="pack-row trip-item-action" onclick="toggleTripItem('${name}')"><img src="${image}" alt="${name}"><span><b>${name}</b><small class="body">From Closet</small></span><span class="pill ${tripState.packed[name] ? "green" : ""}">${tripState.packed[name] ? "Packed" : "Add"}</span></button>`).join("")}</div><button class="btn primary wide" style="margin-top:16px" onclick="go('J-05')">Done editing packing</button>`,
-    { active: "profile" },
-  );
+  return shell('Edit Packing', `<h2 class="title">Your packing list</h2><p class="body">Mark the pieces you have packed.</p>${tripPackingItems().map(item => `<button class="pack-row trip-item-action" onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span>${escapeMarkup(item.name)}</span><span class="pill">${tripState.packed[item.name] ? 'Packed' : 'Pack'}</span></button>`).join('')}<button class="btn primary wide" onclick="go('J-08')">Done</button>`, {active:'profile'});
 }
 function tripReviewScreen() {
   return shell(
@@ -3721,32 +3954,9 @@ function completeTripBuild() {
   go("J-14");
 }
 function tripHub(tab = "packing") {
-  const packing = tab === "packing", outfits = tab === "outfits",
-    items = [
-      ["Black blazer", assets.blazer],
-      ["Silk shell", assets.top],
-      ["Leather loafers", assets.shoes],
-    ];
-  return shell(
-    tripDraft.destination || "Trip",
-    `${tripStepNav(3)}<div class="between"><span><p class="eyebrow">${escapeMarkup(tripDraft.startDate || "7 days")} · ${escapeMarkup(tripDraft.luggage || "Carry on")}</p><h2 class="title">${escapeMarkup(tripDraft.destination || "Your trip")} is ready</h2></span><span class="pill green">Saved</span></div><p class="body">7 days · 11 pieces · 14 outfits</p><div class="trip-tabs"><button class="${packing ? "active" : ""}" onclick="go('J-08')">Packing</button><button class="${outfits ? "active" : ""}" onclick="go('J-10')">Outfits</button><button class="${!packing && !outfits ? "active" : ""}" onclick="go('J-11')">Days</button></div>${
-      packing
-        ? `${items.map(([name, image]) => `<button class="pack-row trip-item-action" onclick="toggleTripItem('${name}')"><img src="${image}" alt="${name}"><span><b>${name}</b><small class="body" style="display:block">From Closet</small></span><span class="pill ${tripState.packed[name] ? "green" : ""}">${tripState.packed[name] ? "Packed" : "Pack"}</span></button>`).join("")}<button class="btn wide" style="margin-top:12px" onclick="go('J-09')">Edit packing list</button>`
-        : outfits ? `<div class="planner-prepared">${[
-            [assets.look, "Aug 23", "Arrival"],
-            [assets.look3, "Aug 24", "Museum"],
-            [assets.look2, "Aug 25", "Dinner"],
-          ]
-            .map(
-              ([image, day, context]) =>
-                `<button onclick="openLightweightPanel('tripLook')"><img src="${image}" alt="${day} ${context} trip Look"><b>${day}</b><small>${context}</small></button>`,
-            )
-            .join(
-              "",
-            )}</div><button class="btn wide" style="margin-top:12px" onclick="openLightweightPanel('tripLook')">Add or replace a Look</button>` : `<div class="stack">${tripState.looks.map((look, index) => `<div class="card"><p class="eyebrow">Day ${index + 1}</p><b>${escapeMarkup(look.date)}</b><p class="body">${escapeMarkup(look.title)}</p></div>`).join("")}</div>`
-    }<details class="card progressive-card" style="margin-top:12px"><summary><b>Trip details</b><span class="small">Edit advanced context</span></summary><div class="trip-context-summary"><div><b>Alexandria</b><small>Destination</small></div><div><b>Carry on</b><small>Luggage</small></div><div><b>Black blazer</b><small>Must-have</small></div><div><b>Museum + dinner</b><small>Activities</small></div></div></details>`,
-    { active: "profile" },
-  );
+  const packing = tab === 'packing', outfits = tab === 'outfits', draft = tripState.basics || tripDraft;
+  const rows = packing ? tripPackingItems().map(item => `<button class="pack-row trip-item-action" onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">From Closet</small></span><span class="pill">${tripState.packed[item.name] ? 'Packed' : 'Pack'}</span></button>`).join('') : tripState.looks.map((look,index) => `<div class="card">${outfits ? `<img class="hero-img" src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}">` : `<p class="eyebrow">Day ${index+1}</p>`}<b>${escapeMarkup(look.date)}</b><p class="body">${escapeMarkup(look.title)}</p></div>`).join('');
+  return shell(draft.destination || 'Trip', `${tripStepNav(3)}<p class="eyebrow">${escapeMarkup(draft.startDate)} → ${escapeMarkup(draft.endDate)} · ${escapeMarkup(draft.luggage || 'Carry on')}</p><h2 class="title">${escapeMarkup(draft.destination)} is ready</h2><p class="body" data-trip-summary>${tripSummary()}</p><div class="trip-tabs"><button class="${packing ? 'active' : ''}" onclick="go('J-08')">Packing</button><button class="${outfits ? 'active' : ''}" onclick="go('J-10')">Outfits</button><button class="${!packing && !outfits ? 'active' : ''}" onclick="go('J-11')">Days</button></div><div class="stack">${rows || '<p class="body">Add pieces to your Closet to build a packing list.</p>'}</div>${packing ? '<button class="btn wide" onclick="go(&quot;J-09&quot;)">Edit packing list</button>' : ''}<details class="card"><summary>Trip details</summary><p>${escapeMarkup(draft.destination)} · ${escapeMarkup(draft.luggage || 'Carry on')}</p><p>${draft.occasions.map(escapeMarkup).join(' · ')}</p></details><button class="btn wide" onclick="go('J-02')">Edit trip basics</button>`, {active:'profile'});
 }
 
 function prepareNextWeek() {
@@ -3894,6 +4104,11 @@ function choosePlannerLook(id) {
 }
 function savePlannerEvent() {
   const look = plannerLook();
+  if (proactiveEditIndex !== null && proactiveWeek[proactiveEditIndex]) {
+    Object.assign(proactiveWeek[proactiveEditIndex], plannerEventDraft, { day: new Date(`${plannerEventDraft.date}T12:00:00`).toLocaleDateString('en-US',{weekday:'short'}).toUpperCase(), context: plannerEventDraft.occasion, lookId: look.id, look: look.title, image: look.sheet });
+    localStorage.setItem('styleiqProactiveWeekV1', JSON.stringify(proactiveWeek));
+    proactiveEditIndex = null; plannerValidationErrors = []; go('I-01'); toast('Weekly context updated'); return;
+  }
   plannerEvent = {
     ...plannerEventDraft,
     lookId: look.id,
@@ -3917,8 +4132,8 @@ function savePlannerEvent() {
 function plannerEventForm() {
   const d = plannerEventDraft;
   return shell(
-    "Add Event",
-    `<form class="stack" onsubmit="submitPlannerEvent(event)"><p class="eyebrow">Planner · new event</p><h2 class="title">What are you dressing for?</h2><p class="body">Add the day and context so Muse can prepare the right Look.</p><div class="field"><label for="planner-event-date">Date <span class="helper">Required</span></label><input class="input" id="planner-event-date" name="date" type="date" value="${escapeMarkup(d.date)}" aria-describedby="planner-date-help"><small id="planner-date-help" class="helper">Today or a future date.</small></div><div class="field"><label for="planner-event-time">Time <span class="helper">Optional if you choose a daypart</span></label><input class="input" id="planner-event-time" name="time" type="time" value="${escapeMarkup(d.time)}"></div><div class="field"><label for="planner-event-daypart">Daypart</label><select class="input" id="planner-event-daypart" name="daypart"><option value="">Choose a daypart</option>${["Morning", "Afternoon", "Evening", "All day"].map((x) => `<option value="${x}" ${d.daypart === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-occasion">Occasion <span class="helper">Required</span></label><select class="input" id="planner-event-occasion" name="occasion"><option value="">Choose an occasion</option>${["Work", "Dinner", "Weekend", "Travel", "Special occasion"].map((x) => `<option value="${x}" ${d.occasion === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-title">Event title <span class="helper">Optional</span></label><input class="input" id="planner-event-title" name="title" value="${escapeMarkup(d.title)}" placeholder="e.g. Client dinner"></div><div class="field"><label for="planner-event-location">Location or context <span class="helper">Optional</span></label><input class="input" id="planner-event-location" name="location" value="${escapeMarkup(d.location)}" placeholder="e.g. Downtown · indoors"></div><div class="field"><label for="planner-event-weather">Weather context <span class="helper">Optional</span></label><input class="input" id="planner-event-weather" name="weather" value="${escapeMarkup(d.weather)}" placeholder="e.g. 18°C · light rain"></div><button class="btn primary wide" type="submit">Review event</button></form>`,
+    proactiveEditIndex === null ? "Add Event" : "Edit weekly context",
+    `<form class="stack" onsubmit="submitPlannerEvent(event)"><p class="eyebrow">${proactiveEditIndex === null ? "Planner · new event" : "Planner · edit weekly context"}</p><h2 class="title">What are you dressing for?</h2><p class="body">Add the day and context so Muse can prepare the right Look.</p><div class="field"><label for="planner-event-date">Date <span class="helper">Required</span></label><input class="input" id="planner-event-date" name="date" type="date" value="${escapeMarkup(d.date)}" aria-describedby="planner-date-help"><small id="planner-date-help" class="helper">Today or a future date.</small></div><div class="field"><label for="planner-event-time">Time <span class="helper">Optional if you choose a daypart</span></label><input class="input" id="planner-event-time" name="time" type="time" value="${escapeMarkup(d.time)}"></div><div class="field"><label for="planner-event-daypart">Daypart</label><select class="input" id="planner-event-daypart" name="daypart"><option value="">Choose a daypart</option>${["Morning", "Afternoon", "Evening", "All day"].map((x) => `<option value="${x}" ${d.daypart === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-occasion">Occasion <span class="helper">Required</span></label><select class="input" id="planner-event-occasion" name="occasion"><option value="">Choose an occasion</option>${["Work", "Dinner", "Weekend", "Travel", "Special occasion"].map((x) => `<option value="${x}" ${d.occasion === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-title">Event title <span class="helper">Optional</span></label><input class="input" id="planner-event-title" name="title" value="${escapeMarkup(d.title)}" placeholder="e.g. Client dinner"></div><div class="field"><label for="planner-event-location">Location or context <span class="helper">Optional</span></label><input class="input" id="planner-event-location" name="location" value="${escapeMarkup(d.location)}" placeholder="e.g. Downtown · indoors"></div><div class="field"><label for="planner-event-weather">Weather context <span class="helper">Optional</span></label><input class="input" id="planner-event-weather" name="weather" value="${escapeMarkup(d.weather)}" placeholder="e.g. 18°C · light rain"></div><button class="btn primary wide" type="submit">Review event</button></form>`,
     { active: "planner" },
   );
 }
@@ -3972,7 +4187,7 @@ function tripsList() {
     );
   return shell(
     "Trips",
-    `<div class="between"><div><p class="eyebrow">Your trips</p><h2 class="title">Upcoming</h2></div><button class="icon-btn" aria-label="Plan another trip" onclick="resetTrip()">${icon("plus")}</button></div><button class="item-card" style="width:100%;margin-top:14px;text-align:left" onclick="go('J-14')"><img src="${assets.look4}" style="height:220px" alt="Alexandria trip"><span class="copy"><span class="between"><span><b>Alexandria</b><small class="body" style="display:block">Aug 23–25 · 12 pieces · ${tripState.looks.length} Looks</small></span><span class="pill green">Ready</span></span></span></button>`,
+    `<div class="between"><div><p class="eyebrow">Your trips</p><h2 class="title">Upcoming</h2></div><button class="icon-btn" aria-label="Plan another trip" onclick="resetTrip()">${icon("plus")}</button></div><button class="item-card" style="width:100%;margin-top:14px;text-align:left" onclick="go('J-14')"><img src="${assets.look4}" style="height:220px" alt="Alexandria trip"><span class="copy"><span class="between"><span><b>${escapeMarkup((tripState.basics || tripDraft).destination)}</b><small class="body" style="display:block">${tripSummary()}</small></span><span class="pill green">Ready</span></span></span></button>`,
     { active: "profile" },
   );
 }
@@ -4008,10 +4223,14 @@ function mirrorDiscover() {
     { active: "discover" },
   );
 }
+function openProfileTwin() {
+  if (twinSetup.complete) { clearPendingTryOn(); go('H-01'); }
+  else startTryOn('saved', { sourceType: 'profile' });
+}
 function mirrorProfile() {
   return shell(
     "My Atelier",
-    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button onclick="go('G-01')">View All</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-14')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section><section class="mirror-profile-preview"><p class="eyebrow">My Closet</p><h3 class="title" style="font-size:20px">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body" style="display:block">1 owned piece</small></span><button class="btn small-btn" onclick="go('D-04')">Style</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Pieces under review</small></button><button class="profile-utility" onclick="startTryOn('saved', { sourceType: 'profile' })"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
+    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button onclick="go('G-01')">View All</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-14')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section><section class="mirror-profile-preview"><p class="eyebrow">My Closet</p><h3 class="title" style="font-size:20px">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body" style="display:block">1 owned piece</small></span><button class="btn small-btn" onclick="go('D-04')">Style</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Pieces under review</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
     { active: "profile" },
   );
 }
@@ -4090,9 +4309,9 @@ let selectedTodayLook = localStorage.getItem("styleiqTodayLookV1") || "coffee";
 if (!tryOnLooks[selectedTodayLook]) selectedTodayLook = "coffee";
 let pendingTryOn = readTryOnState("styleiqPendingTryOnV1"),
   tryOnSession = readTryOnState("styleiqTryOnResultV1");
-if (pendingTryOn?.intent !== "tryOn" || !tryOnLookFor(pendingTryOn?.lookId))
+if (pendingTryOn?.intent !== "tryOn" || !(pendingTryOn?.selectedLook?.pieces || tryOnLookFor(pendingTryOn?.lookId)))
   pendingTryOn = null;
-if (!tryOnLookFor(tryOnSession?.lookId)) tryOnSession = null;
+if (!(tryOnSession?.selectedLook?.pieces || tryOnLookFor(tryOnSession?.lookId))) tryOnSession = null;
 const tryOnAngles = ["Front", "3/4", "Side", "Back"];
 function selectTodayLook(id) {
   if (!tryOnLooks[id]) return;
@@ -4122,6 +4341,7 @@ function startTryOn(id = selectedTodayLook, options = {}) {
     origin: options.sourceScreen || currentId,
     returnTo: options.returnScreen || options.sourceScreen || currentId,
     selectedLook: JSON.parse(JSON.stringify(look)),
+    ...(options.closetItemId ? { closetItemId: options.closetItemId } : {}),
   };
   localStorage.setItem("styleiqPendingTryOnV1", JSON.stringify(pendingTryOn));
   if (twinSetup.complete) resumeTryOn();
@@ -4444,8 +4664,7 @@ function newStudioLook() {
   canvasState.title = "Untitled Look";
   canvasState.items = [];
   persist();
-  if (currentId === "F-01") render();
-  else go("F-01");
+  go("F-02");
 }
 function updateStudioContext(field, value) {
   if (["title", "date", "location"].includes(field)) {
@@ -5033,8 +5252,6 @@ function instantRailKey(event, role) {
   chooseInstantPiece(role, Number(buttons[index].dataset.index));
 }
 function saveInstantLook() {
-  const roles = instantWardrobeIndex('Dress') >= 0 ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
-  for (const role of roles) setInstantPiece(role, instantWardrobeIndex(role));
   persist();
   toast('Draft saved on this device');
 }
