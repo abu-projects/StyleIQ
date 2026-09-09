@@ -2601,6 +2601,7 @@ function decorateJobLauncher() {
 }
 function completeOnboarding(destination = "D-02") {
   localStorage.setItem("styleiqOnboardingCompleteV1", "true");
+  localStorage.removeItem("styleiqGuestModeV1");
   localStorage.removeItem("styleiqOnboardingClosetPendingV1");
   go(destination);
 }
@@ -2610,6 +2611,7 @@ function startNewUserOnboarding(destination = "A-05") {
   onboardingGoal = "";
   closetState.size = 0;
   localStorage.removeItem("styleiqOnboardingCompleteV1");
+  localStorage.removeItem("styleiqGuestModeV1");
   localStorage.removeItem("styleiqOnboardingGoalV1");
   localStorage.removeItem("styleiqOnboardingClosetPendingV1");
   localStorage.setItem("styleiqClosetSizeV1", "0");
@@ -2631,7 +2633,16 @@ function finishOnboardingClosetImport(destination = "C-01") {
   else go(destination);
 }
 function openStyleIQ() {
-  go(isExistingCustomer() ? "D-02" : "A-16");
+  go(isExistingCustomer() ? "D-02" : "S-01");
+}
+function exploreAsGuest() {
+  customerScenario = "new";
+  syncCustomerScenarioUrl();
+  closetState.size = 0;
+  localStorage.setItem("styleiqGuestModeV1", "true");
+  localStorage.removeItem("styleiqOnboardingCompleteV1");
+  localStorage.setItem("styleiqClosetSizeV1", "0");
+  go("D-02");
 }
 const walkthroughSlides = [
   {
@@ -2696,7 +2707,7 @@ function entryScreen(s) {
     return `<section class="screen entry-screen entry-splash" role="button" tabindex="0" aria-label="Open StyleIQ" onclick="openStyleIQ()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStyleIQ()}"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="Curated wardrobe with natural light and linen drape"><div class="splash-tint" aria-hidden="true"></div><div class="splash-tag" aria-hidden="true"><span class="splash-tag-text">Styled for you ♡</span></div><div class="entry-frame"><div class="entry-top"><span class="splash-brand">StyleIQ</span></div><div class="splash-copy"><h1 class="splash-title">Your closet.<br>Smarter.</h1><p class="splash-body">Know what you own.<br>Know what to wear.<br>Buy better.</p></div></div></section>`;
   if (s.id === "S-01") {
     const slide = walkthroughSlides[walkthroughIndex];
-    return `<section class="screen entry-screen walkthrough-story"><img class="walkthrough-story-bg" src="${slide.image}" alt="${slide.alt}"><div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span class="walkthrough-count">${walkthroughIndex + 1} of ${walkthroughSlides.length}</span></div><div class="walkthrough-story-body"><article class="walkthrough-glass" aria-live="polite"><div class="walkthrough-glass-refract" aria-hidden="true"></div><div class="walkthrough-glass-tint" aria-hidden="true"></div><div class="walkthrough-glass-specular" aria-hidden="true"></div><div class="walkthrough-glass-content"><p class="eyebrow">${slide.eyebrow}</p><h1>${slide.title}</h1><p class="body">${slide.body}</p><nav class="walkthrough-nav" aria-label="Walkthrough pages"><button class="walkthrough-arrow" aria-label="Previous page" onclick="moveWalkthrough(-1)" ${walkthroughIndex === 0 ? "disabled" : ""}>${icon("back")}</button><div class="walkthrough-dots">${walkthroughSlides.map((_, index) => `<button class="${index === walkthroughIndex ? "active" : ""}" aria-label="Show page ${index + 1}" aria-current="${index === walkthroughIndex ? "step" : "false"}" onclick="setWalkthroughSlide(${index})"></button>`).join("")}</div><button class="walkthrough-arrow" aria-label="Next page" onclick="moveWalkthrough(1)" ${walkthroughIndex === walkthroughSlides.length - 1 ? "disabled" : ""}>${icon("back")}</button></nav></div></article><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create your account</button><button class="btn wide walkthrough-skip" onclick="go('A-16')">Skip intro</button></div></div></div></section>`;
+    return `<section class="screen entry-screen walkthrough-story"><img class="walkthrough-story-bg" src="${slide.image}" alt="${slide.alt}"><div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span class="walkthrough-count">${walkthroughIndex + 1} of ${walkthroughSlides.length}</span></div><div class="walkthrough-story-body"><article class="walkthrough-glass" aria-live="polite"><div class="walkthrough-glass-refract" aria-hidden="true"></div><div class="walkthrough-glass-tint" aria-hidden="true"></div><div class="walkthrough-glass-specular" aria-hidden="true"></div><div class="walkthrough-glass-content"><p class="eyebrow">${slide.eyebrow}</p><h1>${slide.title}</h1><p class="body">${slide.body}</p><nav class="walkthrough-nav" aria-label="Walkthrough pages"><button class="walkthrough-arrow" aria-label="Previous page" onclick="moveWalkthrough(-1)" ${walkthroughIndex === 0 ? "disabled" : ""}>${icon("back")}</button><div class="walkthrough-dots">${walkthroughSlides.map((_, index) => `<button class="${index === walkthroughIndex ? "active" : ""}" aria-label="Show page ${index + 1}" aria-current="${index === walkthroughIndex ? "step" : "false"}" onclick="setWalkthroughSlide(${index})"></button>`).join("")}</div><button class="walkthrough-arrow" aria-label="Next page" onclick="moveWalkthrough(1)" ${walkthroughIndex === walkthroughSlides.length - 1 ? "disabled" : ""}>${icon("back")}</button></nav></div></article><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
   }
   return stylingContextSurface(false);
 }

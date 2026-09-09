@@ -12403,6 +12403,7 @@ body {
 }
 .walkthrough-story-actions {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   margin-top: 12px;
 }
@@ -12412,9 +12413,24 @@ body {
   font-size: 11px;
 }
 .walkthrough-story-actions .walkthrough-primary {
+  grid-column: 1 / -1;
   background: #171717;
   border-color: #171717;
   color: #fff;
+}
+.walkthrough-story-actions :is(.walkthrough-login, .walkthrough-guest) {
+  min-width: 0;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background: rgba(255, 253, 250, 0.72);
+  color: #282321;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 7px 18px rgba(35, 27, 22, 0.1);
+  backdrop-filter: blur(10px) saturate(120%);
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+}
+.walkthrough-story-actions .walkthrough-guest {
+  background: rgba(255, 253, 250, 0.52);
 }
 .walkthrough-story-actions .walkthrough-skip {
   min-height: 48px;
@@ -12655,6 +12671,157 @@ body {
 .instant-worn.worn-dress { top: 32%; left: 8%; height: 60px; }
 @media (max-width: 600px) {
   .instant-avatar-stage { height: clamp(190px, 29svh, 260px); }
+}
+
+/* Unified sticky Liquid Glass treatment for every top-level screen header. */
+.app:has(:is(.screen-head, .root-head)) > .screen::before {
+  height: 48px;
+}
+
+.app :is(.screen-head, .root-head) {
+  position: absolute;
+  top: 48px;
+  left: 0;
+  right: 0;
+  flex: none;
+  overflow: hidden;
+  isolation: isolate;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.76);
+  background: rgba(255, 253, 250, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    inset 0 -1px 0 rgba(92, 72, 58, 0.08),
+    0 8px 22px rgba(57, 47, 43, 0.06);
+  backdrop-filter: blur(14px) saturate(125%) brightness(1.04);
+  -webkit-backdrop-filter: blur(14px) saturate(125%) brightness(1.04);
+}
+
+.app:has(.screen-head) .screen-head + .content,
+.app:has(.root-head) .root-head + .content {
+  padding-top: 80px !important;
+}
+
+.app:has(.root-head) .root-head + .content {
+  padding-top: 78px !important;
+}
+
+.app
+  :is(
+    .tryon-head,
+    .lens-head,
+    .instant-header,
+    .mirror-studio-head,
+    .onboard-top
+  ) {
+  position: sticky;
+  top: 0;
+  z-index: calc(var(--z-sticky) + 1);
+  isolation: isolate;
+  flex: none;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 18px;
+  background: rgba(255, 253, 250, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    inset 0 -1px 0 rgba(92, 72, 58, 0.08),
+    0 8px 22px rgba(57, 47, 43, 0.06);
+  backdrop-filter: blur(14px) saturate(125%) brightness(1.04);
+  -webkit-backdrop-filter: blur(14px) saturate(125%) brightness(1.04);
+}
+
+.app
+  :is(
+    .tryon-head,
+    .instant-header,
+    .mirror-studio-head,
+    .onboard-top
+  ) {
+  padding: 8px 10px;
+}
+
+.app .lens-head {
+  top: -10px;
+  padding: 10px 8px 12px;
+  border-radius: 0 0 18px 18px;
+}
+
+.app
+  :is(
+    .screen-head,
+    .root-head,
+    .tryon-head,
+    .lens-head,
+    .instant-header,
+    .mirror-studio-head,
+    .onboard-top
+  )::before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.42),
+    rgba(255, 255, 255, 0.1) 38%,
+    transparent 68%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 1px 0 0 rgba(255, 255, 255, 0.34);
+}
+
+.app
+  :is(
+    .screen-head,
+    .root-head,
+    .tryon-head,
+    .lens-head,
+    .instant-header,
+    .mirror-studio-head,
+    .mirror-profile-head,
+    .onboard-top
+  )
+  > * {
+  position: relative;
+  z-index: 1;
+}
+
+@supports (backdrop-filter: url(#header-liquid-refraction)) {
+  .app
+    :is(
+      .screen-head,
+      .root-head,
+      .tryon-head,
+      .lens-head,
+      .instant-header,
+      .mirror-studio-head,
+      .onboard-top
+    ) {
+    backdrop-filter: url(#header-liquid-refraction) blur(4px) saturate(130%)
+      brightness(1.04);
+    -webkit-backdrop-filter: url(#header-liquid-refraction) blur(4px)
+      saturate(130%) brightness(1.04);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .app
+    :is(
+      .screen-head,
+      .root-head,
+      .tryon-head,
+      .lens-head,
+      .instant-header,
+      .mirror-studio-head,
+      .onboard-top
+    ) {
+    background: #fffdfa;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* Weekly suggestions keep readable context and reachable actions on narrow screens. */
