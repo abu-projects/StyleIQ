@@ -12,7 +12,7 @@ async function openPlanner(page) {
 test.describe("Planner event flow", () => {
   test("valid event reaches Look selection and persists on Planner", async ({ page }) => {
     await openPlanner(page);
-    await page.getByRole("button", { name: "Plan a new Look" }).click();
+    await page.getByRole("button", { name: "Add Event" }).click();
     await expect(page.getByRole("heading", { name: "What are you dressing for?" })).toBeVisible();
     await page.locator("#planner-event-date").fill("2099-08-23");
     await page.locator("#planner-event-daypart").selectOption("Evening");
@@ -32,7 +32,7 @@ test.describe("Planner event flow", () => {
 
   test("missing required event fields produces real validation errors", async ({ page }) => {
     await openPlanner(page);
-    await page.getByRole("button", { name: "Plan a new Look" }).click();
+    await page.getByRole("button", { name: "Add Event" }).click();
     await page.getByRole("button", { name: "Review event" }).click();
     await expect(page.getByRole("heading", { name: "Check the event details" })).toBeVisible();
     await expect(page.getByRole("alert")).toContainText("Choose a date");

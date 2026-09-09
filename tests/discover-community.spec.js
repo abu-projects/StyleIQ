@@ -32,7 +32,7 @@ test.describe("Discover filters and community actions", () => {
     await page.getByRole("button", { name: "Report this Look" }).click();
     await page.locator("#community-report-reason").selectOption("Spam");
     await page.getByRole("button", { name: "Submit report" }).click();
-    await expect(page.getByText("Thanks for letting us know.")).toBeVisible();
+    await expect(page.getByText("Thanks. We’ve received your report.")).toBeVisible();
     expect(await page.evaluate(() => localStorage.getItem("styleiqCommunityLikedV1"))).toBe("true");
   });
 });
