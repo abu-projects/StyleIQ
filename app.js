@@ -985,6 +985,20 @@ function toggleWishlistHeart(id) {
   app.querySelector(`[data-wishlist-heart="${id}"]`)?.focus({ preventScroll: true });
   toast("Saved to Wishlist.");
 }
+function saveWishlistFromLens(id) {
+  if (wishlistItems.some((item) => item.id === id)) {
+    openWishlistProduct(id);
+    return;
+  }
+  saveWishlistProduct(id);
+  render();
+  toast("Added to Wishlist.");
+}
+function lensWishlistAction(id) {
+  const product = wishlistProduct(id), saved = wishlistItems.some((item) => item.id === id);
+  if (!product) return "";
+  return `<div class="lens-wishlist-action ${saved ? "is-saved" : ""}" aria-live="polite"><div class="lens-wishlist-copy"><span class="icon-wrap">${icon("heart")}</span><span><b>${saved ? "Added to Wishlist" : "Save this item to Wishlist"}</b><small>${saved ? "You can review it anytime in your Wishlist." : "Keep it here while you compare before buying."}</small></span></div><button class="btn ${saved ? "" : "primary"} lens-wishlist-button" type="button" aria-pressed="${saved}" onclick="${saved ? "go('G-08')" : `saveWishlistFromLens('${id}')`}">${saved ? "View Wishlist" : "Add to Wishlist"}</button></div>`;
+}
 function openWishlistProduct(id) {
   if (!wishlistProduct(id)) return;
   selectedWishlistId = id;
@@ -2260,7 +2274,7 @@ function installGestures() {
     }
   }
   if (["G-02", "G-03", "G-04", "G-05", "G-06", "G-07"].includes(currentId)) {
-    const image = app.querySelector(".hero-img"),
+    const image = app.querySelector(".hero-img, .saved-look-media"),
       actions = app.querySelector(".content>.row");
     actions?.insertAdjacentHTML(
       "afterend",
@@ -2286,6 +2300,19 @@ function installGestures() {
           event.preventDefault();
           openLightweightPanel("share");
         }
+      });
+    }
+    const mediaFrame = app.querySelector("[data-saved-look-media]");
+    if (mediaFrame) {
+      let startX = 0;
+      mediaFrame.addEventListener("pointerdown", (event) => {
+        if (event.target.closest("button")) return;
+        startX = event.clientX;
+        mediaFrame.setPointerCapture?.(event.pointerId);
+      });
+      mediaFrame.addEventListener("pointerup", (event) => {
+        const delta = event.clientX - startX;
+        if (Math.abs(delta) > 42) stepSavedLookMedia(delta < 0 ? 1 : -1);
       });
     }
   }
@@ -2643,8 +2670,8 @@ function lensResult() {
       title: "Useful, but close to what you own.",
       image: assets.top2,
       body: "82% compatible · works in 6 owned Looks · high duplicate risk against your warm knit. Muse suggests comparing before buying.",
-      extra: `<div class="wishlist-lens-product"><b>Rust Square-neck Knit</b>${wishlistHeart(wishlistProduct("rust-knit"))}</div>${lensMatches()}`,
-      actions: `<div class="row"><button class="btn grow primary" onclick="openWishlistDialog('compare','rust-knit')">Compare owned</button><button class="btn grow" onclick="openWishlistProduct('rust-knit')">Before You Buy</button></div><button class="text-action" onclick="openWishlistDialog('context','rust-knit')">Save for Later</button>`,
+      extra: `${lensWishlistAction("rust-knit")}${lensMatches()}`,
+      actions: `<div class="row"><button class="btn grow primary" onclick="openWishlistDialog('compare','rust-knit')">Compare owned</button><button class="btn grow" onclick="openWishlistProduct('rust-knit')">Before You Buy</button></div>`,
     },
     recreate: {
       eyebrow: "Outfit formula detected",
@@ -2753,6 +2780,7 @@ function lookMatchesFilter(look, filter) {
 let lookFilter = "All",
   selectedSavedLookId = localStorage.getItem("styleiqSelectedSavedLookV1") || "Design Review",
   savedLookTab = "overview",
+  savedLookMediaIndex = 0,
   savedLookWorn = localStorage.getItem("styleiqSavedLookWornV1") === "true",
   savedLookRemoved = false,
   creatorReferences = [
@@ -2766,6 +2794,7 @@ function setLookFilter(value) {
 function selectSavedLook(id) {
   selectedSavedLookId = id;
   savedLookTab = "overview";
+  savedLookMediaIndex = 0;
   localStorage.setItem("styleiqSelectedSavedLookV1", id);
   go("G-02");
 }
@@ -2773,10 +2802,39 @@ function setSavedLookTab(tab) {
   savedLookTab = tab;
   render();
 }
+function setSavedLookMedia(index) {
+  const total = savedLookRecord().media?.length || 1;
+  savedLookMediaIndex = (index + total) % total;
+  render();
+}
+function stepSavedLookMedia(direction) {
+  setSavedLookMedia(savedLookMediaIndex + direction);
+}
 function savedLookRecord() {
   const record = lookCatalog.find((look) => look.title === selectedSavedLookId) || lookCatalog[0];
   const source = record.title === "Dinner Classic" ? tryOnLooks.evening : record.title === "Gallery Tailoring" ? tryOnLooks.tailoring : tryOnLooks.coffee;
-  return { ...source, id: "saved", title: record.title, context: `${lookSourceLabel(record.creationSource)} · ${record.title}`, sheet: record.image, row: 0, pieces: source.pieces };
+  return {
+    ...source,
+    id: "saved",
+    title: record.title,
+    context: `${lookSourceLabel(record.creationSource)} · ${record.title}`,
+    sheet: record.image,
+    row: 0,
+    pieces: source.pieces,
+    media: [
+      { type: "image", src: "images/generated-look-hero-v2.png", label: "Generated editorial" },
+      { type: "image", src: record.image, label: "Look still" },
+      { type: "video", src: "videos/generated-look-motion.mp4", label: "Generated model motion" },
+    ],
+  };
+}
+function savedLookMediaSurface(record) {
+  const media = record.media || [{ type: "image", src: record.sheet, label: "Look still" }];
+  const selected = media[savedLookMediaIndex] || media[0];
+  const activeMedia = selected.type === "video"
+    ? `<video class="saved-look-media" src="${selected.src}" autoplay muted loop playsinline aria-label="${escapeMarkup(selected.label)}"></video>`
+    : `<img class="saved-look-media" src="${selected.src}" alt="${escapeMarkup(record.title)} · ${escapeMarkup(selected.label)}">`;
+  return `<section class="saved-look-media-block" aria-label="Saved Look media"><div class="saved-look-media-frame" data-saved-look-media>${activeMedia}<span class="saved-look-media-badge">${selected.type === "video" ? "Motion" : "Still"}</span>${selected.type === "video" ? '<span class="saved-look-media-live">● Live look</span>' : ""}<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="tablist" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === savedLookMediaIndex ? "active" : ""}" role="tab" aria-selected="${index === savedLookMediaIndex}" aria-label="Go to ${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous media" onclick="stepSavedLookMedia(-1)">‹</button><button class="saved-look-media-arrow" aria-label="Next media" onclick="stepSavedLookMedia(1)">›</button></div></div></div><div class="saved-look-media-rail" role="tablist" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === savedLookMediaIndex ? "active" : ""}" role="tab" aria-selected="${index === savedLookMediaIndex}" aria-label="${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${item.type === "video" ? "Video" : "Image"}</small></button>`).join("")}</div></section>`;
 }
 function markSavedLookWorn() {
   savedLookWorn = true;
@@ -4085,7 +4143,7 @@ function leanSavedLook() {
   const body = { overview, items, details, activity, planning }[savedLookTab] || overview;
   return shell(
     "Saved Look",
-    `<img class="hero-img" style="height:330px" src="${record.sheet}" alt="${escapeMarkup(record.title)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">Saved Look</p><h2 class="title">${escapeMarkup(record.title)}</h2><p class="body">${escapeMarkup(record.context)}</p></span><button class="icon-btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">${icon("more")}</button></div>${tabBar}${body}`,
+    `${savedLookMediaSurface(record)}<div class="between" style="margin-top:14px"><span><p class="eyebrow">Saved Look</p><h2 class="title">${escapeMarkup(record.title)}</h2><p class="body">${escapeMarkup(record.context)}</p></span><button class="icon-btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">${icon("more")}</button></div>${tabBar}${body}`,
     { active: "profile" },
   );
 }
@@ -4559,18 +4617,72 @@ function instantWardrobeIndex(role) {
 function instantWardrobeArt(role, index) {
   return `<span class="instant-piece-art art-${role.toLowerCase()}" style="--variant:${index}" aria-hidden="true"></span>`;
 }
+// Photographed poses are whole outfits. Never splice their differently placed limbs.
+function instantPoseLook() {
+  if (['Outerwear', ...instantAccessoryRoles].some(role => instantWardrobeIndex(role) >= 0)) return -1;
+  const dress = instantWardrobeIndex('Dress');
+  if (dress >= 0) return dress === 0 && instantWardrobeIndex('Shoes') === 2 ? 4 : -1;
+  const index = instantWardrobeIndex('Top');
+  return ['Bottom', 'Shoes'].every(role => instantWardrobeIndex(role) === index) ? index : -1;
+}
+function instantPoseChoices() {
+  const look = instantPoseLook();
+  return look === 0 || look === 4 ? ['Front', 'Step forward', 'Side', 'Back', 'Step back'] : look > 0 ? ['Front', 'Editorial pose'] : ['Front'];
+}
+function applyInstantPoseLook(index) {
+  if (!Number.isInteger(index) || index < 0 || index > 4) return;
+  for (const role of instantOptionalRoles) setInstantPiece(role, -1);
+  if (index === 4) {
+    const separates = canvasState.items.filter(x => ['Top', 'Bottom'].includes(x.role));
+    if (separates.length) canvasState.instantSeparates = separates.map(x => ({...x}));
+    canvasState.items = canvasState.items.filter(x => !['Top', 'Bottom'].includes(x.role));
+    setInstantPiece('Dress', 0);
+    setInstantPiece('Shoes', 2);
+  } else {
+    for (const role of ['Top', 'Bottom', 'Shoes']) setInstantPiece(role, index);
+  }
+  canvasState.photoPose = 1;
+  persist();
+  refreshInstantWardrobe();
+  app.querySelectorAll('.instant-rail').forEach(rail => centerInstantRail(rail));
+  app.querySelector('.instant-announcement').textContent = 'Complete look selected. Model pose views are available.';
+}
+function setInstantPose(index) {
+  canvasState.photoPose = Math.max(0, Math.min(instantPoseChoices().length - 1, index));
+  refreshInstantWardrobe();
+}
+function instantPoseControls() {
+  const choices = instantPoseChoices();
+  const pose = Math.min(canvasState.photoPose || 0, choices.length - 1);
+  return choices.length === 1 ? '<span class="instant-pose-note">Front view · Custom outfit</span>' : choices.map((name, index) => `<button aria-label="${name} view" aria-pressed="${pose === index}" onclick="setInstantPose(${index})">${name}</button>`).join('');
+}
+function instantJacketFitFilter() {
+  // Warp only the shoulder/chest area. The collar and wrist positions stay anchored.
+  const map = svg => `data:image/svg+xml,${encodeURIComponent(svg)}`;
+  const horizontal = map('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><defs><linearGradient id="x"><stop stop-color="#ff9280"/><stop offset="1" stop-color="#009280"/></linearGradient></defs><path fill="url(#x)" d="M0 0h256v256H0z"/></svg>');
+  const falloff = map('<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><defs><linearGradient id="y" x2="0" y2="1"><stop stop-color="black"/><stop offset=".145" stop-color="black"/><stop offset=".195" stop-color="white"/><stop offset=".29" stop-color="#999999"/><stop offset=".46" stop-color="black"/><stop offset="1" stop-color="black"/></linearGradient></defs><path fill="url(#y)" d="M0 0h256v256H0z"/></svg>');
+  return `<svg class="instant-fit-defs" aria-hidden="true" width="0" height="0"><defs><filter id="instant-shoulder-fit" x="0" y="0" width="100%" height="100%" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB"><feImage href="${horizontal}" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="across"/><feImage href="${falloff}" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="strength"/><feComposite in="across" in2="strength" operator="arithmetic" k1="1" k2="0" k3="-0.5" k4="0.5" result="fit"/><feDisplacementMap in="SourceGraphic" in2="fit" scale=".28" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>`;
+}
 function instantAvatarMarkup() {
   const dress = instantWardrobeIndex('Dress');
   const base = dress >= 0 ? ['Dress', 'Shoes'] : ['Bottom', 'Shoes', 'Top'];
   const worn = [...base, ...['Outerwear', ...instantAccessoryRoles].filter(role => instantWardrobeIndex(role) >= 0)];
   const jacket = instantWardrobeIndex('Outerwear');
-  const chips = dress >= 0 ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
-  const poseSheet = canvasState.poseSet === 1 ? 'images/studio-avatar-poses.jpg' : 'images/studio-avatar-wardrobe.jpg';
-  return `<div class="instant-avatar" style="--avatar-sheet:url('${poseSheet}')" role="img" aria-label="Outfit preview: ${worn.map(role => instantWardrobe[role][instantWardrobeIndex(role)]).join(', ')}">
-    ${base.map(role => `<span class="instant-avatar-layer layer-${role.toLowerCase()}" style="--variant:${instantWardrobeIndex(role)}"></span>`).join('')}
-    ${jacket >= 0 ? `<span class="instant-jacket jacket-left" style="--variant:${jacket}"></span><span class="instant-jacket jacket-right" style="--variant:${jacket}"></span>` : ''}
+  const chips = [...(dress >= 0 ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes']), ...['Outerwear', ...instantAccessoryRoles].filter(role => instantWardrobeIndex(role) >= 0)];
+  const look = instantPoseLook();
+  const pose = Math.min(canvasState.photoPose || 0, instantPoseChoices().length - 1);
+  const complete = look >= 0 && pose > 0;
+  const poseSheet = complete ? (look === 0 ? 'images/studio-walk-ivory.jpg' : look === 4 ? 'images/studio-walk-dress.jpg' : 'images/studio-avatar-poses.jpg') : 'images/studio-avatar-front.jpg';
+  return `<div class="instant-avatar${jacket >= 0 ? ' has-jacket' : ''}" style="--avatar-sheet:url('${poseSheet}')" role="img" aria-label="${instantPoseChoices()[pose]} outfit preview: ${worn.map(role => instantWardrobe[role][instantWardrobeIndex(role)]).join(', ')}">
+    ${complete ? `<span class="instant-avatar-layer layer-complete" style="--variant:${look === 0 || look === 4 ? pose - 1 : look}"></span>` : base.map(role => `<span class="instant-avatar-layer layer-${role.toLowerCase()}" style="--variant:${instantWardrobeIndex(role)}"></span>`).join('')}
+    ${jacket >= 0 ? `${instantJacketFitFilter()}<span class="instant-jacket-fit"><span class="instant-jacket jacket-left jacket-variant-${jacket}" style="--variant:${jacket}"></span><span class="instant-jacket jacket-right jacket-variant-${jacket}" style="--variant:${jacket}"></span></span>` : ''}
     ${instantAccessoryRoles.filter(role => instantWardrobeIndex(role) >= 0).map(role => role === 'Earrings' ? ['left', 'right'].map(side => `<span class="instant-wearable wearable-earrings earring-${side}">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('') : `<span class="instant-wearable wearable-${role.toLowerCase()}">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('')}
-  </div>${chips.map(role => `<span class="instant-worn worn-${role.toLowerCase()}" aria-hidden="true">${instantWardrobeArt(role, instantWardrobeIndex(role))}</span>`).join('')}`;
+  </div>${chips.map((role,index) => `<button class="instant-worn" style="--chip-row:${Math.floor(index / 2)};--chip-side:${index % 2}" aria-label="Change ${instantWardrobe[role][instantWardrobeIndex(role)]}" onclick="focusInstantCategory('${role}')">${instantWardrobeArt(role, instantWardrobeIndex(role))}</button>`).join('')}`;
+}
+function focusInstantCategory(role) {
+  const row = app.querySelector(`[data-instant-role="${role}"]`);
+  row?.scrollIntoView({block:'nearest', behavior:'instant'});
+  row?.querySelector('[aria-pressed="true"]')?.focus({preventScroll:true});
 }
 function setInstantPiece(role, index) {
   const existing = canvasState.items.find(x => instantPieceMatches(x, role));
@@ -4579,7 +4691,7 @@ function setInstantPiece(role, index) {
   const accessory = instantAccessoryRoles.includes(role);
   canvasState.items.push({ id: existing?.id || `${role}-${Date.now()}`, role: accessory ? 'Accessory' : role,
     ...(accessory ? {accessoryType:role} : {}), index, name: instantWardrobe[role][index], brand:'StyleIQ',
-    image: `images/${accessory ? 'studio-accessories.png' : role === 'Outerwear' ? 'studio-jackets.png' : role === 'Dress' ? 'studio-dresses.jpg' : 'studio-avatar-wardrobe.jpg'}`,
+    image: `images/${accessory ? 'studio-accessories.png' : role === 'Outerwear' ? 'studio-jackets.png' : role === 'Dress' ? 'studio-dresses.jpg' : 'studio-avatar-front.jpg'}`,
     owned:false, visible:true, instantVariant:index });
 }
 function restoreInstantSeparates() {
@@ -4593,6 +4705,7 @@ function restoreInstantSeparates() {
 function refreshInstantWardrobe() {
   const dress = instantWardrobeIndex('Dress') >= 0;
   app.querySelector('.instant-avatar-stage').innerHTML = instantAvatarMarkup();
+  app.querySelector('.instant-pose-controls').innerHTML = instantPoseControls();
   app.querySelector('.instant-dress-context').hidden = !dress;
   app.querySelectorAll('[data-instant-role]').forEach(row => {
     const role = row.dataset.instantRole, selected = instantWardrobeIndex(role);
@@ -4601,17 +4714,14 @@ function refreshInstantWardrobe() {
     row.querySelector('.instant-row-choice').textContent = selected < 0 ? (role === 'Dress' ? 'Wear separates' : 'None') : instantWardrobe[role][selected];
   });
 }
-function animateInstantPose(role, index) {
+function animateInstantOutfit() {
   const stage = app.querySelector('.instant-avatar-stage');
   if (!stage) return;
-  const pose = `${role.toLowerCase()}-${Math.max(0, index) % 4}`;
-  stage.dataset.pose = pose;
   stage.classList.remove('is-posing');
-  // Force a new animation cycle so repeated taps still feel responsive.
   void stage.offsetWidth;
   stage.classList.add('is-posing');
   clearTimeout(stage._poseTimer);
-  stage._poseTimer = setTimeout(() => stage.classList.remove('is-posing'), 620);
+  stage._poseTimer = setTimeout(() => stage.classList.remove('is-posing'), 180);
 }
 function chooseInstantPiece(role, index, center = true) {
   if (!instantWardrobe[role] || (index === -1 ? !instantOptionalRoles.includes(role) : !instantWardrobe[role][index])) return;
@@ -4623,18 +4733,18 @@ function chooseInstantPiece(role, index, center = true) {
     }
     canvasState.items = canvasState.items.filter(x => !['Top', 'Bottom'].includes(x.role));
   } else if (wasDress && (['Top', 'Bottom'].includes(role) || (role === 'Dress' && index < 0))) restoreInstantSeparates();
-  // Alternate complete model photography on every choice, including accessories.
-  canvasState.poseSet = canvasState.poseSet === 1 ? 0 : 1;
   setInstantPiece(role, index);
+  canvasState.photoPose = ((canvasState.photoPose || 0) + 1) % instantPoseChoices().length;
   persist();
   refreshInstantWardrobe();
-  animateInstantPose(role, index);
+  animateInstantOutfit();
   if (center) centerInstantRail(app.querySelector(`[data-instant-role="${role}"] .instant-rail`), true);
   app.querySelector('.instant-announcement').textContent = index < 0 ? `${instantLabels[role]} removed` : `${instantWardrobe[role][index]} selected`;
 }
 function centerInstantRail(rail, animate = false) {
   const selected = rail?.querySelector('[aria-pressed="true"]');
   if (!selected || !rail.clientWidth) return;
+  rail._instantUserScroll = false;
   const itemRect = selected.getBoundingClientRect(), railRect = rail.getBoundingClientRect();
   rail.scrollTo({left:rail.scrollLeft + itemRect.left + itemRect.width / 2 - railRect.left - rail.clientWidth / 2,
     behavior:animate && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'instant'});
@@ -4650,7 +4760,7 @@ function installInstantRailScrolling() {
     let timer, touching = false;
     const settle = () => {
       clearTimeout(timer);
-      if (touching || !rail.isConnected || !rail.clientWidth) return;
+      if (touching || !rail._instantUserScroll || !rail.isConnected || !rail.clientWidth) return;
       const middle = rail.getBoundingClientRect().left + rail.clientWidth / 2;
       const selected = [...rail.querySelectorAll('.instant-option')].reduce((nearest, button) => {
         const rect = button.getBoundingClientRect();
@@ -4658,13 +4768,17 @@ function installInstantRailScrolling() {
         return !nearest || distance < nearest.distance ? {button, distance} : nearest;
       }, null);
       const index = Number(selected.button.dataset.index);
+      rail._instantUserScroll = false;
       if (index !== instantWardrobeIndex(role)) chooseInstantPiece(role, index, false);
     };
     // Keep native touch momentum and vertical scrolling; debounce covers browsers without scrollend.
     const queueSettle = () => { clearTimeout(timer); timer = setTimeout(settle, 160); };
     rail.addEventListener('scroll', queueSettle, {passive:true});
     rail.addEventListener('scrollend', settle, {passive:true});
-    rail.addEventListener('touchstart', () => { touching = true; clearTimeout(timer); }, {passive:true});
+    rail.addEventListener('touchstart', () => { touching = true; rail._instantUserScroll = true; clearTimeout(timer); }, {passive:true});
+    rail.addEventListener('wheel', event => {
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY) || event.shiftKey) rail._instantUserScroll = true;
+    }, {passive:true});
     const release = event => { touching = event.touches.length > 0; if (!touching) queueSettle(); };
     rail.addEventListener('touchend', release, {passive:true});
     rail.addEventListener('touchcancel', release, {passive:true});
@@ -4700,10 +4814,12 @@ function instantStudio() {
   return `<section class="screen studio-instant"><div class="content no-nav instant-content">
     <header class="instant-header"><button class="instant-icon-button" aria-label="Back" onclick="backScreen()">${icon('back')}</button><div><p>STYLE STUDIO</p><h2>${escapeMarkup(canvasState.title)}</h2></div><button class="instant-save" onclick="saveInstantLook()">Save draft</button></header>
     <div class="instant-avatar-stage">${instantAvatarMarkup()}</div>
+    <div class="instant-pose-controls" role="group" aria-label="Model views">${instantPoseControls()}</div>
     <p class="instant-hint">Swipe sideways to try on · Scroll down for more</p>
     <section class="instant-wardrobe" aria-label="Choose your outfit">
     <div class="instant-dress-context" ${instantWardrobeIndex('Dress') < 0 ? 'hidden' : ''}><span>One-piece Look · Dress + shoes</span><button onclick="chooseInstantPiece('Dress',-1)">Wear separates</button></div>
     ${Object.entries(instantWardrobe).map(([role,names]) => instantWardrobeRow(role,names)).join('')}
+    <section class="instant-pose-looks" aria-label="Complete looks with pose views"><h3>Complete looks with pose views</h3><p>Try a styled outfit, then explore its poses.</p><div>${['Ivory shirt', 'Rust knit', 'Black shell', 'Blue shirt', 'Black dress'].map((name,index) => `<button onclick="applyInstantPoseLook(${index})" aria-label="Try complete ${name} look">${instantWardrobeArt(index === 4 ? 'Dress' : 'Top', index === 4 ? 0 : index)}<span>${name}</span></button>`).join('')}</div></section>
     </section><div class="instant-footer"><span>Interactive outfit preview</span><button onclick="go('F-05')">Edit Look details ${icon('chevron-right')}</button></div>
     <span class="sr-only instant-announcement" role="status" aria-live="polite"></span>
   </div></section>`;

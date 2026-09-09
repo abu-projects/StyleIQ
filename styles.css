@@ -1480,6 +1480,160 @@ img {
     box-shadow: var(--shadow);
   }
 }
+
+/* Saved Looks now lead with a living, try-on-style media surface. */
+.saved-look-media-block {
+  margin: -18px -18px 0;
+}
+.saved-look-media-frame {
+  position: relative;
+  width: 100%;
+  height: clamp(360px, 56vh, 420px);
+  overflow: hidden;
+  background: #e6e1db;
+}
+.saved-look-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center center;
+  background: #e6e1db;
+}
+.saved-look-media-frame video.saved-look-media {
+  object-fit: cover;
+}
+.saved-look-media-badge,
+.saved-look-media-live {
+  position: absolute;
+  top: 12px;
+  padding: 6px 9px;
+  border-radius: 7px;
+  background: rgba(251, 248, 243, 0.9);
+  color: var(--ink);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.saved-look-media-controls {
+  position: absolute;
+  z-index: 3;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.saved-look-media-arrows {
+  display: flex;
+  gap: 5px;
+  pointer-events: auto;
+}
+.saved-look-media-arrow {
+  display: grid;
+  width: 25px !important;
+  min-width: 25px !important;
+  height: 25px !important;
+  min-height: 25px !important;
+  padding: 0 !important;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 4px 11px rgba(33, 24, 20, 0.12);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  cursor: pointer;
+}
+.saved-look-media-dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: auto;
+}
+.saved-look-media-dot {
+  width: 5px !important;
+  min-width: 5px !important;
+  height: 5px !important;
+  min-height: 5px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  box-shadow: 0 1px 4px rgba(33, 24, 20, 0.2) !important;
+  cursor: pointer;
+}
+.saved-look-media-dot.active {
+  width: 18px !important;
+  min-width: 18px !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+}
+.saved-look-media-badge {
+  left: 12px;
+}
+.saved-look-media-live {
+  right: 12px;
+  color: var(--danger);
+}
+.saved-look-media-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 78px;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 18px 2px;
+  scrollbar-width: none;
+  background: var(--surface);
+}
+.saved-look-media-thumb {
+  position: relative;
+  height: 78px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--canvas);
+  padding: 0 0 15px;
+  cursor: pointer;
+}
+.saved-look-media-thumb.active {
+  border: 2px solid var(--ink);
+}
+.saved-look-media-thumb img,
+.saved-look-media-thumb video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.saved-look-media-thumb small {
+  position: absolute;
+  right: 4px;
+  bottom: 3px;
+  left: 4px;
+  color: var(--muted);
+  font-size: 7px;
+  text-align: center;
+}
+.media-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(27, 23, 22, 0.78);
+  color: #fff;
+  font-size: 9px;
+  transform: translate(-50%, -58%);
+}
 .status {
   color: var(--ink);
 }
@@ -3389,6 +3543,15 @@ button:hover,
 .studio-shopping-option > .wishlist-heart { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; }
 .pack-row > .wishlist-heart { position: static; }
 .wishlist-lens-product { display: flex; justify-content: space-between; align-items: center; margin: 14px 0; }
+.lens-wishlist-action { display: grid; gap: 12px; margin: 14px 0; padding: 13px; border: 1px solid var(--gold); border-radius: 16px; background: var(--gold-soft); }
+.lens-wishlist-action.is-saved { border-color: var(--green); background: color-mix(in srgb, var(--green) 9%, var(--paper)); }
+.lens-wishlist-copy { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.lens-wishlist-copy .icon-wrap { flex: 0 0 auto; width: 32px; height: 32px; color: var(--gold); }
+.lens-wishlist-action.is-saved .lens-wishlist-copy .icon-wrap { color: var(--green); }
+.lens-wishlist-copy b, .lens-wishlist-copy small { display: block; }
+.lens-wishlist-copy b { font-size: 12px; }
+.lens-wishlist-copy small { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+.lens-wishlist-button { width: 100%; min-height: 42px; }
 .wishlist-import-product { position: relative; min-width: 0; }
 .wishlist-import-product > .item-card { width: 100%; }
 .wishlist-import-product > .wishlist-heart { position: absolute; right: 8px; top: 8px; }
@@ -12377,10 +12540,25 @@ body {
 .instant-icon-button .icon { width: 20px; height: 20px; }
 .instant-avatar-stage { display: flex; justify-content: center; height: 300px; margin: 8px 0 0; overflow: hidden; }
 .instant-avatar { position: relative; height: 100%; aspect-ratio: 384 / 1024; isolation: isolate; }
-.instant-avatar-layer { position: absolute; inset: 0; background-image: var(--avatar-sheet, url('images/studio-avatar-wardrobe.jpg')); background-repeat: no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
+.instant-avatar-layer { position: absolute; inset: 0; background-image: var(--avatar-sheet, url('images/studio-avatar-front.jpg')); background-repeat: no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
 .instant-avatar .layer-bottom { clip-path: inset(34.6% 0 12.8%); }
 .instant-avatar .layer-shoes { clip-path: inset(87.2% 0 0); }
 .instant-avatar .layer-top { clip-path: polygon(0 0,100% 0,100% 55%,77% 55%,77% 34.6%,23% 34.6%,23% 55%,0 55%); }
+/* A jacket occludes the underlying shoulders and sleeves. Keep the head,
+   open-front torso and hands, but never expose a second set of sleeves. */
+.instant-avatar.has-jacket .layer-top {
+  mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000), linear-gradient(#000, #000);
+  mask-size: 100% 14.5%, 28% 35%, 100% 8%;
+  mask-position: center top, center top, center 51.1%;
+  mask-repeat: no-repeat;
+}
+.instant-avatar.has-jacket .layer-bottom { clip-path: polygon(23% 34.6%,77% 34.6%,77% 55%,100% 55%,100% 87.2%,0 87.2%,0 55%,23% 55%); }
+.instant-avatar.has-jacket .layer-dress {
+  mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000), linear-gradient(#000, #000), linear-gradient(#000, #000);
+  mask-size: 100% 14.5%, 28% 50%, 54% 65.4%, 100% 53%;
+  mask-position: center top, center top, center bottom, center bottom;
+  mask-repeat: no-repeat;
+}
 .instant-hint { text-align: center; margin: 0 0 14px; color: #77736f; font-size: 10px; }
 .instant-wardrobe { border-top: 1px solid #dedbd5; }
 .instant-row { padding: 6px 0 0; }
@@ -12393,7 +12571,7 @@ body {
 .instant-option[aria-pressed='true'] { opacity: 1; border-color: #9e978d; background: #ffffff70; }
 .instant-option:active { transform: scale(.96); opacity: 1; }
 .instant-option:focus-visible { outline: 2px solid #51493f; outline-offset: 2px; }
-.instant-piece-art { display: block; background-image: url('images/studio-avatar-wardrobe.jpg'); background-repeat: no-repeat; mix-blend-mode: multiply; pointer-events: none; }
+.instant-piece-art { display: block; background-image: url('images/studio-avatar-front.jpg'); background-repeat: no-repeat; mix-blend-mode: multiply; pointer-events: none; }
 .instant-piece-art.art-top { width: 42px; height: 44px; background-size: 224px 149.33px; background-position: calc(-7px - var(--variant) * 56px) -23px; clip-path: polygon(18% 0,82% 0,100% 100%,0 100%); }
 .instant-piece-art.art-bottom { width: 38px; height: 49px; background-size: 140px 93.33px; background-position: calc(1.5px - var(--variant) * 35px) -32.3px; clip-path: inset(0 20% 0 20%); }
 .instant-piece-art.art-shoes { width: 48px; height: 25px; background-size: 224px 149.33px; background-position: calc(-4px - var(--variant) * 56px) -127px; }
@@ -12410,26 +12588,23 @@ body {
   .instant-option:active { transform: none; }
 }
 .instant-avatar-stage { position: relative; }
-.instant-avatar-stage.is-posing .instant-avatar { animation: instant-pose-neutral .62s cubic-bezier(.22,.8,.24,1); transform-origin: 50% 82%; }
-.instant-avatar-stage.is-posing[data-pose^="top-"] .instant-avatar { animation-name: instant-pose-top; }
-.instant-avatar-stage.is-posing[data-pose^="bottom-"] .instant-avatar { animation-name: instant-pose-bottom; }
-.instant-avatar-stage.is-posing[data-pose^="shoes-"] .instant-avatar { animation-name: instant-pose-shoes; }
-.instant-avatar-stage.is-posing[data-pose^="outerwear-"] .instant-avatar { animation-name: instant-pose-jacket; }
-.instant-avatar-stage.is-posing[data-pose^="dress-"] .instant-avatar { animation-name: instant-pose-dress; }
-.instant-avatar-stage.is-posing[data-pose^="glasses-"] .instant-avatar,
-.instant-avatar-stage.is-posing[data-pose^="earrings-"] .instant-avatar,
-.instant-avatar-stage.is-posing[data-pose^="watch-"] .instant-avatar { animation-name: instant-pose-accessory; transform-origin: 50% 42%; }
-@keyframes instant-pose-neutral { 0% { transform: translateY(0) rotate(0); } 38% { transform: translateY(-3px) rotate(-.6deg); } 100% { transform: translateY(0) rotate(0); } }
-@keyframes instant-pose-top { 0% { transform: translateX(0) rotate(0); } 32% { transform: translateX(-4px) rotate(-1deg); } 100% { transform: translateX(0) rotate(0); } }
-@keyframes instant-pose-bottom { 0% { transform: translateY(0) rotate(0); } 34% { transform: translateY(3px) rotate(.7deg); } 100% { transform: translateY(0) rotate(0); } }
-@keyframes instant-pose-shoes { 0% { transform: translateX(0) rotate(0); } 35% { transform: translateX(4px) rotate(.8deg); } 100% { transform: translateX(0) rotate(0); } }
-@keyframes instant-pose-jacket { 0% { transform: translateX(0) rotate(0); } 30% { transform: translateX(-3px) rotate(-.8deg); } 60% { transform: translateX(2px) rotate(.5deg); } 100% { transform: translateX(0) rotate(0); } }
-@keyframes instant-pose-dress { 0% { transform: rotate(0) scale(1); } 38% { transform: rotate(-1deg) scale(1.015); } 100% { transform: rotate(0) scale(1); } }
-@keyframes instant-pose-accessory { 0% { transform: rotate(0) translateY(0); } 30% { transform: rotate(1.2deg) translateY(-2px); } 100% { transform: rotate(0) translateY(0); } }
+.instant-avatar-stage.is-posing .instant-avatar { animation: instant-outfit-reveal .18s ease-out; }
+@keyframes instant-outfit-reveal { from { opacity: .65; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   .instant-avatar-stage.is-posing .instant-avatar { animation: none; }
 }
-.instant-worn { position: absolute; display: grid; place-items: center; width: 44px; height: 48px; border: 1px solid #d8d4ce; border-radius: 6px; background: #f5f3ef; }
+.instant-worn { position: absolute; display: grid; place-items: center; width: 44px; height: 48px; padding: 0; border: 1px solid #d8d4ce; border-radius: 6px; background: #f5f3ef; top: calc(10% + var(--chip-row) * 23%); left: calc(6% + var(--chip-side) * (88% - 44px)); }
+.instant-worn:focus-visible { outline: 2px solid #51493f; outline-offset: 2px; }
+.instant-pose-controls { flex-shrink: 0; display: flex; justify-content: center; align-items: center; gap: 2px; min-height: 36px; }
+.instant-pose-controls button { min-height: 36px; padding: 4px 7px; font-size: 9px; color: #77736f; background: transparent; border: 0; border-bottom: 1px solid transparent; }
+.instant-pose-controls button[aria-pressed='true'] { color: #242321; border-bottom-color: currentColor; }
+.instant-pose-note { font-size: 9px; color: #77736f; }
+.instant-pose-looks { border-top: 1px solid #dedbd5; margin-top: 12px; padding-top: 12px; }
+.instant-pose-looks h3 { font-size: 11px; margin: 0; }
+.instant-pose-looks p { font-size: 9px; color: #77736f; margin: 6px 0; }
+.instant-pose-looks > div { display: flex; overflow-x: auto; gap: 8px; }
+.instant-pose-looks button { flex: 0 0 64px; display: flex; align-items: center; flex-direction: column; gap: 5px; padding: 8px 3px; font-size: 9px; border: 1px solid #dedbd5; border-radius: 6px; background: transparent; }
+.instant-pose-looks .instant-piece-art { height: 44px; }
 .instant-worn .instant-piece-art { transform: scale(.8); }
 .instant-worn.worn-top { top: 24%; left: 8%; }
 .instant-worn.worn-bottom { top: 51%; right: 8%; }
@@ -12450,9 +12625,17 @@ body {
 .instant-avatar .layer-dress { background-image: url('images/studio-dresses.jpg'); clip-path: inset(0 0 12.8%); }
 .instant-piece-art.art-dress { width: 36px; height: 53px; background-image: url('images/studio-dresses.jpg'); background-size: 144px 96px; background-position: calc(var(--variant) * -36px) -16px; }
 .instant-piece-art.art-outerwear { width: 48px; height: 48px; background-image: url('images/studio-jackets.png'); background-size: 192px 128px; background-position: calc(var(--variant) * -48px) -27px; mix-blend-mode: normal; }
-.instant-jacket { position: absolute; left: 6%; top: 0; width: 88%; height: 100%; background: url('images/studio-jackets.png') no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
-.instant-jacket.jacket-left { clip-path: polygon(42% 21.5%,31% 24%,12% 28%,5% 39%,0 74%,12% 74%,20% 45%,21% 70%,31% 74%,42% 67%,45% 50%,43% 35%,41% 26%); }
-.instant-jacket.jacket-right { clip-path: polygon(59% 21.5%,69% 24%,87% 28%,96% 42%,100% 74%,87% 74%,79% 44%,79% 70%,69% 74%,59% 67%,55% 50%,57% 35%,60% 26%); }
+.instant-jacket { position: absolute; left: 10%; top: 3%; width: 80%; height: 84%; background: url('images/studio-jackets-fitted.png') no-repeat; background-size: 400% 100%; background-position: calc(var(--variant) * 100% / 3) 0; }
+.instant-fit-defs { position: absolute; pointer-events: none; }
+.instant-jacket-fit { position: absolute; inset: 0; filter: url(#instant-shoulder-fit); pointer-events: none; }
+/* These silhouettes remove the source backdrop, including the open lapels.
+   Coordinates belong to the registered front pose only. */
+.instant-jacket.jacket-left { clip-path: polygon(43% 15.1%,34% 17.1%,21% 19.4%,18% 23%,5.6% 54.6%,16.5% 55%,28% 31%,28% 36%,20% 51.4%,29% 53.2%,36% 53.6%,41% 52.8%,44% 50%,46% 40%,43% 28%,42.5% 17.2%); }
+.instant-jacket.jacket-right { clip-path: polygon(62% 15.1%,69% 17.1%,86% 19.5%,89% 23%,99% 54.6%,88% 55%,78% 32%,77% 36%,85% 51.4%,77% 53.2%,70% 53.6%,64% 52.8%,61% 50%,59% 40%,63% 28%,63% 17.2%); }
+.instant-jacket.jacket-variant-2.jacket-left { clip-path: polygon(42% 15%,34% 17%,20% 19.3%,17% 23%,2% 54.3%,15% 54.8%,26% 34%,24% 42.8%,40% 44.2%,43% 42.8%,45% 30%,43% 17.3%); }
+.instant-jacket.jacket-variant-2.jacket-right { clip-path: polygon(58% 15%,68% 17%,84% 19.3%,88% 23%,96% 54.3%,83% 54.8%,75% 34%,76% 42.8%,63% 44.2%,59% 42.8%,58% 30%,60% 17.3%); }
+.instant-jacket.jacket-variant-3.jacket-left { clip-path: polygon(42% 15%,31% 17%,16% 19.5%,13% 23%,1.5% 54%,16% 54.8%,24% 35%,22% 53.8%,39% 54%,42% 43%,43% 29%,43% 17.3%); }
+.instant-jacket.jacket-variant-3.jacket-right { clip-path: polygon(59% 15%,70% 17%,85% 19.5%,88% 23%,96% 54%,84% 54.8%,76% 35%,79% 53.8%,62% 54%,60% 43%,57% 29%,58% 17.3%); }
 .instant-piece-art.art-glasses, .instant-piece-art.art-earrings, .instant-piece-art.art-watch { width: 52px; height: 52px; background-image: url('images/studio-accessories.png'); background-size: 300% 300%; background-position-x: calc(var(--variant) * 50%); mix-blend-mode: normal; }
 .instant-piece-art.art-glasses { background-position-y: 0; }
 .instant-piece-art.art-earrings { background-position-y: 50%; clip-path: inset(0 0 7%); }
