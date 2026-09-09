@@ -57,6 +57,7 @@ test.describe("Green Phase 1 onboarding", () => {
 
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("styleiqClosetItemsV1") || "[]")[0]?.name)).toBe("Blue linen overshirt");
     await page.reload();
+    await page.locator('.customer-scenario-controls').getByRole('button', { name: 'Existing customer' }).click();
     await app.getByRole("button", { name: "View Closet" }).click();
     await expect(app).toContainText("Blue linen overshirt");
     await expect(app).toContainText("Field Notes");
@@ -91,6 +92,7 @@ test.describe("Green Phase 1 onboarding", () => {
     });
     await page.reload();
     const app = page.locator("#app");
+    await page.locator('.customer-scenario-controls').getByRole('button', { name: 'Existing customer' }).click();
     await app.getByRole("button", { name: "Open StyleIQ" }).click();
     await expect(app).toHaveAttribute("data-screen", "D-02");
     await app.getByRole("button", { name: "View Closet" }).click();
@@ -101,12 +103,11 @@ test.describe("Green Phase 1 onboarding", () => {
     const app = await beginNewUser(page);
     await expect(app.getByText("Style Twin", { exact: true })).toHaveCount(0);
     await app.getByRole("button", { name: /Skip for now/ }).click();
-    await page.goto("/index.html#L-01");
+    await page.goto("/index.html?customer=new#L-01");
     await app.getByRole("button", { name: /Style Twin/ }).click();
     await expect(app.getByRole("heading", { name: "Create your Style Twin" })).toBeVisible();
     await expect.poll(() => page.evaluate(() => localStorage.getItem("styleiqPendingTryOnV1"))).not.toBeNull();
-    await page.evaluate(() => localStorage.setItem("styleiqTwinSetupV2", JSON.stringify({ id: "twin-phase-1", method: "photo", step: 4, complete: true })));
-    await page.reload();
+    await page.locator('.customer-scenario-controls').getByRole('button', { name: 'Existing customer' }).click();
     await expect(app).toHaveAttribute("data-screen", "E-06");
     await expect.poll(() => page.evaluate(() => localStorage.getItem("styleiqTryOnResultV1"))).not.toBeNull();
   });

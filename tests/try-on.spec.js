@@ -2,31 +2,26 @@ const { test, expect } = require('@playwright/test');
 
 async function openToday(page, completed = true) {
   await page.goto('/index.html#D-02');
-  if (completed) {
-    await page.evaluate(() => localStorage.setItem('styleiqTwinSetupV2', JSON.stringify({
-      method: 'photo', step: 4, complete: true, id: 'existing-twin'
-    })));
-    await page.reload();
-  }
+  const controls = page.locator('.customer-scenario-controls');
+  await controls.getByRole('button', { name: completed ? 'Existing customer' : 'New customer' }).click();
 }
 const tryOn = page => page.locator('.today-actions').getByRole('button', { name: 'Try On', exact: true });
 const route = (page, id) => expect(page.locator('#app')).toHaveAttribute('data-screen', id);
 
 for (const method of ['Use my photos', 'Create without personal photos']) {
   test(`unfinished Twin resumes selected Look after ${method} setup and reload`, async ({ page }) => {
-    await openToday(page, false);
-    await page.locator('.today-look-card').filter({ hasText: 'Asymmetric Black Dress' }).click();
-    await tryOn(page).click();
+    await page.goto('/index.html?customer=new#G-02');
+    await page.locator("#app").getByRole('button', { name: 'Try On', exact: true }).click();
     await route(page, 'H-01');
     await page.locator("#app").getByRole('button', { name: method }).click();
     await page.locator("#app").getByRole('button', { name: 'Use this reference' }).click();
     await page.reload();
     await page.locator("#app").getByRole('button', { name: 'Create first preview' }).click();
     await route(page, 'E-06');
-    await expect(page.locator('.tryon-copy h2')).toHaveText('Asymmetric Black Dress');
+    await expect(page.locator('.tryon-copy h2')).toHaveText('Design Review');
     await page.goBack();
-    await route(page, 'D-02');
-    await expect(page.locator('.today-hero h3')).toHaveText('Asymmetric Black Dress');
+    await route(page, 'G-02');
+    await expect(page.locator('#app')).toContainText('Design Review');
   });
 }
 
@@ -85,16 +80,18 @@ test('Make it mine passes the current formula and Closet matches to Studio', asy
   await page.reload();
   await expect(page.locator('.tryon-studio-formula')).toContainText('Black tailored blazer');
   const state = await page.evaluate(() => ({
-    twin: JSON.parse(localStorage.getItem('styleiqTwinSetupV2')),
+    scenario: new URL(location.href).searchParams.get('customer'),
+    result: JSON.parse(localStorage.getItem('styleiqTryOnResultV1')),
     canvas: JSON.parse(localStorage.getItem('styleiqAltaCanvasV2'))
   }));
-  expect(state.twin.id).toBe('existing-twin');
+  expect(state.scenario).toBe('existing');
+  expect(state.result.twinId).toBe('demo-existing-twin');
   expect(state.canvas.items.map(x => x.name)).toEqual(['Black tailored blazer', 'Ivory silk shell', 'Black straight trousers', 'Tan suede loafers']);
 });
 
 test('abandoned Try On does not hijack Profile Twin completion', async ({ page }) => {
-  await openToday(page, false);
-  await tryOn(page).click();
+  await page.goto('/index.html?customer=new#G-02');
+  await page.locator("#app").getByRole('button', { name: 'Try On', exact: true }).click();
   await page.locator("#app").getByRole('button', { name: 'Skip for now' }).click();
   await route(page, 'L-01');
   await page.locator('.profile-utility').filter({ hasText: 'Style Twin' }).click();
@@ -135,6 +132,7 @@ test('fresh E-06 deep link previews the result without marking Twin setup comple
   await expect(page.locator('.tryon-frame')).toHaveAttribute('aria-label', /3\/4 view/);
   expect(await page.evaluate(() => localStorage.getItem('styleiqTwinSetupV2'))).toBeNull();
   await page.locator("#app").getByRole('button', { name: 'Back to selected Look' }).click();
-  await tryOn(page).click();
+  await page.goto('/index.html?customer=new#G-02');
+  await page.locator("#app").getByRole('button', { name: 'Try On', exact: true }).click();
   await route(page, 'H-01');
 });

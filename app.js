@@ -594,16 +594,19 @@ const authIcon = (provider) =>
     : provider === "apple"
       ? `<span class="auth-provider-icon" aria-hidden="true"><svg viewBox="0 0 384 512"><path fill="currentColor" d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-81.1-19.7C63.3 141.2 4 181 4 262.2c0 24 4.4 48.8 13.3 74.7 11.9 34.7 54.7 119.8 99.4 118.4 23.4-.6 40-16.6 70.5-16.6 29.6 0 45 16.6 71.1 16.6 45.1-.7 83.7-78 95-112.8-60.4-28.5-57.2-72.1-34.6-73.8Zm-55.9-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3Z"/></svg></span>`
       : `<span class="auth-provider-icon" aria-hidden="true">${icon("mail")}</span>`;
-// Real editorial photography for people/model surfaces. Keep product cutouts local;
-// all human imagery in the prototype should read as ordinary photography.
-const unsplash = {
-  womanPortrait: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=900&q=85",
-  manPortrait: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85",
-  womanFashion: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=85",
-  womanStreet: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?auto=format&fit=crop&w=1200&q=85",
-  womanEditorial: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=1200&q=85",
-  manFashion: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=85",
-  coupleTravel: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=85",
+// Project-specific people photography. Each role has its own local image so
+// repeated surfaces stay consistent without recycling one generic stock shot.
+const peoplePhotos = {
+  womanPortrait: "images/person-amelia-profile.png",
+  manPortrait: "images/person-menswear-profile.png",
+  womanFashion: "images/look-coffee-meeting-cairo.png",
+  womanStreet: "images/look-soft-tailoring-cairo.png",
+  womanEditorial: "images/look-evening-cairo.png",
+  manFashion: "images/look-menswear-studio-cairo.png",
+  coupleTravel: "images/trip-packing-cairo.png",
+  musePortrait: "images/muse_portrait.png",
+  onboardingMuse: "images/onboarding-muse.png",
+  creatorPortrait: "images/profile_woman.png",
 };
 const assets = {
   top: "images/item_silk_shell.png",
@@ -613,14 +616,14 @@ const assets = {
   shoes: "images/cat_shoes.png",
   bag: "images/cat_bags.png",
   accessory: "images/cat_accessories.png",
-  look: unsplash.womanFashion,
-  look2: unsplash.womanStreet,
-  look3: unsplash.womanEditorial,
-  look4: unsplash.manFashion,
-  profile: unsplash.womanPortrait,
-  muse: unsplash.womanPortrait,
-  body: unsplash.womanFashion,
-  face: unsplash.womanPortrait,
+  look: peoplePhotos.womanFashion,
+  look2: peoplePhotos.womanStreet,
+  look3: peoplePhotos.womanEditorial,
+  look4: peoplePhotos.manFashion,
+  profile: peoplePhotos.womanPortrait,
+  muse: peoplePhotos.musePortrait,
+  body: peoplePhotos.womanFashion,
+  face: peoplePhotos.womanPortrait,
 };
 const alternatives = {
   Top: [
@@ -747,6 +750,20 @@ let currentId = ({ "G-8": "G-08", "G-9": "G-09" })[location.hash.slice(1)] || lo
   plannerEventCreated = localStorage.getItem("styleiqPlannerEventV2") !== null || localStorage.getItem("styleiqPlannerIntentV1") !== null,
   closetTab = "closet",
   walkthroughIndex = 0;
+// Reviewer-controlled customer context. The buttons write this to the URL so
+// reloads preserve the preview without inferring identity from browser storage.
+const requestedCustomerScenario = new URLSearchParams(location.search).get("customer");
+let customerScenario = ["new", "existing"].includes(requestedCustomerScenario)
+  ? requestedCustomerScenario
+  : currentId.startsWith("S-") || currentId.startsWith("A-")
+    ? "new"
+    : "existing";
+const isExistingCustomer = () => customerScenario === "existing";
+function syncCustomerScenarioUrl() {
+  const url = new URL(location.href);
+  url.searchParams.set("customer", customerScenario);
+  history.replaceState(null, "", url);
+}
 let feedbackReason = "",
   museContext = {
     label: "Open question",
@@ -754,8 +771,6 @@ let feedbackReason = "",
   };
 let stylingContext =
   localStorage.getItem("styleiqStylingContextV1") || "Womenswear";
-let onboardingComplete =
-  localStorage.getItem("styleiqOnboardingCompleteV1") === "true";
 let onboardingGoal = localStorage.getItem("styleiqOnboardingGoalV1") || "";
 let plannerIntent = (() => {
   try {
@@ -914,10 +929,11 @@ const closetSeed = [
   },
 ];
 let closetState = {
-    size:
-      localStorage.getItem("styleiqClosetSizeV1") === null
+    size: isExistingCustomer()
+      ? localStorage.getItem("styleiqClosetSizeV1") === null
         ? 12
-        : Math.max(0, Number(localStorage.getItem("styleiqClosetSizeV1")) || 0),
+        : Math.max(0, Number(localStorage.getItem("styleiqClosetSizeV1")) || 0)
+      : 0,
     query: "",
     category: "All",
     collection: "All pieces",
@@ -2584,13 +2600,13 @@ function decorateJobLauncher() {
   );
 }
 function completeOnboarding(destination = "D-02") {
-  onboardingComplete = true;
   localStorage.setItem("styleiqOnboardingCompleteV1", "true");
   localStorage.removeItem("styleiqOnboardingClosetPendingV1");
   go(destination);
 }
 function startNewUserOnboarding(destination = "A-05") {
-  onboardingComplete = false;
+  customerScenario = "new";
+  syncCustomerScenarioUrl();
   onboardingGoal = "";
   closetState.size = 0;
   localStorage.removeItem("styleiqOnboardingCompleteV1");
@@ -2615,25 +2631,25 @@ function finishOnboardingClosetImport(destination = "C-01") {
   else go(destination);
 }
 function openStyleIQ() {
-  go(onboardingComplete ? "D-02" : "S-01");
+  go(isExistingCustomer() ? "D-02" : "A-16");
 }
 const walkthroughSlides = [
   {
-    image: unsplash.womanEditorial,
+    image: peoplePhotos.onboardingMuse,
     alt: "Muse arranging outfit references in a sunlit wardrobe studio",
     eyebrow: "Your personal stylist",
     title: "Hi, I’m Muse.",
     body: "I learn your wardrobe, your taste, and the choices you actually make—then help you get more from every piece you own.",
   },
   {
-    image: unsplash.manFashion,
+    image: peoplePhotos.manFashion,
     alt: "A man choosing a navy tailored jacket in a wardrobe studio",
     eyebrow: "Daily style guidance",
     title: "Dress with purpose, every day.",
     body: "From workdays to weekends, StyleIQ helps you choose outfits that fit your plans, your lifestyle, and your personal style.",
   },
   {
-    image: unsplash.coupleTravel,
+    image: peoplePhotos.coupleTravel,
     alt: "A couple packing a considered capsule wardrobe for a trip",
     eyebrow: "Trip planning",
     title: "Pack smarter for every trip.",
@@ -2666,9 +2682,9 @@ function chooseStylingContext(value, destination) {
 function stylingContextSurface(editing = false) {
   const destination = editing ? "L-04" : "A-05",
     choices = [
-      ["Womenswear", unsplash.womanPortrait],
-      ["Menswear", unsplash.manPortrait],
-      ["Both", unsplash.womanFashion],
+      ["Womenswear", peoplePhotos.womanPortrait],
+      ["Menswear", peoplePhotos.manPortrait],
+      ["Both", peoplePhotos.coupleTravel],
     ];
   return `<section class="screen entry-screen"><div class="walkthrough-content"><div class="entry-top"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button>${brandLockup("micro")}<span></span></div><div style="margin-top:28px"><p class="eyebrow">${editing ? "Styling context" : "Personalize StyleIQ"}</p><h1 class="display">Which wardrobe should Muse style?</h1><p class="body">Choose Womenswear, Menswear, or Both. This is styling context, not an identity question.</p></div><div class="profile-choice-grid" role="group" aria-label="Styling context">${choices.map(([label, image]) => `<button class="styling-option" aria-pressed="${stylingContext === label}" onclick="chooseStylingContext('${label}','${destination}')"><img src="${image}" alt="${label} wardrobe"><b>${label}</b></button>`).join("")}</div><p class="helper" style="margin-top:14px">Your choice is saved and can be changed later from About you.</p></div></section>`;
 }
@@ -3714,7 +3730,7 @@ function discoverScreen(s) {
   if (idx === 4)
     return shell(
       "Look",
-      `<div class="row"><img src="${unsplash.womanPortrait}" class="thumb" style="width:44px;height:44px;border-radius:50%" alt="Camille Laurent"><span class="grow"><b>Camille Laurent</b><small class="body" style="display:block">Paris, FR</small></span><button class="btn small-btn">Follow</button></div><img class="hero-img" style="height:350px;margin-top:12px" src="${assets.look}" alt="Community Look"><div class="between" style="margin-top:12px"><span class="row">${icon("heart")} 1.1k · 18 comments</span><button class="btn small-btn" onclick="startTryOn('coffee', { sourceType: 'community-look' })">Try on me</button></div>`,
+      `<div class="row"><img src="${peoplePhotos.creatorPortrait}" class="thumb" style="width:44px;height:44px;border-radius:50%" alt="Camille Laurent"><span class="grow"><b>Camille Laurent</b><small class="body" style="display:block">Paris, FR</small></span><button class="btn small-btn">Follow</button></div><img class="hero-img" style="height:350px;margin-top:12px" src="${assets.look}" alt="Community Look"><div class="between" style="margin-top:12px"><span class="row">${icon("heart")} 1.1k · 18 comments</span><button class="btn small-btn" onclick="startTryOn('coffee', { sourceType: 'community-look' })">Try on me</button></div>`,
       { active: "discover" },
     );
   if (idx === 5) return canonicalTwinIntro();
@@ -3746,7 +3762,7 @@ function settingsDetail(title, rows) {
   );
 }
 function mirrorToday() {
-  if (closetItemCount() === 0) return todayBeforeClosetState();
+  if (!isExistingCustomer() || closetItemCount() === 0) return todayBeforeClosetState();
   if (todayMode === "loading") return todayLoadingState();
   if (todayMode === "missing-category") return todayMissingCategoryState();
   if (todayMode === "carousel") return todayCarouselState();
@@ -4227,26 +4243,27 @@ function openProfileTwin() {
   if (twinSetup.complete) { clearPendingTryOn(); go('H-01'); }
   else startTryOn('saved', { sourceType: 'profile' });
 }
+function newCustomerProfile() {
+  return shell(
+    "My Atelier",
+    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Your style profile will learn as you use StyleIQ.</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="empty image-first-empty profile-first-state"><div><div class="empty-art"><img src="${assets.blazer}" alt="A first wardrobe piece"></div><p class="eyebrow">Start your Atelier</p><h2 class="title">Your profile grows from your real wardrobe.</h2><p class="body">Add one piece to unlock Closet-based Looks, or create your private Style Twin when you want to preview an outfit.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item</button><button class="btn wide" style="margin-top:8px" onclick="openProfileTwin()">Create private preview</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Save pieces to review later</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Not created yet</small></button></div>`,
+    { active: "profile" },
+  );
+}
 function mirrorProfile() {
+  if (!isExistingCustomer()) return newCustomerProfile();
   return shell(
     "My Atelier",
     `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button onclick="go('G-01')">View All</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-14')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section><section class="mirror-profile-preview"><p class="eyebrow">My Closet</p><h3 class="title" style="font-size:20px">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body" style="display:block">1 owned piece</small></span><button class="btn small-btn" onclick="go('D-04')">Style</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Pieces under review</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
     { active: "profile" },
   );
 }
-let twinSetup = (() => {
-  try {
-    return (
-      JSON.parse(localStorage.getItem("styleiqTwinSetupV2")) || {
-        method: "photo",
-        step: 1,
-        complete: false,
-      }
-    );
-  } catch {
-    return { method: "photo", step: 1, complete: false };
-  }
-})();
+const storedTwinSetup = readTryOnState("styleiqTwinSetupV2");
+let twinSetup = isExistingCustomer()
+  ? { id: storedTwinSetup?.id || "demo-existing-twin", method: storedTwinSetup?.method || "photo", step: 4, complete: true }
+  : storedTwinSetup && !storedTwinSetup.complete
+    ? storedTwinSetup
+    : { method: "photo", step: 1, complete: false };
 
 // Look formula + renderer manifest. Production renderers can supply per-Twin assets here.
 const tryOnLooks = {
@@ -4254,7 +4271,7 @@ const tryOnLooks = {
     id: "coffee",
     title: "Coffee Meeting",
     context: "18°C · Office · Rain later",
-    sheet: unsplash.womanFashion,
+    sheet: peoplePhotos.womanFashion,
     remote: true,
     row: 0,
     pieces: [
@@ -4268,7 +4285,7 @@ const tryOnLooks = {
     id: "tailoring",
     title: "Soft Tailoring",
     context: "18°C · Office",
-    sheet: unsplash.womanStreet,
+    sheet: peoplePhotos.womanStreet,
     remote: true,
     row: 1,
     pieces: [
@@ -4282,7 +4299,7 @@ const tryOnLooks = {
     id: "evening",
     title: "Asymmetric Black Dress",
     context: "Evening · Client reference",
-    sheet: unsplash.womanEditorial,
+    sheet: peoplePhotos.womanEditorial,
     remote: true,
     row: 0,
     reference: true,
@@ -4368,6 +4385,8 @@ function resumeTryOn() {
 function completeTwinSetup() {
   twinSetup.step = 4;
   twinSetup.complete = true;
+  customerScenario = "existing";
+  syncCustomerScenarioUrl();
   persistTwin();
   if (pendingTryOn) resumeTryOn();
   else go("H-10");
@@ -4484,36 +4503,55 @@ function tryOnResult() {
   return `<section class="screen tryon-screen"><header class="tryon-head"><button class="icon-btn" aria-label="Back to selected Look" onclick="leaveTryOn()">${icon("back")}</button><b>Try On</b><span style="width:44px" aria-hidden="true"></span></header><div class="tryon-copy"><p class="eyebrow">On your Style Twin</p><h2>${escapeMarkup(look.title)}</h2><small>${escapeMarkup(look.context)}</small></div><div class="tryon-stage gesture-surface" tabindex="0" role="group" aria-label="Inspect your dressed Style Twin. Swipe or use left and right arrow keys."><div class="tryon-frame ${look.reference ? "reference" : ""}" role="img" aria-label="${escapeMarkup(look.title)} on your Style Twin — ${tryOnAngles[angle]} view" style="background-image:url('${look.sheet}');background-position:${(angle * 100) / 3}% ${look.row * 100}%"></div><button class="tryon-arrow previous" aria-label="Previous view" onclick="setTryOnAngle(tryOnSession.angle-1)">${icon("chevron-left")}</button><button class="tryon-arrow next" aria-label="Next view" onclick="setTryOnAngle(tryOnSession.angle+1)">${icon("chevron-right")}</button></div><p class="tryon-hint"><span id="tryon-angle-status" aria-live="polite">${tryOnAngles[angle]} view · ${angle + 1} / 4</span> · Swipe to explore</p><footer class="tryon-footer"><button class="btn primary wide" onclick="makeLookMine(tryOnSession.selectedLook)">Make it mine</button><button class="btn wide" onclick="tryAnotherLook()">Try another Look</button><details><summary>${look.pieces.length} pieces in this Look</summary><ul>${look.pieces.map((piece) => `<li>${escapeMarkup(piece[1])}</li>`).join("")}</ul></details><small class="small">Prepared prototype views · Neutral studio</small></footer></section>`;
 }
 
-function twinDemoControls() {
-  return `<fieldset class="twin-demo-controls"><legend>Style Twin · customer scenario</legend><div class="twin-demo-options" role="group" aria-label="Customer scenario"><button aria-pressed="${!twinSetup.complete}" onclick="setTwinCustomerScenario('new')"><b>New customer</b><small>No Style Twin yet</small></button><button aria-pressed="${!!twinSetup.complete}" onclick="setTwinCustomerScenario('existing')"><b>Existing customer</b><small>Style Twin ready</small></button></div><p>Preview controls: Profile opens ${twinSetup.complete ? "your existing Twin. Today → Try On opens the result directly." : "Twin setup. Today → Try On resumes after setup."}</p></fieldset>`;
+const scenarioScreenGroups = {
+  entry: new Set(["S-00"]),
+  today: new Set(["D-02"]),
+  closet: new Set(["C-01"]),
+  profile: new Set(["L-01"]),
+  twin: new Set(["A-07", "E-05", "H-01", "K-05", "L-09"]),
+};
+function customerScenarioContext(id) {
+  const group = Object.entries(scenarioScreenGroups).find(([, ids]) => ids.has(id))?.[0];
+  if (!group) return null;
+  return {
+    entry: ["Entry flow", "Sign up + onboarding", "Open Today", "Splash opens the flow selected here."],
+    today: ["Today state", "Empty first-day view", "Personalized Looks", "Preview the empty and populated Today experiences."],
+    closet: ["Closet state", "No items yet", "Wardrobe ready", "Preview the empty and populated Closet experiences."],
+    profile: ["Profile state", "Getting started", "Profile populated", "Preview the first-use and established Profile views."],
+    twin: ["Style Twin flow", "No Style Twin yet", "Style Twin ready", "Open setup or manage the completed Twin."],
+  }[group];
 }
-function setTwinCustomerScenario(scenario) {
+function customerScenarioControls(id) {
+  const context = customerScenarioContext(id);
+  if (!context) return "";
+  const [label, newDetail, existingDetail, description] = context;
+  return `<fieldset class="twin-demo-controls customer-scenario-controls"><legend>${label} · customer scenario</legend><div class="twin-demo-options" role="group" aria-label="Customer scenario"><button aria-pressed="${!isExistingCustomer()}" onclick="setCustomerScenario('new')"><b>New customer</b><small>${newDetail}</small></button><button aria-pressed="${isExistingCustomer()}" onclick="setCustomerScenario('existing')"><b>Existing customer</b><small>${existingDetail}</small></button></div><p>${description}</p></fieldset>`;
+}
+function setCustomerScenario(scenario) {
   if (!["new", "existing"].includes(scenario)) return;
-  if (twinSetup.complete)
-    localStorage.setItem(
-      "styleiqCompletedTwinDemoV1",
-      JSON.stringify(twinSetup),
-    );
+  customerScenario = scenario;
+  syncCustomerScenarioUrl();
+  closetState.size = scenario === "existing" ? 12 : 0;
   if (scenario === "new")
     twinSetup = { method: "photo", step: 1, complete: false };
-  else {
-    const saved = readTryOnState("styleiqCompletedTwinDemoV1");
-    twinSetup = saved?.complete
-      ? saved
-      : { id: "demo-existing-twin", method: "photo", step: 4, complete: true };
-  }
-  persistTwin();
-  clearPendingTryOn();
+  else twinSetup = { id: "demo-existing-twin", method: "photo", step: 4, complete: true };
+  if (scenario === "new") pendingTryOn = null;
   tryOnSession = null;
-  localStorage.removeItem("styleiqTryOnResultV1");
   navHistory = navHistory.filter((id) => !id.startsWith("H-") && id !== "E-06");
-  if (
+  if (scenario === "existing" && pendingTryOn) {
+    resumeTryOn();
+  } else if (
     currentId.startsWith("H-") ||
     ["L-09", "E-05", "E-06"].includes(currentId)
   ) {
     if (currentId === "H-01") render();
     else go("H-01", { record: false });
   } else render();
+}
+// Backward-compatible name for older prototype links. The implementation is
+// now the general customer switch rather than a Twin/cache switch.
+function setTwinCustomerScenario(scenario) {
+  setCustomerScenario(scenario);
 }
 function continueTryOnFromTwin() {
   if (pendingTryOn) return resumeTryOn();
@@ -5403,7 +5441,7 @@ function renderScreen(s) {
 function renderNotes(s) {
   const managingTwin =
     twinSetup.complete && ["H-01", "H-10", "L-09", "E-05"].includes(s.id);
-  notes.innerHTML = `${twinDemoControls()}<span class="phase-pill">Phase ${s.phase}</span><p class="eyebrow" style="margin-top:16px">${s.id} · ${sections[s.section]}</p><h2>${managingTwin ? "Style Twin · manage existing Twin" : s.title}</h2><p class="body">${managingTwin ? "View the completed Twin, try a Look, or refine without repeating setup." : s.detail}</p><div class="notes-grid"><div class="metric"><b>Surface</b><span>${["B-01", "I-03", "J-11"].includes(s.id) ? "Bottom sheet / menu" : s.section === "F" ? "Full-screen editor" : "Mobile screen / state"}</span></div><div class="metric"><b>Style</b><span>Warm pearl, espresso, restrained plum</span></div><div class="metric"><b>Inventory</b><span>${screens.indexOf(s) + 1} of ${screens.length}</span></div><div class="metric"><b>Keyboard</b><span><span class="kbd">←</span> <span class="kbd">→</span></span></div></div>${s.section === "F" ? "<ul><li>Editable title and persistent draft</li><li>Flat lay and optional Style Twin</li><li>Owned versus Shop provenance</li><li>Category layers, visibility, replace, remove</li><li>Closet/Wishlist selector with search and filters</li><li>Date, location, calendar, feedback, Save Look</li></ul>" : ""}<div class="row" style="margin-top:18px"><button class="btn grow" onclick="openPreviousInventoryScreen()">Previous screen</button><button class="btn primary grow" onclick="openNextInventoryScreen()">Next screen</button></div>`;
+  notes.innerHTML = `${customerScenarioControls(s.id)}<span class="phase-pill">Phase ${s.phase}</span><p class="eyebrow" style="margin-top:16px">${s.id} · ${sections[s.section]}</p><h2>${managingTwin ? "Style Twin · manage existing Twin" : s.title}</h2><p class="body">${managingTwin ? "View the completed Twin, try a Look, or refine without repeating setup." : s.detail}</p><div class="notes-grid"><div class="metric"><b>Surface</b><span>${["B-01", "I-03", "J-11"].includes(s.id) ? "Bottom sheet / menu" : s.section === "F" ? "Full-screen editor" : "Mobile screen / state"}</span></div><div class="metric"><b>Style</b><span>Warm pearl, espresso, restrained plum</span></div><div class="metric"><b>Inventory</b><span>${screens.indexOf(s) + 1} of ${screens.length}</span></div><div class="metric"><b>Keyboard</b><span><span class="kbd">←</span> <span class="kbd">→</span></span></div></div>${s.section === "F" ? "<ul><li>Editable title and persistent draft</li><li>Flat lay and optional Style Twin</li><li>Owned versus Shop provenance</li><li>Category layers, visibility, replace, remove</li><li>Closet/Wishlist selector with search and filters</li><li>Date, location, calendar, feedback, Save Look</li></ul>" : ""}<div class="row" style="margin-top:18px"><button class="btn grow" onclick="openPreviousInventoryScreen()">Previous screen</button><button class="btn primary grow" onclick="openNextInventoryScreen()">Next screen</button></div>`;
 }
 function renderList() {
   const q = document.getElementById("screen-search").value.toLowerCase(),
