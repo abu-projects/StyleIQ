@@ -133,6 +133,18 @@ const raw = {
     ["Refine · alias", "Canonical setup step 3."],
     ["Refine · alias", "Canonical setup step 3."],
     ["First result", "Canonical setup step 4."],
+    [
+      "Creator discovery",
+      "Browse outfits and style inspiration from other Creators.",
+    ],
+    [
+      "Creator profile",
+      "Curated creator profile with style direction and featured looks.",
+    ],
+    [
+      "Creator look detail",
+      "Creator outfit breakdown, Muse styling notes, and Make It Mine.",
+    ],
   ],
   I: [
     ["Calendar month", "Month navigation, daily Add, today."],
@@ -1743,6 +1755,9 @@ const backRoutes = {
   "H-08": "H-07",
   "H-09": "H-08",
   "H-10": "H-09",
+  "H-11": "F-01",
+  "H-12": "H-11",
+  "H-13": "H-12",
   "I-01": "L-01",
   "I-02": "I-01",
   "I-03": "I-01",
@@ -1866,7 +1881,7 @@ function go(id, { record = true } = {}) {
   if (!screens.some((s) => s.id === id)) return;
   if (id === currentId) {
     if (accountMenuOpen || wishlistDialog) { accountMenuOpen = false; wishlistDialog = null; render(); }
-    else if (["C-02", "G-02"].includes(id)) render();
+    else if (["C-02", "G-02", "F-01"].includes(id)) render();
     presentStudioRoute(true);
     return;
   }
@@ -1889,6 +1904,10 @@ function go(id, { record = true } = {}) {
   )
     localStorage.removeItem("styleiqOnboardingClosetPendingV1");
   if (currentId === "B-06" && id !== "B-06") { closetPurchaseDraft = null; localStorage.removeItem("styleiqClosetPurchaseDraftV1"); }
+  if (currentId.startsWith("F-") && !id.startsWith("F-") && !["H-11", "H-12", "H-13"].includes(id)) {
+    studioSourceContext = null;
+    creatorReferenceContext = null;
+  }
   wishlistDialog = null;
   currentId = id;
   location.hash = id;
@@ -1905,6 +1924,19 @@ function backScreen() {
   if (wishlistDialog) { closeWishlistDialog(); return; }
   if (currentId === "E-06") {
     leaveTryOn();
+    return;
+  }
+  if (currentId.startsWith("F-") && studioSourceContext) {
+    if (studioSourceContext === "creator") {
+      const returnTarget = creatorReferenceContext?.lookId ? "H-13" : "H-11";
+      studioSourceContext = null;
+      go(returnTarget);
+      return;
+    }
+    studioSourceContext = null;
+    currentId = "F-01";
+    location.hash = "F-01";
+    render();
     return;
   }
   if (currentId === "H-01" && pendingTryOn) {
@@ -3110,7 +3142,7 @@ const lookSourceLabels = {
   muse_assisted: "With Muse",
   muse_generated: "Muse Generated",
   inspiration_recreated: "Recreated from Inspiration",
-  creator_recreated: "Creator / Lens",
+  creator_recreated: "Creator Look",
   lens_recreated: "Creator / Lens",
   today_saved: "Saved from Today",
   trip_generated: "Trip Generated",
@@ -3229,6 +3261,1024 @@ function myLooksGrid() {
     { active: "profile" },
   );
 }
+
+// ---------------------------------------------------------------------------
+// SECTION H EXTENSION: CREATOR EXPERIENCE & STUDIO INTEGRATION
+// ---------------------------------------------------------------------------
+
+const creatorDataset = [
+  {
+    id: "maya-chen",
+    name: "Maya Chen",
+    avatar: "images/profile_woman.png",
+    styleDirection: "Minimal tailoring · neutral layering",
+    description: "Modern minimal tailoring with warm neutrals, fluid drape, and relaxed everyday proportions.",
+    dominantTags: ["Minimal", "Work", "Neutral", "Layered"],
+    patterns: [
+      "Oversized blazer + fine-gauge ribbed knit base",
+      "Tonal neutral layering across cream, tan, and black",
+      "Structured wide-leg trousers anchoring clean leather footwear"
+    ],
+    looks: [
+      {
+        id: "maya-work",
+        title: "Soft Workday",
+        occasion: "Work",
+        styleDirection: "Work · Minimal · Layered",
+        image: "images/outfit_soft_tailoring.png",
+        museExplanation: "This look works because it combines one structured layer, a simple fitted base, relaxed trousers, and a minimal shoe.",
+        pieces: [
+          { role: "Outerwear", name: "Cream Blazer", original: "Cream tailored blazer", image: "images/item_blazer.png" },
+          { role: "Top", name: "White Knit", original: "Fine-gauge ribbed knit", image: "images/screen_23_item.png" },
+          { role: "Bottom", name: "Wide-Leg Trouser", original: "Pleated wide-leg trousers", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "Leather Loafer", original: "Black leather penny loafers", image: "images/cat_shoes.png" }
+        ]
+      },
+      {
+        id: "maya-weekend",
+        title: "Weekend Layers",
+        occasion: "Casual",
+        styleDirection: "Casual · Minimal · Layered",
+        image: "images/alta-look-rust-cream-flatlay.png",
+        museExplanation: "Warm earth tones balance fluid trousers with an easy, relaxed knit for effortless weekend wear.",
+        pieces: [
+          { role: "Top", name: "Rust Square-Neck Knit", original: "Rust square-neck knit top", image: "images/alta-rust-knit-top.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Cream fluid tailored trousers", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "Tan Suede Loafers", original: "Tan unlined suede loafers", image: "images/alta-tan-suede-loafers.png" },
+          { role: "Accessory", name: "Espresso Silver Belt", original: "Slim espresso belt", image: "images/alta-espresso-silver-belt.png" }
+        ]
+      },
+      {
+        id: "maya-dinner",
+        title: "Dinner Minimal",
+        occasion: "Evening",
+        styleDirection: "Evening · Minimal · Sleek",
+        image: "images/outfit_dinner_classic.png",
+        museExplanation: "Monochrome black creates immediate evening polish through high-contrast textures of matte silk and wool.",
+        pieces: [
+          { role: "Outerwear", name: "Black Open Blazer", original: "Black unstructured blazer", image: "images/item_blazer.png" },
+          { role: "Top", name: "Black Silk Shell", original: "Matte silk tank shell", image: "images/item_silk_shell.png" },
+          { role: "Bottom", name: "Black Tailored Trousers", original: "Sharp creased black trousers", image: "images/alta-black-tailored-trousers.png" },
+          { role: "Accessory", name: "Gold Hoops", original: "Medium hollow gold hoops", image: "images/cat_accessories.png" }
+        ]
+      },
+      {
+        id: "maya-travel",
+        title: "Travel Capsule",
+        occasion: "Travel",
+        styleDirection: "Travel · Smart Casual · Comfortable",
+        image: "images/alta-look-alexandria-tailoring.png",
+        museExplanation: "Wrinkle-resistant tailoring paired with clean court sneakers delivers comfort across transit without losing tailoring structure.",
+        pieces: [
+          { role: "Outerwear", name: "Camel Open Blazer", original: "Camel wool-blend blazer", image: "images/item_blazer.png" },
+          { role: "Top", name: "Ivory Cotton Shirt", original: "Relaxed poplin button-down", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Draped wide-leg trousers", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "White Sneakers", original: "Low-profile court sneakers", image: "images/cat_shoes.png" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "marcus-vance",
+    name: "Marcus Vance",
+    avatar: "images/person-menswear-profile.png",
+    styleDirection: "Architectural tailoring · quiet luxury",
+    description: "Sharp shoulder lines, crisp Italian shirting, and tonal flannel trousers for modern editorial presence.",
+    dominantTags: ["Tailoring", "Quiet Luxury", "Classic", "Work"],
+    patterns: [
+      "Structured jacket + relaxed pleated trouser",
+      "Tone-on-tone charcoal and midnight suiting",
+      "Chunky derbies or polished loafers anchoring soft fabric"
+    ],
+    looks: [
+      {
+        id: "marcus-studio",
+        title: "Modern Studio Uniform",
+        occasion: "Work",
+        styleDirection: "Work · Tailoring · Classic",
+        image: "images/look-menswear-studio-cairo.png",
+        museExplanation: "A structured navy blazer elevates neutral wool trousers while a soft collar keeps the silhouette relaxed.",
+        pieces: [
+          { role: "Outerwear", name: "Navy Wool Jacket", original: "Midnight navy tailored jacket", image: "images/item_blazer.png" },
+          { role: "Top", name: "Crisp White Shirt", original: "Textured cotton spread-collar shirt", image: "images/screen_23_item.png" },
+          { role: "Bottom", name: "Charcoal Pleated Trousers", original: "Double-pleated charcoal trousers", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "Black Leather Loafers", original: "Brushed black leather loafers", image: "images/cat_shoes.png" }
+        ]
+      },
+      {
+        id: "marcus-casual",
+        title: "Elevated Everyday",
+        occasion: "Casual",
+        styleDirection: "Smart Casual · Minimal · Timeless",
+        image: "images/style_classic_man.png",
+        museExplanation: "Understated luxury through simple cashmere and well-fitted dark trousers.",
+        pieces: [
+          { role: "Top", name: "Charcoal Knit Crewneck", original: "Fine wool crewneck", image: "images/screen_23_item.png" },
+          { role: "Bottom", name: "Straight Indigo Denim", original: "Japanese selvedge denim", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "Black Ankle Boots", original: "Clean chelsea boots", image: "images/cat_shoes.png" }
+        ]
+      },
+      {
+        id: "marcus-evening",
+        title: "Dusk Contrast",
+        occasion: "Evening",
+        styleDirection: "Evening · Modern · Tailored",
+        image: "images/style_modern_prof_man.png",
+        museExplanation: "Subtle sheen on dark tailoring creates an elevated evening appearance without formal stiffness.",
+        pieces: [
+          { role: "Outerwear", name: "Black Open Blazer", original: "Tailored evening jacket", image: "images/item_blazer.png" },
+          { role: "Top", name: "Ivory Silk Shirt", original: "Fluid silk shirt", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Black Tailored Trousers", original: "Slim evening trousers", image: "images/alta-black-tailored-trousers.png" },
+          { role: "Shoes", name: "Black Leather Loafers", original: "Patent leather dress shoes", image: "images/cat_shoes.png" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "camille-laurent",
+    name: "Camille Laurent",
+    avatar: "images/style_elevated_everyday.png",
+    styleDirection: "Parisian ease · relaxed elegance",
+    description: "Effortless French proportions combining slouchy suiting, elevated knitwear, and timeless leather accents.",
+    dominantTags: ["Smart Casual", "Work", "Parisian", "Neutral"],
+    patterns: [
+      "Slouchy blazer + classic straight denim",
+      "Monochrome knit + tailored coat",
+      "Ballet flats or loafers balancing generous volumes"
+    ],
+    looks: [
+      {
+        id: "camille-ease",
+        title: "Tailored Ease",
+        occasion: "Smart Casual",
+        styleDirection: "Smart Casual · Parisian · Layered",
+        image: "images/outfit_relaxed_structure.png",
+        museExplanation: "Combines an oversized tailored silhouette with approachable straight denim and soft leather footwear.",
+        pieces: [
+          { role: "Outerwear", name: "Black Open Blazer", original: "Oversized wool blazer", image: "images/item_blazer.png" },
+          { role: "Top", name: "Ivory Cotton Shirt", original: "Poplin oversized shirt", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Straight Blue Jeans", original: "High-waist straight leg jeans", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "Black Ballet Flats", original: "Soft lambskin ballet flats", image: "images/cat_shoes.png" }
+        ]
+      },
+      {
+        id: "camille-coffee",
+        title: "Morning Gallery Walk",
+        occasion: "Casual",
+        styleDirection: "Casual · Work · Minimal",
+        image: "images/outfit_coffee_meeting.png",
+        museExplanation: "Refined neutral palette with a structured blazer that transitions seamlessly from morning coffee to gallery meetings.",
+        pieces: [
+          { role: "Outerwear", name: "Camel Open Blazer", original: "Warm camel wool blazer", image: "images/item_blazer.png" },
+          { role: "Top", name: "White Knit", original: "Fine rib knit top", image: "images/screen_23_item.png" },
+          { role: "Bottom", name: "Black Tailored Trousers", original: "Cropped tailored trousers", image: "images/alta-black-tailored-trousers.png" },
+          { role: "Shoes", name: "Tan Suede Loafers", original: "Tonal suede loafers", image: "images/alta-tan-suede-loafers.png" }
+        ]
+      },
+      {
+        id: "camille-night",
+        title: "Bistro Chic",
+        occasion: "Evening",
+        styleDirection: "Evening · Parisian · Classic",
+        image: "images/look-evening-cairo.png",
+        museExplanation: "Understated cocktail attire anchored by a clean silhouette and fine gold jewelry.",
+        pieces: [
+          { role: "Top", name: "Black Silk Shell", original: "Silk halter shell", image: "images/item_silk_shell.png" },
+          { role: "Bottom", name: "Black Tailored Trousers", original: "High-rise fluid trousers", image: "images/alta-black-tailored-trousers.png" },
+          { role: "Shoes", name: "Black Ballet Flats", original: "Pointed leather flats", image: "images/cat_shoes.png" },
+          { role: "Accessory", name: "Gold Hoops", original: "Bold twisted hoops", image: "images/cat_accessories.png" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "noor-haddad",
+    name: "Noor Haddad",
+    avatar: "images/style_creative.png",
+    styleDirection: "Sculptural monochrome · fluid evening",
+    description: "High-contrast silhouettes, statement drapery, and understated leather accents inspired by modern architecture.",
+    dominantTags: ["Evening", "Minimal", "Monochrome", "Creative"],
+    patterns: [
+      "Asymmetric drape + sharp tailoring",
+      "High monochrome contrast with gold hardware",
+      "Clean architectural lines without print"
+    ],
+    looks: [
+      {
+        id: "noor-dinner",
+        title: "Sculpted Evening",
+        occasion: "Evening",
+        styleDirection: "Evening · Creative · Monochrome",
+        image: "images/look-coffee-meeting-cairo.png",
+        museExplanation: "Strong monochrome lines create a commanding evening profile that lets architectural jewelry stand out.",
+        pieces: [
+          { role: "Top", name: "Black Silk Shell", original: "Asymmetric silk top", image: "images/item_silk_shell.png" },
+          { role: "Bottom", name: "Black Tailored Trousers", original: "Pleated wide trousers", image: "images/alta-black-tailored-trousers.png" },
+          { role: "Accessory", name: "Oxblood Crescent Bag", original: "Sculptural leather shoulder bag", image: "images/alta-oxblood-crescent-bag.png" },
+          { role: "Accessory", name: "Gold Hoops", original: "Sculptural gold hoops", image: "images/cat_accessories.png" }
+        ]
+      },
+      {
+        id: "noor-fluid",
+        title: "Gallery Reception",
+        occasion: "Creative",
+        styleDirection: "Creative · Smart Casual · Tonal",
+        image: "images/outfit_creative_tonal.png",
+        museExplanation: "A warm tonal gradient softens dramatic proportions for creative industry gatherings.",
+        pieces: [
+          { role: "Outerwear", name: "Camel Open Blazer", original: "Draped camel blazer", image: "images/item_blazer.png" },
+          { role: "Top", name: "Rust Square-Neck Knit", original: "Textured terracotta knit", image: "images/alta-rust-knit-top.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Ivory wide trousers", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "Tan Suede Loafers", original: "Minimal loafers", image: "images/alta-tan-suede-loafers.png" }
+        ]
+      },
+      {
+        id: "noor-minimal",
+        title: "Quiet Structure",
+        occasion: "Work",
+        styleDirection: "Minimal · Work · Neutral",
+        image: "images/outfit_neutral_minimal.png",
+        museExplanation: "Meticulous tailoring in monochrome tones that projects calm authority.",
+        pieces: [
+          { role: "Outerwear", name: "Black Open Blazer", original: "Single-breasted black blazer", image: "images/item_blazer.png" },
+          { role: "Top", name: "Ivory Cotton Shirt", original: "Crisp menswear-cut shirt", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Black Tailored Trousers", original: "Tailored wool trousers", image: "images/alta-black-tailored-trousers.png" },
+          { role: "Shoes", name: "Leather Loafer", original: "Classic black loafers", image: "images/cat_shoes.png" }
+        ]
+      }
+    ]
+  },
+  {
+    id: "elena-rostova",
+    name: "Elena Rostova",
+    avatar: "images/style_minimal.png",
+    styleDirection: "Resort minimalism · vacation capsules",
+    description: "Airy linen layers, tonal sun-washed textures, and relaxed coastal tailoring made for seamless travel.",
+    dominantTags: ["Vacation", "Minimal", "Relaxed", "Travel"],
+    patterns: [
+      "Lightweight trench + linen separates",
+      "Sun-bleached neutral palette (ivory, cream, oat)",
+      "Unstructured layering suitable for warm climates"
+    ],
+    looks: [
+      {
+        id: "elena-coastal",
+        title: "Mediterranean Transit",
+        occasion: "Vacation",
+        styleDirection: "Vacation · Minimal · Relaxed",
+        image: "images/alta-look-cairo-tailoring.png",
+        museExplanation: "Light breathable cotton and fluid trousers keep transit comfortable while looking immaculately put together.",
+        pieces: [
+          { role: "Outerwear", name: "Camel Open Blazer", original: "Linen-blend lightweight duster", image: "images/item_blazer.png" },
+          { role: "Top", name: "Ivory Cotton Shirt", original: "Breezy poplin tunic", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Linen wide trousers", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "Tan Suede Loafers", original: "Collapsible heel loafers", image: "images/alta-tan-suede-loafers.png" }
+        ]
+      },
+      {
+        id: "elena-sunset",
+        title: "Harbor Dinner",
+        occasion: "Evening",
+        styleDirection: "Vacation · Evening · Effortless",
+        image: "images/alta-look-ivory-black-flatlay.png",
+        museExplanation: "Contrasting light top with dark fluid bottoms creates an effortless resort evening transition.",
+        pieces: [
+          { role: "Top", name: "Ivory Cotton Shirt", original: "Open collar silk shirt", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Black Tailored Trousers", original: "Lightweight black culottes", image: "images/alta-black-tailored-trousers.png" },
+          { role: "Shoes", name: "Black Ballet Flats", original: "Woven leather flats", image: "images/cat_shoes.png" },
+          { role: "Accessory", name: "Gold Hoops", original: "Minimalist hoop earrings", image: "images/cat_accessories.png" }
+        ]
+      },
+      {
+        id: "elena-walk",
+        title: "Old Town Afternoon",
+        occasion: "Casual",
+        styleDirection: "Casual · Vacation · Neutral",
+        image: "images/look-soft-tailoring-cairo.png",
+        museExplanation: "Tonal softness with relaxed proportions that move naturally in outdoor warm-weather settings.",
+        pieces: [
+          { role: "Top", name: "White Knit", original: "Short-sleeve linen knit", image: "images/screen_23_item.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Relaxed linen-blend trousers", image: "images/screen_22_closet.png" },
+          { role: "Shoes", name: "White Sneakers", original: "Minimal leather sneakers", image: "images/cat_shoes.png" }
+        ]
+      }
+    ]
+  }
+];
+
+let activeCreatorId = "maya-chen";
+let activeCreatorLookId = "maya-work";
+let creatorFilter = "All";
+let creatorSearchQuery = "";
+let studioSourceContext = null; // 'creator' | 'scratch' | 'closet' | 'muse' | 'draft' | null
+let creatorReferenceContext = null;
+
+function getCreator(id = activeCreatorId) {
+  return creatorDataset.find((c) => c.id === id) || creatorDataset[0];
+}
+
+function getCreatorLook(lookId = activeCreatorLookId) {
+  for (const c of creatorDataset) {
+    const l = c.looks.find((item) => item.id === lookId);
+    if (l) return { ...l, creator: c };
+  }
+  return { ...creatorDataset[0].looks[0], creator: creatorDataset[0] };
+}
+
+function openCreatorProfile(creatorId) {
+  activeCreatorId = creatorId;
+  go("H-12");
+}
+
+function openCreatorLook(lookId) {
+  activeCreatorLookId = lookId;
+  const look = getCreatorLook(lookId);
+  activeCreatorId = look.creator.id;
+  go("H-13");
+}
+
+function setCreatorFilter(filter) {
+  creatorFilter = filter;
+  render();
+}
+
+function setCreatorSearch(query) {
+  creatorSearchQuery = query;
+  render();
+}
+
+function matchCreatorPieceToCloset(piece) {
+  const closet = closetItems().filter(
+    (item) => item.lifecycle === "Keep" && item.status === "Available",
+  );
+  const pName = piece.name.toLowerCase();
+
+  // 1. Exact or near name match
+  const exact = closet.find((item) => {
+    const iName = item.name.toLowerCase();
+    return (
+      iName === pName ||
+      iName.includes(pName) ||
+      pName.includes(iName) ||
+      (piece.original && iName.includes(piece.original.toLowerCase()))
+    );
+  });
+  if (exact) {
+    return {
+      matchType: "Owned",
+      item: exact,
+      originalCreatorPiece: piece.name,
+    };
+  }
+
+  // 2. Similar owned match: item in the same role / category
+  const roleCategoryMap = {
+    Top: ["Tops", "Clothing"],
+    Bottom: ["Bottoms", "Clothing"],
+    Outerwear: ["Jackets", "Outerwear", "Clothing"],
+    Shoes: ["Shoes"],
+    Accessory: ["Accessories", "Bags", "Jewelry"],
+  };
+  const categories = roleCategoryMap[piece.role] || [piece.role];
+  const similar = closet.find(
+    (item) => categories.includes(item.category) || item.role === piece.role,
+  );
+  if (similar) {
+    return {
+      matchType: "Similar Owned",
+      item: similar,
+      originalCreatorPiece: piece.name,
+    };
+  }
+
+  // 3. Missing: suggested item
+  return {
+    matchType: "Missing",
+    item: {
+      id: `suggested-${piece.role.toLowerCase()}-${Date.now()}`,
+      role: piece.role,
+      name: piece.name,
+      brand: "Curated Suggestion",
+      image: piece.image || assets.look2,
+      owned: false,
+      visible: true,
+    },
+    originalCreatorPiece: piece.name,
+  };
+}
+
+function prepareCreatorLookForUser(lookId = activeCreatorLookId) {
+  const look = getCreatorLook(lookId);
+  activeCreatorId = look.creator.id;
+  activeCreatorLookId = look.id;
+
+  studioSourceContext = "creator";
+  creatorReferenceContext = {
+    creatorId: look.creator.id,
+    creatorName: look.creator.name,
+    lookId: look.id,
+    lookTitle: look.title,
+    lookImage: look.image,
+    occasion: look.occasion,
+    styleTags: look.styleDirection,
+    museExplanation: look.museExplanation,
+  };
+
+  canvasState.title = `${look.title}`;
+  canvasState.creationSource = "creator_recreated";
+  canvasState.creatorAttribution = look.creator.name;
+  canvasState.mode = "flat";
+  canvasState.studioMode = "simple";
+  canvasState.sourceLookId = look.id;
+
+  const matchedPieces = look.pieces.map((piece) => {
+    const match = matchCreatorPieceToCloset(piece);
+    return {
+      id: match.item.id || `${piece.role}-${Date.now()}`,
+      role: piece.role,
+      name: match.item.name,
+      brand:
+        match.item.brand ||
+        (match.matchType === "Owned" ? "From Closet" : "Curated Suggestion"),
+      image: match.item.image || piece.image || assets.look2,
+      owned: match.matchType === "Owned" || match.matchType === "Similar Owned",
+      matchType: match.matchType,
+      originalCreatorPiece: match.originalCreatorPiece,
+      visible: true,
+      index: 0,
+    };
+  });
+
+  canvasState.items = matchedPieces;
+  canvasState.lookFormula = {
+    id: look.id,
+    title: look.title,
+    creator: look.creator.name,
+    image: look.image,
+    pieces: look.pieces.map((p) => [p.role, p.name, p.image]),
+  };
+  canvasState.history = [];
+  persist();
+
+  // Format personalized look for Try On
+  const ownedCount = matchedPieces.filter((m) => m.matchType === "Owned").length;
+  const similarCount = matchedPieces.filter((m) => m.matchType === "Similar Owned").length;
+  const baseLook =
+    look.occasion === "Evening"
+      ? tryOnLooks.evening
+      : look.styleDirection.includes("Minimal") || look.styleDirection.includes("Work")
+        ? tryOnLooks.coffee
+        : tryOnLooks.tailoring;
+
+  const tryOnData = {
+    id: `creator-${look.id}`,
+    title: `${look.title} (Personalized)`,
+    context: `Inspired by ${look.creator.name} · ${ownedCount + similarCount}/${matchedPieces.length} Closet Match`,
+    sheet: baseLook.sheet,
+    remote: true,
+    row: baseLook.row,
+    reference: false,
+    pieces: matchedPieces.map((p) => [
+      p.role,
+      `${p.name} (${p.matchType === "Owned" ? "Owned" : p.matchType === "Similar Owned" ? "Similar Owned" : "Suggested"})`,
+      p.image,
+    ]),
+  };
+
+  return { look, matchedPieces, tryOnData };
+}
+
+function makeCreatorLookMine(lookId = activeCreatorLookId) {
+  prepareCreatorLookForUser(lookId);
+  currentId = "F-01";
+  location.hash = "F-01";
+  render();
+}
+
+function tryOnCreatorLook(lookId = activeCreatorLookId) {
+  const { tryOnData } = prepareCreatorLookForUser(lookId);
+  startTryOn(tryOnData.id, {
+    lookData: tryOnData,
+    sourceScreen: "H-13",
+    sourceType: "creator-look",
+    returnScreen: "H-13",
+  });
+}
+
+function startStudioFromScratch() {
+  studioSourceContext = "scratch";
+  creatorReferenceContext = null;
+  canvasState = defaultCanvas();
+  canvasState.title = "Untitled Look";
+  canvasState.creationSource = "user";
+  canvasState.creatorAttribution = null;
+  canvasState.items = [];
+  canvasState.lookFormula = null;
+  canvasState.history = [];
+  studioUI = { role: "Top", source: "All", query: "" };
+  persistStudioUI();
+  persist();
+  currentId = "F-01";
+  location.hash = "F-01";
+  render();
+}
+
+function startStudioFromCloset() {
+  studioSourceContext = "closet";
+  creatorReferenceContext = null;
+  canvasState = defaultCanvas();
+  canvasState.title = "My Closet Look";
+  canvasState.creationSource = "user";
+  canvasState.creatorAttribution = null;
+  canvasState.lookFormula = null;
+  canvasState.history = [];
+
+  const owned = closetItems().filter(
+    (x) => x.lifecycle === "Keep" && x.status === "Available",
+  );
+  const seeded = [];
+  const roles = ["Outerwear", "Top", "Bottom", "Shoes"];
+  roles.forEach((role) => {
+    const cats =
+      {
+        Outerwear: ["Jackets", "Outerwear"],
+        Top: ["Tops"],
+        Bottom: ["Bottoms"],
+        Shoes: ["Shoes"],
+      }[role] || [role];
+    const item = owned.find((x) => cats.includes(x.category));
+    if (item) {
+      seeded.push({
+        id: item.id,
+        role,
+        name: item.name,
+        brand: item.brand,
+        image: item.image,
+        owned: true,
+        visible: true,
+        index: 0,
+      });
+    }
+  });
+
+  canvasState.items = seeded.length
+    ? seeded
+    : [makeItem("Top", 0), makeItem("Bottom", 0), makeItem("Shoes", 0)];
+  studioUI = { role: seeded[0]?.role || "Top", source: "Owned", query: "" };
+  persistStudioUI();
+  persist();
+  currentId = "F-01";
+  location.hash = "F-01";
+  render();
+}
+
+function resumeStudioDraft() {
+  studioSourceContext = canvasState.creatorAttribution ? "creator" : "draft";
+  currentId = "F-01";
+  location.hash = "F-01";
+  render();
+}
+
+function studioStartState() {
+  const hasDraft =
+    canvasState && canvasState.items && canvasState.items.length > 0;
+  return shell(
+    "Style Studio",
+    `<div class="studio-start-intro">
+      <p class="eyebrow" style="text-align:center;color:var(--gold,#9e733c);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">Creative Workspace</p>
+      <h2 class="title" style="margin:2px 0 0;font-size:24px;text-align:center">Start Your Look</h2>
+      <p class="body studio-start-sub">Build outfits from your wardrobe, co-create with Muse, or discover creator looks to make your own.</p>
+    </div>
+    ${
+      hasDraft
+        ? `<section class="card studio-resume-draft-card" aria-label="Resume active draft">
+        <div class="between">
+          <span>
+            <p class="eyebrow">${canvasState.creatorAttribution ? `Inspired by ${escapeMarkup(canvasState.creatorAttribution)}` : "Active Draft"}</p>
+            <h4 class="title" style="margin:2px 0 0;font-size:16px">${escapeMarkup(canvasState.title)}</h4>
+            <small class="body" style="display:block;margin-top:2px">${canvasState.items.length} pieces · ${escapeMarkup(canvasState.location || "In progress")}</small>
+          </span>
+          <button class="btn primary small-btn" onclick="resumeStudioDraft()">Resume Draft →</button>
+        </div>
+      </section>`
+        : ""
+    }
+    <section class="studio-start-grid" aria-label="Studio entry options">
+      <button class="studio-start-card" onclick="startStudioFromScratch()">
+        <span class="studio-start-icon-wrap">${icon("shirt")}</span>
+        <span class="studio-start-card-text">
+          <b>Start From Scratch</b>
+          <small class="body">Begin with a completely blank canvas and compose layer by layer.</small>
+        </span>
+        <span class="studio-start-arrow">›</span>
+      </button>
+
+      <button class="studio-start-card" onclick="startStudioFromCloset()">
+        <span class="studio-start-icon-wrap">${icon("bag")}</span>
+        <span class="studio-start-card-text">
+          <b>Start From My Closet</b>
+          <small class="body">Pull your real owned wardrobe pieces directly into Studio.</small>
+        </span>
+        <span class="studio-start-arrow">›</span>
+      </button>
+
+      <button class="studio-start-card" onclick="openMuse(museContextFor('F-01'))">
+        <span class="studio-start-icon-wrap">${icon("spark")}</span>
+        <span class="studio-start-card-text">
+          <b>Ask Muse</b>
+          <small class="body">Co-create an outfit guided by your personal stylist intelligence.</small>
+        </span>
+        <span class="studio-start-arrow">›</span>
+      </button>
+
+      <button class="studio-start-card primary-variant" onclick="go('H-11')">
+        <span class="studio-start-icon-wrap">${icon("compass")}</span>
+        <span class="studio-start-card-text">
+          <b>Explore Creator Looks</b>
+          <small class="body">Browse curated creator outfits and translate them into your wardrobe.</small>
+        </span>
+        <span class="studio-start-arrow">›</span>
+      </button>
+    </section>`,
+    { active: "home", noNav: false },
+  );
+}
+
+function studioCreatorBanner() {
+  if (studioSourceContext !== "creator" || !creatorReferenceContext) return "";
+  const ref = creatorReferenceContext;
+  return `<section class="studio-creator-ref-banner card" aria-label="Creator inspiration reference">
+    <div class="between">
+      <div class="creator-ref-info">
+        <p class="eyebrow">Inspired by ${escapeMarkup(ref.creatorName)}</p>
+        <h3 class="title" style="margin:2px 0 4px;font-size:18px">${escapeMarkup(ref.lookTitle)}</h3>
+        <span class="pill-tag">${escapeMarkup(ref.styleTags || ref.occasion)}</span>
+      </div>
+      <div class="creator-ref-thumb">
+        <img src="${ref.lookImage}" alt="${escapeMarkup(ref.lookTitle)}">
+      </div>
+    </div>
+    <div class="creator-ref-actions">
+      <button class="text-action" onclick="go('H-13')">View Original Creator Look ›</button>
+    </div>
+  </section>`;
+}
+
+function studioCreatorMatching() {
+  if (studioSourceContext !== "creator" || !canvasState.items.length) return "";
+  const ownedCount = canvasState.items.filter((x) => x.owned).length;
+  const total = canvasState.items.length;
+  return `<section class="card creator-matching-breakdown" aria-label="Closet match summary">
+    <div class="between">
+      <div>
+        <p class="eyebrow">Wardrobe Match</p>
+        <h4 class="title" style="margin:2px 0 0;font-size:15px">Personalized from your Closet</h4>
+      </div>
+      <span class="match-stat">${ownedCount} / ${total} from Closet</span>
+    </div>
+    <p class="body" style="margin:6px 0 12px">StyleIQ matched creator pieces against your owned wardrobe and substituted compatible pieces.</p>
+    <div class="creator-match-pieces">
+      ${canvasState.items
+        .map(
+          (p) => `
+        <div class="match-piece-row">
+          <div class="match-piece-info">
+            <span class="match-role">${p.role === "Outerwear" ? "Layer" : p.role}</span>
+            <b>${escapeMarkup(p.name)}</b>
+            ${p.originalCreatorPiece && p.originalCreatorPiece !== p.name ? `<small class="body">Creator piece: ${escapeMarkup(p.originalCreatorPiece)}</small>` : ""}
+          </div>
+          <span class="match-status-badge ${p.matchType === "Owned" ? "owned" : p.matchType === "Similar Owned" ? "similar" : "missing"}">
+            ${p.matchType === "Owned" ? "Owned ✓" : p.matchType === "Similar Owned" ? "Similar Owned ✓" : "Missing"}
+          </span>
+        </div>
+      `,
+        )
+        .join("")}
+    </div>
+  </section>`;
+}
+
+function creatorDiscoveryScreen() {
+  const categories = [
+    "All",
+    "Minimal",
+    "Classic",
+    "Work",
+    "Evening",
+    "Smart Casual",
+    "Vacation",
+    "Quiet Luxury",
+  ];
+  const query = creatorSearchQuery.toLowerCase().trim();
+
+  // Filter creators and looks
+  const allLooks = creatorDataset.flatMap((creator) =>
+    creator.looks.map((look) => ({ ...look, creator })),
+  );
+
+  const filteredLooks = allLooks.filter((look) => {
+    const matchesFilter =
+      creatorFilter === "All" ||
+      look.styleDirection.includes(creatorFilter) ||
+      look.occasion === creatorFilter ||
+      look.creator.dominantTags.includes(creatorFilter);
+
+    const matchesQuery =
+      !query ||
+      look.title.toLowerCase().includes(query) ||
+      look.creator.name.toLowerCase().includes(query) ||
+      look.styleDirection.toLowerCase().includes(query) ||
+      look.pieces.some((p) => p.name.toLowerCase().includes(query));
+
+    return matchesFilter && matchesQuery;
+  });
+
+  const filteredCreators = creatorDataset.filter((creator) => {
+    const matchesFilter =
+      creatorFilter === "All" ||
+      creator.dominantTags.includes(creatorFilter) ||
+      creator.styleDirection.includes(creatorFilter);
+
+    const matchesQuery =
+      !query ||
+      creator.name.toLowerCase().includes(query) ||
+      creator.styleDirection.toLowerCase().includes(query);
+
+    return matchesFilter && matchesQuery;
+  });
+
+  return shell(
+    "Creator Looks",
+    `<header class="creator-discovery-header">
+      <div class="between">
+        <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
+        <div class="creator-header-title">
+          <p class="eyebrow" style="text-align:center">Creator Looks</p>
+          <h2 class="title" style="margin:0;font-size:22px;text-align:center">Style Inspiration</h2>
+        </div>
+        <div style="width:36px"></div>
+      </div>
+      <p class="body creator-discovery-sub">Style inspiration you can make your own. Browse curated creator outfits and recreate them with your Closet.</p>
+      <div class="creator-search-wrap">
+        <span class="search-icon">${icon("search")}</span>
+        <input class="input creator-search-input" placeholder="Search creators, outfits, styles…" value="${escapeMarkup(creatorSearchQuery)}" oninput="setCreatorSearch(this.value)">
+      </div>
+      <div class="chips creator-filter-chips" role="group" aria-label="Creator style categories">
+        ${categories
+          .map(
+            (c) =>
+              `<button class="chip ${creatorFilter === c ? "active" : ""}" aria-pressed="${creatorFilter === c}" onclick="setCreatorFilter('${c}')">${c}</button>`,
+          )
+          .join("")}
+      </div>
+    </header>
+
+    <section class="mirror-section creator-featured-section">
+      <div class="mirror-section-head">
+        <span>
+          <p class="eyebrow">Curated Stylists</p>
+          <h3>Featured Creators</h3>
+        </span>
+        <small class="body">${filteredCreators.length} stylists</small>
+      </div>
+      <div class="creator-cards-rail">
+        ${filteredCreators
+          .map(
+            (creator) => `
+          <div class="creator-card card">
+            <div class="creator-card-header">
+              <img src="${creator.avatar}" class="creator-avatar" alt="${escapeMarkup(creator.name)}">
+              <div class="creator-meta">
+                <b>${escapeMarkup(creator.name)}</b>
+                <small class="body">${escapeMarkup(creator.styleDirection)}</small>
+              </div>
+            </div>
+            <div class="creator-look-previews">
+              ${creator.looks
+                .slice(0, 3)
+                .map(
+                  (look) => `
+                <img src="${look.image}" class="creator-mini-thumb" alt="${escapeMarkup(look.title)}" onclick="openCreatorLook('${look.id}')">
+              `,
+                )
+                .join("")}
+            </div>
+            <button class="btn small-btn wide" onclick="openCreatorProfile('${creator.id}')">View Creator</button>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    </section>
+
+    <section class="mirror-section creator-trending-section">
+      <div class="mirror-section-head">
+        <span>
+          <p class="eyebrow">Outfits to Recreate</p>
+          <h3>Trending Looks</h3>
+        </span>
+        <small class="body">${filteredLooks.length} looks</small>
+      </div>
+      ${
+        filteredLooks.length
+          ? `<div class="creator-looks-grid">
+        ${filteredLooks
+          .map(
+            (look) => `
+          <div class="creator-look-card card">
+            <div class="creator-look-image-wrap" onclick="openCreatorLook('${look.id}')">
+              <img src="${look.image}" alt="${escapeMarkup(look.title)}" class="creator-look-img">
+              <span class="creator-look-badge">${escapeMarkup(look.occasion)}</span>
+            </div>
+            <div class="creator-look-body">
+              <div class="creator-look-author" onclick="openCreatorProfile('${look.creator.id}')">
+                <img src="${look.creator.avatar}" alt="${escapeMarkup(look.creator.name)}" class="creator-author-thumb">
+                <small class="body">by <b>${escapeMarkup(look.creator.name)}</b></small>
+              </div>
+              <h4 class="creator-look-title" onclick="openCreatorLook('${look.id}')">${escapeMarkup(look.title)}</h4>
+              <p class="creator-look-tags">${escapeMarkup(look.styleDirection)}</p>
+              <div class="creator-look-actions">
+                <button class="btn primary small-btn grow" onclick="makeCreatorLookMine('${look.id}')">Make It Mine</button>
+                <button class="btn small-btn" onclick="openCreatorLook('${look.id}')">View Look</button>
+              </div>
+            </div>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>`
+          : `<div class="card empty-state" style="text-align:center;padding:32px 16px;margin-top:12px">
+        <p class="eyebrow" style="color:var(--muted)">No Looks Found</p>
+        <h4 class="title" style="margin:4px 0 8px">No creator looks match "${escapeMarkup(query || creatorFilter)}"</h4>
+        <p class="body" style="margin-bottom:16px;font-size:13px">Try clearing your search or exploring all categories.</p>
+        <div class="row" style="justify-content:center;gap:8px">
+          ${query ? `<button class="btn small-btn" onclick="setCreatorSearch('')">Clear Search</button>` : ""}
+          ${creatorFilter !== "All" ? `<button class="btn small-btn" onclick="setCreatorFilter('All')">View All Categories</button>` : ""}
+        </div>
+      </div>`
+      }
+    </section>`,
+    { active: "home", noNav: false },
+  );
+}
+
+function creatorProfileScreen() {
+  const creator = getCreator(activeCreatorId);
+  return shell(
+    creator.name,
+    `<header class="creator-profile-header">
+      <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
+      <div class="creator-profile-hero">
+        <img src="${creator.avatar}" alt="${escapeMarkup(creator.name)}" class="creator-profile-avatar">
+        <h2 class="title" style="margin:10px 0 4px;font-size:24px">${escapeMarkup(creator.name)}</h2>
+        <p class="creator-profile-direction">${escapeMarkup(creator.styleDirection)}</p>
+        <p class="body creator-profile-bio">${escapeMarkup(creator.description)}</p>
+        <div class="creator-profile-tags">
+          ${creator.dominantTags.map((tag) => `<span class="pill-tag">${tag}</span>`).join("")}
+        </div>
+      </div>
+    </header>
+
+    <section class="card creator-patterns-card" aria-label="Signature style patterns">
+      <p class="eyebrow">Signature Formulations</p>
+      <h3 class="title" style="font-size:16px;margin:2px 0 8px">Style Patterns</h3>
+      <p class="body" style="margin-bottom:10px">What this creator wears, and the structural rules to borrow.</p>
+      <ul class="creator-pattern-list">
+        ${creator.patterns.map((pat) => `<li><span class="pattern-bullet">✦</span> <span>${escapeMarkup(pat)}</span></li>`).join("")}
+      </ul>
+    </section>
+
+    <section class="mirror-section creator-profile-looks">
+      <div class="mirror-section-head">
+        <span>
+          <p class="eyebrow">Curated Archive</p>
+          <h3>Featured Looks</h3>
+        </span>
+        <small class="body">${creator.looks.length} looks</small>
+      </div>
+      ${
+        creator.looks.length
+          ? `<div class="creator-looks-grid">
+        ${creator.looks
+          .map(
+            (look) => `
+          <div class="creator-look-card card">
+            <div class="creator-look-image-wrap" onclick="openCreatorLook('${look.id}')">
+              <img src="${look.image}" alt="${escapeMarkup(look.title)}" class="creator-look-img">
+              <span class="creator-look-badge">${escapeMarkup(look.occasion)}</span>
+            </div>
+            <div class="creator-look-body">
+              <h4 class="creator-look-title" onclick="openCreatorLook('${look.id}')">${escapeMarkup(look.title)}</h4>
+              <p class="creator-look-tags">${escapeMarkup(look.styleDirection)}</p>
+              <div class="creator-look-actions">
+                <button class="btn primary small-btn grow" onclick="makeCreatorLookMine('${look.id}')">Make It Mine</button>
+                <button class="btn small-btn" onclick="openCreatorLook('${look.id}')">View</button>
+              </div>
+            </div>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>`
+          : `<div class="card empty-state" style="text-align:center;padding:24px 16px;margin-top:12px">
+        <p class="body">No looks published yet by this creator.</p>
+      </div>`
+      }
+    </section>`,
+    { active: "home", noNav: false },
+  );
+}
+
+function creatorLookDetailScreen() {
+  const look = getCreatorLook(activeCreatorLookId);
+  const matchedPieces = look.pieces.map((p) => matchCreatorPieceToCloset(p));
+  const ownedCount = matchedPieces.filter((m) => m.matchType === "Owned").length;
+  const similarCount = matchedPieces.filter((m) => m.matchType === "Similar Owned").length;
+  const totalCount = matchedPieces.length;
+
+  return shell(
+    look.title,
+    `<header class="creator-detail-header">
+      <div class="between">
+        <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
+        <div class="creator-detail-head-copy">
+          <p class="eyebrow" style="text-align:center">Creator Look</p>
+          <h2 class="title" style="margin:0;font-size:20px;text-align:center">${escapeMarkup(look.title)}</h2>
+        </div>
+        <button class="mirror-circle-action" aria-label="View Creator" onclick="openCreatorProfile('${look.creator.id}')">${icon("user")}</button>
+      </div>
+      <div class="creator-detail-author-row" onclick="openCreatorProfile('${look.creator.id}')">
+        <img src="${look.creator.avatar}" alt="${escapeMarkup(look.creator.name)}" class="creator-detail-author-thumb">
+        <span>by <b>${escapeMarkup(look.creator.name)}</b> · <span class="creator-detail-direction">${escapeMarkup(look.styleDirection)}</span></span>
+      </div>
+    </header>
+
+    <div class="creator-hero-image-wrap">
+      <img src="${look.image}" alt="${escapeMarkup(look.title)} by ${escapeMarkup(look.creator.name)}" class="creator-hero-img">
+      <span class="creator-hero-occasion-tag">${escapeMarkup(look.occasion)}</span>
+    </div>
+
+    <section class="card creator-detail-pieces-card" aria-label="Look components">
+      <div class="between">
+        <div>
+          <p class="eyebrow">Look Components</p>
+          <h3 class="title" style="font-size:16px;margin:2px 0 0">The Outfit Formula</h3>
+        </div>
+        <span class="small body">${look.pieces.length} pieces</span>
+      </div>
+      <div class="creator-pieces-list">
+        ${matchedPieces
+          .map(
+            (m) => `
+          <div class="creator-piece-row">
+            <img src="${m.item.image || m.originalCreatorPiece}" class="creator-piece-thumb" alt="${escapeMarkup(m.originalCreatorPiece)}">
+            <div class="creator-piece-meta">
+              <span class="creator-piece-role">${m.item.role === "Outerwear" ? "Layer" : m.item.role}</span>
+              <b>${escapeMarkup(m.originalCreatorPiece)}</b>
+              <small class="body">${m.matchType === "Owned" ? `Owned in Closet (${escapeMarkup(m.item.name)})` : m.matchType === "Similar Owned" ? `Similar in Closet: ${escapeMarkup(m.item.name)}` : "Not in your Closet"}</small>
+            </div>
+            <span class="match-status-badge ${m.matchType === "Owned" ? "owned" : m.matchType === "Similar Owned" ? "similar" : "missing"}">
+              ${m.matchType === "Owned" ? "Owned ✓" : m.matchType === "Similar Owned" ? "Similar ✓" : "Missing"}
+            </span>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    </section>
+
+    <section class="card creator-muse-card" aria-label="Muse interpretation">
+      <div class="creator-muse-head">
+        <span class="muse-badge-icon">${icon("spark")}</span>
+        <div>
+          <p class="eyebrow" style="color:var(--gold,#9e733c)">Muse Styling Note</p>
+          <h4 class="title" style="margin:2px 0 0;font-size:15px">Why This Look Works</h4>
+        </div>
+      </div>
+      <p class="body creator-muse-copy">${escapeMarkup(look.museExplanation)}</p>
+    </section>
+
+    <section class="card creator-closet-summary-card" aria-label="Closet compatibility">
+      <div class="between">
+        <div>
+          <p class="eyebrow">Closet Compatibility</p>
+          <h4 class="title" style="margin:2px 0 0;font-size:15px">Ready to Make It Yours</h4>
+        </div>
+        <span class="closet-match-count">${ownedCount + similarCount} / ${totalCount} pieces</span>
+      </div>
+      <p class="body" style="margin:6px 0 12px">StyleIQ will substitute your owned pieces into this structure, letting you personalize and preview before wearing.</p>
+      <div class="creator-detail-ctas">
+        <button class="btn primary wide" onclick="makeCreatorLookMine('${look.id}')">Make It Mine</button>
+        <div class="row" style="margin-top:8px">
+          <button class="btn grow" onclick="tryOnCreatorLook('${look.id}')">Try On</button>
+          <button class="btn grow" onclick="openCreatorProfile('${look.creator.id}')">View Creator</button>
+        </div>
+      </div>
+    </section>`,
+    { active: "home", noNav: false },
+  );
+}
+
 function removeCreatorReference(index) {
   creatorReferences.splice(index, 1);
   render();
@@ -3713,9 +4763,26 @@ function setMode(mode) {
   render();
 }
 function saveLook() {
+  if (canvasState.creatorAttribution || studioSourceContext === "creator") {
+    const existingIndex = lookCatalog.findIndex(
+      (l) => l.title === canvasState.title,
+    );
+    const newEntry = {
+      title: canvasState.title,
+      image: canvasState.items[0]?.image || assets.look,
+      creationSource: "creator_recreated",
+      creatorAttribution:
+        canvasState.creatorAttribution ||
+        creatorReferenceContext?.creatorName ||
+        null,
+    };
+    if (existingIndex >= 0) lookCatalog[existingIndex] = newEntry;
+    else lookCatalog.unshift(newEntry);
+  }
+  selectedSavedLookId = canvasState.title;
   persist();
   go("G-02");
-  toast("Look saved");
+  toast("Look saved to My Looks");
 }
 function discoverScreen(s) {
   const idx = Number(s.id.slice(2));
@@ -4244,9 +5311,12 @@ function mirrorDiscover() {
       { id: "tailoring", creator: "Mara", title: "Weekend layers", brand: "Loro Piana" },
     ],
     visible = items.filter((item) => ["For You", "Top This Week"].includes(discoverFilter) || (discoverFilter === "Following" ? communityFollowed : item.brand === discoverFilter));
+  const creatorPreviews = creatorDataset
+    .flatMap((c) => c.looks.slice(0, 1).map((l) => ({ ...l, creator: c })))
+    .slice(0, 4);
   return shell(
     "Discover",
-    `<button class="mirror-search" onclick="go('K-02')">${icon("search")} Search outfits, Creators, or pieces</button><div class="mirror-filters" role="group" aria-label="Discover filters">${filters.map((x) => `<button class="mirror-filter ${discoverFilter === x ? "active" : ""}" aria-pressed="${discoverFilter === x}" onclick="setDiscoverFilter('${x}')">${x}</button>`).join("")}<button class="text-action" onclick="clearDiscoverFilter()">Clear</button></div><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">${discoverFilter}</p><h3>${visible.length ? "Outfits for you" : "Nothing here yet"}</h3></span><small class="body">${visible.length} Looks</small></div>${visible.length ? `<div class="mirror-outfit-rail">${visible.map((item, index) => `<button class="mirror-outfit-card" onclick="openCommunityLook('${item.id}')"><img src="${assets[["look3", "look2", "look4"][index]]}" alt="${escapeMarkup(item.title)}"><span><small>${escapeMarkup(item.creator)}</small><b>${escapeMarkup(item.title)}</b></span></button>`).join("")}</div>` : `<div class="empty"><p class="body">Follow Camille to see community Looks here.</p><button class="btn" onclick="setDiscoverFilter('For You')">Show For You</button></div>`}</section>`,
+    `<button class="mirror-search" onclick="go('K-02')">${icon("search")} Search outfits, Creators, or pieces</button><div class="mirror-filters" role="group" aria-label="Discover filters">${filters.map((x) => `<button class="mirror-filter ${discoverFilter === x ? "active" : ""}" aria-pressed="${discoverFilter === x}" onclick="setDiscoverFilter('${x}')">${x}</button>`).join("")}<button class="text-action" onclick="clearDiscoverFilter()">Clear</button></div><section class="mirror-section creator-insp-module" aria-label="Creator inspiration"><div class="mirror-section-head"><span><p class="eyebrow">Creator Inspiration</p><h3>Looks worth making your own</h3></span><button class="text-action" onclick="go('H-11')">Explore Creators →</button></div><div class="mirror-outfit-rail">${creatorPreviews.map((look) => `<button class="mirror-outfit-card" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b></span></button>`).join("")}</div></section><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">${discoverFilter}</p><h3>${visible.length ? "Outfits for you" : "Nothing here yet"}</h3></span><small class="body">${visible.length} Looks</small></div>${visible.length ? `<div class="mirror-outfit-rail">${visible.map((item, index) => `<button class="mirror-outfit-card" onclick="openCommunityLook('${item.id}')"><img src="${assets[["look3", "look2", "look4"][index]]}" alt="${escapeMarkup(item.title)}"><span><small>${escapeMarkup(item.creator)}</small><b>${escapeMarkup(item.title)}</b></span></button>`).join("")}</div>` : `<div class="empty"><p class="body">Follow Camille to see community Looks here.</p><button class="btn" onclick="setDiscoverFilter('For You')">Show For You</button></div>`}</section>`,
     { active: "discover" },
   );
 }
@@ -4390,7 +5460,9 @@ function resumeTryOn() {
   };
   localStorage.setItem("styleiqTryOnResultV1", JSON.stringify(tryOnSession));
   clearPendingTryOn();
-  navHistory = navHistory.filter((id) => !id.startsWith("H-"));
+  navHistory = navHistory.filter(
+    (id) => !id.startsWith("H-") || ["H-11", "H-12", "H-13"].includes(id),
+  );
   go("E-06", { record: false });
 }
 function completeTwinSetup() {
@@ -4410,7 +5482,11 @@ function leaveTryOn() {
     localStorage.setItem("styleiqTodayLookV1", selectedTodayLook);
   }
   clearPendingTryOn();
-  navHistory = navHistory.filter((id) => !id.startsWith("H-") && id !== "E-06");
+  navHistory = navHistory.filter(
+    (id) =>
+      (!id.startsWith("H-") || ["H-11", "H-12", "H-13"].includes(id)) &&
+      id !== "E-06",
+  );
   go(target, { record: false });
 }
 function tryAnotherLook() {
@@ -4463,6 +5539,12 @@ function installTryOnGestures() {
   });
 }
 function makeLookMine(look = tryOnLooks[selectedTodayLook]) {
+  if (tryOnSession?.sourceType === "creator-look") {
+    currentId = "F-01";
+    location.hash = "F-01";
+    render();
+    return;
+  }
   canvasState.title = look.title;
   canvasState.creationSource = "inspiration_recreated";
   canvasState.mode = "flat";
@@ -4548,11 +5630,16 @@ function setCustomerScenario(scenario) {
   else twinSetup = { id: "demo-existing-twin", method: "photo", step: 4, complete: true };
   if (scenario === "new") pendingTryOn = null;
   tryOnSession = null;
-  navHistory = navHistory.filter((id) => !id.startsWith("H-") && id !== "E-06");
+  navHistory = navHistory.filter(
+    (id) =>
+      (!id.startsWith("H-") || ["H-11", "H-12", "H-13"].includes(id)) &&
+      id !== "E-06",
+  );
   if (scenario === "existing" && pendingTryOn) {
     resumeTryOn();
   } else if (
-    currentId.startsWith("H-") ||
+    (currentId.startsWith("H-") &&
+      !["H-11", "H-12", "H-13"].includes(currentId)) ||
     ["L-09", "E-05", "E-06"].includes(currentId)
   ) {
     if (currentId === "H-01") render();
@@ -4643,7 +5730,14 @@ function leanSavedLook() {
     tabBar = `<div class="chips" role="tablist" aria-label="Saved Look sections" style="margin-top:14px">${tabs.map(([id, label]) => `<button class="chip ${savedLookTab === id ? "active" : ""}" role="tab" aria-selected="${savedLookTab === id}" onclick="setSavedLookTab('${id}')">${label}</button>`).join("")}</div>`;
   const overview = `<section class="card" style="margin-top:14px"><p class="eyebrow">Why this Look works</p><h3 class="title">A repeatable ${escapeMarkup(record.title)} formula.</h3><p class="body">The silhouette, palette, and proportions fit your saved preferences. Keep it ready for the next day it earns.</p><div class="row" style="margin-top:12px"><button class="btn grow" onclick="markSavedLookWorn()">${savedLookWorn ? "Worn today" : "Wear"}</button><button class="btn grow" onclick="startTryOn('saved', { sourceType: 'saved-look' })">Try On</button></div></section>`;
   const items = `<section class="card" style="margin-top:14px"><div class="between"><b>${record.pieces.length} pieces in this Look</b><button class="text-action" onclick="go('F-01')">Edit copy</button></div>${record.pieces.map((piece) => `<div class="pack-row"><img src="${piece[2] || assets.look}" alt="${escapeMarkup(piece[1])}"><span><b>${escapeMarkup(piece[1])}</b><small class="body">${escapeMarkup(piece[0])} · ${piece[2] ? "From Closet" : "Suggested"}</small></span></div>`).join("")}</section>`;
-  const details = `<section class="card" style="margin-top:14px"><p class="eyebrow">${lookSourceLabel((lookCatalog.find((look) => look.title === selectedSavedLookId) || {}).creationSource)}</p><h3 class="title">Made for repeat wear</h3><p class="body">${escapeMarkup(record.context)}. Warm neutrals and a clean layer keep the Look useful across work and social plans.</p><div class="saved-look-meta"><span>Office</span><span>Spring / autumn</span><span>Neutral palette</span></div></section>`;
+  const savedEntry =
+    lookCatalog.find((look) => look.title === selectedSavedLookId) || {};
+  const attribution =
+    savedEntry.creatorAttribution ||
+    (savedEntry.title === canvasState.title
+      ? canvasState.creatorAttribution
+      : null);
+  const details = `<section class="card" style="margin-top:14px"><p class="eyebrow">${lookSourceLabel(savedEntry.creationSource)}${attribution ? ` · Inspired by ${escapeMarkup(attribution)}` : ""}</p><h3 class="title">Made for repeat wear</h3><p class="body">${escapeMarkup(record.context)}. Warm neutrals and a clean layer keep the Look useful across work and social plans.</p><div class="saved-look-meta"><span>Office</span><span>Spring / autumn</span><span>Neutral palette</span></div></section>`;
   const activity = `<section class="card" style="margin-top:14px"><p class="eyebrow">Recent activity</p><h3 class="title">Your relationship with this Look</h3><div class="item-metrics"><span class="item-metric"><b>${savedLookWorn ? "1×" : "0×"}</b><small>Worn recently</small></span><span class="item-metric"><b>7</b><small>Restyles</small></span><span class="item-metric"><b>11</b><small>Private sends</small></span></div></section>`;
   const planning = `<section class="card" style="margin-top:14px"><p class="eyebrow">Planning</p><h3 class="title">Keep this Look in your rotation.</h3><p class="body">Add the selected Saved Look to a Planner event without losing its source context.</p><button class="btn primary wide" style="margin-top:12px" onclick="planSavedLook()">Add to Planner</button></section>`;
   const body = { overview, items, details, activity, planning }[savedLookTab] || overview;
@@ -4712,8 +5806,15 @@ function newStudioLook() {
   canvasState = defaultCanvas();
   canvasState.title = "Untitled Look";
   canvasState.items = [];
+  canvasState.creatorAttribution = null;
+  canvasState.lookFormula = null;
+  canvasState.sourceLookId = null;
+  studioSourceContext = null;
+  creatorReferenceContext = null;
   persist();
-  go("F-02");
+  currentId = "F-01";
+  location.hash = "F-01";
+  render();
 }
 function updateStudioContext(field, value) {
   if (["title", "date", "location"].includes(field)) {
@@ -5328,7 +6429,7 @@ function instantStudio() {
   </div></section>`;
 }
 function canonicalStudio() {
-  if (currentId === 'F-01') return instantStudio();
+  if (currentId === "F-01" && !studioSourceContext) return studioStartState();
   const twin = canvasState.mode === "avatar",
     create = canvasState.studioMode === "create";
   const simpleActions = [
@@ -5338,7 +6439,7 @@ function canonicalStudio() {
     ["Add layer", "Outerwear"],
     ["Add accessory", "Accessory"],
   ];
-  return `<section class="screen studio-canonical"><div class="content no-nav"><header class="mirror-studio-head"><button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button><span><p class="eyebrow" style="text-align:center">Style Studio</p><h2>${canvasState.title}</h2></span><button class="mirror-circle-action studio-save" onclick="saveLook()">Save</button></header><div class="between studio-draft-row"><span class="small">Current draft</span><button class="text-action" onclick="newStudioLook()">New Look</button></div><div class="studio-experience-switch" role="group" aria-label="Studio mode"><button class="${create ? "" : "active"}" aria-pressed="${!create}" onclick="setStudioMode('simple')">${icon("spark")}<span><b>Simple</b><small>Everyday changes</small></span></button><button class="${create ? "active" : ""}" aria-pressed="${create}" onclick="setStudioMode('create')">${icon("gear")}<span><b>Create</b><small>Advanced control</small></span></button></div><div class="studio-view-row"><div class="mirror-studio-tabs" role="group" aria-label="Preview view"><button class="${twin ? "active" : ""}" aria-pressed="${twin}" onclick="setMode('avatar')">${icon("user")}<span>On My Twin</span></button><button class="${twin ? "" : "active"}" aria-pressed="${!twin}" onclick="setMode('flat')">${icon("shirt")}<span>Flat Lay</span></button></div><button class="studio-avatar-action" onclick="go('H-01')">${icon(twinSetup.complete ? "user" : "user-round-plus")}<span>${twinSetup.complete ? "My Twin" : "Create Avatar"}</span></button></div>${studioRoutePanel()}${studioPreview()}${canvasState.items.length || ["F-06", "F-07", "F-08", "F-09", "F-10"].includes(currentId) ? studioPicker() : ""}${
+  return `<section class="screen studio-canonical"><header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><h1>${escapeMarkup(canvasState.title || "Style Studio")}</h1></div><button class="btn small-btn primary studio-header-save" onclick="saveLook()">Save</button></header><div class="content no-nav"><div class="between studio-draft-row"><span class="small">Current draft</span><button class="text-action" onclick="newStudioLook()">New Look</button></div><div class="studio-experience-switch" role="group" aria-label="Studio mode"><button class="${create ? "" : "active"}" aria-pressed="${!create}" onclick="setStudioMode('simple')">${icon("spark")}<span><b>Simple</b><small>Everyday changes</small></span></button><button class="${create ? "active" : ""}" aria-pressed="${create}" onclick="setStudioMode('create')">${icon("gear")}<span><b>Create</b><small>Advanced control</small></span></button></div><div class="studio-view-row"><div class="mirror-studio-tabs" role="group" aria-label="Preview view"><button class="${twin ? "active" : ""}" aria-pressed="${twin}" onclick="setMode('avatar')">${icon("user")}<span>On My Twin</span></button><button class="${twin ? "" : "active"}" aria-pressed="${!twin}" onclick="setMode('flat')">${icon("shirt")}<span>Flat Lay</span></button></div><button class="studio-avatar-action" onclick="go('H-01')">${icon(twinSetup.complete ? "user" : "user-round-plus")}<span>${twinSetup.complete ? "My Twin" : "Create Avatar"}</span></button></div>${studioRoutePanel()}${studioCreatorBanner()}${studioCreatorMatching()}${studioPreview()}${canvasState.items.length || ["F-06", "F-07", "F-08", "F-09", "F-10"].includes(currentId) ? studioPicker() : ""}${
     create
       ? `<section class="studio-create-panel" aria-label="Advanced Look layers"><div class="between"><span><p class="eyebrow">Create mode</p><h3 class="title">Look layers</h3></span><button class="btn" onclick="openStudioSources()">Add piece ${icon("plus")}</button></div>${canvasState.items.map((piece, index) => `<details class="studio-layer-row"><summary><span class="studio-layer-thumbnail">${studioPieceArt(piece)}</span><span class="grow"><b>${index + 1}. ${piece.role === "Bottom" ? "Bottoms" : piece.role}</b><small>${escapeMarkup(piece.name)} · ${piece.visible === false ? "Hidden" : piece.owned ? "Owned" : "Suggested"}</small></span>${icon("chevron-right")}</summary><div class="studio-layer-controls"><button aria-label="Replace ${piece.role}" onclick="selectStudioRole('${piece.role}');app.querySelector('.studio-picker').scrollIntoView({block:'nearest'})">${icon("edit")}</button><button aria-label="Move ${piece.role} up" onclick="moveStudioPiece(${index},-1)">↑</button><button aria-label="Move ${piece.role} down" onclick="moveStudioPiece(${index},1)">↓</button><button aria-label="${piece.visible !== false ? "Hide" : "Show"} ${piece.role}" onclick="toggleLayer('${piece.id}')">${icon(piece.visible !== false ? "eye-off" : "eye")}</button><button aria-label="Remove ${piece.role}" onclick="removeStudioPiece('${piece.id}')">${icon("trash-2")}</button></div></details>`).join("")}</section>`
       : canvasState.items.length
@@ -5425,6 +6526,9 @@ function mirrorScreen(s) {
   if (s.id === "H-06") return twinBasicDetails();
   if (["H-07", "H-08", "H-09"].includes(s.id)) return twinRefine();
   if (s.id === "H-10") return twinResult();
+  if (s.id === "H-11") return creatorDiscoveryScreen();
+  if (s.id === "H-12") return creatorProfileScreen();
+  if (s.id === "H-13") return creatorLookDetailScreen();
   if (s.id === "B-02") return batchPhotoImport();
   if (s.id === "B-03") return singlePhotoProcessing();
   if (s.id === "B-08") return singleImportResult();
