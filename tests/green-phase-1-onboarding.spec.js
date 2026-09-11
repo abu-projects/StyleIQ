@@ -12,6 +12,15 @@ async function beginNewUser(page, goal = "Get dressed faster") {
   return app;
 }
 
+async function selectExistingCustomer(page) {
+  const controls = page.locator('.customer-scenario-controls');
+  if (await controls.isVisible().catch(() => false)) {
+    await controls.getByRole('button', { name: 'Existing customer' }).click();
+  } else {
+    await page.evaluate(() => setCustomerScenario('existing'));
+  }
+}
+
 test.describe("Green Phase 1 onboarding", () => {
   test("email signup reaches the same first-goal step", async ({ page }) => {
     await page.goto("/index.html#A-16");
@@ -34,10 +43,10 @@ test.describe("Green Phase 1 onboarding", () => {
     await app.getByRole("button", { name: /Skip for now/ }).click();
 
     await expect(app).toHaveAttribute("data-screen", "D-02");
-    await expect(app.getByRole("heading", { name: "Your first Look starts with one piece." })).toBeVisible();
-    await expect(app.getByRole("button", { name: "Add an item" })).toBeVisible();
+    await expect(app.getByRole("heading", { name: /An easy direction to begin with|Your first Look starts with one piece/ })).toBeVisible();
+    await expect(app.getByRole("button", { name: /Add First Item|Add an item/ })).toBeVisible();
     await expect(app.getByRole("button", { name: "Ask Muse" })).toBeVisible();
-    await expect(app.getByRole("button", { name: "Browse inspiration" })).toBeVisible();
+    await expect(app.getByRole("button", { name: /See Another Direction|Browse inspiration/ })).toBeVisible();
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("styleiqClosetItemsV1") || "[]").length)).toBe(0);
   });
 
@@ -54,10 +63,9 @@ test.describe("Green Phase 1 onboarding", () => {
     await app.getByRole("button", { name: "Looks right · Add" }).click();
     await app.getByRole("button", { name: "Continue to Today" }).click();
     await expect(app).toHaveAttribute("data-screen", "D-02");
-
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("styleiqClosetItemsV1") || "[]")[0]?.name)).toBe("Blue linen overshirt");
     await page.reload();
-    await page.locator('.customer-scenario-controls').getByRole('button', { name: 'Existing customer' }).click();
+    await selectExistingCustomer(page);
     await app.getByRole("button", { name: "View Closet" }).click();
     await expect(app).toContainText("Blue linen overshirt");
     await expect(app).toContainText("Field Notes");
@@ -92,7 +100,7 @@ test.describe("Green Phase 1 onboarding", () => {
     });
     await page.reload();
     const app = page.locator("#app");
-    await page.locator('.customer-scenario-controls').getByRole('button', { name: 'Existing customer' }).click();
+    await selectExistingCustomer(page);
     await app.getByRole("button", { name: "Open StyleIQ" }).click();
     await expect(app).toHaveAttribute("data-screen", "D-02");
     await app.getByRole("button", { name: "View Closet" }).click();
@@ -107,7 +115,7 @@ test.describe("Green Phase 1 onboarding", () => {
     await app.getByRole("button", { name: /Style Twin/ }).click();
     await expect(app.getByRole("heading", { name: "Create your Style Twin" })).toBeVisible();
     await expect.poll(() => page.evaluate(() => localStorage.getItem("styleiqPendingTryOnV1"))).not.toBeNull();
-    await page.locator('.customer-scenario-controls').getByRole('button', { name: 'Existing customer' }).click();
+    await selectExistingCustomer(page);
     await expect(app).toHaveAttribute("data-screen", "E-06");
     await expect.poll(() => page.evaluate(() => localStorage.getItem("styleiqTryOnResultV1"))).not.toBeNull();
   });

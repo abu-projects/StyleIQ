@@ -134,16 +134,16 @@ const raw = {
     ["Refine · alias", "Canonical setup step 3."],
     ["First result", "Canonical setup step 4."],
     [
-      "Creator discovery",
-      "Browse outfits and style inspiration from other Creators.",
+      "Stylist discovery",
+      "Browse outfits and style inspiration from Stylists.",
     ],
     [
-      "Creator profile",
-      "Curated creator profile with style direction and featured looks.",
+      "Stylist profile",
+      "Curated stylist profile with style direction and featured looks.",
     ],
     [
-      "Creator look detail",
-      "Creator outfit breakdown, Muse styling notes, and Make It Mine.",
+      "Stylist look detail",
+      "Stylist outfit breakdown, Muse styling notes, and Make It Mine.",
     ],
   ],
   I: [
@@ -174,7 +174,7 @@ const raw = {
     ["Feed", "Dense image-led grid."],
     ["Unified search", "People, products, Looks, brands."],
     ["Filters", "For You, Top This Week, brands."],
-    ["Look detail", "Creator, location, image, items, metrics."],
+    ["Look detail", "Stylist, location, image, items, metrics."],
     ["Try on me", "Reuse Avatar gate."],
     ["Restyle", "Copy community Look to editable draft."],
     ["Follow/like/comment", "Representational social actions."],
@@ -807,6 +807,7 @@ let nextWeekPrepared =
   localStorage.getItem("styleiqNextWeekPreparedV1") === "true";
 let proactiveWeek = readWishlistData("styleiqProactiveWeekV1", []);
 let proactiveEditIndex = null;
+let selectedPlannerDayIndex = 0;
 function planMyWeek() {
   const today = new Date();
   today.setDate(today.getDate() + (8-today.getDay())%7);
@@ -2531,6 +2532,18 @@ function installGestures() {
 }
 function installWalkthroughGestures() {
   if (currentId !== "S-01") return;
+  const video = app.querySelector(".meet-muse-video-screen video");
+  if (video) {
+    video.muted = true;
+    video.playsInline = true;
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {});
+    }
+    video.addEventListener("ended", () => {
+      video.play().catch(() => {});
+    });
+  }
   const story = app.querySelector(".walkthrough-story");
   let start = null;
   if (!story) return;
@@ -2738,8 +2751,7 @@ function entryScreen(s) {
   if (s.id === "S-00")
     return `<section class="screen entry-screen entry-splash" role="button" tabindex="0" aria-label="Open StyleIQ" onclick="openStyleIQ()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStyleIQ()}"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="Curated wardrobe with natural light and linen drape"><div class="splash-tint" aria-hidden="true"></div><div class="splash-tag" aria-hidden="true"><span class="splash-tag-text">Styled for you ♡</span></div><div class="entry-frame"><div class="entry-top"><span class="splash-brand">StyleIQ</span></div><div class="splash-copy"><h1 class="splash-title">Your closet.<br>Smarter.</h1><p class="splash-body">Know what you own.<br>Know what to wear.<br>Buy better.</p></div></div></section>`;
   if (s.id === "S-01") {
-    const slide = walkthroughSlides[walkthroughIndex];
-    return `<section class="screen entry-screen walkthrough-story"><img class="walkthrough-story-bg" src="${slide.image}" alt="${slide.alt}"><div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span class="walkthrough-count">${walkthroughIndex + 1} of ${walkthroughSlides.length}</span></div><div class="walkthrough-story-body"><article class="walkthrough-glass" aria-live="polite"><div class="walkthrough-glass-refract" aria-hidden="true"></div><div class="walkthrough-glass-tint" aria-hidden="true"></div><div class="walkthrough-glass-specular" aria-hidden="true"></div><div class="walkthrough-glass-content"><p class="eyebrow">${slide.eyebrow}</p><h1>${slide.title}</h1><p class="body">${slide.body}</p><nav class="walkthrough-nav" aria-label="Walkthrough pages"><button class="walkthrough-arrow" aria-label="Previous page" onclick="moveWalkthrough(-1)" ${walkthroughIndex === 0 ? "disabled" : ""}>${icon("back")}</button><div class="walkthrough-dots">${walkthroughSlides.map((_, index) => `<button class="${index === walkthroughIndex ? "active" : ""}" aria-label="Show page ${index + 1}" aria-current="${index === walkthroughIndex ? "step" : "false"}" onclick="setWalkthroughSlide(${index})"></button>`).join("")}</div><button class="walkthrough-arrow" aria-label="Next page" onclick="moveWalkthrough(1)" ${walkthroughIndex === walkthroughSlides.length - 1 ? "disabled" : ""}>${icon("back")}</button></nav></div></article><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
+    return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen"><video class="walkthrough-story-bg" autoplay loop muted playsinline poster="images/meet-muse-poster.jpg" preload="auto"><source src="videos/meet-muse-runway.mp4" type="video/mp4"></video><div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Meet Muse</p><h1 class="display">Hi, I’m Muse.</h1><p class="body">Your personal stylist—learning your wardrobe, plans, and taste to help you dress with purpose.</p></div><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
   }
   return stylingContextSurface(false);
 }
@@ -3142,8 +3154,8 @@ const lookSourceLabels = {
   muse_assisted: "With Muse",
   muse_generated: "Muse Generated",
   inspiration_recreated: "Recreated from Inspiration",
-  creator_recreated: "Creator Look",
-  lens_recreated: "Creator / Lens",
+  creator_recreated: "Stylist Look",
+  lens_recreated: "Stylist / Lens",
   today_saved: "Saved from Today",
   trip_generated: "Trip Generated",
   planner_generated: "Planner Generated",
@@ -3289,8 +3301,8 @@ const creatorDataset = [
         museExplanation: "This look works because it combines one structured layer, a simple fitted base, relaxed trousers, and a minimal shoe.",
         pieces: [
           { role: "Outerwear", name: "Cream Blazer", original: "Cream tailored blazer", image: "images/item_blazer.png" },
-          { role: "Top", name: "White Knit", original: "Fine-gauge ribbed knit", image: "images/screen_23_item.png" },
-          { role: "Bottom", name: "Wide-Leg Trouser", original: "Pleated wide-leg trousers", image: "images/screen_22_closet.png" },
+          { role: "Top", name: "White Knit", original: "Fine-gauge ribbed knit", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Wide-Leg Trouser", original: "Pleated wide-leg trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Leather Loafer", original: "Black leather penny loafers", image: "images/cat_shoes.png" }
         ]
       },
@@ -3303,7 +3315,7 @@ const creatorDataset = [
         museExplanation: "Warm earth tones balance fluid trousers with an easy, relaxed knit for effortless weekend wear.",
         pieces: [
           { role: "Top", name: "Rust Square-Neck Knit", original: "Rust square-neck knit top", image: "images/alta-rust-knit-top.png" },
-          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Cream fluid tailored trousers", image: "images/screen_22_closet.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Cream fluid tailored trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Tan Suede Loafers", original: "Tan unlined suede loafers", image: "images/alta-tan-suede-loafers.png" },
           { role: "Accessory", name: "Espresso Silver Belt", original: "Slim espresso belt", image: "images/alta-espresso-silver-belt.png" }
         ]
@@ -3332,7 +3344,7 @@ const creatorDataset = [
         pieces: [
           { role: "Outerwear", name: "Camel Open Blazer", original: "Camel wool-blend blazer", image: "images/item_blazer.png" },
           { role: "Top", name: "Ivory Cotton Shirt", original: "Relaxed poplin button-down", image: "images/alta-ivory-eyelet-shirt.png" },
-          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Draped wide-leg trousers", image: "images/screen_22_closet.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Draped wide-leg trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "White Sneakers", original: "Low-profile court sneakers", image: "images/cat_shoes.png" }
         ]
       }
@@ -3360,8 +3372,8 @@ const creatorDataset = [
         museExplanation: "A structured navy blazer elevates neutral wool trousers while a soft collar keeps the silhouette relaxed.",
         pieces: [
           { role: "Outerwear", name: "Navy Wool Jacket", original: "Midnight navy tailored jacket", image: "images/item_blazer.png" },
-          { role: "Top", name: "Crisp White Shirt", original: "Textured cotton spread-collar shirt", image: "images/screen_23_item.png" },
-          { role: "Bottom", name: "Charcoal Pleated Trousers", original: "Double-pleated charcoal trousers", image: "images/screen_22_closet.png" },
+          { role: "Top", name: "Crisp White Shirt", original: "Textured cotton spread-collar shirt", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Charcoal Pleated Trousers", original: "Double-pleated charcoal trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Black Leather Loafers", original: "Brushed black leather loafers", image: "images/cat_shoes.png" }
         ]
       },
@@ -3373,8 +3385,8 @@ const creatorDataset = [
         image: "images/style_classic_man.png",
         museExplanation: "Understated luxury through simple cashmere and well-fitted dark trousers.",
         pieces: [
-          { role: "Top", name: "Charcoal Knit Crewneck", original: "Fine wool crewneck", image: "images/screen_23_item.png" },
-          { role: "Bottom", name: "Straight Indigo Denim", original: "Japanese selvedge denim", image: "images/screen_22_closet.png" },
+          { role: "Top", name: "Charcoal Knit Crewneck", original: "Fine wool crewneck", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Straight Indigo Denim", original: "Japanese selvedge denim", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Black Ankle Boots", original: "Clean chelsea boots", image: "images/cat_shoes.png" }
         ]
       },
@@ -3417,7 +3429,7 @@ const creatorDataset = [
         pieces: [
           { role: "Outerwear", name: "Black Open Blazer", original: "Oversized wool blazer", image: "images/item_blazer.png" },
           { role: "Top", name: "Ivory Cotton Shirt", original: "Poplin oversized shirt", image: "images/alta-ivory-eyelet-shirt.png" },
-          { role: "Bottom", name: "Straight Blue Jeans", original: "High-waist straight leg jeans", image: "images/screen_22_closet.png" },
+          { role: "Bottom", name: "Straight Blue Jeans", original: "High-waist straight leg jeans", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Black Ballet Flats", original: "Soft lambskin ballet flats", image: "images/cat_shoes.png" }
         ]
       },
@@ -3430,7 +3442,7 @@ const creatorDataset = [
         museExplanation: "Refined neutral palette with a structured blazer that transitions seamlessly from morning coffee to gallery meetings.",
         pieces: [
           { role: "Outerwear", name: "Camel Open Blazer", original: "Warm camel wool blazer", image: "images/item_blazer.png" },
-          { role: "Top", name: "White Knit", original: "Fine rib knit top", image: "images/screen_23_item.png" },
+          { role: "Top", name: "White Knit", original: "Fine rib knit top", image: "images/alta-ivory-eyelet-shirt.png" },
           { role: "Bottom", name: "Black Tailored Trousers", original: "Cropped tailored trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Tan Suede Loafers", original: "Tonal suede loafers", image: "images/alta-tan-suede-loafers.png" }
         ]
@@ -3488,7 +3500,7 @@ const creatorDataset = [
         pieces: [
           { role: "Outerwear", name: "Camel Open Blazer", original: "Draped camel blazer", image: "images/item_blazer.png" },
           { role: "Top", name: "Rust Square-Neck Knit", original: "Textured terracotta knit", image: "images/alta-rust-knit-top.png" },
-          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Ivory wide trousers", image: "images/screen_22_closet.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Ivory wide trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Tan Suede Loafers", original: "Minimal loafers", image: "images/alta-tan-suede-loafers.png" }
         ]
       },
@@ -3531,7 +3543,7 @@ const creatorDataset = [
         pieces: [
           { role: "Outerwear", name: "Camel Open Blazer", original: "Linen-blend lightweight duster", image: "images/item_blazer.png" },
           { role: "Top", name: "Ivory Cotton Shirt", original: "Breezy poplin tunic", image: "images/alta-ivory-eyelet-shirt.png" },
-          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Linen wide trousers", image: "images/screen_22_closet.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Linen wide trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "Tan Suede Loafers", original: "Collapsible heel loafers", image: "images/alta-tan-suede-loafers.png" }
         ]
       },
@@ -3557,8 +3569,8 @@ const creatorDataset = [
         image: "images/look-soft-tailoring-cairo.png",
         museExplanation: "Tonal softness with relaxed proportions that move naturally in outdoor warm-weather settings.",
         pieces: [
-          { role: "Top", name: "White Knit", original: "Short-sleeve linen knit", image: "images/screen_23_item.png" },
-          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Relaxed linen-blend trousers", image: "images/screen_22_closet.png" },
+          { role: "Top", name: "White Knit", original: "Short-sleeve linen knit", image: "images/alta-ivory-eyelet-shirt.png" },
+          { role: "Bottom", name: "Cream Wide-Leg Trousers", original: "Relaxed linen-blend trousers", image: "images/alta-black-tailored-trousers.png" },
           { role: "Shoes", name: "White Sneakers", original: "Minimal leather sneakers", image: "images/cat_shoes.png" }
         ]
       }
@@ -3894,8 +3906,8 @@ function studioStartState() {
       <button class="studio-start-card primary-variant" onclick="go('H-11')">
         <span class="studio-start-icon-wrap">${icon("compass")}</span>
         <span class="studio-start-card-text">
-          <b>Explore Creator Looks</b>
-          <small class="body">Browse curated creator outfits and translate them into your wardrobe.</small>
+          <b>Explore Stylist Looks</b>
+          <small class="body">Browse curated stylist outfits and translate them into your wardrobe.</small>
         </span>
         <span class="studio-start-arrow">›</span>
       </button>
@@ -3907,7 +3919,7 @@ function studioStartState() {
 function studioCreatorBanner() {
   if (studioSourceContext !== "creator" || !creatorReferenceContext) return "";
   const ref = creatorReferenceContext;
-  return `<section class="studio-creator-ref-banner card" aria-label="Creator inspiration reference">
+  return `<section class="studio-creator-ref-banner card" aria-label="Stylist inspiration reference">
     <div class="between">
       <div class="creator-ref-info">
         <p class="eyebrow">Inspired by ${escapeMarkup(ref.creatorName)}</p>
@@ -3919,7 +3931,7 @@ function studioCreatorBanner() {
       </div>
     </div>
     <div class="creator-ref-actions">
-      <button class="text-action" onclick="go('H-13')">View Original Creator Look ›</button>
+      <button class="text-action" onclick="go('H-13')">View Original Stylist Look ›</button>
     </div>
   </section>`;
 }
@@ -3936,7 +3948,7 @@ function studioCreatorMatching() {
       </div>
       <span class="match-stat">${ownedCount} / ${total} from Closet</span>
     </div>
-    <p class="body" style="margin:6px 0 12px">StyleIQ matched creator pieces against your owned wardrobe and substituted compatible pieces.</p>
+    <p class="body" style="margin:6px 0 12px">StyleIQ matched stylist pieces against your owned wardrobe and substituted compatible pieces.</p>
     <div class="creator-match-pieces">
       ${canvasState.items
         .map(
@@ -3945,7 +3957,7 @@ function studioCreatorMatching() {
           <div class="match-piece-info">
             <span class="match-role">${p.role === "Outerwear" ? "Layer" : p.role}</span>
             <b>${escapeMarkup(p.name)}</b>
-            ${p.originalCreatorPiece && p.originalCreatorPiece !== p.name ? `<small class="body">Creator piece: ${escapeMarkup(p.originalCreatorPiece)}</small>` : ""}
+            ${p.originalCreatorPiece && p.originalCreatorPiece !== p.name ? `<small class="body">Stylist piece: ${escapeMarkup(p.originalCreatorPiece)}</small>` : ""}
           </div>
           <span class="match-status-badge ${p.matchType === "Owned" ? "owned" : p.matchType === "Similar Owned" ? "similar" : "missing"}">
             ${p.matchType === "Owned" ? "Owned ✓" : p.matchType === "Similar Owned" ? "Similar Owned ✓" : "Missing"}
@@ -4008,22 +4020,22 @@ function creatorDiscoveryScreen() {
   });
 
   return shell(
-    "Creator Looks",
+    "Stylist Looks",
     `<header class="creator-discovery-header">
       <div class="between">
         <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
         <div class="creator-header-title">
-          <p class="eyebrow" style="text-align:center">Creator Looks</p>
+          <p class="eyebrow" style="text-align:center">Stylist Looks</p>
           <h2 class="title" style="margin:0;font-size:22px;text-align:center">Style Inspiration</h2>
         </div>
         <div style="width:36px"></div>
       </div>
-      <p class="body creator-discovery-sub">Style inspiration you can make your own. Browse curated creator outfits and recreate them with your Closet.</p>
+      <p class="body creator-discovery-sub">Style inspiration you can make your own. Browse curated stylist outfits and recreate them with your Closet.</p>
       <div class="creator-search-wrap">
         <span class="search-icon">${icon("search")}</span>
-        <input class="input creator-search-input" placeholder="Search creators, outfits, styles…" value="${escapeMarkup(creatorSearchQuery)}" oninput="setCreatorSearch(this.value)">
+        <input class="input creator-search-input" placeholder="Search stylists, outfits, styles…" value="${escapeMarkup(creatorSearchQuery)}" oninput="setCreatorSearch(this.value)">
       </div>
-      <div class="chips creator-filter-chips" role="group" aria-label="Creator style categories">
+      <div class="chips creator-filter-chips" role="group" aria-label="Stylist style categories">
         ${categories
           .map(
             (c) =>
@@ -4037,7 +4049,7 @@ function creatorDiscoveryScreen() {
       <div class="mirror-section-head">
         <span>
           <p class="eyebrow">Curated Stylists</p>
-          <h3>Featured Creators</h3>
+          <h3>Featured Stylists</h3>
         </span>
         <small class="body">${filteredCreators.length} stylists</small>
       </div>
@@ -4063,7 +4075,7 @@ function creatorDiscoveryScreen() {
                 )
                 .join("")}
             </div>
-            <button class="btn small-btn wide" onclick="openCreatorProfile('${creator.id}')">View Creator</button>
+            <button class="btn small-btn wide" onclick="openCreatorProfile('${creator.id}')">View Stylist</button>
           </div>
         `,
           )
@@ -4109,7 +4121,7 @@ function creatorDiscoveryScreen() {
       </div>`
           : `<div class="card empty-state" style="text-align:center;padding:32px 16px;margin-top:12px">
         <p class="eyebrow" style="color:var(--muted)">No Looks Found</p>
-        <h4 class="title" style="margin:4px 0 8px">No creator looks match "${escapeMarkup(query || creatorFilter)}"</h4>
+        <h4 class="title" style="margin:4px 0 8px">No stylist looks match "${escapeMarkup(query || creatorFilter)}"</h4>
         <p class="body" style="margin-bottom:16px;font-size:13px">Try clearing your search or exploring all categories.</p>
         <div class="row" style="justify-content:center;gap:8px">
           ${query ? `<button class="btn small-btn" onclick="setCreatorSearch('')">Clear Search</button>` : ""}
@@ -4142,7 +4154,7 @@ function creatorProfileScreen() {
     <section class="card creator-patterns-card" aria-label="Signature style patterns">
       <p class="eyebrow">Signature Formulations</p>
       <h3 class="title" style="font-size:16px;margin:2px 0 8px">Style Patterns</h3>
-      <p class="body" style="margin-bottom:10px">What this creator wears, and the structural rules to borrow.</p>
+      <p class="body" style="margin-bottom:10px">What this stylist wears, and the structural rules to borrow.</p>
       <ul class="creator-pattern-list">
         ${creator.patterns.map((pat) => `<li><span class="pattern-bullet">✦</span> <span>${escapeMarkup(pat)}</span></li>`).join("")}
       </ul>
@@ -4181,7 +4193,7 @@ function creatorProfileScreen() {
           .join("")}
       </div>`
           : `<div class="card empty-state" style="text-align:center;padding:24px 16px;margin-top:12px">
-        <p class="body">No looks published yet by this creator.</p>
+        <p class="body">No looks published yet by this stylist.</p>
       </div>`
       }
     </section>`,
@@ -4202,10 +4214,10 @@ function creatorLookDetailScreen() {
       <div class="between">
         <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
         <div class="creator-detail-head-copy">
-          <p class="eyebrow" style="text-align:center">Creator Look</p>
+          <p class="eyebrow" style="text-align:center">Stylist Look</p>
           <h2 class="title" style="margin:0;font-size:20px;text-align:center">${escapeMarkup(look.title)}</h2>
         </div>
-        <button class="mirror-circle-action" aria-label="View Creator" onclick="openCreatorProfile('${look.creator.id}')">${icon("user")}</button>
+        <button class="mirror-circle-action" aria-label="View Stylist" onclick="openCreatorProfile('${look.creator.id}')">${icon("user")}</button>
       </div>
       <div class="creator-detail-author-row" onclick="openCreatorProfile('${look.creator.id}')">
         <img src="${look.creator.avatar}" alt="${escapeMarkup(look.creator.name)}" class="creator-detail-author-thumb">
@@ -4271,7 +4283,7 @@ function creatorLookDetailScreen() {
         <button class="btn primary wide" onclick="makeCreatorLookMine('${look.id}')">Make It Mine</button>
         <div class="row" style="margin-top:8px">
           <button class="btn grow" onclick="tryOnCreatorLook('${look.id}')">Try On</button>
-          <button class="btn grow" onclick="openCreatorProfile('${look.creator.id}')">View Creator</button>
+          <button class="btn grow" onclick="openCreatorProfile('${look.creator.id}')">View Stylist</button>
         </div>
       </div>
     </section>`,
@@ -4294,7 +4306,7 @@ function addCreatorReference() {
   render();
 }
 function inspirationPanelBody() {
-  return `<p class="body">Manage personal photos, screenshots, Instagram or Pinterest references, and creators or celebrities in one Style Inspiration space. External connections are simulated in this prototype.</p><div class="field" style="margin-top:14px"><label for="creator-reference">Creator, celebrity, handle, or link</label><input id="creator-reference" class="input" placeholder="@handle or pinterest.com/…"></div><button class="btn wide" style="margin-top:8px" onclick="addCreatorReference()">Add reference</button><div style="margin-top:12px">${creatorReferences.map((ref, index) => `<div class="creator-ref"><span><b>${ref.name}</b><small>${ref.source}</small></span><button class="text-action" aria-label="Remove ${ref.name}" onclick="removeCreatorReference(${index})">Remove</button></div>`).join("")}</div>`;
+  return `<p class="body">Add stylists, public figures, or style icons whose aesthetic inspires you. Photos, screenshots, and visual references are organized in one Style Inspiration space.</p><div class="field" style="margin-top:14px"><label for="creator-reference">Stylist, style icon, handle, or link</label><input id="creator-reference" class="input" placeholder="@handle or pinterest.com/…"></div><button class="btn wide" style="margin-top:8px" onclick="addCreatorReference()">Add reference</button><div style="margin-top:12px">${creatorReferences.map((ref, index) => `<div class="creator-ref"><span><b>${ref.name}</b><small>${ref.source}</small></span><button class="text-action" aria-label="Remove ${ref.name}" onclick="removeCreatorReference(${index})">Remove</button></div>`).join("")}</div>`;
 }
 function creatorLookDetail() {
   const look = selectedCommunityLook;
@@ -4306,8 +4318,8 @@ function creatorLookDetail() {
         ? `<section class="card" role="status" style="margin-top:14px"><b>Thanks. We’ve received your report.</b><p class="body">You can return to the Look.</p><button class="btn" style="margin-top:10px" onclick="openCommunityPanel(null)">Done</button></section>`
         : "";
   return shell(
-    "Creator inspiration",
-    `<div class="between"><span><p class="eyebrow">@${escapeMarkup(look.creator.replace(/ .*/, "").toLowerCase())} · Community Look</p><h2 class="title">${escapeMarkup(look.title)}</h2><small class="body">${escapeMarkup(look.brand)} · Paris, FR</small></span><button class="icon-btn" aria-label="Report this Look" onclick="openCommunityPanel('report')">${icon("more")}</button></div><img class="hero-img" style="height:330px;margin-top:12px" src="${look.image}" alt="${escapeMarkup(look.title)} by ${escapeMarkup(look.creator)}"><div class="row" style="margin-top:12px"><button class="btn ${communityFollowed ? "primary" : ""}" onclick="toggleCommunityFollow()">${communityFollowed ? "Following" : "Follow"}</button><button class="btn ${communityLiked ? "primary" : ""}" aria-pressed="${communityLiked}" onclick="toggleCommunityLike()">${communityLiked ? "Liked" : "Like"}</button><button class="btn" onclick="openCommunityPanel('comments')">Comment${communityComments.length ? ` · ${communityComments.length}` : ""}</button></div><p class="body">Relaxed tailoring, soft neutral layers, and a clean shoe. See how this community Look translates to your wardrobe.</p>${lensMatches()}<div class="row" style="margin-top:14px"><button class="btn primary grow" onclick="startTryOn('${look.id}', { sourceType: 'community-look' })">Try On</button><button class="btn grow" onclick="canvasState.creationSource='creator_recreated';persist();go('F-01')">Make It Mine</button></div>${communityState}`,
+    "Stylist inspiration",
+    `<div class="between"><span><p class="eyebrow">@${escapeMarkup(look.creator.replace(/ .*/, "").toLowerCase())} · Stylist Look</p><h2 class="title">${escapeMarkup(look.title)}</h2><small class="body">${escapeMarkup(look.brand)} · Paris, FR</small></span><button class="icon-btn" aria-label="Report this Look" onclick="openCommunityPanel('report')">${icon("more")}</button></div><img class="hero-img" style="height:330px;margin-top:12px" src="${look.image}" alt="${escapeMarkup(look.title)} by ${escapeMarkup(look.creator)}"><div class="row" style="margin-top:12px"><button class="btn ${communityFollowed ? "primary" : ""}" onclick="toggleCommunityFollow()">${communityFollowed ? "Following" : "Follow"}</button><button class="btn ${communityLiked ? "primary" : ""}" aria-pressed="${communityLiked}" onclick="toggleCommunityLike()">${communityLiked ? "Liked" : "Like"}</button><button class="btn" onclick="openCommunityPanel('comments')">Comment${communityComments.length ? ` · ${communityComments.length}` : ""}</button></div><p class="body">Relaxed tailoring, soft neutral layers, and a clean shoe. See how this community Look translates to your wardrobe.</p>${lensMatches()}<div class="row" style="margin-top:14px"><button class="btn primary grow" onclick="startTryOn('${look.id}', { sourceType: 'community-look' })">Try On</button><button class="btn grow" onclick="canvasState.creationSource='creator_recreated';persist();go('F-01')">Make It Mine</button></div>${communityState}`,
     { active: "discover" },
   );
 }
@@ -4323,7 +4335,7 @@ function decorateInspirationProfile() {
     ).length;
   content.insertAdjacentHTML(
     "beforeend",
-    `<section class="card" style="margin-top:12px" aria-label="My Looks summary"><p class="eyebrow">My Looks</p><h3 class="title">${lookCatalog.length} Looks</h3><div class="profile-insight-grid"><button class="profile-insight" onclick="lookFilter='All';go('G-01')"><b>${lookCatalog.length}</b><small>Total</small></button><button class="profile-insight" onclick="lookFilter='Created by Me';go('G-01')"><b>${byMe}</b><small>Created by me</small></button><button class="profile-insight" onclick="lookFilter='With Muse';go('G-01')"><b>${withMuse}</b><small>With Muse</small></button></div></section><section class="card" style="margin-top:12px" aria-label="Style Inspiration"><p class="eyebrow">Style Inspiration</p><h3 class="title">References that shape your style</h3><p class="body">Manage photos, screenshots, Instagram, Pinterest, creators, and celebrities in one place.</p><button class="btn wide" style="margin-top:12px" onclick="openLightweightPanel('inspiration')">Manage inspiration</button></section>`,
+    `<section class="card" style="margin-top:12px" aria-label="My Looks summary"><p class="eyebrow">My Looks</p><h3 class="title">${lookCatalog.length} Looks</h3><div class="profile-insight-grid"><button class="profile-insight" onclick="lookFilter='All';go('G-01')"><b>${lookCatalog.length}</b><small>Total</small></button><button class="profile-insight" onclick="lookFilter='Created by Me';go('G-01')"><b>${byMe}</b><small>Created by me</small></button><button class="profile-insight" onclick="lookFilter='With Muse';go('G-01')"><b>${withMuse}</b><small>With Muse</small></button></div></section><section class="card" style="margin-top:12px" aria-label="Style Inspiration"><p class="eyebrow">Style Inspiration</p><h3 class="title">Stylists & Style Icons</h3><p class="body">Add stylists, public figures, or style icons whose aesthetic inspires you.</p><button class="btn wide" style="margin-top:12px" onclick="openLightweightPanel('inspiration')">Manage inspiration</button></section>`,
   );
 }
 function decorateLookProvenance() {
@@ -4866,7 +4878,42 @@ function setTodayMode(mode) {
   if (currentId === "D-02") render();
 }
 function todayBeforeClosetState() {
-  return shell("Today", `<div class="empty image-first-empty"><div><div class="empty-art"><img src="${assets.blazer}" alt="A tailored piece ready for your Closet"></div><p class="eyebrow">Start with what you own</p><h2 class="title">Your first Look starts with one piece.</h2><p class="body">Explore starter inspiration now, or ask Muse how to begin. Add an item whenever you’re ready for Closet-based Looks.</p><button class="btn primary wide" onclick="go('B-01')">Add an item</button><button class="btn wide" style="margin-top:8px" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started before I add Closet items.', origin: 'D-02' })">Ask Muse</button><button class="btn wide" style="margin-top:8px" onclick="go('K-01')">Browse inspiration</button></div></div>`, { active: "home", surfaceClass: "image-first-surface" });
+  return shell(
+    "Today",
+    `<div class="muse-starter-look-screen">
+      <div class="card starter-look-card">
+        <div class="starter-look-tag-bar">
+          <span class="pill gold">StyleIQ Editorial</span>
+          <span class="pill">Starter Inspiration</span>
+        </div>
+        <div class="starter-look-visual">
+          <img src="images/alta-look-ivory-black-flatlay.png" alt="StyleIQ Editorial Starter Look" class="starter-look-img">
+        </div>
+        <div class="starter-look-content">
+          <p class="eyebrow">Muse Starter Look</p>
+          <h2 class="title">An easy direction to begin with</h2>
+          <p class="body">A flexible StyleIQ editorial look to help you get started. Add pieces anytime for outfits personalized from your own wardrobe.</p>
+          <div class="chips starter-chips" role="group" aria-label="Style direction tags">
+            <span class="chip">Easy Layers</span>
+            <span class="chip">Smart Casual</span>
+            <span class="chip">Day-to-Evening</span>
+            <span class="chip">Minimal</span>
+          </div>
+          <div class="starter-muse-note">
+            <span class="starter-muse-icon">${icon("spark")}</span>
+            <small class="body">Muse combines versatile foundation pieces to show how proportion and neutral layering work before your closet is added.</small>
+          </div>
+        </div>
+      </div>
+      <div class="starter-actions" style="margin-top:16px">
+        <button class="btn primary wide" onclick="go('B-01')">Add First Item</button>
+        <button class="btn wide" style="margin-top:8px" onclick="go('K-01')">See Another Direction</button>
+        <button class="btn wide" style="margin-top:8px" onclick="go('H-01')">Build My Style Profile</button>
+        <button class="btn wide" style="margin-top:8px" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started before I add Closet items.', origin: 'D-02' })">Ask Muse</button>
+      </div>
+    </div>`,
+    { active: "home", surfaceClass: "starter-look-surface" }
+  );
 }
 function todayLoadingState() {
   return shell("Today", `<div class="stack"><p class="eyebrow">Preparing your day</p><h2 class="title">Muse is checking the details.</h2><div class="skeleton" style="height:280px"></div><p class="body">Considering weather, calendar context, and the pieces you wear most.</p><button class="btn primary wide" onclick="setTodayMode('normal')">Show my Look</button></div>`, { active: "home" });
@@ -4881,9 +4928,11 @@ function mirrorPlanner() {
   const weekStart = proactiveWeek[0]?.date ? new Date(`${proactiveWeek[0].date}T12:00:00`) : new Date();
   if (!proactiveWeek[0]?.date) weekStart.setDate(weekStart.getDate() + (8-weekStart.getDay())%7);
   else weekStart.setDate(weekStart.getDate() - (weekStart.getDay()+6)%7);
+  const todayDate = new Date().getDate();
   const days = Array.from({length:7}, (_,index) => {
     const day = new Date(weekStart); day.setDate(day.getDate()+index);
-    return [day.toLocaleDateString('en-US',{weekday:'narrow'}), day.getDate()];
+    const isToday = day.getDate() === todayDate;
+    return [day.toLocaleDateString('en-US',{weekday:'narrow'}), day.getDate(), isToday, index];
   });
   const planned = plannerEvent || plannerIntent || {
     title: "No event planned yet",
@@ -4894,9 +4943,14 @@ function mirrorPlanner() {
   const proactive = proactiveWeek.length
     ? `<section class="planner-intent-card"><div class="between"><span><p class="eyebrow">Your Week</p><h2 class="title">StyleIQ planned ${proactiveWeek.length} looks.</h2></span><button class="text-action" onclick="planMyWeek()">Regenerate</button></div><div class="stack">${proactiveWeek.map((entry, index) => `<div class="pack-row planner-week-row"><img src="${entry.image}" alt="${escapeMarkup(entry.look)}"><span><b>${entry.day} · ${escapeMarkup(entry.context)}</b><small class="body" style="display:block">${escapeMarkup(entry.look)} · ${escapeMarkup(entry.date || "")}</small></span><div><button class="text-action" onclick="changeProactiveLook(${index})">Change Look</button><button class="text-action" onclick="editProactiveContext(${index})">Edit context</button><button class="text-action" onclick="removeProactiveLook(${index})">Remove</button></div></div>`).join("")}</div></section>`
     : `<section class="planner-intent-card"><p class="eyebrow">Proactive planning</p><h2 class="title">Let StyleIQ plan your week.</h2><p class="body">Generate four local sample Looks from your Closet and known contexts.</p><button class="btn primary wide" onclick="planMyWeek()">Plan My Week</button></section>`;
+
+  const eventCard = plannerEventCreated
+    ? `<button class="mirror-plan" onclick="go('I-04')"><img src="${plannedLook?.sheet || assets.look2}" alt="${escapeMarkup(planned.lookTitle || planned.title)}"><span class="mirror-plan-copy"><div class="between" style="align-items:center"><p class="eyebrow" style="margin:0">${escapeMarkup(planned.occasion || "Event")} · Planned</p><span class="planner-weather-badge">☀️ 74°</span></div><h3>${escapeMarkup(planned.lookTitle || planned.title)}</h3><small class="body">${escapeMarkup(planned.time || planned.daypart || "Today")} · ${escapeMarkup(planned.location || "Cairo")}</small><b style="display:block;margin-top:8px;font-size:10px;color:var(--gold,#9e733c)">Review event →</b></span></button>`
+    : `<div class="planner-empty-prompt"><div class="between" style="align-items:center"><span><p class="eyebrow" style="margin:0">Today’s Schedule</p><h3 class="title" style="margin:2px 0 0;font-size:16px">No Look planned yet</h3></span><button class="btn primary small-btn" onclick="go('I-03')">Plan a Look</button></div></div>`;
+
   return shell(
     "Planner",
-    `<div class="mirror-week">${days.map(([d, n], i) => `<button class="mirror-day" onclick="go('I-03')"><span>${d}</span><b>${n}</b><small>○</small></button>`).join("")}</div>${proactive}<section class="planner-intent-card"><p class="eyebrow">Manual planning</p><h2 class="title">${plannerEvent ? "Your planned Look" : "Add a specific event"}</h2><p class="body">Manual event creation remains available whenever you need it.</p><button class="btn wide" onclick="go('I-03')">Add Event</button></section>${plannerEventCreated ? `<button class="mirror-plan" onclick="go('I-04')"><img src="${plannedLook?.sheet || assets.look2}" alt="${escapeMarkup(planned.lookTitle || planned.title)}"><span class="mirror-plan-copy"><p class="eyebrow">Planned event · ${escapeMarkup(planned.occasion || "Event")}</p><h3>${escapeMarkup(planned.lookTitle || planned.title)}</h3><small class="body">${escapeMarkup(planned.time || planned.daypart || "Time not set")} · ${escapeMarkup(planned.location || "Location not set")}</small><b style="display:block;margin-top:13px;font-size:9px">Review event →</b></span></button>` : ""}${
+    `<div class="mirror-week">${days.map(([d, n, isToday, i]) => `<button class="mirror-day ${i === selectedPlannerDayIndex ? "active" : ""} ${isToday ? "is-today" : ""}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${isToday ? '<span class="today-dot" aria-label="Today"></span>' : '<span class="day-indicator-empty"></span>'}</button>`).join("")}</div>${eventCard}${proactive}<section class="planner-intent-card"><div class="between" style="align-items:center"><span><p class="eyebrow" style="margin:0">Manual planning</p><h2 class="title" style="margin:2px 0 0;font-size:16px">${plannerEvent ? "Your planned Look" : "Add a specific event"}</h2></span><button class="btn small-btn" onclick="go('I-03')">Add Event</button></div></section>${
       nextWeekPrepared
         ? `<section style="margin-top:16px"><div class="between"><span><p class="eyebrow">Prepared from your recap</p><h3 class="title">Next week</h3></span><button class="text-action" onclick="go('I-02')">Review recap</button></div><div class="planner-prepared">${[
             [assets.look3, "Monday", "Office"],
@@ -4909,7 +4963,7 @@ function mirrorPlanner() {
             )
             .join("")}</div></section>`
         : ""
-    }<button class="mirror-plan" onclick="go('J-01')"><img src="${assets.look4}" alt="Travel wardrobe"><span class="mirror-plan-copy"><p class="eyebrow">Travel</p><h3>Alexandria · 3 days</h3><small class="body">Packing Plan</small></span></button><div class="row" style="margin-top:12px"><button class="btn grow" onclick="go('I-06')">Share Calendar</button><button class="btn grow" onclick="go('I-02')">Weekly recap</button></div>`,
+    }<button class="mirror-plan" onclick="go('J-01')"><img src="${assets.look4}" alt="Travel wardrobe"><span class="mirror-plan-copy"><p class="eyebrow">Trip</p><h3>Alexandria · 3 days</h3><small class="body">Plan a Trip</small></span></button><div class="row" style="margin-top:12px"><button class="btn grow" onclick="go('I-06')">Share Calendar</button><button class="btn grow" onclick="go('I-02')">Weekly recap</button></div>`,
     { active: "planner" },
   );
 }
@@ -5097,7 +5151,7 @@ function discoverFilterScreen() {
   const filters = ["For You", "Top This Week", "Following", "COS", "Toteme", "Loro Piana"];
   return shell(
     "Discover filters",
-    `<p class="eyebrow">Discover · filter your feed</p><h2 class="title">Shape your feed</h2><div class="choice-list" style="margin-top:14px">${filters.map((filter) => `<button class="choice ${discoverFilter === filter ? "selected" : ""}" aria-pressed="${discoverFilter === filter}" onclick="setDiscoverFilter('${filter}')"><span><b>${filter}</b><small class="body">${filter === "Following" ? "Creators you follow" : filter === "For You" ? "Personalized Looks" : "Community and brand Looks"}</small></span>${discoverFilter === filter ? icon("check") : ""}</button>`).join("")}</div><button class="btn wide" style="margin-top:14px" onclick="clearDiscoverFilter()">Clear filters</button>`,
+    `<p class="eyebrow">Discover · filter your feed</p><h2 class="title">Shape your feed</h2><div class="choice-list" style="margin-top:14px">${filters.map((filter) => `<button class="choice ${discoverFilter === filter ? "selected" : ""}" aria-pressed="${discoverFilter === filter}" onclick="setDiscoverFilter('${filter}')"><span><b>${filter}</b><small class="body">${filter === "Following" ? "Stylists you follow" : filter === "For You" ? "Personalized Looks" : "Community and brand Looks"}</small></span>${discoverFilter === filter ? icon("check") : ""}</button>`).join("")}</div><button class="btn wide" style="margin-top:14px" onclick="clearDiscoverFilter()">Clear filters</button>`,
     { active: "discover" },
   );
 }
@@ -5316,7 +5370,7 @@ function mirrorDiscover() {
     .slice(0, 4);
   return shell(
     "Discover",
-    `<button class="mirror-search" onclick="go('K-02')">${icon("search")} Search outfits, Creators, or pieces</button><div class="mirror-filters" role="group" aria-label="Discover filters">${filters.map((x) => `<button class="mirror-filter ${discoverFilter === x ? "active" : ""}" aria-pressed="${discoverFilter === x}" onclick="setDiscoverFilter('${x}')">${x}</button>`).join("")}<button class="text-action" onclick="clearDiscoverFilter()">Clear</button></div><section class="mirror-section creator-insp-module" aria-label="Creator inspiration"><div class="mirror-section-head"><span><p class="eyebrow">Creator Inspiration</p><h3>Looks worth making your own</h3></span><button class="text-action" onclick="go('H-11')">Explore Creators →</button></div><div class="mirror-outfit-rail">${creatorPreviews.map((look) => `<button class="mirror-outfit-card" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b></span></button>`).join("")}</div></section><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">${discoverFilter}</p><h3>${visible.length ? "Outfits for you" : "Nothing here yet"}</h3></span><small class="body">${visible.length} Looks</small></div>${visible.length ? `<div class="mirror-outfit-rail">${visible.map((item, index) => `<button class="mirror-outfit-card" onclick="openCommunityLook('${item.id}')"><img src="${assets[["look3", "look2", "look4"][index]]}" alt="${escapeMarkup(item.title)}"><span><small>${escapeMarkup(item.creator)}</small><b>${escapeMarkup(item.title)}</b></span></button>`).join("")}</div>` : `<div class="empty"><p class="body">Follow Camille to see community Looks here.</p><button class="btn" onclick="setDiscoverFilter('For You')">Show For You</button></div>`}</section>`,
+    `<button class="mirror-search" onclick="go('K-02')">${icon("search")} Search outfits, Stylists, or pieces</button><div class="mirror-filters" role="group" aria-label="Discover filters">${filters.map((x) => `<button class="mirror-filter ${discoverFilter === x ? "active" : ""}" aria-pressed="${discoverFilter === x}" onclick="setDiscoverFilter('${x}')">${x}</button>`).join("")}<button class="text-action" onclick="clearDiscoverFilter()">Clear</button></div><section class="mirror-section creator-insp-module" aria-label="Stylist inspiration"><div class="mirror-section-head"><span><p class="eyebrow">Stylist Inspiration</p><h3>Looks worth making your own</h3></span><button class="text-action" onclick="go('H-11')">Explore Stylists →</button></div><div class="mirror-outfit-rail">${creatorPreviews.map((look) => `<button class="mirror-outfit-card" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b></span></button>`).join("")}</div></section><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">${discoverFilter}</p><h3>${visible.length ? "Outfits for you" : "Nothing here yet"}</h3></span><small class="body">${visible.length} Looks</small></div>${visible.length ? `<div class="mirror-outfit-rail">${visible.map((item, index) => `<button class="mirror-outfit-card" onclick="openCommunityLook('${item.id}')"><img src="${assets[["look3", "look2", "look4"][index]]}" alt="${escapeMarkup(item.title)}"><span><small>${escapeMarkup(item.creator)}</small><b>${escapeMarkup(item.title)}</b></span></button>`).join("")}</div>` : `<div class="empty"><p class="body">Follow Camille to see community Looks here.</p><button class="btn" onclick="setDiscoverFilter('For You')">Show For You</button></div>`}</section>`,
     { active: "discover" },
   );
 }
