@@ -1011,7 +1011,7 @@ img {
   display: block;
   width: 100%;
   margin-top: 24px;
-  padding: 0;
+  padding: 0 !important;
   border: 0;
   background: transparent;
   color: #fff;
@@ -9486,7 +9486,7 @@ body {
     [data-screen="A-16"]
   )
   .content.no-nav {
-  padding: 18px 20px calc(24px + env(safe-area-inset-bottom));
+  padding: 80px 20px calc(24px + env(safe-area-inset-bottom));
   background:
     radial-gradient(
       circle at 94% 48%,
@@ -9511,34 +9511,10 @@ body {
   .onboard-step-icon {
   display: none;
 }
-.app:is(
-    [data-screen="A-01"],
-    [data-screen="A-02"],
-    [data-screen="A-03"],
-    [data-screen="A-04"],
-    [data-screen="A-05"],
-    [data-screen="A-16"]
-  )
-  .onboard-top {
-  min-height: 44px;
-}
-.app:is(
-    [data-screen="A-01"],
-    [data-screen="A-02"],
-    [data-screen="A-03"],
-    [data-screen="A-04"],
-    [data-screen="A-05"],
-    [data-screen="A-16"]
-  )
-  .onboard-top
-  .icon-btn {
-  background: #fffdfa;
-  border-color: rgba(91, 72, 58, 0.14);
-}
 .auth-main {
   min-height: 0;
   justify-content: flex-start;
-  padding-top: 28px;
+  padding-top: 14px;
   font-family:
     Manrope,
     -apple-system,
@@ -9691,7 +9667,7 @@ body {
 }
 .auth-screen-input {
   height: 50px !important;
-  padding: 0 !important;
+  padding: 0;
   border: 0 !important;
   border-radius: 0 !important;
   outline: 0 !important;
@@ -11531,7 +11507,7 @@ body {
   max-width: none;
   height: 100%;
   max-height: 100%;
-  padding: 28px 24px calc(28px + env(safe-area-inset-bottom));
+  padding: 28px 24px calc(112px + env(safe-area-inset-bottom));
   border-radius: 0;
   border: 0;
   background:
@@ -11545,6 +11521,9 @@ body {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   overscroll-behavior: contain;
+}
+.app:has(.account-menu-layer) .bottom-nav {
+  z-index: calc(var(--z-overlay) + 1);
 }
 .app .account-menu-head {
   gap: 12px;
@@ -11865,12 +11844,13 @@ body {
 }
 
 /* Authentication cards use the same refracting glass, beneath the form. */
-.app .content.no-nav:has(.auth-shell) {
+.app .screen-head + .content.no-nav:has(.auth-shell) {
   position: relative;
   isolation: isolate;
+  padding: 0 !important;
   background: #eee8e2;
 }
-.app .content.no-nav:has(.auth-shell)::before {
+.app .content.no-nav:has(.auth-shell) > .onboard::before {
   content: "";
   position: absolute;
   z-index: 0;
@@ -11881,7 +11861,7 @@ body {
   opacity: 0.28;
   transform: scale(1.08);
 }
-.app .content.no-nav:has(.auth-shell)::after {
+.app .content.no-nav:has(.auth-shell) > .onboard::after {
   content: "";
   position: absolute;
   z-index: 0;
@@ -11898,6 +11878,13 @@ body {
     radial-gradient(circle at 92% 48%, rgba(151, 116, 84, 0.2), transparent 34%);
 }
 .app .content.no-nav:has(.auth-shell) > .onboard {
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+  padding: 80px 20px calc(24px + env(safe-area-inset-bottom));
+  overflow: clip;
+}
+.app .content.no-nav:has(.auth-shell) > .onboard > * {
   position: relative;
   z-index: 1;
 }
@@ -14139,18 +14126,43 @@ summary:focus-visible {
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) :is(.auth-glass-refract,.auth-glass-tint,.auth-glass-specular) { display: none; }
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-panel { padding: 0; border: 0; background: transparent; box-shadow: none; }
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-form { gap: var(--siq-space-5); }
+.app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-form > .field { gap: 6px; }
+.app[data-canonical-screen="A-01"] .auth-form > .field:has(#login-password) {
+  grid-template-areas:
+    "label"
+    "input"
+    "forgot";
+}
+.app[data-canonical-screen="A-01"] .auth-form > .field:has(#login-password) .auth-field-label {
+  display: contents;
+}
+.app[data-canonical-screen="A-01"] .auth-form > .field:has(#login-password) .auth-field-label label {
+  grid-area: label;
+}
+.app[data-canonical-screen="A-01"] .auth-form > .field:has(#login-password) .auth-input-wrap {
+  grid-area: input;
+}
+.app[data-canonical-screen="A-01"] .auth-form > .field:has(#login-password) .auth-inline-link {
+  grid-area: forgot;
+  min-height: 28px;
+  justify-self: end;
+  padding: 4px 0;
+  font-size: 10px;
+}
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-input-wrap {
   height: var(--siq-control-height);
   padding: 0 var(--siq-space-4);
-  border: 1px solid var(--siq-border);
-  border-radius: var(--siq-radius-lg);
-  background: var(--siq-surface-elevated);
-  box-shadow: none;
+  border: 1px solid rgba(137, 112, 92, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 253, 250, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
 }
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-input-wrap:focus-within {
-  border-color: var(--siq-focus);
-  background: var(--siq-surface-elevated);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--siq-focus) 20%, transparent);
+  border-color: #aa927e;
+  background: rgba(255, 253, 250, 0.78);
+  box-shadow:
+    0 0 0 3px rgba(170, 146, 126, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
 }
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .siq-field > .auth-screen-input {
   height: var(--siq-control-height) !important;
@@ -14166,6 +14178,55 @@ summary:focus-visible {
   border-color: var(--siq-focus) !important;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--siq-focus) 20%, transparent) !important;
 }
+.app[data-canonical-screen="A-16"] :is(#signup-first-name, #signup-last-name) {
+  height: var(--siq-control-height) !important;
+  padding: 0 var(--siq-space-4) !important;
+  border: 1px solid rgba(137, 112, 92, 0.28) !important;
+  border-radius: 14px !important;
+  background: rgba(255, 253, 250, 0.58) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76) !important;
+  font-size: 15px !important;
+  transition:
+    border-color 150ms ease-out,
+    box-shadow 150ms ease-out,
+    background-color 150ms ease-out;
+}
+.app[data-canonical-screen="A-16"] :is(#signup-first-name, #signup-last-name):focus-visible {
+  outline: none !important;
+  border-color: #aa927e !important;
+  background: rgba(255, 253, 250, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(170, 146, 126, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+.app[data-canonical-screen="A-16"] .auth-main .otp input {
+  border: 1px solid rgba(137, 112, 92, 0.28) !important;
+  background: rgba(255, 253, 250, 0.58) !important;
+  color: var(--siq-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76) !important;
+}
+.app[data-canonical-screen="A-16"] .auth-main .otp input:focus-visible {
+  outline: none !important;
+  border-color: #aa927e !important;
+  background: rgba(255, 253, 250, 0.78) !important;
+  box-shadow:
+    0 0 0 3px rgba(170, 146, 126, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+.app[data-canonical-screen="A-16"] #otp-timing {
+  color: #70655d;
+  font-size: 10px;
+}
+.app[data-canonical-screen="A-16"] #otp-resend {
+  color: #684e3b;
+  font-size: 10px;
+  font-weight: 750;
+}
+.app[data-canonical-screen="A-16"] #otp-resend:disabled {
+  color: #806b5b;
+  opacity: 0.72;
+  cursor: not-allowed;
+}
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-input-wrap .auth-screen-input {
   height: 50px !important;
   padding: 0 !important;
@@ -14180,6 +14241,15 @@ summary:focus-visible {
   background: var(--siq-surface);
   box-shadow: none;
   backdrop-filter: none;
+}
+.app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-divider {
+  color: #70655d;
+  font-size: 11px;
+  font-weight: 600;
+}
+.app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-divider::before,
+.app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-divider::after {
+  background: rgba(91, 72, 58, 0.22);
 }
 .app[data-canonical-screen="A-16"] .auth-form > .row {
   display: grid;
@@ -14258,4 +14328,229 @@ summary:focus-visible {
 @media (prefers-reduced-transparency: reduce) {
   .siq-header,
   .siq-bottom-nav { background: var(--siq-surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+/* A-02 setup: two deliberate, scroll-separated selections. */
+.app[data-canonical-screen="A-02"] .content.no-nav {
+  scroll-behavior: smooth;
+}
+.app[data-canonical-screen="A-02"] .content.no-nav > .onboard {
+  overflow: visible;
+}
+.app[data-canonical-screen="A-02"] .setup-main {
+  display: block;
+  padding-top: 12px;
+}
+.app[data-canonical-screen="A-02"] .setup-heading {
+  padding-inline: 2px;
+}
+.app[data-canonical-screen="A-02"] .setup-heading .display {
+  max-width: none;
+  font-size: 30px;
+}
+.app[data-canonical-screen="A-02"] .setup-heading .body {
+  max-width: 37ch;
+}
+.app[data-canonical-screen="A-02"] .setup-flow {
+  display: grid;
+  gap: 22px;
+  margin-top: 20px;
+  padding-bottom: 8px;
+}
+.app[data-canonical-screen="A-02"] .setup-section {
+  min-height: min(560px, calc(100dvh - 220px));
+  margin-top: 0;
+  scroll-margin-top: 18px;
+}
+.app[data-canonical-screen="A-02"] .setup-section .auth-panel {
+  min-height: inherit;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px 20px;
+}
+.app[data-canonical-screen="A-02"] .setup-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #76675d;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.app[data-canonical-screen="A-02"] .setup-step span:first-child {
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  border: 1px solid rgba(91, 72, 58, 0.18);
+  border-radius: 50%;
+  background: rgba(255, 253, 250, 0.54);
+  letter-spacing: 0;
+}
+.app[data-canonical-screen="A-02"] .setup-section h2 {
+  margin: 20px 0 0;
+  color: #211b18;
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+.app[data-canonical-screen="A-02"] .setup-section h2 + p {
+  max-width: 34ch;
+  margin: 8px 0 0;
+  color: #786d64;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.app[data-canonical-screen="A-02"] .setup-wardrobe-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 28px;
+}
+.app[data-canonical-screen="A-02"] .setup-wardrobe-option {
+  min-width: 0;
+  min-height: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 6px;
+  border: 1px solid rgba(91, 72, 58, 0.22);
+  border-radius: 16px;
+  background: rgba(255, 253, 250, 0.58);
+  color: #3b322d;
+  font: 650 10px/1.15 Manrope, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease, background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+}
+.app[data-canonical-screen="A-02"] .setup-wardrobe-option:hover {
+  border-color: rgba(63, 47, 37, 0.42);
+  background: rgba(255, 253, 250, 0.82);
+}
+.app[data-canonical-screen="A-02"] .setup-wardrobe-option[aria-checked="true"] {
+  border-color: #211b18;
+  background: #211b18;
+  color: #fffdfa;
+  box-shadow: 0 10px 22px rgba(42, 32, 27, 0.16), inset 0 1px rgba(255, 255, 255, 0.12);
+}
+.app[data-canonical-screen="A-02"] .setup-check {
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.app[data-canonical-screen="A-02"] .setup-wardrobe-option .setup-check {
+  background: rgba(255, 255, 255, 0.16);
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity 150ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.app[data-canonical-screen="A-02"] .setup-wardrobe-option[aria-checked="true"] .setup-check {
+  opacity: 1;
+  transform: scale(1);
+}
+.app[data-canonical-screen="A-02"] .setup-check .icon {
+  width: 12px;
+  height: 12px;
+  stroke-width: 2.3;
+}
+.app[data-canonical-screen="A-02"] .setup-scroll-cue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid rgba(91, 72, 58, 0.12);
+  color: #86786d;
+  font-size: 9px;
+  font-weight: 650;
+}
+.app[data-canonical-screen="A-02"] .setup-goals {
+  min-height: auto;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-options {
+  gap: 9px;
+  margin-top: 22px;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-option {
+  min-height: 62px;
+  padding: 10px 12px;
+  border: 1px solid rgba(91, 72, 58, 0.2);
+  background: rgba(255, 253, 250, 0.62);
+  box-shadow: none;
+  transition: transform 160ms cubic-bezier(0.16, 1, 0.3, 1), border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-option[aria-checked="true"] {
+  border-color: #5d4a3d;
+  background: rgba(241, 233, 225, 0.92);
+  box-shadow: inset 0 0 0 1px #5d4a3d, 0 8px 18px rgba(73, 55, 42, 0.08);
+}
+.app[data-canonical-screen="A-02"] .setup-goal-option[aria-checked="true"] .icon-wrap {
+  background: #211b18;
+  color: #fffdfa;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-option b {
+  font-size: 11px;
+  line-height: 1.25;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-state {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  flex: none;
+  place-items: center;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-state > * {
+  grid-area: 1 / 1;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-arrow {
+  font-size: 19px;
+  font-weight: 300;
+  transition: opacity 140ms ease, transform 160ms ease;
+}
+.app[data-canonical-screen="A-02"] .setup-goal-state .setup-check {
+  background: #211b18;
+  color: #fffdfa;
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity 140ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.app[data-canonical-screen="A-02"] .setup-goal-option[aria-checked="true"] .setup-goal-arrow {
+  opacity: 0;
+  transform: translateX(-3px);
+}
+.app[data-canonical-screen="A-02"] .setup-goal-option[aria-checked="true"] .setup-goal-state .setup-check {
+  opacity: 1;
+  transform: scale(1);
+}
+.app[data-canonical-screen="A-02"] :is(.setup-wardrobe-option, .setup-goal-option):focus-visible {
+  outline: 3px solid rgba(111, 87, 69, 0.24);
+  outline-offset: 2px;
+}
+.app[data-canonical-screen="A-02"] :is(.setup-wardrobe-option, .setup-goal-option):active {
+  transform: scale(0.98);
+}
+.app[data-canonical-screen="A-02"] .setup-submit {
+  margin-top: 18px;
+}
+.app[data-canonical-screen="A-02"] .setup-submit:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+@media (max-width: 360px) {
+  .app[data-canonical-screen="A-02"] .setup-wardrobe-options {
+    grid-template-columns: 1fr;
+  }
+  .app[data-canonical-screen="A-02"] .setup-wardrobe-option {
+    min-height: 54px;
+    flex-direction: row;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app[data-canonical-screen="A-02"] .content.no-nav { scroll-behavior: auto; }
+  .app[data-canonical-screen="A-02"] :is(.setup-wardrobe-option, .setup-goal-option, .setup-check, .setup-goal-arrow) { transition: none; }
 }
