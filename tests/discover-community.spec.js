@@ -13,15 +13,17 @@ test.describe("Discover filters and community actions", () => {
   });
 
   test("filters change the Discover result set and can be cleared", async ({ page }) => {
-    await expect(page.locator("#app").getByRole("button", { name: "For You" })).toHaveAttribute("aria-pressed", "true");
-    await page.locator("#app").getByRole("button", { name: "COS" }).click();
-    await expect(page.locator("#app").getByRole("button", { name: "COS" })).toHaveAttribute("aria-pressed", "true");
+    const filters = page.getByRole("tablist", { name: "Discover filters" });
+    await expect(filters.getByRole("tab", { name: "For You" })).toHaveAttribute("aria-selected", "true");
+    await filters.getByRole("tab", { name: "COS" }).click();
+    await expect(filters.getByRole("tab", { name: "COS" })).toHaveAttribute("aria-selected", "true");
     await expect(page.locator("#app").getByRole("button", { name: /Tailored ease/ })).toBeVisible();
-    await page.locator("#app").getByRole("button", { name: "Clear" }).click();
-    await expect(page.locator("#app").getByRole("button", { name: "For You" })).toHaveAttribute("aria-pressed", "true");
+    await filters.getByRole("tab", { name: "For You" }).click();
+    await expect(filters.getByRole("tab", { name: "For You" })).toHaveAttribute("aria-selected", "true");
   });
 
   test("community actions persist and report has a confirmation state", async ({ page }) => {
+    await page.getByRole("tablist", { name: "Discover filters" }).getByRole("tab", { name: "COS" }).click();
     await page.locator("#app").getByRole("button", { name: /Tailored ease/ }).click();
     await page.locator("#app").getByRole("button", { name: "Follow" }).click();
     await page.locator("#app").getByRole("button", { name: "Like" }).click();

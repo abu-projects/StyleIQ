@@ -14,8 +14,8 @@ test("trip uses basics, activities, generation, and one result hub", async ({ pa
   await expect(page.locator("#app").getByRole("heading", { name: "Building your trip" })).toBeVisible();
   await page.locator("#app").getByRole("button", { name: "Open completed trip" }).click();
   await expect(page.locator("#app").getByRole("heading", { name: "Lisbon is ready" })).toBeVisible();
-  await page.locator("#app").getByRole("button", { name: "Outfits" }).click();
-  await page.locator("#app").getByRole("button", { name: "Days" }).click();
+  await page.locator("#app").getByRole("tab", { name: "Outfits" }).click();
+  await page.locator("#app").getByRole("tab", { name: "Days" }).click();
   await expect(page.locator("#app").getByText("Day 1")).toBeVisible();
 });
 

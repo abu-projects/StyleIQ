@@ -18,7 +18,7 @@ test('F routes open their requested tools while retaining the same recreation dr
     await navigate(id);
     await expect(page.locator("#app").getByLabel(label,{exact:true})).toBeVisible();
     await expect(page.locator("#app").getByLabel(label,{exact:true}).getByRole('heading').first()).toBeInViewport();
-    if(['F-06','F-07','F-08','F-09','F-10'].includes(id))await expect(page.locator("#app").getByRole('group',{name:'Piece source',exact:true})).toBeInViewport();
+    if(['F-06','F-07','F-08','F-09','F-10'].includes(id))await expect(page.locator("#app").getByRole('tablist',{name:'Piece source',exact:true})).toBeInViewport();
     await expect(page.locator('.mirror-studio-head h2')).toHaveText('Soft Tailoring');
   }
   await page.locator("#app").getByRole('button',{name:'New Look',exact:true}).click();
@@ -34,39 +34,39 @@ async function studioWithTwin(page){
   await page.locator('.today-actions').getByRole('button',{name:'Make it mine'}).click();
   await page.locator('#app').getByRole('button',{name:'Edit Look details'}).click();
 }
-const category=(page,name)=>page.locator("#app").getByRole('group',{name:'Active layer',exact:true}).getByRole('button',{name,exact:true});
+const category=(page,name)=>page.locator("#app").getByRole('tablist',{name:'Active layer',exact:true}).getByRole('tab',{name,exact:true});
 const choose=(page,name)=>page.locator('.studio-picker').getByRole('button',{name:`Choose ${name}`,exact:true});
 
 test('one Look synchronizes visual edits, sources, view modes, layers and Save',async({page})=>{
   await studioWithTwin(page);
-  await page.locator("#app").getByRole('button',{name:'On My Twin',exact:true}).click();
+  await page.locator("#app").getByRole('tab',{name:'On My Twin',exact:true}).click();
   await category(page,'Shoes').click();
   await choose(page,'Minimal sneaker').click();
   await expect(choose(page,'Minimal sneaker')).toHaveAttribute('aria-pressed','true');
   await expect(page.locator("#app").getByText('Preview needs refresh',{exact:true})).toBeVisible();
   await page.locator("#app").getByRole('button',{name:'Update Try-On',exact:true}).click();
   await expect(page.locator('.studio-render-notice')).toContainText('generation is not connected');
-  await page.locator("#app").getByRole('button',{name:'Flat Lay',exact:true}).click();
+  await page.locator("#app").getByRole('tab',{name:'Flat Lay',exact:true}).click();
   await expect(page.locator("#app").getByLabel('Flat Lay preview',{exact:true}).getByRole('button',{name:'Edit Shoes: Minimal sneaker',exact:true})).toBeVisible();
   await page.locator("#app").getByLabel('Flat Lay preview',{exact:true}).getByRole('button',{name:/Edit Top:/}).click();
   await choose(page,'Rust square-neck knit').click();
   await expect(page.locator("#app").getByLabel('Flat Lay preview',{exact:true})).toContainText('Rust square-neck knit');
-  await page.locator("#app").getByRole('button',{name:'On My Twin',exact:true}).click();
+  await page.locator("#app").getByRole('tab',{name:'On My Twin',exact:true}).click();
   await expect(choose(page,'Rust square-neck knit')).toHaveAttribute('aria-pressed','true');
   await page.locator('.studio-picker-heading').getByRole('button',{name:'Add piece'}).click();
   await category(page,'Accessory').click();
-  await page.locator("#app").getByRole('group',{name:'Piece source',exact:true}).getByRole('button',{name:'My Closet',exact:true}).click();
+  await page.locator("#app").getByRole('tablist',{name:'Piece source',exact:true}).getByRole('tab',{name:'My Closet',exact:true}).click();
   await choose(page,'Gold everyday hoops').click();
-  await page.locator("#app").getByRole('button',{name:'Flat Lay',exact:true}).click();
+  await page.locator("#app").getByRole('tab',{name:'Flat Lay',exact:true}).click();
   await expect(page.locator("#app").getByLabel('Flat Lay preview',{exact:true})).toContainText('Gold everyday hoops');
   // Mode toggles do not alter selected pieces or active layer.
   const before=await page.evaluate(()=>localStorage.getItem('styleiqAltaCanvasV2'));
-  await page.locator("#app").getByRole('button',{name:'Simple Everyday changes'}).click();
+  await page.locator("#app").getByRole('tab',{name:'Simple',exact:true}).click();
   await expect(page.locator("#app").getByLabel('Advanced Look layers',{exact:true})).toHaveCount(0);
-  await page.locator("#app").getByRole('button',{name:'Create Advanced control'}).click();
+  await page.locator("#app").getByRole('tab',{name:'Create',exact:true}).click();
   expect(await page.evaluate(()=>localStorage.getItem('styleiqAltaCanvasV2'))).toBe(before);
   await page.reload();
-  await expect(category(page,'Accessory')).toHaveAttribute('aria-pressed','true');
+  await expect(category(page,'Accessory')).toHaveAttribute('aria-selected','true');
   await page.locator("#app").getByRole('button',{name:'Save',exact:true}).click();
   await expect(page.locator('#app')).toHaveAttribute('data-screen','G-02');
   const saved=await page.evaluate(()=>({look:JSON.parse(localStorage.getItem('styleiqAltaCanvasV2')),twin:JSON.parse(localStorage.getItem('styleiqTwinSetupV2'))}));
@@ -87,7 +87,7 @@ test('new Look starts visually and Lens returns a chosen Closet match to the sam
   await expect(page.locator("#app").getByRole('dialog',{name:'StyleIQ Lens',exact:true})).toHaveCount(0);
   await expect(page.locator("#app").getByLabel('Flat Lay preview',{exact:true})).toContainText('Ivory silk shell');
   await expect(page.locator('.mirror-studio-head h2')).toHaveText('Untitled Look');
-  await page.locator("#app").getByRole('group',{name:'Piece source',exact:true}).getByRole('button',{name:'Search',exact:true}).click();
+  await page.locator("#app").getByRole('tablist',{name:'Piece source',exact:true}).getByRole('tab',{name:'Search',exact:true}).click();
   await page.locator("#app").getByLabel('Search pieces',{exact:true}).fill('rust');
   await expect(page.locator('.studio-piece-option')).toHaveCount(1);
   await choose(page,'Rust square-neck knit').click();
@@ -112,7 +112,7 @@ test('advanced hide, reorder and remove retain the remaining canonical layers',a
 
 test('render completion never replaces edits made while the renderer was pending',async({page})=>{
   await studioWithTwin(page);
-  await page.locator("#app").getByRole('button',{name:'On My Twin',exact:true}).click();
+  await page.locator("#app").getByRole('tab',{name:'On My Twin',exact:true}).click();
   await category(page,'Shoes').click();await choose(page,'Minimal sneaker').click();
   // Mock only the optional external image-generation boundary, not Studio state.
   await page.evaluate(()=>window.styleiqStudioRenderer=()=>new Promise(resolve=>window.finishStudioRender=resolve));

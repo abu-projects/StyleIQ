@@ -20,7 +20,7 @@ test.describe("canonical Closet item detail", () => {
 
   test("Style this item preserves the selected Closet item", async ({ page }) => {
     await page.locator("#app").getByRole("button", { name: "Style this item" }).click();
-    await expect(page.locator("#app").getByText("Styled around Black tailored blazer")).toBeVisible();
-    await expect(page.locator("#app").getByRole("button", { name: "Try on" })).toBeVisible();
+    await expect(page.locator("#app").getByRole("heading", { name: "Styled around Black tailored blazer" })).toBeVisible();
+    await expect(page.locator("#app").getByRole("region", { name: "Choose your outfit" })).toBeVisible();
   });
 });

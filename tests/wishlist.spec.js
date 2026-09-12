@@ -7,7 +7,7 @@ const route = async (page, id) => {
   await page.goto(`/index.html#${id}`);
   await expect(app(page)).toHaveAttribute('data-screen', id);
 };
-const filter = (page, name) => page.locator("#app").getByRole('group', { name: 'Wishlist status' }).getByRole('button', { name, exact: true });
+const filter = (page, name) => page.locator("#app").getByRole('tablist', { name: 'Wishlist status' }).getByRole('tab', { name, exact: true });
 
 test('product save, removal and Undo stay synchronized across Discover and Wishlist after reload', async ({ page }) => {
   await route(page, 'K-02');
