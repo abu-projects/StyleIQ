@@ -3,6 +3,21 @@ const { test, expect } = require('@playwright/test');
 const app = page => page.locator('#app');
 const getCanonical = async page => await app(page).getAttribute('data-canonical-screen');
 const getScreen = async page => await app(page).getAttribute('data-screen');
+const retiredScreens = `
+  A-03 A-04 A-05 A-06 A-07 A-08 A-09 A-10 A-11 A-12 A-13 A-14 A-15
+  B-02 B-03 B-04 B-05 B-07 B-08 B-09 B-10 B-11
+  C-03 C-04 C-05 C-06 C-07
+  D-01 D-03 D-04 D-05 D-06
+  E-01 E-02 E-03 E-04 E-05 E-06
+  F-02 F-03 F-04 F-05 F-06 F-07 F-08 F-09 F-10 F-11
+  G-03 G-04 G-05 G-06 G-07
+  H-02 H-03 H-04 H-05 H-07 H-08 H-09
+  I-02 I-03 I-05 I-06
+  J-03 J-04 J-05 J-06 J-07 J-09 J-10 J-11 J-12 J-13 J-14
+  K-02 K-03 K-05 K-06 K-07 K-08
+  L-02 L-03 L-05 L-06 L-07 L-08 L-09 L-10 L-13 L-15
+  M-02 M-03
+`.trim().split(/\s+/);
 
 test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
 
@@ -273,45 +288,16 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     expect(await getCanonical(page)).toBe('D-02');
   });
 
-  test('Compatibility: Legacy deep-links resolve seamlessly to canonical destinations with state', async ({ page }) => {
-    // #B-04 resolves to canonical B-01 in search mode
-    await page.goto('/index.html#B-04');
-    expect(await getCanonical(page)).toBe('B-01');
-    expect(await getScreen(page)).toBe('B-04');
+  test('Retired deep-links have no route connection to the current product', async ({ page }) => {
+    expect(retiredScreens).toHaveLength(93);
+    await page.goto('/index.html#D-02');
+    const resolutions = await page.evaluate(ids => ids.map(id => window.resolveCanonicalRoute(id)), retiredScreens);
+    expect(resolutions).toEqual(retiredScreens.map(() => ({ screen: null, canonical: null })));
 
-    // #B-07 resolves to canonical B-06 with recovery state
-    await page.goto('/index.html#B-07');
-    expect(await getCanonical(page)).toBe('B-06');
-    expect(await getScreen(page)).toBe('B-07');
-
-    // #J-03 resolves to canonical J-02
-    await page.goto('/index.html#J-03');
-    expect(await getCanonical(page)).toBe('J-02');
-
-    // #J-09 resolves to canonical J-08
-    await page.goto('/index.html#J-09');
-    expect(await getCanonical(page)).toBe('J-08');
-
-    // #L-05 resolves to canonical L-04
-    await page.goto('/index.html#L-05');
-    expect(await getCanonical(page)).toBe('L-04');
-  });
-
-  test('Phase 2 compatibility routes open their canonical owner and intended state', async ({ page }) => {
-    const cases = [
-      ['A-06', 'B-01', 'Choose garment photos'],
-      ['I-02', 'I-01', 'Planner Insights'],
-      ['I-03', 'I-01', 'Planned looks & events'],
-      ['I-06', 'I-01', 'Share Planner'],
-      ['L-07', 'G-08', 'Shopping budget'],
-      ['L-08', 'I-01', 'Recurring events'],
-    ];
-    for (const [legacy, canonical, visibleText] of cases) {
-      await page.goto(`/index.html#${legacy}`);
-      expect(await getCanonical(page)).toBe(canonical);
-      expect(await getScreen(page)).toBe(legacy);
-      await expect(app(page).getByText(visibleText, { exact: true }).first()).toBeVisible();
-    }
+    await page.goto('/index.html#J-14');
+    expect(await getCanonical(page)).toBe('S-00');
+    expect(await getScreen(page)).toBe('S-00');
+    expect(new URL(page.url()).hash).toBe('#S-00');
   });
 
   test('Visible inventory contains only the 34 canonical screens', async ({ page }) => {
@@ -336,12 +322,8 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     ]);
     await expect(page.locator('#total-count')).toHaveText('34 / 34');
     await expect(page.locator('#screen-list')).not.toContainText('OUTFIT ACTIONS');
-    const counts = await page.evaluate(() => ({
-      visible: screens.length,
-      compatibility: routeScreens.length - screens.length,
-      supported: routeScreens.length,
-    }));
-    expect(counts).toEqual({ visible: 34, compatibility: 93, supported: 127 });
+    const counts = await page.evaluate(() => ({ visible: screens.length, supported: screens.length }));
+    expect(counts).toEqual({ visible: 34, supported: 34 });
   });
 
 });

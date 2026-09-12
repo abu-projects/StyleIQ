@@ -72,8 +72,8 @@ test('purchase requires confirmation and the shared item review before one persi
 
 test('saved context, status filters and unavailable actions survive reload without becoming owned', async ({ page }) => {
   await route(page, 'G-08');
-  await filter(page, 'Unavailable').click();
-  await expect(page.locator('.wishlist-product')).toHaveCount(1);
+  await filter(page, 'Considering').click();
+  await expect(page.locator('.wishlist-product')).toHaveCount(2);
   await product(page, 'ivory-knit').getByRole('button', { name: 'View Ivory Silk Shell', exact: true }).click();
   await expect(app(page).getByRole('button', { name: 'Mark as Purchased', exact: true })).toHaveCount(0);
   await expect(app(page).getByText('Budget context', { exact: true })).toHaveCount(0);
@@ -87,7 +87,7 @@ test('saved context, status filters and unavailable actions survive reload witho
   await expect(page.locator('.wishlist-context')).toContainText('A layer for travel <not a new outfit>.');
   await expect(page.locator('.wishlist-context')).toContainText('Travel');
   await route(page, 'G-08');
-  for (const [name, count] of [['Saved', 1], ['Review Later', 1], ['Ready to Buy', 1], ['Purchased', 0], ['Unavailable', 1], ['All', 4]]) {
+  for (const [name, count] of [['Considering', 2], ['Later', 1], ['Ready', 1], ['All', 4]]) {
     await filter(page, name).click();
     await expect(page.locator('.wishlist-product')).toHaveCount(count);
   }
