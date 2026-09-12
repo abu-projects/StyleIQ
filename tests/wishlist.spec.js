@@ -103,7 +103,7 @@ test('outfit evaluation keeps the considered product separate from three owned p
   await expect(page.locator("#app").getByRole('dialog')).toContainText('3 owned pieces + 1 considered product');
   await page.locator("#app").getByRole('button', { name: 'Explore in Style Studio' }).click();
   await expect(app(page)).toHaveAttribute('data-screen', 'F-01');
-  await app(page).getByRole('button', {name: 'Edit Look details'}).click();
+  await page.locator('[data-testid="studio-edit-look-details"]').click();
   await page.locator('.studio-save').click();
   await expect(app(page)).toHaveAttribute('data-screen', 'G-02');
   await expect(app(page).getByRole('heading', { name: 'Saved Look', exact: true })).toBeVisible();
@@ -126,7 +126,7 @@ test('Lens and gap products share heart state while the owned Studio source has 
   await route(page, 'M-03');
   await expect(heart(page, 'rust-knit')).toHaveAttribute('aria-pressed', 'false');
   await route(page, 'F-01');
-  await app(page).getByRole('button',{name:'Edit Look details'}).click();
+  await page.locator('[data-testid="studio-edit-look-details"]').click();
   await page.locator("#app").getByRole('group', { name: 'Piece source', exact: true }).getByRole('button', { name: 'My Closet', exact: true }).click();
   await expect(page.locator('.studio-picker [data-wishlist-heart]')).toHaveCount(0);
 });
@@ -151,18 +151,30 @@ test('the registered inventory has no broken destinations or runtime errors afte
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await route(page, 'G-08');
-  const ids = await page.locator('#screen-list [data-id]').evaluateAll(nodes => nodes.map(node => node.dataset.id));
-  const failures = [];
-  for (const id of ids) {
-    await page.evaluate(id => go(id), id);
-    const redirects = {'A-07':'H-01','A-08':'H-02','A-09':'A-05','A-10':'A-06','A-11':'D-02','A-12':'B-01','A-13':'C-01','A-14':'G-01','A-15':'J-02','C-03':'C-02','C-04':'C-02','C-05':'C-02','C-06':'C-02','C-07':'D-04','G-03':'G-02','G-04':'G-02','G-05':'G-02','G-06':'G-02','G-07':'G-02'};
-    await expect(app(page)).toHaveAttribute('data-screen', redirects[id] || id);
-    const broken = await app(page).evaluate((element, ids) => ({
-      overflow: element.scrollWidth > element.clientWidth + 1,
-      links: [...element.querySelectorAll('[onclick]')].flatMap(node => [...node.getAttribute('onclick').matchAll(/go\(['"]([A-Z]-\d+)['"]/g)].map(match => match[1])).filter(id => !ids.includes(id)),
-    }), ids);
-    if (broken.overflow || broken.links.length) failures.push({ id, ...broken });
-  }
+  const { failures, checkedCount } = await page.evaluate(() => {
+    const allIds = [...document.querySelectorAll('#screen-list [data-id]')].map(n => n.dataset.id);
+    const failures = [];
+    const appEl = document.getElementById('app');
+    for (const id of allIds) {
+      go(id);
+      const screen = appEl.getAttribute('data-screen');
+      const canonical = appEl.getAttribute('data-canonical-screen');
+      const expectedCanonical = getCanonicalScreen(id);
+      if (screen !== id) {
+        failures.push({ id, error: `data-screen ${screen} !== ${id}` });
+      }
+      if (canonical !== expectedCanonical) {
+        failures.push({ id, error: `data-canonical-screen ${canonical} !== ${expectedCanonical}` });
+      }
+      const overflow = appEl.scrollWidth > appEl.clientWidth + 1;
+      const links = [...appEl.querySelectorAll('[onclick]')].flatMap(node => [...node.getAttribute('onclick').matchAll(/go\(['"]([A-Z]-\d+)['"]/g)].map(match => match[1])).filter(tid => !allIds.includes(tid));
+      if (overflow || links.length) {
+        failures.push({ id, overflow, links });
+      }
+    }
+    return { failures, checkedCount: allIds.length };
+  });
+  expect(checkedCount).toBeGreaterThan(100);
   expect(failures).toEqual([]);
   expect(errors).toEqual([]);
 });

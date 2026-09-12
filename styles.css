@@ -8805,6 +8805,9 @@ body {
 }
 .studio-canonical {
   background: var(--ivory);
+  margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 .studio-experience-switch {
   display: grid;

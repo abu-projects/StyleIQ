@@ -1,9 +1,11 @@
 const { test, expect } = require('@playwright/test');
 
 async function openToday(page, completed = true) {
-  await page.goto('/index.html#D-02');
-  const controls = page.locator('.customer-scenario-controls');
-  await controls.getByRole('button', { name: completed ? 'Existing customer' : 'New customer' }).click();
+  const scenario = completed ? 'existing' : 'new';
+  await page.goto(`/index.html?customer=${scenario}#D-02`);
+  await page.evaluate(s => {
+    if (typeof setCustomerScenario === 'function') setCustomerScenario(s);
+  }, scenario);
 }
 const tryOn = page => page.locator('.today-actions').getByRole('button', { name: 'Try On', exact: true });
 const route = (page, id) => expect(page.locator('#app')).toHaveAttribute('data-screen', id);
@@ -13,8 +15,12 @@ for (const method of ['Use my photos', 'Create without personal photos']) {
     await page.goto('/index.html?customer=new#G-02');
     await page.locator("#app").getByRole('button', { name: 'Try On', exact: true }).click();
     await route(page, 'H-01');
-    await page.locator("#app").getByRole('button', { name: method }).click();
-    await page.locator("#app").getByRole('button', { name: 'Use this reference' }).click();
+    if (method === 'Use my photos') {
+      await page.locator("#app").getByRole('button', { name: /Continue to details|Use my photos/i }).click();
+    } else {
+      await page.locator("#app").getByRole('button', { name: 'Create without personal photos' }).click();
+      await page.locator("#app").getByRole('button', { name: 'Use this reference' }).click();
+    }
     await page.reload();
     await page.locator("#app").getByRole('button', { name: 'Create first preview' }).click();
     await route(page, 'E-06');
@@ -74,7 +80,7 @@ test('Make it mine passes the current formula and Closet matches to Studio', asy
   await tryOn(page).click();
   await page.locator("#app").getByRole('button', { name: 'Make it mine', exact: true }).click();
   await route(page, 'F-01');
-  await page.locator('#app').getByRole('button', { name: 'Edit Look details' }).click();
+  await page.locator('[data-testid="studio-edit-look-details"]').click();
   await expect(page.locator('.tryon-studio-formula')).toContainText('Coffee Meeting');
   await expect(page.locator('.tryon-studio-formula')).toContainText('4 of 4 roles matched');
   await page.reload();
@@ -92,8 +98,10 @@ test('Make it mine passes the current formula and Closet matches to Studio', asy
 test('abandoned Try On does not hijack Profile Twin completion', async ({ page }) => {
   await page.goto('/index.html?customer=new#G-02');
   await page.locator("#app").getByRole('button', { name: 'Try On', exact: true }).click();
-  await page.locator("#app").getByRole('button', { name: 'Skip for now' }).click();
-  await route(page, 'L-01');
+  await route(page, 'H-01');
+  await page.locator("#app").getByRole('button', { name: 'Back' }).click();
+  await route(page, 'G-02');
+  await page.goto('/index.html?customer=new#L-01');
   await page.locator('.profile-utility').filter({ hasText: 'Style Twin' }).click();
   await page.locator("#app").getByRole('button', { name: 'Create without personal photos' }).click();
   await page.locator("#app").getByRole('button', { name: 'Use this reference' }).click();
