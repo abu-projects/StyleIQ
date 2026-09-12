@@ -6317,7 +6317,7 @@ function twinBasicDetails() {
   const submitLabel = pendingTryOn ? "Create first preview" : "Create Style Twin";
   return shell(
     "Twin Details & Adjustments",
-    `${twinStepBar(2)}<p class="eyebrow">Step 2 of 3 · details & adjustments</p><h2 class="title">Twin Details &amp; Adjustments</h2><div class="stack" style="margin-top:16px"><div class="field"><label for="twin-height-detail">Height</label><input id="twin-height-detail" class="input" value="168 cm"></div><div class="field"><label for="twin-fit">Fit reference</label><select id="twin-fit" class="input"><option>Regular</option><option>Relaxed</option><option>Fitted</option></select></div><details class="card progressive-card" style="margin-top:12px"><summary><b>Fine-tune my Twin</b><span class="small">Pose · tuck · hair · appearance</span></summary><div class="settings-list" style="margin-top:12px"><div class="select-row"><span class="grow"><b>Pose</b><small class="body">Standing relaxed</small></span></div><div class="select-row"><span class="grow"><b>Tuck</b><small class="body">Front tuck / natural</small></span></div><div class="select-row"><span class="grow"><b>Appearance</b><small class="body">Warm neutral reference</small></span></div></div></details></div><button class="btn primary wide" style="margin-top:18px" onclick="completeTwinSetup()">${submitLabel}</button>`,
+    `${twinStepBar(2)}<section class="siq-section twin-details-intro"><p class="eyebrow">Step 2 of 3</p><h2 class="title">Shape the reference, then refine only what matters.</h2><p class="body">Height and fit guide the first preview. Every fine-tuning choice stays optional.</p></section><section class="siq-section twin-core-fields" aria-labelledby="twin-core-title"><div class="siq-section-header"><div><h3 id="twin-core-title">Core details</h3><p>Used to keep proportions natural.</p></div></div><div class="siq-field field"><label for="twin-height-detail">Height</label><input id="twin-height-detail" class="siq-input input" value="168 cm" inputmode="decimal" aria-describedby="twin-height-help"><span class="siq-description helper" id="twin-height-help">Use centimetres or feet and inches.</span></div><div class="siq-field field"><label for="twin-fit">Fit reference</label><select id="twin-fit" class="siq-select input" aria-describedby="twin-fit-help"><option>Regular</option><option>Relaxed</option><option>Fitted</option></select><span class="siq-description helper" id="twin-fit-help">Choose how your everyday clothes usually sit.</span></div></section><details class="siq-disclosure twin-refinement"><summary><span><b>Fine-tune my Twin</b><small>Pose, tuck and appearance</small></span><span class="siq-disclosure-indicator" aria-hidden="true">⌄</span></summary><div class="siq-disclosure-content"><div class="siq-value-row"><span>Pose</span><strong>Standing relaxed</strong></div><div class="siq-value-row"><span>Tuck</span><strong>Front tuck · natural</strong></div><div class="siq-value-row"><span>Appearance</span><strong>Warm neutral reference</strong></div></div></details><button class="siq-button siq-button--primary btn primary wide twin-create-cta" onclick="completeTwinSetup()">${submitLabel}</button>`,
     { active: "profile", noNav: true },
   );
 }
@@ -7193,6 +7193,156 @@ function renderScreen(s) {
   if (s.section === "L") return profileScreen(s);
   return museScreen(s);
 }
+
+let siqControlId = 0;
+function siqEnsureControlLabel(control) {
+  if (control.type === "hidden" || control.getAttribute("aria-label") || control.getAttribute("aria-labelledby")) return;
+  const containingLabel = control.closest("label");
+  const explicitLabel = control.id && app.querySelector(`label[for="${CSS.escape(control.id)}"]`);
+  if (containingLabel || explicitLabel) return;
+  if (!control.id) control.id = `siq-control-${++siqControlId}`;
+  const label = document.createElement("label");
+  label.className = "sr-only siq-generated-label";
+  label.htmlFor = control.id;
+  label.textContent = control.placeholder || control.name || (control.type === "search" ? "Search" : "Form field");
+  control.before(label);
+}
+function siqEnhanceAutocomplete(input, options) {
+  if (!input || input.dataset.siqAutocomplete === "true") return;
+  input.dataset.siqAutocomplete = "true";
+  input.classList.add("siq-autocomplete-input");
+  input.setAttribute("role", "combobox");
+  input.setAttribute("aria-autocomplete", "list");
+  input.setAttribute("aria-expanded", "false");
+  input.setAttribute("autocomplete", "off");
+  const list = document.createElement("div");
+  list.id = `${input.id || `siq-autocomplete-${++siqControlId}`}-listbox`;
+  list.className = "siq-autocomplete-popover";
+  list.setAttribute("role", "listbox");
+  list.hidden = true;
+  input.setAttribute("aria-controls", list.id);
+  input.insertAdjacentElement("afterend", list);
+  const close = () => {
+    list.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+  };
+  const draw = () => {
+    const query = input.value.trim().toLocaleLowerCase();
+    const visible = options.filter((value) => value.toLocaleLowerCase().includes(query)).slice(0, 7);
+    list.innerHTML = visible.length
+      ? visible.map((value, index) => `<div role="option" id="${list.id}-option-${index}" tabindex="-1" aria-selected="false">${escapeMarkup(value)}</div>`).join("")
+      : '<p class="siq-autocomplete-empty">No matching options</p>';
+    list.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    list.querySelectorAll('[role="option"]').forEach((option) => option.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      input.value = option.textContent;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+      close();
+      input.focus();
+    }));
+  };
+  input.addEventListener("focus", draw);
+  input.addEventListener("input", draw);
+  input.addEventListener("blur", () => setTimeout(close, 100));
+  input.addEventListener("keydown", (event) => {
+    const items = [...list.querySelectorAll('[role="option"]')];
+    if (event.key === "Escape") { close(); return; }
+    if (!["ArrowDown", "ArrowUp", "Enter"].includes(event.key) || !items.length) return;
+    event.preventDefault();
+    const activeId = input.getAttribute("aria-activedescendant");
+    let index = items.findIndex((item) => item.id === activeId);
+    if (event.key === "Enter" && index >= 0) { items[index].dispatchEvent(new MouseEvent("mousedown", { bubbles: true })); return; }
+    index = event.key === "ArrowDown" ? Math.min(items.length - 1, index + 1) : Math.max(0, index < 0 ? items.length - 1 : index - 1);
+    items.forEach((item, itemIndex) => item.setAttribute("aria-selected", String(itemIndex === index)));
+    input.setAttribute("aria-activedescendant", items[index].id);
+    items[index].scrollIntoView({ block: "nearest" });
+  });
+}
+function applyStyleIQDesignSystem() {
+  const screen = app.querySelector(".screen");
+  if (!screen) return;
+  screen.classList.add("siq-screen");
+  app.querySelectorAll(".content").forEach((node) => node.classList.add("siq-content"));
+  app.querySelectorAll(".screen-head,.root-head,.onboard-top,.instant-header").forEach((node) => {
+    node.classList.add("siq-header");
+    if (node.classList.contains("root-head")) node.classList.add("siq-header--root");
+    if (screen.classList.contains("entry-screen") || screen.classList.contains("studio-canonical")) node.classList.add("siq-header--immersive");
+  });
+  app.querySelectorAll(".bottom-nav").forEach((node) => node.classList.add("siq-bottom-nav"));
+
+  app.querySelectorAll("input,select,textarea").forEach((control) => {
+    siqEnsureControlLabel(control);
+    const parentField = control.closest(".field,.inline-edit-row,label");
+    parentField?.classList.add("siq-field");
+    if (control.matches("select")) control.classList.add("siq-select");
+    else if (control.matches("textarea")) control.classList.add("siq-textarea");
+    else if (control.closest(".otp")) control.classList.add("siq-otp-input");
+    else if (control.type === "search" || /search/i.test(control.placeholder || "")) control.classList.add("siq-input", "siq-search-input");
+    else control.classList.add("siq-input");
+    if (control.disabled) control.setAttribute("aria-disabled", "true");
+    const helper = parentField?.querySelector(".helper,.error,[role='alert']");
+    if (helper && !helper.id) helper.id = `${control.id || `siq-control-${++siqControlId}`}-description`;
+    if (helper) control.setAttribute("aria-describedby", helper.id);
+  });
+
+  app.querySelectorAll("button,.btn").forEach((button) => {
+    button.classList.add("siq-button");
+    if (button.classList.contains("primary") || button.classList.contains("gold")) button.classList.add("siq-button--primary");
+    else if (button.classList.contains("danger") || button.classList.contains("danger-action")) button.classList.add("siq-button--danger");
+    else if (button.classList.contains("text-action") || button.classList.contains("auth-inline-link") || button.classList.contains("auth-switch-action")) button.classList.add("siq-button--ghost");
+    else button.classList.add("siq-button--secondary");
+    if (button.classList.contains("icon-btn") || (button.getAttribute("aria-label") && !button.textContent.trim())) button.classList.add("siq-button--icon-only");
+  });
+  app.querySelectorAll(".chip,.mirror-filter,.pill").forEach((node) => node.classList.add("siq-chip"));
+  app.querySelectorAll(".card,.signal-card,.profile-utility,.settings-list").forEach((node) => node.classList.add("siq-surface"));
+  app.querySelectorAll(".item-card,.closet-item,.mirror-outfit-card,.mirror-feed-card").forEach((node) => node.classList.add("siq-card"));
+  app.querySelectorAll("details").forEach((details, index) => {
+    details.classList.add("siq-disclosure");
+    const summary = details.querySelector(":scope > summary");
+    const content = summary?.nextElementSibling;
+    if (!summary) return;
+    summary.setAttribute("aria-expanded", String(details.open));
+    if (content) {
+      if (!content.id) content.id = `siq-disclosure-${currentId}-${index}`;
+      summary.setAttribute("aria-controls", content.id);
+    }
+    details.addEventListener("toggle", () => summary.setAttribute("aria-expanded", String(details.open)));
+  });
+  app.querySelectorAll(".sheet,.lightweight-sheet,.notifications-sheet,.lens-sheet").forEach((node) => node.classList.add("siq-drawer"));
+  app.querySelectorAll(".modal,.wishlist-dialog").forEach((node) => node.classList.add("siq-modal"));
+  app.querySelectorAll("[role='tablist'],.mirror-studio-tabs,.studio-experience-switch").forEach((node) => node.classList.add("siq-tabs"));
+  app.querySelectorAll(".empty,.empty-state,.image-first-empty").forEach((node) => node.classList.add("siq-empty-state"));
+  app.querySelectorAll(".contextual-insight,.muse-context-card,.creator-muse-card").forEach((node) => node.classList.add("siq-ai-panel"));
+  app.querySelectorAll(".divider,hr").forEach((node) => node.classList.add("siq-divider"));
+
+  siqEnhanceAutocomplete(app.querySelector("#trip-destination"), ["Alexandria", "Cairo", "Lisbon", "London", "Milan", "New York", "Paris", "Rome", "Tokyo"]);
+  app.querySelectorAll('input[placeholder*="brand" i],input[placeholder*="product" i]').forEach((input) => siqEnhanceAutocomplete(input, ["Aritzia", "COS", "Everlane", "Massimo Dutti", "Reiss", "StyleIQ Atelier", "Toteme", "Uniqlo"]));
+
+  const activeDialog = app.querySelector('[role="dialog"],[role="alertdialog"]');
+  if (activeDialog && !activeDialog.matches("dialog:not([open])")) {
+    const focusTarget = activeDialog.querySelector("[autofocus],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled])");
+    if (focusTarget && !activeDialog.contains(document.activeElement)) requestAnimationFrame(() => focusTarget.focus({ preventScroll: true }));
+    activeDialog.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !activeDialog.matches("dialog")) {
+        event.preventDefault();
+        if (activeDialog.classList.contains("lightweight-sheet")) closeLightweightPanel();
+        else if (activeDialog.classList.contains("lens-sheet")) closeLens();
+        else if (activeDialog.classList.contains("notifications-sheet")) closeNotifications();
+        else closeOverlay();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = [...activeDialog.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')];
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+  }
+}
 function renderNotes(s) {
   const managingTwin =
     twinSetup.complete && ["H-01", "H-10", "L-09", "E-05"].includes(s.id);
@@ -7266,6 +7416,7 @@ function render() {
   ensureAppNavigation();
   installInstantRailScrolling();
   mountWishlistDialog();
+  applyStyleIQDesignSystem();
   window.lucide?.createIcons({ attrs: { "stroke-width": 1.5 } });
   installLiquidNav(previousNavLens);
   renderNotes(s);
@@ -7284,7 +7435,7 @@ function render() {
     `${screens.length} / ${screens.length}`;
 }
 const glassInteractiveSelector =
-  ".card,.signal-card,.profile-utility,.settings-list,.choice,.brand-select-card,.mirror-twin-choice,.icon-btn,.profile-control,.global-search,.root-notification,.mirror-circle-action,.mirror-save,.btn,.chip,.mirror-filter";
+  ".siq-header .siq-button,.siq-bottom-nav .nav-btn,.lightweight-sheet .icon-btn,.notifications-sheet .icon-btn,.lens-sheet .icon-btn,.head-muse,.root-action,.floating-index";
 const phoneSurface = document.querySelector(".phone");
 let glassPointerFrame = 0;
 phoneSurface.addEventListener("pointermove", (event) => {
