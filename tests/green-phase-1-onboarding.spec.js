@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-async function beginNewUser(page, goal = "Get dressed faster", closetChoice = "later") {
+async function beginNewUser(page, goal = "Get dressed faster") {
   await page.goto("/index.html#A-16");
   await page.evaluate(() => localStorage.clear());
   await page.reload();
@@ -13,21 +13,6 @@ async function beginNewUser(page, goal = "Get dressed faster", closetChoice = "l
   if (goal) {
     const goalBtn = app.getByRole("button", { name: goal });
     if (await goalBtn.isVisible()) await goalBtn.click();
-  }
-
-  // Select closet starter
-  if (closetChoice === "add") {
-    const btn = app.getByRole("button", { name: "Add my first item" });
-    await btn.click();
-    await expect(btn).toHaveClass(/active/);
-  } else if (closetChoice === "import") {
-    const btn = app.getByRole("button", { name: "Import purchases" });
-    await btn.click();
-    await expect(btn).toHaveClass(/active/);
-  } else {
-    const btn = app.getByRole("button", { name: "I’ll do this later" });
-    await btn.click();
-    await expect(btn).toHaveClass(/active/);
   }
 
   // Complete setup -> routes to destination
@@ -53,8 +38,10 @@ test.describe("Green Phase 1 onboarding (Phase 2 Canonical Alignment)", () => {
 
     // Inline email state inside A-16
     expect(await app.getAttribute("data-canonical-screen")).toBe("A-16");
+    await app.locator("#signup-first-name").fill("Test");
+    await app.locator("#signup-last-name").fill("Person");
     await app.getByPlaceholder("name@email.com").fill("test@example.com");
-    await app.getByRole("button", { name: "Continue" }).click();
+    await app.getByRole("button", { name: "Create Account" }).click();
 
     // Inline OTP state inside A-16
     expect(await app.getAttribute("data-canonical-screen")).toBe("A-16");
@@ -69,7 +56,7 @@ test.describe("Green Phase 1 onboarding (Phase 2 Canonical Alignment)", () => {
   });
 
   test("new user can skip an empty Closet and use Today", async ({ page }) => {
-    const app = await beginNewUser(page, "Get dressed faster", "later");
+    const app = await beginNewUser(page, "Get dressed faster");
     await expect.poll(() => page.evaluate(() => localStorage.getItem("styleiqOnboardingGoalV1"))).toBe("Get dressed faster");
 
     await expect(app).toHaveAttribute("data-canonical-screen", "D-02");
@@ -81,7 +68,7 @@ test.describe("Green Phase 1 onboarding (Phase 2 Canonical Alignment)", () => {
   });
 
   test("new user saves reviewed item metadata and sees it after reload", async ({ page }) => {
-    const app = await beginNewUser(page, "Make more outfits from my closet", "add");
+    const app = await beginNewUser(page, "Make more outfits from Closet");
     // Lands on B-01
     expect(await app.getAttribute("data-canonical-screen")).toBe("B-01");
     await app.getByRole("button", { name: "Review first item" }).click();
@@ -102,23 +89,16 @@ test.describe("Green Phase 1 onboarding (Phase 2 Canonical Alignment)", () => {
     await expect(app).toContainText("Blue linen overshirt");
   });
 
-  test("Closet setup routes search and purchase import into canonical flows", async ({ page }) => {
-    // Deep links #A-05 and #A-06 resolve to A-02 with state
+  test("legacy goal and Closet setup routes resolve to their canonical owners", async ({ page }) => {
+    // Goal stays in A-02.
     await page.goto("/index.html#A-05");
     const app = page.locator("#app");
     expect(await app.getAttribute("data-canonical-screen")).toBe("A-02");
     await expect(app.getByRole("heading", { name: "Set up your StyleIQ" })).toBeVisible();
 
     await page.goto("/index.html#A-06");
-    expect(await app.getAttribute("data-canonical-screen")).toBe("A-02");
-    await expect(app.locator('[data-section="closet"]')).toBeVisible();
-
-    // Selecting import purchase routes to B-01 receipt mode
-    const importBtn = app.getByRole("button", { name: "Import purchases" });
-    await importBtn.click();
-    await expect(importBtn).toHaveClass(/active/);
-    await app.getByRole("button", { name: "Start with StyleIQ" }).click();
     expect(await app.getAttribute("data-canonical-screen")).toBe("B-01");
+    await expect(app.getByRole("heading", { name: "Choose garment photos" })).toBeVisible();
   });
 
   test("backing out of Closet setup clears its onboarding handoff", async ({ page }) => {
@@ -152,7 +132,7 @@ test.describe("Green Phase 1 onboarding (Phase 2 Canonical Alignment)", () => {
   });
 
   test("Style Twin remains optional and resumes Try-On from the Profile entry", async ({ page }) => {
-    const app = await beginNewUser(page, "Get dressed faster", "later");
+    const app = await beginNewUser(page, "Get dressed faster");
     await expect(app.getByText("Style Twin", { exact: true })).toHaveCount(0);
     await page.goto("/index.html?customer=new#L-01");
     await page.locator('.profile-utility').filter({ hasText: 'Style Twin' }).click();

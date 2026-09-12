@@ -17,6 +17,8 @@ test.describe("Green Phase 2 batch Closet import", () => {
     await page.locator("#app").getByRole("button", { name: /Confirm 2 details/ }).click();
     await expect(page.locator("#app").getByText("12 ready · 2 need your help")).toHaveCount(0);
     await page.locator("#app").getByRole("button", { name: "Add 12 Ready Items" }).click();
+    await expect(page.locator("#app")).toHaveAttribute("data-screen", "B-06");
+    await expect(page).toHaveURL(/#B-06$/);
     await page.locator("#app").getByRole("button", { name: /Add Ready Items/ }).click();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("styleiqClosetItemsV1")));
     expect(saved.find(item => item.name === "Tan suede loafers")).toMatchObject({ brand: "Balmain", category: "Accessories" });
@@ -53,6 +55,16 @@ test.describe("Green Phase 2 batch Closet import", () => {
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("styleiqClosetItemsV1")));
     expect(saved).toHaveLength(12);
     expect(new Set(saved.map(item => item.id)).size).toBe(12);
+  });
+
+  test("B-08 restores saved batch state inside canonical B-06", async ({ page }) => {
+    await page.locator("#app").getByRole("button", { name: "Process 12 photos" }).click();
+    await page.locator("#app").getByRole("button", { name: "Add 10 Ready Items" }).click();
+    await page.locator("#app").getByRole("button", { name: /Add Ready Items/ }).click();
+    await page.goto("/index.html#B-08");
+    await expect(page.locator("#app")).toHaveAttribute("data-canonical-screen", "B-06");
+    await expect(page.locator("#app").getByRole("heading", { name: "Found 2 pieces ✨" })).toBeVisible();
+    await expect(page.locator(".batch-exception-row")).toHaveCount(2);
   });
 });
 

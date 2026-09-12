@@ -63,10 +63,12 @@ for (const [scenario,name] of [['complete','Silk shell'],['manual','Red boots']]
 });
 
 test('OTP enforces resend and retry timers while retaining the account', async ({ page }) => {
-  await page.goto('/index.html#A-03');
-  await app(page).getByLabel('Email address', { exact: true }).fill('wardrobe@example.com');
-  await button(page, 'Create my account').click();
   await page.clock.install();
+  await page.goto('/index.html#A-03');
+  await app(page).getByLabel('First Name', { exact: true }).fill('Amelia');
+  await app(page).getByLabel('Last Name', { exact: true }).fill('Hart');
+  await app(page).getByLabel('Email', { exact: true }).fill('wardrobe@example.com');
+  await button(page, 'Create Account').click();
   await expect(button(page, 'Resend code')).toBeDisabled();
   await page.clock.fastForward(29000);
   await expect(button(page, 'Resend code')).toBeEnabled();
@@ -80,7 +82,12 @@ test('OTP enforces resend and retry timers while retaining the account', async (
   await expect(app(page)).toContainText('wardrobe@example.com');
   for (const [index,digit] of [...'123456'].entries()) await app(page).getByLabel(`Digit ${index+1}`, {exact:true}).fill(digit);
   await button(page, 'Verify email').click();
-  await expect(app(page)).toHaveAttribute('data-screen','A-05');
+  await expect(app(page)).toHaveAttribute('data-screen','A-02');
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('styleiqAccountIdentityV1')))).toMatchObject({
+    firstName: 'Amelia',
+    lastName: 'Hart',
+    email: 'wardrobe@example.com',
+  });
 });
 
 test('the same search preserves owned-item intent and shopping actions', async ({ page }) => {

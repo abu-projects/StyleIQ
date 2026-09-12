@@ -17,7 +17,7 @@ const sections = {
 const raw = {
   A: [
     ["Sign in", "Dedicated login for returning accounts."],
-    ["Set up your StyleIQ", "Consolidated first-use setup: name, styling context, first goal, and Closet starter."],
+    ["Set up your StyleIQ", "Personalization only: wardrobe context and the first thing StyleIQ should help with."],
     [
       "Email sign-up · State → A-16",
       "Inline email account creation state inside canonical A-16.",
@@ -28,8 +28,8 @@ const raw = {
     ],
     ["First goal · Alias → A-02", "Resolves to canonical A-02 with the First Goal section focused."],
     [
-      "Build Closet · Alias → A-02",
-      "Resolves to canonical A-02 with the Closet starter section visible.",
+      "Build Closet · Alias → B-01",
+      "Resolves to canonical B-01 universal Closet intake.",
     ],
     [
       "Style Twin · Alias → H-01",
@@ -184,11 +184,11 @@ const raw = {
     ["Profile", "Canonical Profile / My Atelier with inline completion card and content links."],
     ["Completion prompt · Card → L-01", "Inline completion prompt card inside canonical L-01."],
     ["My content · Section → L-01", "My Content section inside canonical L-01 linking to Looks and Trips."],
-    ["Profile & Style Preferences", "Consolidated preferences: About you, style preferences, brands, budget, and events."],
+    ["Profile & Style Preferences", "Canonical identity, style preferences, and Brands & Fit settings."],
     ["Style preferences · Section → L-04", "Resolves to canonical L-04 with Style Preferences section focused."],
     ["Brands · Section → L-04", "Resolves to canonical L-04 with Brands section focused."],
-    ["Budget · Section → L-04", "Resolves to canonical L-04 with Budget section focused."],
-    ["Events · Section → L-04", "Resolves to canonical L-04 with Repeating Events section focused."],
+    ["Shopping budget · Section → G-08", "Resolves to canonical Wishlist with Shopping Budget focused."],
+    ["Recurring events · Section → I-01", "Resolves to canonical Planner with Recurring Events focused."],
     ["Avatar · Dispatch → H-10 / H-01", "Dispatches to H-10 (existing Twin) or H-01 (setup)."],
     ["Original photos · Section → L-11", "Resolves to canonical L-11 with Original Photos setting focused."],
     ["Settings", "Canonical Settings consolidating account, privacy, notifications, and media."],
@@ -234,7 +234,9 @@ const entryScreens = [
     phase: 1,
   },
 ];
-const screens = [
+// Keep the complete route catalog for old hashes and compatibility states.
+// Only `screens` below is the visible prototype inventory.
+const routeScreens = [
   ...entryScreens,
   ...Object.entries(raw).flatMap(([section, items]) =>
     items.map((item, index) => ({
@@ -246,15 +248,33 @@ const screens = [
     })),
   ),
 ];
+const canonicalVisualScreenIds = new Set([
+  "S-00", "S-01",
+  "A-01", "A-02", "A-16",
+  "B-01", "B-06",
+  "C-01", "C-02",
+  "D-02",
+  "F-01",
+  "G-01", "G-02", "G-08", "G-09",
+  "H-01", "H-06", "H-10", "H-11", "H-12", "H-13",
+  "I-01", "I-04",
+  "J-01", "J-02", "J-08",
+  "K-01", "K-04",
+  "L-01", "L-04", "L-11", "L-12", "L-14",
+  "M-01",
+]);
+const screens = routeScreens.filter((screen) =>
+  canonicalVisualScreenIds.has(screen.id),
+);
 Object.assign(
-  screens.find((s) => s.id === "J-07"),
+  routeScreens.find((s) => s.id === "J-07"),
   {
     title: "Building Trip",
     detail: "Generate the draft packing list and hand off to review.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "J-08"),
+  routeScreens.find((s) => s.id === "J-08"),
   {
     title: "Packing review",
     detail:
@@ -262,28 +282,28 @@ Object.assign(
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "J-10"),
+  routeScreens.find((s) => s.id === "J-10"),
   {
     title: "Trip Looks",
     detail: "Plan one Look per date, explicitly inside the Trip draft.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "J-13"),
+  routeScreens.find((s) => s.id === "J-13"),
   {
     title: "Review & create",
     detail: "Final summary before creating the Trip.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "J-14"),
+  routeScreens.find((s) => s.id === "J-14"),
   {
     title: "Trip created",
     detail: "Saved Trip hub with packing, Looks, and return path.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "L-02"),
+  routeScreens.find((s) => s.id === "L-02"),
   {
     title: "Inline profile · compatibility alias",
     detail:
@@ -291,60 +311,60 @@ Object.assign(
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "L-03"),
+  routeScreens.find((s) => s.id === "L-03"),
   { title: "My content", detail: "Connected Saved Looks and Trips hub." },
 );
 Object.assign(
-  screens.find((s) => s.id === "L-11"),
+  routeScreens.find((s) => s.id === "L-11"),
   {
     title: "Settings",
     detail: "Account, styling, privacy, app controls, and secure logout.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "A-12"),
+  routeScreens.find((s) => s.id === "A-12"),
   {
     title: "Closet import introduction",
     detail: "Automatic photo cleanup and classification preview.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "B-03"),
+  routeScreens.find((s) => s.id === "B-03"),
   {
     title: "Automatic photo cleanup",
     detail: "Canonical Add Photos path; cleanup runs in the background.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "B-06"),
+  routeScreens.find((s) => s.id === "B-06"),
   {
     title: "Item review",
     detail: "One compact confidence review with inline correction.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "B-07"),
+  routeScreens.find((s) => s.id === "B-07"),
   {
     title: "Photo recovery",
     detail: "Low-confidence retry or manual-review exception.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "B-08"),
+  routeScreens.find((s) => s.id === "B-08"),
   {
     title: "Item review result",
     detail: "Canonical item review result, not a separate processing stage.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "C-03"),
+  routeScreens.find((s) => s.id === "C-03"),
   {
     title: "Item detail · photo tools",
     detail: "Photo repair in the shared Item Detail sheet.",
   },
 );
 Object.assign(
-  screens.find((s) => s.id === "L-10"),
+  routeScreens.find((s) => s.id === "L-10"),
   {
     title: "Photo originals",
     detail: "Original-photo retention after automatic cleanup.",
@@ -378,7 +398,7 @@ const actionAliases = {
 };
 Object.entries(actionAliases).forEach(([id, [title, detail]]) =>
   Object.assign(
-    screens.find((s) => s.id === id),
+    routeScreens.find((s) => s.id === id),
     { title, detail },
   ),
 );
@@ -534,12 +554,14 @@ const compatibilityAliases = {
 };
 Object.entries(compatibilityAliases).forEach(([id, [title, detail]]) =>
   Object.assign(
-    screens.find((s) => s.id === id),
+    routeScreens.find((s) => s.id === id),
     { title, detail },
   ),
 );
-if (new Set(screens.map((screen) => screen.id)).size !== screens.length)
+if (new Set(routeScreens.map((screen) => screen.id)).size !== routeScreens.length)
   throw new Error("Screen inventory must contain unique route ids");
+if (screens.length !== 34 || routeScreens.length - screens.length !== 93)
+  throw new Error("Visible inventory must contain 34 canonical screens and 93 compatibility routes");
 const iconMap = {
   back: "arrow-left",
   home: "sun",
@@ -742,12 +764,12 @@ let tripDraft = (() => {
     return { destination: "Alexandria", startDate: "2026-08-23", endDate: "2026-08-25", occasions: ["Museum visit", "Dinner by the Corniche"], luggage: "Carry on", notes: "" };
   }
 })();
-const canonicalScreenMap = {
+const legacyScreenAliases = {
   // A: Authentication & First Use
   "A-03": { screen: "A-16", state: "email" },
   "A-04": { screen: "A-16", state: "otp" },
   "A-05": { screen: "A-02", section: "goal" },
-  "A-06": { screen: "A-02", section: "closet" },
+  "A-06": { screen: "B-01", mode: "photos" },
   "A-07": { screen: "H-01" },
   "A-08": { screen: "H-01", section: "photo" },
   "A-09": { screen: "A-02", section: "goal" },
@@ -821,7 +843,7 @@ const canonicalScreenMap = {
 
   // I: Planner
   "I-02": { screen: "I-01", panel: "plannerInsights" },
-  "I-03": { screen: "I-04" },
+  "I-03": { screen: "I-01", panel: "daySheet" },
   "I-05": { screen: "I-04", state: "validation" },
   "I-06": { screen: "I-01", panel: "shareCalendar" },
 
@@ -851,8 +873,8 @@ const canonicalScreenMap = {
   "L-03": { screen: "L-01", section: "content" },
   "L-05": { screen: "L-04", section: "style" },
   "L-06": { screen: "L-04", section: "brands" },
-  "L-07": { screen: "L-04", section: "budget" },
-  "L-08": { screen: "L-04", section: "events" },
+  "L-07": { screen: "G-08", section: "budget" },
+  "L-08": { screen: "I-01", section: "recurring" },
   "L-09": { dynamic: "avatar" },
   "L-10": { screen: "L-11", section: "photos" },
   "L-13": { screen: "L-11", section: "notifications" },
@@ -866,7 +888,7 @@ const canonicalScreenMap = {
 function getCanonicalScreen(id) {
   if (id === "G-8") return "G-08";
   if (id === "G-9") return "G-09";
-  const mapped = canonicalScreenMap[id];
+  const mapped = legacyScreenAliases[id];
   if (mapped) {
     if (mapped.dynamic === "tryon" || mapped.dynamic === "avatar") {
       return (typeof twinSetup !== "undefined" && twinSetup.complete) ? "H-10" : "H-01";
@@ -878,87 +900,103 @@ function getCanonicalScreen(id) {
 
 const legacyRouteMap = new Proxy({}, {
   get(_, prop) {
-    return canonicalScreenMap[prop]?.screen || undefined;
+    return legacyScreenAliases[prop]?.screen || undefined;
   }
 });
 
 let authInlineState = "providers", // "providers" | "email" | "otp"
-  a02FocusedSection = "name", // "name" | "wardrobe" | "goal" | "closet"
-  a02ClosetChoice = "later", // "add" | "import" | "later"
+  a02FocusedSection = "wardrobe", // "wardrobe" | "goal"
   b01Mode = "photos", // "photos" | "search" | "receipt"
   b01Processing = false,
   todayMode = (typeof localStorage !== "undefined" && localStorage.getItem("styleiqTodayModeV1")) || "normal", // "normal" | "zero-closet" | "loading" | "missing"
   tripHubTab = "packing", // "packing" | "looks"
   tripHubSaved = false,
-  profilePrefSection = "about", // "about" | "style" | "brands" | "budget" | "events"
+  profilePrefSection = "about", // "about" | "style" | "brands"
+  wishlistBudgetOpen = false,
+  plannerRecurringOpen = false,
   settingsSection = "general", // "general" | "photos" | "notifications" | "privacy"
   discoverSearchOpen = false;
 
 function resolveCanonicalRoute(id) {
   if (id === "G-8") id = "G-08";
   if (id === "G-9") id = "G-09";
-  if (proactiveEditIndex !== null && ["I-03", "I-04", "I-05"].includes(id)) {
+  if (proactiveEditIndex !== null && ["I-04", "I-05"].includes(id)) {
     return { screen: id, canonical: "I-04", entry: null };
   }
-  const mapped = canonicalScreenMap[id];
+  const mapped = legacyScreenAliases[id];
   if (!mapped) return { screen: id, canonical: id, entry: null };
 
   const canonical = getCanonicalScreen(id);
+  let panel = null;
+  const setRoutePanel = (value) => {
+    lightweightPanel = value;
+    panel = value;
+  };
   if (id === "A-03") authInlineState = "email";
   else if (id === "A-04") authInlineState = "otp";
   else if (id === "A-16") authInlineState = "providers";
   else if (["A-05", "A-09"].includes(id)) a02FocusedSection = "goal";
-  else if (id === "A-06") a02FocusedSection = "closet";
+  else if (id === "A-06") b01Mode = "photos";
   else if (id === "A-10") a02FocusedSection = "wardrobe";
   else if (id === "B-02") b01Mode = "photos";
   else if (id === "B-03") { b01Mode = "photos"; b01Processing = true; }
   else if (["B-04", "B-05"].includes(id)) b01Mode = "search";
   else if (id === "B-07") { uploadIssue = "unable"; }
   else if (id === "B-09") b01Mode = "receipt";
-  else if (id === "B-10") openLightweightPanel("draftImports");
+  else if (id === "B-08") {
+    const drafts = savedBatchDrafts();
+    if (!batchImportActive && drafts.length) {
+      batchSessionCandidates = drafts;
+      batchImportActive = true;
+    }
+  }
+  else if (id === "B-10") setRoutePanel("draftImports");
   else if (id === "B-11") { toast("Added to your Closet"); }
-  else if (id === "C-03") openLightweightPanel("photoTools");
+  else if (id === "C-03") setRoutePanel("photoTools");
   else if (id === "C-04") closetDetailTab = "details";
   else if (id === "C-05") closetDetailTab = "details";
   else if (id === "C-06") closetDetailTab = "activity";
   else if (id === "C-07") { closetStyleIntent = true; }
   else if (id === "D-01") todayMode = "zero-closet";
   else if (id === "D-03") todayMode = "loading";
-  else if (id === "D-04") openLightweightPanel("changeLook");
-  else if (id === "D-05") { openLightweightPanel("changeLook"); }
+  else if (id === "D-04") setRoutePanel("changeLook");
+  else if (id === "D-05") setRoutePanel("changeLook");
   else if (id === "D-06") todayMode = "missing";
-  else if (id === "E-01") openLightweightPanel("save");
-  else if (id === "E-03") openLightweightPanel("feedback");
-  else if (id === "E-04") openLightweightPanel("share");
+  else if (id === "E-01") setRoutePanel("save");
+  else if (id === "E-03") setRoutePanel("feedback");
+  else if (id === "E-04") setRoutePanel("share");
   else if (id === "F-02") canvasState.mode = "flat";
   else if (id === "F-03") canvasState.mode = "avatar";
   else if (["F-05", "F-06", "F-07", "F-08", "F-09", "F-10"].includes(id)) canvasState.studioMode = "create";
   else if (id === "G-03") savedLookTab = "items";
   else if (id === "G-04") savedLookTab = "details";
   else if (id === "G-05") savedLookTab = "details";
-  else if (id === "G-06") openLightweightPanel("visibility");
+  else if (id === "G-06") setRoutePanel("visibility");
   else if (id === "G-07") savedLookTab = "activity";
   else if (["H-02", "H-03", "H-04"].includes(id)) twinSetup.method = "photo";
   else if (id === "H-05") twinSetup.method = "manual";
-  else if (id === "I-02") openLightweightPanel("plannerInsights");
+  else if (id === "I-02") setRoutePanel("plannerInsights");
+  else if (id === "I-03") setRoutePanel("daySheet");
   else if (id === "I-05") plannerValidationErrors = ["Choose a date", "Choose an occasion", "Choose a time or daypart"];
-  else if (id === "I-06") openLightweightPanel("shareCalendar");
+  else if (id === "I-06") setRoutePanel("shareCalendar");
   else if (id === "J-09") tripHubTab = "packing";
   else if (id === "J-10") tripHubTab = "looks";
-  else if (id === "J-11") { tripHubTab = "looks"; openLightweightPanel("tripAddLook"); }
-  else if (id === "J-12") { tripHubTab = "looks"; openLightweightPanel("tripMuse"); }
-  else if (id === "J-13") openLightweightPanel("tripReview");
+  else if (id === "J-11") { tripHubTab = "looks"; setRoutePanel("tripAddLook"); }
+  else if (id === "J-12") { tripHubTab = "looks"; setRoutePanel("tripMuse"); }
+  else if (id === "J-13") setRoutePanel("tripReview");
   else if (id === "J-14") tripHubSaved = true;
   else if (id === "K-02") discoverSearchOpen = true;
-  else if (id === "K-03") openLightweightPanel("discoverFilters");
-  else if (id === "K-07") openLightweightPanel("lookComments");
-  else if (id === "K-08") openLightweightPanel("reportLook");
-  else if (["L-05", "L-06", "L-07", "L-08"].includes(id)) profilePrefSection = mapped.section;
+  else if (id === "K-03") setRoutePanel("discoverFilters");
+  else if (id === "K-07") setRoutePanel("lookComments");
+  else if (id === "K-08") setRoutePanel("reportLook");
+  else if (["L-05", "L-06"].includes(id)) profilePrefSection = mapped.section;
+  else if (id === "L-07") wishlistBudgetOpen = true;
+  else if (id === "L-08") plannerRecurringOpen = true;
   else if (["L-10", "L-13", "L-15"].includes(id)) settingsSection = mapped.section;
-  else if (id === "M-02") openLightweightPanel("whyLook");
+  else if (id === "M-02") setRoutePanel("whyLook");
   else if (id === "M-03") museContext = { label: "Wardrobe gap", prompt: "Evaluate Closet gaps without duplicate shopping." };
 
-  return { screen: canonical, canonical, entry: mapped };
+  return { screen: canonical, canonical, entry: mapped, panel };
 }
 let currentId = ({ "G-8": "G-08", "G-9": "G-09" })[location.hash.slice(1)] || location.hash.slice(1) || "S-00",
   overlay = null,
@@ -991,6 +1029,19 @@ let feedbackReason = "",
 let stylingContext =
   localStorage.getItem("styleiqStylingContextV1") || "Womenswear";
 let onboardingGoal = localStorage.getItem("styleiqOnboardingGoalV1") || "";
+let accountIdentity = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("styleiqAccountIdentityV1")) || {};
+  } catch {
+    return {};
+  }
+})();
+function persistAccountIdentity(identity) {
+  accountIdentity = { ...accountIdentity, ...identity };
+  localStorage.setItem("styleiqAccountIdentityV1", JSON.stringify(accountIdentity));
+  const fullName = [accountIdentity.firstName, accountIdentity.lastName].filter(Boolean).join(" ");
+  if (fullName) localStorage.setItem("styleiqUserNameV1", fullName);
+}
 let plannerIntent = (() => {
   try {
     return JSON.parse(localStorage.getItem("styleiqPlannerIntentV1")) || null;
@@ -1009,12 +1060,60 @@ let plannerEventDraft = plannerEvent
   ? { ...plannerEvent }
   : { date: "", time: "", daypart: "", occasion: "", title: "", location: "", weather: "" };
 let plannerValidationErrors = [];
+let plannerValidationOpen = false;
+let plannerLookChooserOpen = false;
 let plannerLookChoice = plannerEvent?.lookId || "coffee";
 let nextWeekPrepared =
   localStorage.getItem("styleiqNextWeekPreparedV1") === "true";
 let proactiveWeek = readWishlistData("styleiqProactiveWeekV1", []);
 let proactiveEditIndex = null;
 let selectedPlannerDayIndex = 0;
+let recurringEvents = readWishlistData("styleiqRecurringEventsV1", [
+  { id: "office-day", title: "Weekly office day", schedule: "Every Monday", context: "Work · polished layers" },
+  { id: "client-dinner", title: "Client dinner", schedule: "First Thursday monthly", context: "Dinner · refined" },
+  { id: "weekend-social", title: "Weekend social", schedule: "Every Saturday", context: "Weekend · relaxed" },
+]);
+let recurringEditId = null;
+function persistRecurringEvents() {
+  localStorage.setItem("styleiqRecurringEventsV1", JSON.stringify(recurringEvents));
+}
+function openRecurringPlanner() {
+  plannerRecurringOpen = true;
+  go("I-01");
+}
+function editRecurringEvent(id) {
+  recurringEditId = id;
+  plannerRecurringOpen = true;
+  render();
+}
+function removeRecurringEvent(id) {
+  recurringEvents = recurringEvents.filter((event) => event.id !== id);
+  if (recurringEditId === id) recurringEditId = null;
+  persistRecurringEvents();
+  render();
+}
+function saveRecurringEvent(event) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  const entry = {
+    id: recurringEditId || `recurring-${Date.now()}`,
+    title: String(data.get("title") || "").trim(),
+    schedule: String(data.get("schedule") || "").trim(),
+    context: String(data.get("context") || "").trim(),
+  };
+  if (!entry.title || !entry.schedule) return;
+  const existing = recurringEvents.findIndex((item) => item.id === recurringEditId);
+  if (existing >= 0) recurringEvents[existing] = entry;
+  else recurringEvents.push(entry);
+  recurringEditId = null;
+  persistRecurringEvents();
+  render();
+  toast("Recurring event saved");
+}
+function recurringPlannerSection() {
+  const editing = recurringEvents.find((event) => event.id === recurringEditId);
+  return `<details class="card progressive-card planner-recurring" ${plannerRecurringOpen ? "open" : ""} ontoggle="plannerRecurringOpen=this.open"><summary><b>Recurring events</b><span class="small">${recurringEvents.length} styling routines</span></summary><div class="stack" style="margin-top:12px">${recurringEvents.map((event) => `<div class="pack-row"><span><b>${escapeMarkup(event.title)}</b><small class="body" style="display:block">${escapeMarkup(event.schedule)} · ${escapeMarkup(event.context)}</small></span><div><button class="text-action" onclick="editRecurringEvent('${event.id}')">Edit</button><button class="text-action" onclick="removeRecurringEvent('${event.id}')">Remove</button></div></div>`).join("") || '<p class="body">No recurring events yet.</p>'}<form class="stack" onsubmit="saveRecurringEvent(event)"><div class="field"><label for="recurring-title">Event</label><input id="recurring-title" name="title" class="input" value="${escapeMarkup(editing?.title || "")}" placeholder="e.g. Weekly office day" required></div><div class="field"><label for="recurring-schedule">Schedule</label><input id="recurring-schedule" name="schedule" class="input" value="${escapeMarkup(editing?.schedule || "")}" placeholder="e.g. Every Monday" required></div><div class="field"><label for="recurring-context">Styling context</label><input id="recurring-context" name="context" class="input" value="${escapeMarkup(editing?.context || "")}" placeholder="e.g. Work · polished layers"></div><button class="btn wide" type="submit">${editing ? "Save recurring event" : "Add recurring event"}</button></form></div></details>`;
+}
 function planMyWeek() {
   const today = new Date();
   today.setDate(today.getDate() + (8-today.getDay())%7);
@@ -1041,7 +1140,9 @@ function editProactiveContext(index) {
   plannerEventDraft = { date: entry.date || wishlistDate(index+1), time: entry.time || '', daypart: entry.daypart || 'All day', occasion: ({Office:'Work',Casual:'Weekend'})[entry.context] || entry.context, title: entry.title || '', location: entry.location || '', weather: entry.weather || '' };
   plannerLookChoice = entry.lookId || 'coffee';
   plannerValidationErrors = [];
-  go('I-03');
+  plannerValidationOpen = false;
+  plannerLookChooserOpen = false;
+  go('I-04');
 }
 function removeProactiveLook(index) {
   proactiveWeek.splice(index, 1);
@@ -1226,6 +1327,33 @@ function persistClosetItems() {
 if (localStorage.getItem(wishlistStorageKey) === null) localStorage.setItem(wishlistStorageKey, JSON.stringify(wishlistItems));
 let wishlistFilter = "All", selectedWishlistId = wishlistItems[0]?.id || shoppingProducts[0].id;
 let wishlistDialog = null, wishlistReviewOpen = false, wishlistUndo = null, wishlistReturnFocus = null;
+let shoppingBudget = (() => {
+  try {
+    return JSON.parse(localStorage.getItem("styleiqShoppingBudgetV1")) || { perItem: 250, monthly: 1000, note: "Prioritize versatile Closet gaps." };
+  } catch {
+    return { perItem: 250, monthly: 1000, note: "Prioritize versatile Closet gaps." };
+  }
+})();
+function openShoppingBudget() {
+  wishlistBudgetOpen = true;
+  go("G-08");
+}
+function saveShoppingBudget(event) {
+  event.preventDefault();
+  const data = new FormData(event.currentTarget);
+  shoppingBudget = {
+    perItem: Math.max(0, Number(data.get("perItem")) || 0),
+    monthly: Math.max(0, Number(data.get("monthly")) || 0),
+    note: String(data.get("note") || "").trim(),
+  };
+  localStorage.setItem("styleiqShoppingBudgetV1", JSON.stringify(shoppingBudget));
+  wishlistBudgetOpen = true;
+  render();
+  toast("Shopping budget saved");
+}
+function shoppingBudgetSection() {
+  return `<details class="card progressive-card wishlist-budget-settings" ${wishlistBudgetOpen ? "open" : ""} ontoggle="wishlistBudgetOpen=this.open"><summary><b>Shopping budget</b><span class="small">Optional decision context</span></summary><form class="stack" style="margin-top:12px" onsubmit="saveShoppingBudget(event)"><div class="field"><label for="budget-item">Per-item guide</label><input id="budget-item" name="perItem" class="input" type="number" min="0" step="1" value="${shoppingBudget.perItem}"></div><div class="field"><label for="budget-monthly">Monthly shopping guide</label><input id="budget-monthly" name="monthly" class="input" type="number" min="0" step="1" value="${shoppingBudget.monthly}"></div><div class="field"><label for="budget-note">Shopping intention</label><input id="budget-note" name="note" class="input" value="${escapeMarkup(shoppingBudget.note)}"></div><p class="small">StyleIQ uses these guides for purchase decisions. It does not hold money, reserve funds, or make purchases.</p><button class="btn wide" type="submit">Save shopping budget</button></form></details>`;
+}
 let closetPurchaseDraft = (() => {
   try { return currentId === "B-06" ? JSON.parse(localStorage.getItem("styleiqClosetPurchaseDraftV1")) : null; }
   catch { return null; }
@@ -1330,7 +1458,7 @@ function wishlistReview() {
 }
 function myWishlist() {
   const stats = wishlistStats(), items = wishlistItems.filter((item) => wishlistFilter === "All" || wishlistStatus(item) === wishlistFilter);
-  return shell("My Wishlist", `<div class="wishlist-counts"><p><b>${stats.saved}</b> saved <span aria-hidden="true">·</span> <b>${stats.ready}</b> ready to buy</p><button class="text-action" aria-label="Review Wishlist" onclick="wishlistReviewOpen=!wishlistReviewOpen;render()">Review</button></div>${wishlistReview()}<div class="wishlist-filter-rail" role="group" aria-label="Wishlist status">${wishlistStatuses.map((status) => `<button class="chip ${wishlistFilter === status ? "active" : ""}" aria-pressed="${wishlistFilter === status}" onclick="setWishlistFilter('${status}')">${status}</button>`).join("")}</div><div class="wishlist-grid">${items.map((item) => wishlistProductCard(item, true)).join("")}</div>${items.length ? "" : `<section class="wishlist-empty"><span class="icon-wrap">${icon("heart")}</span><h2 class="title">${wishlistItems.length ? "No products in this status" : "A little space for possibility."}</h2><p class="body">${wishlistItems.length ? "Your other saved products are still in Wishlist." : "Tap a product’s heart when something catches your eye. Come back when you’re ready to consider it."}</p><button class="btn primary" onclick="${wishlistItems.length ? "setWishlistFilter('All')" : "go('K-01')"}">${wishlistItems.length ? "View all items" : "Explore Discover"}</button></section>`}`, { surfaceClass: "wishlist-screen" });
+  return shell("My Wishlist", `<div class="wishlist-counts"><p><b>${stats.saved}</b> saved <span aria-hidden="true">·</span> <b>${stats.ready}</b> ready to buy</p><button class="text-action" aria-label="Review Wishlist" onclick="wishlistReviewOpen=!wishlistReviewOpen;render()">Review</button></div>${shoppingBudgetSection()}${wishlistReview()}<div class="wishlist-filter-rail" role="group" aria-label="Wishlist status">${wishlistStatuses.map((status) => `<button class="chip ${wishlistFilter === status ? "active" : ""}" aria-pressed="${wishlistFilter === status}" onclick="setWishlistFilter('${status}')">${status}</button>`).join("")}</div><div class="wishlist-grid">${items.map((item) => wishlistProductCard(item, true)).join("")}</div>${items.length ? "" : `<section class="wishlist-empty"><span class="icon-wrap">${icon("heart")}</span><h2 class="title">${wishlistItems.length ? "No products in this status" : "A little space for possibility."}</h2><p class="body">${wishlistItems.length ? "Your other saved products are still in Wishlist." : "Tap a product’s heart when something catches your eye. Come back when you’re ready to consider it."}</p><button class="btn primary" onclick="${wishlistItems.length ? "setWishlistFilter('All')" : "go('K-01')"}">${wishlistItems.length ? "View all items" : "Explore Discover"}</button></section>`}`, { surfaceClass: "wishlist-screen" });
 }
 function wishlistDetail() {
   const id = localStorage.getItem("styleiqWishlistSelectionV1") || selectedWishlistId;
@@ -1343,7 +1471,7 @@ function wishlistDetail() {
     ${unavailable && !purchased ? '<div class="card"><b>Currently unavailable</b><p class="body">Keep the piece for a later review. Purchase and budget actions will return when it is available.</p></div>' : purchased ? `<div class="card"><b>Purchased ${wishlistDisplayDate(item.purchaseDate)}</b><p class="body">${item.closetId ? "This product is now part of your Closet." : "Your purchase is recorded. Review its details when you’re ready to add it to Closet."}</p><button class="btn primary wide" onclick="${item.closetId ? `openClosetItem('${item.closetId}')` : `prepareWishlistPurchase('${item.id}')`}">${item.closetId ? "View Closet Item" : "Prepare for Closet"}</button></div>` : `<div class="wishlist-retailer">${wishlistRetailerLink(item)}<button class="text-action" onclick="openWishlistDialog('context','${item.id}')">${saved ? "Edit saved context" : "Save for Later"}</button></div>`}
     <section class="wishlist-evaluation"><h3 class="title">Does it earn its place?</h3><div class="wishlist-evaluation-row"><span>${icon("shirt")}</span><div><b>Closet compatibility${item.compatibility != null ? ` · ${item.compatibility}%` : ""}</b><p class="body">${item.outfitCount ? `Works with ${item.outfitCount} possible outfits from your Closet.` : "Explore a combination with your current Closet."}</p><button class="text-action" onclick="openWishlistDialog('outfits','${item.id}')">Explore Outfit Ideas</button></div></div><div class="wishlist-evaluation-row"><span>${icon("spark")}</span><div><b>Style alignment</b><p class="body">${escapeMarkup(item.style || "Review the color and silhouette against the pieces you wear most.")}</p></div></div><div class="wishlist-evaluation-row"><span>${icon("copy")}</span><div><b>Duplicate risk · ${escapeMarkup(item.duplicateRisk || "Not assessed")}</b><p class="body">${similar ? `Compare with your ${escapeMarkup(similar.name)}.` : "No similar Closet reference is available for this product."}</p>${similar ? `<button class="text-action" onclick="openWishlistDialog('compare','${item.id}')">Compare Similar</button>` : ""}</div></div><div class="wishlist-evaluation-row"><span>${icon("check")}</span><div><b>${escapeMarkup(item.gapValue || "Unassessed")} Gap Value${item.gap ? ` · ${escapeMarkup(item.gap)}` : ""}</b><p class="body">${item.gapValue === "High" ? "Adds a useful role to the pieces you already own." : "Consider whether your owned pieces already meet this need."}</p></div></div></section>
     <section class="card wishlist-muse"><p class="eyebrow">Muse’s perspective</p><p class="body">${escapeMarkup(item.recommendation || "Try an outfit with owned pieces first. Check for a similar item before deciding to buy.")}</p>${item.note ? `<p class="small">Your reason: “${escapeMarkup(item.note)}”</p>` : ""}</section>
-    ${!unavailable && !purchased ? '<details class="card progressive-card wishlist-budget"><summary><b>Budget context</b><span class="small">Optional</span></summary><p class="body">Compare this price with your per-item budget preferences. No available Style Budget is set. StyleIQ does not hold money, reserve funds, or make purchases.</p><button class="text-action" onclick="go(\'L-07\')">View budget preferences</button></details>' : ""}
+    ${!unavailable && !purchased ? `<details class="card progressive-card wishlist-budget"><summary><b>Budget context</b><span class="small">Optional</span></summary><p class="body">This ${wishlistMoney(item.price)} item is ${item.price <= shoppingBudget.perItem ? "within" : "above"} your ${wishlistMoney(shoppingBudget.perItem)} per-item guide. StyleIQ does not hold money, reserve funds, or make purchases.</p><button class="text-action" onclick="openShoppingBudget()">Edit shopping budget</button></details>` : ""}
     <section class="card wishlist-context"><div class="between"><h3 class="title">Saved context</h3><button class="text-action" onclick="openWishlistDialog('context','${item.id}')">${saved ? "Edit" : "Save for Later"}</button></div><dl><dt>Note</dt><dd>${escapeMarkup(item.note || "What makes this piece worth considering?")}</dd><dt>Review reminder</dt><dd>${wishlistDisplayDate(item.reminder)}</dd><dt>Collection</dt><dd>${escapeMarkup(item.collection)}</dd></dl>${saved ? `<button class="text-action" onclick="openWishlistDialog('context','${item.id}')">Move Collection</button>` : ""}</section>
     ${saved ? `<div class="wishlist-detail-actions">${!purchased ? `<div class="row"><button class="btn grow" onclick="setWishlistStatus('${item.id}','Review Later')">Review Later</button>${!unavailable ? `<button class="btn grow" onclick="setWishlistStatus('${item.id}','${item.status === "Ready to Buy" ? "Saved" : "Ready to Buy"}')">${item.status === "Ready to Buy" ? "Keep Saved" : "Ready to Buy"}</button>` : ""}</div>${!unavailable ? `<button class="btn primary wide" onclick="openWishlistDialog('purchase','${item.id}')">Mark as Purchased</button>` : ""}` : ""}<button class="danger-action" onclick="openWishlistDialog('remove','${item.id}')">Remove from Wishlist</button></div>` : ""}`, { surfaceClass: "wishlist-screen" });
 }
@@ -1638,7 +1766,7 @@ function setClosetDetailTab(tab) {
 function styleSelectedClosetItem() {
   const item = selectedClosetItem();
   canvasState = defaultCanvas();
-  canvasState.title = `Styled with ${item.name}`;
+  canvasState.title = `Styled around ${item.name}`;
   canvasState.creationSource = "closet_item";
   canvasState.creatorAttribution = null;
   canvasState.items = [
@@ -1648,6 +1776,7 @@ function styleSelectedClosetItem() {
       category: item.category,
       brand: item.brand,
       image: item.image,
+      role: normalizeStudioRole(item),
       owned: true,
       visible: true,
       locked: true,
@@ -1658,6 +1787,7 @@ function styleSelectedClosetItem() {
       category: item.category === "Outerwear" ? "Tops" : "Outerwear",
       brand: "Aritzia",
       image: item.category === "Outerwear" ? assets.top : assets.blazer,
+      role: normalizeStudioRole({ category: item.category === "Outerwear" ? "Tops" : "Outerwear" }),
       owned: true,
       visible: true,
     },
@@ -1667,6 +1797,7 @@ function styleSelectedClosetItem() {
       category: "Bottoms",
       brand: "COS",
       image: assets.bottom,
+      role: "Bottom",
       owned: true,
       visible: true,
     },
@@ -1925,13 +2056,17 @@ function setClosetTab(tab) {
   if (currentId === "C-01") render();
   else go("C-01");
 }
+function openProfilePreferences(section = "about") {
+  profilePrefSection = section;
+  go("L-04");
+}
 const backRoutes = {
   "B-01": "D-02",
   "B-02": "B-01",
   "B-03": "A-12",
   "B-04": "B-01",
   "B-05": "B-04",
-  "B-06": "B-02",
+  "B-06": "B-01",
   "B-07": "B-06",
   "B-08": "B-07",
   "B-09": "B-01",
@@ -2006,7 +2141,7 @@ const backRoutes = {
   "I-01": "L-01",
   "I-02": "I-01",
   "I-03": "I-01",
-  "I-04": "I-03",
+  "I-04": "I-01",
   "I-05": "I-04",
   "I-06": "I-01",
   "J-01": "L-01",
@@ -2112,7 +2247,7 @@ function go(id, { record = true } = {}) {
   if (id === "G-8") id = "G-08";
   if (id === "G-9") id = "G-09";
 
-  if (!screens.some((s) => s.id === id || s.id === targetCanonical)) return;
+  if (!routeScreens.some((s) => s.id === id || s.id === targetCanonical)) return;
   if (id === currentId) {
     if (accountMenuOpen || wishlistDialog) { accountMenuOpen = false; wishlistDialog = null; render(); }
     else if (["C-02", "G-02", "F-01"].includes(id)) render();
@@ -2127,7 +2262,7 @@ function go(id, { record = true } = {}) {
     id !== "E-06"
   )
     clearPendingTryOn();
-  if (proactiveEditIndex !== null && ["I-03","I-04","I-05"].includes(currentId) && !["I-03","I-04","I-05"].includes(id)) proactiveEditIndex = null;
+  if (proactiveEditIndex !== null && ["I-04","I-05"].includes(currentId) && !["I-04","I-05"].includes(id)) proactiveEditIndex = null;
   if (record) {
     const fromCanonical = getCanonicalScreen(currentId);
     const last = navHistory[navHistory.length - 1];
@@ -2152,7 +2287,7 @@ function go(id, { record = true } = {}) {
   currentId = id;
   location.hash = id;
   overlay = null;
-  if (!resolution.entry?.panel) {
+  if (!resolution.panel) {
     lightweightPanel = null;
   }
   accountMenuOpen = false;
@@ -2194,7 +2329,7 @@ function backScreen() {
   const currentCanonical = getCanonicalScreen(currentId);
   while (navHistory.length) {
     const previous = navHistory.pop();
-    if (previous && previous !== currentCanonical && screens.some((s) => s.id === previous)) {
+    if (previous && previous !== currentCanonical && routeScreens.some((s) => s.id === previous)) {
       go(previous, { record: false });
       return;
     }
@@ -2207,11 +2342,11 @@ function backScreen() {
   }
 }
 function openNextInventoryScreen() {
-  const i = screens.findIndex((s) => s.id === currentId);
+  const i = Math.max(0, screens.findIndex((s) => s.id === getCanonicalScreen(currentId)));
   go(screens[Math.min(i + 1, screens.length - 1)].id);
 }
 function openPreviousInventoryScreen() {
-  const i = screens.findIndex((s) => s.id === currentId);
+  const i = Math.max(0, screens.findIndex((s) => s.id === getCanonicalScreen(currentId)));
   go(screens[Math.max(i - 1, 0)].id);
 }
 function brandLockup(mode = "") {
@@ -2232,7 +2367,7 @@ function head(title) {
     "I-01": {
       label: "Your Week",
       title: "Planner",
-      actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}</button><button class="root-action" onclick="go('I-03')" aria-label="Plan a new Look">${icon("plus")}</button>`,
+      actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}</button><button class="root-action" onclick="go('I-04')" aria-label="Plan a new Look">${icon("plus")}</button>`,
     },
     "K-01": {
       label: "Ideas selected for you",
@@ -2562,9 +2697,9 @@ function lightweightPanelMarkup() {
     },
     draftImports: {
       eyebrow: "Unresolved imports",
-      title: "Draft imports (2)",
-      body: `<div class="stack">${[["Unknown black blazer", assets.blazer, "Important details conflict"], ["Receipt item", assets.shoes, "Category unconfirmed"]].map(([name, img, desc]) => `<div class="pack-row"><img src="${img}" alt="${name}"><span><b>${name}</b><small class="body" style="display:block">${desc}</small></span><button class="btn small-btn" onclick="closeLightweightPanel();go('B-06')">Review once</button></div>`).join("")}</div>`,
-      action: "Review all in B-06",
+      title: `Draft imports (${savedBatchDrafts().length})`,
+      body: `<div class="stack">${savedBatchDrafts().map((item) => `<div class="pack-row"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">${escapeMarkup(item.category)} · details need review</small></span></div>`).join("") || '<p class="body">No saved import drafts.</p>'}${savedBatchDrafts().length ? `<button class="btn wide" onclick="closeLightweightPanel();resumeBatchDrafts()">Resume ${savedBatchDrafts().length} saved import drafts</button>` : ""}</div>`,
+      action: "Close",
     },
     photoTools: {
       eyebrow: "Photo tools",
@@ -2963,7 +3098,7 @@ function completeOnboarding(destination = "D-02") {
   localStorage.removeItem("styleiqOnboardingClosetPendingV1");
   go(destination);
 }
-function startNewUserOnboarding(destination = "A-05") {
+function startNewUserOnboarding(destination = "A-02") {
   customerScenario = "new";
   syncCustomerScenarioUrl();
   onboardingGoal = "";
@@ -2978,7 +3113,7 @@ function startNewUserOnboarding(destination = "A-05") {
 function selectOnboardingGoal(goal) {
   onboardingGoal = goal;
   localStorage.setItem("styleiqOnboardingGoalV1", goal);
-  go("A-06");
+  completeSetupStyleIQ();
 }
 function beginOnboardingClosetEntry(destination) {
   localStorage.setItem("styleiqOnboardingClosetPendingV1", "true");
@@ -3049,7 +3184,7 @@ function chooseStylingContext(value, destination) {
   go(destination);
 }
 function stylingContextSurface(editing = false) {
-  const destination = editing ? "L-04" : "A-05",
+  const destination = editing ? "L-04" : "A-02",
     choices = [
       ["Womenswear", peoplePhotos.womanPortrait],
       ["Menswear", peoplePhotos.manPortrait],
@@ -3077,7 +3212,7 @@ function beginOtp() {
   const input = app.querySelector('#signup-email');
   if (!input?.reportValidity()) return;
   Object.assign(otpSession, { email: input.value, digits: '', attempts: 0, resendAt: Date.now()+28000, expiresAt: Date.now()+300000, blockedUntil: 0 });
-  otpState = 'idle'; otpAttempts = 0; persistOtp(); go('A-04');
+  otpState = 'idle'; otpAttempts = 0; persistOtp(); authInlineState = 'otp'; render();
 }
 function otpWait() { return Math.max(0, Math.ceil((Math.max(otpSession.resendAt, otpSession.blockedUntil)-Date.now())/1000)); }
 function otpTiming() {
@@ -3086,7 +3221,7 @@ function otpTiming() {
 }
 function saveOtpDigits() { otpSession.digits = [...app.querySelectorAll('.otp input')].map(input => input.value).join(''); persistOtp(); }
 function otpTick() {
-  if (currentId !== 'A-04' && !(currentId === 'A-16' && authInlineState === 'otp')) return;
+  if (!(getCanonicalScreen(currentId) === 'A-16' && authInlineState === 'otp')) return;
   if (otpState === 'blocked' && otpSession.blockedUntil <= Date.now()) { otpAttempts = 0; otpState = 'idle'; persistOtp(); render(); }
   else if (!['expired','blocked','sendFailed'].includes(otpState) && otpSession.expiresAt <= Date.now()) { otpState = 'expired'; otpSession.resendAt = 0; persistOtp(); render(); }
   const label = app.querySelector('#otp-timing'); if (label) label.textContent = otpTiming();
@@ -3094,31 +3229,32 @@ function otpTick() {
 }
 setInterval(otpTick, 500);
 function beginOtpInline() {
-  const input = app.querySelector('#signup-email');
-  if (input && !input.reportValidity()) return;
-  const email = input?.value || "user@example.com";
+  const fields = ['#signup-first-name', '#signup-last-name', '#signup-email'].map(selector => app.querySelector(selector));
+  if (fields.some(input => input && !input.reportValidity())) return;
+  const [firstNameInput, lastNameInput, emailInput] = fields;
+  const firstName = firstNameInput?.value.trim() || "Amelia";
+  const lastName = lastNameInput?.value.trim() || "Hart";
+  const email = emailInput?.value || "user@example.com";
+  persistAccountIdentity({ firstName, lastName, email, provider: "email" });
   Object.assign(otpSession, { email, digits: '', attempts: 0, resendAt: Date.now()+28000, expiresAt: Date.now()+300000, blockedUntil: 0 });
   otpState = 'idle'; otpAttempts = 0; persistOtp();
   authInlineState = 'otp';
   render();
 }
+function completeProviderSignup(provider) {
+  persistAccountIdentity({ firstName: "Amelia", lastName: "Hart", email: provider === "Google" ? "amelia@gmail.com" : "amelia@icloud.com", provider });
+  startNewUserOnboarding("A-02");
+}
 function completeSetupStyleIQ() {
-  const fn = app.querySelector('#signup-first-name')?.value?.trim() || "Amelia";
-  const ln = app.querySelector('#signup-last-name')?.value?.trim() || "Hart";
-  localStorage.setItem("styleiqUserNameV1", `${fn} ${ln}`);
   localStorage.setItem("styleiqOnboardingCompleteV1", "true");
   localStorage.removeItem("styleiqGuestModeV1");
-
-  if (a02ClosetChoice === "add") {
-    go("B-01");
-  } else if (a02ClosetChoice === "import") {
-    b01Mode = "receipt";
-    go("B-01");
-  } else if (onboardingGoal === "Make more outfits from my closet") {
-    go("B-01");
+  if (["Make more outfits from Closet", "Make more outfits from my closet"].includes(onboardingGoal)) {
+    go(closetItems().length ? "C-01" : "B-01");
   } else if (onboardingGoal === "Plan outfits") {
     go("I-01");
-  } else if (onboardingGoal === "Pack for a trip / travel") {
+  } else if (onboardingGoal === "Shop more intentionally") {
+    go("G-08");
+  } else if (["Pack for a trip", "Pack for a trip / travel"].includes(onboardingGoal)) {
     go("J-02");
   } else {
     go("D-02");
@@ -3131,22 +3267,22 @@ function onboarding(s) {
     main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Welcome back</p><h1 class="display">Sign in to your wardrobe.</h1><p class="body">Pick up where you left off with your Closet, Looks, plans, and Muse preferences.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="login-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="login-email" class="input auth-screen-input" type="email" autocomplete="email" placeholder="name@email.com"></div></div><div class="field"><div class="auth-field-label"><label for="login-password">Password</label><button class="auth-inline-link" type="button" onclick="toast('Password reset link sent')">Forgot password?</button></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("lock-keyhole")}</span><input id="login-password" class="input auth-screen-input" type="password" autocomplete="current-password" placeholder="Enter your password"></div></div><button class="btn primary wide auth-primary" type="button" onclick="completeOnboarding('D-02')">Sign in</button></div><div class="auth-divider"><span>or continue with</span></div><div class="auth-social-grid"><button class="btn auth-provider" type="button" aria-label="Sign in with Google" onclick="completeOnboarding('D-02')">${authIcon("google")}<span>Google</span></button><button class="btn auth-provider" type="button" aria-label="Sign in with Apple" onclick="completeOnboarding('D-02')">${authIcon("apple")}<span>Apple</span></button></div></div></div><div class="auth-switch"><span>Don’t have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-16')">Sign up</button></div></div>`;
   else if (s.id === "A-16") {
     if (authInlineState === "email") {
-      main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Add your email.</h1><p class="body">Use this email to sign in and recognize shopping receipts you choose to forward.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="signup-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" value="${escapeMarkup(otpSession.email || '')}" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="beginOtpInline()">Continue</button><div style="text-align:center;margin-top:10px"><button class="auth-inline-link" type="button" onclick="authInlineState='provider';render()">Back to account options</button></div></div></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
+      main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Create your account.</h1><p class="body">Account identity stays here. Personalization comes next.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="row"><div class="field grow"><label for="signup-first-name">First Name</label><input id="signup-first-name" class="input auth-screen-input" required autocomplete="given-name" value="${escapeMarkup(accountIdentity.firstName || '')}"></div><div class="field grow"><label for="signup-last-name">Last Name</label><input id="signup-last-name" class="input auth-screen-input" required autocomplete="family-name" value="${escapeMarkup(accountIdentity.lastName || '')}"></div></div><div class="field"><div class="auth-field-label"><label for="signup-email">Email</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" value="${escapeMarkup(accountIdentity.email || otpSession.email || '')}" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="beginOtpInline()">Create Account</button><div style="text-align:center;margin-top:10px"><button class="auth-inline-link" type="button" onclick="authInlineState='providers';render()">Back to account options</button></div></div></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
     } else if (authInlineState === "otp") {
       main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Verify email</p><h1 class="display">Check your inbox.</h1><p class="body">Enter the six-digit code we sent to ${escapeMarkup(otpSession.email || "your email")}.</p><p class="small">Prototype code: 123456</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-form">${otpState === "expired" ? '<p class="error" role="alert">This code has expired. Request a new code.</p>' : otpState === "invalid" ? '<p class="error" role="alert">That code is invalid. Try again.</p>' : otpState === "blocked" ? '<p class="error" role="alert">Too many attempts. Please wait before trying again.</p>' : otpState === "resent" ? '<p class="success-badge" role="status">A new code was sent.</p>' : otpState === "resendFailed" ? '<p class="error" role="alert">We couldn’t resend the code. Try again.</p>' : otpState === "sendFailed" ? '<p class="error" role="alert">We couldn’t send a code. Try again.</p>' : ""}<div class="otp">${Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" value="${otpSession.digits[i] || ''}" oninput="saveOtpDigits()" aria-label="Digit ${i + 1}">`).join("")}</div><div class="between" style="margin-top:12px"><span id="otp-timing" class="helper" role="status">${otpTiming()}</span><button id="otp-resend" class="auth-inline-link" type="button" ${otpWait() ? "disabled" : ""} onclick="resendOtp(true)">${otpState === "expired" ? "Send New Code" : "Resend code"}</button></div><button class="btn primary wide auth-primary" type="button" style="margin-top:14px" onclick="verifyOtp()" ${otpState === "blocked" ? "disabled" : ""}>Verify email</button><div style="text-align:center;margin-top:10px"><button class="auth-inline-link" type="button" onclick="authInlineState='email';render()">Change email</button></div><details style="margin-top:14px"><summary>Prototype states</summary><div class="chips" style="margin-top:8px"><button class="chip" onclick="setOtpState('valid')">Valid</button><button class="chip" onclick="setOtpState('invalid', true)">Invalid</button><button class="chip" onclick="setOtpState('expired')">Expired</button><button class="chip" onclick="setOtpState('resendFailed')">Resend failure</button><button class="chip" onclick="setOtpState('sendFailed')">Send failure</button></div></details></div></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
     } else {
-      main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Your wardrobe, considered</p><h1 class="display">Create your StyleIQ.</h1><p class="body">Build a more intentional wardrobe with a personal stylist that learns from you.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-social-grid"><button class="btn auth-provider" type="button" aria-label="Sign up with Google" onclick="startNewUserOnboarding('A-02')">${authIcon("google")}<span>Google</span></button><button class="btn auth-provider" type="button" aria-label="Sign up with Apple" onclick="startNewUserOnboarding('A-02')">${authIcon("apple")}<span>Apple</span></button></div><div class="auth-divider"><span>or</span></div><button class="btn primary wide auth-provider auth-primary auth-email-choice" type="button" onclick="authInlineState='email';render()">${authIcon("mail")}<span>Continue with email</span></button><p class="auth-legal">By continuing, you agree to StyleIQ’s Terms and acknowledge the Privacy Policy.</p></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
+      main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Your wardrobe, considered</p><h1 class="display">Create your StyleIQ.</h1><p class="body">Build a more intentional wardrobe with a personal stylist that learns from you.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-social-grid"><button class="btn auth-provider" type="button" aria-label="Sign up with Google" onclick="completeProviderSignup('Google')">${authIcon("google")}<span>Google</span></button><button class="btn auth-provider" type="button" aria-label="Sign up with Apple" onclick="completeProviderSignup('Apple')">${authIcon("apple")}<span>Apple</span></button></div><div class="auth-divider"><span>or</span></div><button class="btn primary wide auth-provider auth-primary auth-email-choice" type="button" onclick="authInlineState='email';render()">${authIcon("mail")}<span>Continue with email</span></button><p class="auth-legal">By continuing, you agree to StyleIQ’s Terms and acknowledge the Privacy Policy.</p></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
     }
   }
   else if (s.id === "A-02") {
     const goals = [
       ["shirt", "Get dressed faster"],
-      ["sparkles", "Make more outfits from my closet"],
+      ["sparkles", "Make more outfits from Closet"],
       ["calendar", "Plan outfits"],
       ["search", "Shop more intentionally"],
-      ["briefcase", "Pack for a trip / travel"],
+      ["briefcase", "Pack for a trip"],
     ];
-    main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Personalize</p><h1 class="display">Set up your StyleIQ</h1><p class="body">Tell us a few basics so Muse can begin tailoring recommendations to you.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field" data-section="name"><div class="auth-field-label"><label for="signup-first-name">First name</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="signup-first-name" class="input auth-screen-input" autocomplete="given-name" value="Amelia"></div></div><div class="field" data-section="name"><div class="auth-field-label"><label for="signup-last-name">Last name</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="signup-last-name" class="input auth-screen-input" autocomplete="family-name" value="Hart"></div></div><div class="field" data-section="wardrobe" style="margin-top:6px"><label>Who are we styling?</label><div class="chips" role="group" aria-label="Wardrobe context" style="margin-top:6px"><button type="button" class="chip ${stylingContext.department === 'Womenswear' ? 'active' : ''}" onclick="stylingContext.department='Womenswear';persistStylingContext();render()">Womenswear</button><button type="button" class="chip ${stylingContext.department === 'Menswear' ? 'active' : ''}" onclick="stylingContext.department='Menswear';persistStylingContext();render()">Menswear</button><button type="button" class="chip ${['Both','Fluid'].includes(stylingContext.department) ? 'active' : ''}" onclick="stylingContext.department='Both';persistStylingContext();render()">Both</button></div></div><div class="field" data-section="goal" style="margin-top:6px"><label>What can StyleIQ help with first?</label><div class="choice-list" style="margin-top:8px">${goals.map(([ico, label]) => `<button type="button" class="choice" aria-pressed="${onboardingGoal === label}" onclick="onboardingGoal='${label}';localStorage.setItem('styleiqOnboardingGoalV1','${label}');render()"><span class="row"><span class="icon-wrap">${icon(ico)}</span><b>${label}</b></span><span class="goal-choice-arrow" aria-hidden="true">›</span></button>`).join("")}</div></div><div class="card" data-section="closet" style="margin-top:8px"><b>Closet starter</b><p class="body" style="margin-top:4px">How would you like to start your wardrobe?</p><div class="chips" style="margin-top:8px"><button type="button" class="chip ${a02ClosetChoice === 'add' ? 'active' : ''}" onclick="a02ClosetChoice='add';render()">Add my first item</button><button type="button" class="chip ${a02ClosetChoice === 'import' ? 'active' : ''}" onclick="a02ClosetChoice='import';render()">Import purchases</button><button type="button" class="chip ${a02ClosetChoice === 'later' ? 'active' : ''}" onclick="a02ClosetChoice='later';render()">I’ll do this later</button></div></div><button class="btn primary wide auth-primary" type="button" style="margin-top:14px" onclick="completeSetupStyleIQ()">Start with StyleIQ</button></div></div></div></div>`;
+    main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Personalize</p><h1 class="display">Set up your StyleIQ</h1><p class="body">Choose the wardrobe context and first outcome Muse should prioritize.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field" data-section="wardrobe"><label>Who are we styling?</label><div class="chips" role="group" aria-label="Wardrobe context" style="margin-top:6px">${["Womenswear", "Menswear", "Both"].map(label => `<button type="button" class="chip ${stylingContext === label ? 'active' : ''}" aria-pressed="${stylingContext === label}" onclick="stylingContext='${label}';localStorage.setItem('styleiqStylingContextV1','${label}');render()">${label}</button>`).join("")}</div></div><div class="field" data-section="goal" style="margin-top:6px"><label>What do you want StyleIQ to help with first?</label><div class="choice-list" style="margin-top:8px">${goals.map(([ico, label]) => `<button type="button" class="choice" aria-pressed="${onboardingGoal === label}" onclick="onboardingGoal='${label}';localStorage.setItem('styleiqOnboardingGoalV1','${label}');render()"><span class="row"><span class="icon-wrap">${icon(ico)}</span><b>${label}</b></span><span class="goal-choice-arrow" aria-hidden="true">›</span></button>`).join("")}</div></div><button class="btn primary wide auth-primary" type="button" style="margin-top:14px" onclick="completeSetupStyleIQ()" ${onboardingGoal ? "" : "disabled"}>Start with StyleIQ</button></div></div></div></div>`;
   }
   else if (s.id === "A-03")
     main = `<div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Add your email.</h1><p class="body">Use this email to sign in and recognize shopping receipts you choose to forward.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="signup-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="beginOtp()">Create my account</button></div></div></div></div>`;
@@ -3171,6 +3307,7 @@ function onboarding(s) {
 }
 let importConfidence = "high",
   batchImportActive = false,
+  batchReadyToConfirm = false,
   batchUncertainResolved = false,
   batchReviewIndex = 0,
   batchSelectedCount = 12,
@@ -3261,10 +3398,9 @@ function verifyOtp() {
   saveOtpDigits();
   if (otpSession.digits === '123456' && otpState !== 'sendFailed') {
     otpAttempts = 0; otpState = 'valid'; persistOtp();
-    authInlineState = 'provider';
+    authInlineState = 'providers';
     customerScenario = 'new';
-    if (currentId === "A-04") go("A-05");
-    else go("A-02");
+    go("A-02");
     return;
   }
   otpAttempts += 1;
@@ -3305,10 +3441,11 @@ function resumeBatchDrafts() {
   batchSessionCandidates = savedBatchDrafts();
   if (!batchSessionCandidates.length) return;
   batchImportActive = true;
+  batchReadyToConfirm = false;
   batchUncertainResolved = false;
   batchReviewIndex = 0;
-  if (currentId === "B-10") render();
-  else go("B-10");
+  importConfidence = "high";
+  go("B-06");
 }
 function batchReadyCandidates() {
   return batchCandidates().filter((item) => item.confidence === "HIGH" || item.reviewed);
@@ -3387,6 +3524,14 @@ function lensDestination(id) {
   lensOpen = false;
   go(id);
 }
+function reviewLensBatch() {
+  batchSessionCandidates = batchCandidateCatalog.slice(0, 4).map((item) => ({ ...item, id: newClosetItemId() }));
+  batchImportActive = true;
+  batchReadyToConfirm = false;
+  batchUncertainResolved = false;
+  importConfidence = "high";
+  lensDestination("B-06");
+}
 function lensLikelyIntent() {
   return currentId === "C-01"
     ? "add"
@@ -3439,7 +3584,7 @@ function lensResult() {
       title: "Build your Closet from this view.",
       image: "images/closet.jpeg",
       body: "Lens found four candidate pieces. The shared batch importer will clean, classify, deduplicate, and only ask about uncertainty.",
-      actions: `<button class="btn primary wide" onclick="lensDestination('B-02')">Review detected items</button>`,
+      actions: `<button class="btn primary wide" onclick="reviewLensBatch()">Review detected items</button>`,
     },
     buy: {
       eyebrow: "Purchase check · high confidence",
@@ -4688,6 +4833,14 @@ function creatorLookDetail() {
   );
 }
 function decorateInspirationProfile() {
+  if (currentId === "L-04") {
+    const preferences = app.querySelector(".content .stack");
+    preferences?.insertAdjacentHTML(
+      "beforeend",
+      `<details class="card progressive-card"><summary><b>Style Inspiration</b><span class="small">Stylists · icons · references</span></summary><div class="stack" style="margin-top:12px"><p class="body">Manage the people and visual references that shape your style direction.</p><button class="btn wide" onclick="openLightweightPanel('inspiration')">Manage inspiration</button></div></details>`,
+    );
+    return;
+  }
   if (currentId !== "L-01") return;
   const content = app.querySelector(".content");
   if (!content) return;
@@ -4699,7 +4852,7 @@ function decorateInspirationProfile() {
     ).length;
   content.insertAdjacentHTML(
     "beforeend",
-    `<section class="card" style="margin-top:12px" aria-label="My Looks summary"><p class="eyebrow">My Looks</p><h3 class="title">${lookCatalog.length} Looks</h3><div class="profile-insight-grid"><button class="profile-insight" onclick="lookFilter='All';go('G-01')"><b>${lookCatalog.length}</b><small>Total</small></button><button class="profile-insight" onclick="lookFilter='Created by Me';go('G-01')"><b>${byMe}</b><small>Created by me</small></button><button class="profile-insight" onclick="lookFilter='With Muse';go('G-01')"><b>${withMuse}</b><small>With Muse</small></button></div></section><section class="card" style="margin-top:12px" aria-label="Style Inspiration"><p class="eyebrow">Style Inspiration</p><h3 class="title">Stylists & Style Icons</h3><p class="body">Add stylists, public figures, or style icons whose aesthetic inspires you.</p><button class="btn wide" style="margin-top:12px" onclick="openLightweightPanel('inspiration')">Manage inspiration</button></section>`,
+    `<section class="card" style="margin-top:12px" aria-label="My Looks summary"><p class="eyebrow">My Looks</p><h3 class="title">${lookCatalog.length} Looks</h3><div class="profile-insight-grid"><button class="profile-insight" onclick="lookFilter='All';go('G-01')"><b>${lookCatalog.length}</b><small>Total</small></button><button class="profile-insight" onclick="lookFilter='Created by Me';go('G-01')"><b>${byMe}</b><small>Created by me</small></button><button class="profile-insight" onclick="lookFilter='With Muse';go('G-01')"><b>${withMuse}</b><small>With Muse</small></button></div></section>`,
   );
 }
 function decorateLookProvenance() {
@@ -4736,6 +4889,7 @@ function startBatchImport() {
   batchSessionCandidates = batchCandidateCatalog.filter(item => selected.includes(item.id)).map(item => ({ ...item, id: newClosetItemId() }));
   if (!batchSessionCandidates.length) return;
   batchImportActive = true;
+  batchReadyToConfirm = false;
   batchUncertainResolved = false;
   batchReviewIndex = 0;
   importConfidence = "high";
@@ -4751,13 +4905,13 @@ function batchPhotoImport() {
   );
 }
 function singlePhotoProcessing() {
-  return shell("Preparing your item", `<div class="stack"><p class="eyebrow">Single photo import</p><h2 class="title">Cleaning and identifying your piece.</h2><div class="skeleton" style="height:280px"></div><p class="body">The photo is being cropped, cleaned, and matched to a Closet category.</p><button class="btn primary wide" onclick="importConfidence='high';go('B-08')">Review processed item</button><button class="btn wide" style="margin-top:8px" onclick="go('B-07')">Photo needs help</button></div>`, { active: "closet", noNav: true });
+  return shell("Preparing your item", `<div class="stack"><p class="eyebrow">Single photo import</p><h2 class="title">Cleaning and identifying your piece.</h2><div class="skeleton" style="height:280px"></div><p class="body">The photo is being cropped, cleaned, and matched to a Closet category.</p><button class="btn primary wide" onclick="importConfidence='high';go('B-06')">Review processed item</button><button class="btn wide" style="margin-top:8px" onclick="go('B-07')">Photo needs help</button></div>`, { active: "closet", noNav: true });
 }
 function singleImportResult() {
-  return shell("Processed item", `<img class="hero-img" src="${assets.blazer}" alt="Processed black tailored blazer"><p class="eyebrow" style="margin-top:14px">Ready to review</p><h2 class="title">Your item is ready.</h2><p class="body">We cleaned the image and identified a black tailored blazer. Review the details before adding it to your Closet.</p><div class="row" style="margin-top:16px"><button class="btn grow" onclick="go('B-02')">Retry photo</button><button class="btn primary grow" onclick="go('B-06')">Review item</button></div>`, { active: "closet", noNav: true });
+  return shell("Processed item", `<img class="hero-img" src="${assets.blazer}" alt="Processed black tailored blazer"><p class="eyebrow" style="margin-top:14px">Ready to review</p><h2 class="title">Your item is ready.</h2><p class="body">We cleaned the image and identified a black tailored blazer. Review the details before adding it to your Closet.</p><div class="row" style="margin-top:16px"><button class="btn grow" onclick="b01Mode='photos';go('B-01')">Retry photo</button><button class="btn primary grow" onclick="go('B-06')">Review item</button></div>`, { active: "closet", noNav: true });
 }
 function batchImportReview() {
-  if (!batchImportActive) return shell("Import drafts", `<h2 class="title">Continue building your Closet</h2><p class="body">Choose photos to prepare a new batch.</p><button class="btn primary wide" onclick="go('B-02')">Choose photos</button>${savedBatchDrafts().length ? `<button class="btn wide" onclick="resumeBatchDrafts()">Resume ${savedBatchDrafts().length} saved import drafts</button>` : ""}`, { active: "closet" });
+  if (!batchImportActive) return shell("Import drafts", `<h2 class="title">Continue building your Closet</h2><p class="body">Choose photos to prepare a new batch.</p><button class="btn primary wide" onclick="b01Mode='photos';go('B-01')">Choose photos</button>${savedBatchDrafts().length ? `<button class="btn wide" onclick="resumeBatchDrafts()">Resume ${savedBatchDrafts().length} saved import drafts</button>` : ""}`, { active: "closet" });
   const candidates = batchCandidates(), readyItems = batchReadyCandidates(), exceptions = batchReviewCandidates().filter(item => !item.reviewed);
   const ready = readyItems.length, categoryCounts = candidates.reduce((counts, item) => {
     counts[item.category] = (counts[item.category] || 0) + 1;
@@ -4768,9 +4922,14 @@ function batchImportReview() {
   const exceptionRows = exceptions.map((item, index) => `<div class="pack-row batch-exception-row"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">Needs review · ${escapeMarkup(item.category)}</small></span>${batchUncertainResolved ? '<span class="success-badge">Ready</span>' : `<button class="btn small-btn" onclick="reviewBatchExceptions(${batchReviewCandidates().indexOf(item)})">Review</button>`}</div>`).join("");
   return shell(
     "Batch review",
-    `<div class="between"><span><p class="eyebrow">AI batch result</p><h2 class="title">Found ${candidates.length} pieces ✨</h2></span><span class="pill gold">${ready} ready</span></div><p class="body">${categorySummary}</p>${approvalCard(`${ready} ready · ${exceptions.length} need your help`, "Confident items are prepared for Closet. Nothing is added until you confirm the batch.")}<div class="batch-summary"><details class="card batch-result-group" open><summary><b>${ready} Ready items</b><span class="small">Prepared automatically</span></summary>${readyRows}</details><details class="card batch-result-group" ${exceptions.length && !batchUncertainResolved ? "open" : ""}><summary><b>${exceptions.length} Need your help</b><span class="small">Review exceptions only</span></summary>${!batchUncertainResolved && exceptions.length ? `<button class="btn wide" onclick="reviewBatchExceptions()">Review ${exceptions.length}</button>` : ""}${exceptionRows}</details></div><button class="btn primary wide" style="margin-top:14px" onclick="go('B-11')" ${ready ? "" : "disabled"}>Add ${ready} Ready Items</button><button class="btn wide" style="margin-top:8px" onclick="cancelBatchImport()">Cancel batch</button>`,
+    `<div class="between"><span><p class="eyebrow">AI batch result</p><h2 class="title">Found ${candidates.length} pieces ✨</h2></span><span class="pill gold">${ready} ready</span></div><p class="body">${categorySummary}</p>${approvalCard(`${ready} ready · ${exceptions.length} need your help`, "Confident items are prepared for Closet. Nothing is added until you confirm the batch.")}<div class="batch-summary"><details class="card batch-result-group" open><summary><b>${ready} Ready items</b><span class="small">Prepared automatically</span></summary>${readyRows}</details><details class="card batch-result-group" ${exceptions.length && !batchUncertainResolved ? "open" : ""}><summary><b>${exceptions.length} Need your help</b><span class="small">Review exceptions only</span></summary>${!batchUncertainResolved && exceptions.length ? `<button class="btn wide" onclick="reviewBatchExceptions()">Review ${exceptions.length}</button>` : ""}${exceptionRows}</details></div><button class="btn primary wide" style="margin-top:14px" onclick="prepareBatchImportConfirmation()" ${ready ? "" : "disabled"}>Add ${ready} Ready Items</button><button class="btn wide" style="margin-top:8px" onclick="cancelBatchImport()">Cancel batch</button>`,
     { active: "closet", noNav: true },
   );
+}
+function prepareBatchImportConfirmation() {
+  if (!batchReadyCandidates().length) return;
+  batchReadyToConfirm = true;
+  render();
 }
 function batchImportSuccess() {
   const prepared = batchReadyCandidates(), added = prepared.length;
@@ -4796,12 +4955,14 @@ function commitBatchImport() {
     localStorage.setItem("styleiqBatchImportDraftsV1", JSON.stringify(unresolved));
   else localStorage.removeItem("styleiqBatchImportDraftsV1");
   batchImportActive = false;
+  batchReadyToConfirm = false;
   batchReviewIndex = 0;
   finishOnboardingClosetImport();
   toast(`${added} items added to Closet`);
 }
 function cancelBatchImport() {
   batchImportActive = false;
+  batchReadyToConfirm = false;
   batchUncertainResolved = false;
   batchReviewIndex = 0;
   importConfidence = "high";
@@ -4850,13 +5011,14 @@ function recoverUploadIssue(action) {
     return;
   }
   uploadIssue = null;
-  go("B-02");
+  b01Mode = "photos";
+  go("B-01");
 }
 function reviewBatchExceptions(index) {
   batchReviewIndex = index ?? batchReviewCandidates().findIndex(item => !item.reviewed);
   if (batchReviewIndex < 0) return;
   importConfidence = "low";
-  go("B-06");
+  render();
 }
 function confirmBatchException(event) {
   event.preventDefault();
@@ -4872,7 +5034,7 @@ function confirmBatchException(event) {
   } else {
     batchUncertainResolved = true;
     importConfidence = "high";
-    commitBatchImport();
+    render();
   }
 }
 function confidenceImportReview() {
@@ -4983,7 +5145,7 @@ function emptyState(s) {
     s.title,
     s.detail,
     "Open details",
-    screens[Math.min(screens.indexOf(s) + 1, screens.length - 1)].id,
+    routeScreens[Math.min(routeScreens.indexOf(s) + 1, routeScreens.length - 1)].id,
     assets.look,
     "Visual preview",
   ];
@@ -5009,9 +5171,9 @@ function importScreen(s) {
     let content = "";
     if (b01Mode === "photos") {
       if (b01Processing) {
-        content = `<div class="card stack" style="margin-top:14px"><p class="eyebrow">Background cleanup & detection</p><h3 class="title">Cleaning and identifying your piece</h3><div class="skeleton" style="height:180px"></div><div class="chips" style="margin-top:10px"><span class="chip active">Uploading</span><span class="chip active">Cleaning image</span><span class="chip active">Detecting item</span><span class="chip active">Ready</span></div><p class="body">Cropping garment, removing background, and extracting brand & category.</p><button class="btn primary wide" onclick="b01Processing=false;go('B-06')">Continue to Review</button></div>`;
+        content = `<div class="card stack" style="margin-top:14px"><p class="eyebrow">Background cleanup & detection</p><h3 class="title">Cleaning and identifying your piece.</h3><div class="skeleton" style="height:180px"></div><div class="chips" style="margin-top:10px"><span class="chip active">Uploading</span><span class="chip active">Cleaning image</span><span class="chip active">Detecting item</span><span class="chip active">Ready</span></div><p class="body">Cropping garment, removing background, and extracting brand & category.</p><button class="btn primary wide" onclick="b01Processing=false;importConfidence='high';go('B-06')">Review processed item</button><button class="btn wide" onclick="b01Processing=false;go('B-07')">Photo needs help</button></div>`;
       } else {
-        content = `<div class="mirror-upload-intro"><p class="eyebrow">Universal photo intake</p><h2 class="title">Choose garment photos</h2><p class="body">Add one photo or an entire batch. Background cleanup and item detection run automatically.</p></div><div class="batch-photo-grid" role="group" aria-label="Selected garment photos">${photos.map((item) => `<button class="batch-photo" data-candidate="${item.id}" aria-pressed="true" onclick="toggleBatchPhoto(this)"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span>Selected</span></button>`).join("")}</div><p id="batch-photo-count" class="mirror-upload-count">${photos.length} photos selected · automatic cleanup and classification</p><div class="mirror-upload-actions" style="margin-top:14px"><button id="batch-process" class="btn primary wide" onclick="startBatchImport()">Process ${photos.length} photos</button><button class="btn wide" onclick="b01Processing=true;render()">Simulate background cleanup</button><button class="btn wide" onclick="importConfidence='high';go('B-06')">Review first item</button></div>`;
+        content = `<div class="mirror-upload-intro"><p class="eyebrow">Universal photo intake</p><h2 class="title">Choose garment photos</h2><p class="body">Add one photo or an entire batch. Background cleanup and item detection run automatically.</p></div><div class="batch-photo-grid" role="group" aria-label="Selected garment photos">${photos.map((item) => `<button class="batch-photo" data-candidate="${item.id}" aria-pressed="true" onclick="toggleBatchPhoto(this)"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span>Selected</span></button>`).join("")}</div><p id="batch-photo-count" class="mirror-upload-count">${photos.length} photos selected · automatic cleanup and classification</p><div class="mirror-upload-actions" style="margin-top:14px"><button id="batch-process" class="btn primary wide" onclick="startBatchImport()">Process ${photos.length} photos</button><button class="btn wide" onclick="b01Processing=true;render()">Process one photo</button><button class="btn wide" onclick="importConfidence='high';go('B-06')">Review first item</button></div>`;
       }
     } else if (b01Mode === "search") {
       content = `<div class="stack"><p class="eyebrow">Product & brand lookup</p><h2 class="title">Find something you already own</h2><p class="body">Search by brand, item name, or paste a product link.</p><form onsubmit="searchOwnedItem(event)"><label class="field">Product, brand, or URL<input class="input" value="${escapeMarkup(ownedSearchQuery)}" placeholder="e.g. Balmain blazer, COS trousers, or URL" required></label><button class="btn primary wide" type="submit">Search Item</button></form><div style="margin-top:14px">${ownedSearchResults()}</div></div>`;
@@ -5304,13 +5466,13 @@ function mirrorPlanner() {
 
   const eventCard = plannerEventCreated
     ? `<button class="mirror-plan" onclick="go('I-04')"><img src="${plannedLook?.sheet || assets.look2}" alt="${escapeMarkup(planned.lookTitle || planned.title)}"><span class="mirror-plan-copy"><div class="between" style="align-items:center"><p class="eyebrow" style="margin:0">${escapeMarkup(planned.occasion || "Event")} · Planned</p><span class="planner-weather-badge">☀️ 74°</span></div><h3>${escapeMarkup(planned.lookTitle || planned.title)}</h3><small class="body">${escapeMarkup(planned.time || planned.daypart || "Today")} · ${escapeMarkup(planned.location || "Cairo")}</small><b style="display:block;margin-top:8px;font-size:10px;color:var(--gold,#9e733c)">Review event →</b></span></button>`
-    : `<div class="planner-empty-prompt"><div class="between" style="align-items:center"><span><p class="eyebrow" style="margin:0">Today’s Schedule</p><h3 class="title" style="margin:2px 0 0;font-size:16px">No Look planned yet</h3></span><button class="btn primary small-btn" onclick="go('I-03')">Plan a Look</button></div></div>`;
+    : `<div class="planner-empty-prompt"><div class="between" style="align-items:center"><span><p class="eyebrow" style="margin:0">Today’s Schedule</p><h3 class="title" style="margin:2px 0 0;font-size:16px">No Look planned yet</h3></span><button class="btn primary small-btn" onclick="go('I-04')">Plan a Look</button></div></div>`;
 
   return shell(
     "Planner",
-    `<div class="mirror-week">${days.map(([d, n, isToday, i]) => `<button class="mirror-day ${i === selectedPlannerDayIndex ? "active" : ""} ${isToday ? "is-today" : ""}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${isToday ? '<span class="today-dot" aria-label="Today"></span>' : '<span class="day-indicator-empty"></span>'}</button>`).join("")}</div>${eventCard}${proactive}<section class="planner-intent-card"><div class="between" style="align-items:center"><span><p class="eyebrow" style="margin:0">Manual planning</p><h2 class="title" style="margin:2px 0 0;font-size:16px">${plannerEvent ? "Your planned Look" : "Add a specific event"}</h2></span><button class="btn small-btn" onclick="go('I-03')">Add Event</button></div></section>${
+    `<div class="mirror-week">${days.map(([d, n, isToday, i]) => `<button class="mirror-day ${i === selectedPlannerDayIndex ? "active" : ""} ${isToday ? "is-today" : ""}" onclick="selectedPlannerDayIndex=${i};openLightweightPanel('daySheet')"><span>${d}</span><b>${n}</b>${isToday ? '<span class="today-dot" aria-label="Today"></span>' : '<span class="day-indicator-empty"></span>'}</button>`).join("")}</div>${eventCard}${proactive}${recurringPlannerSection()}<section class="planner-intent-card"><div class="between" style="align-items:center"><span><p class="eyebrow" style="margin:0">Manual planning</p><h2 class="title" style="margin:2px 0 0;font-size:16px">${plannerEvent ? "Your planned Look" : "Add a specific event"}</h2></span><button class="btn small-btn" onclick="go('I-04')">Add Event</button></div></section>${
       nextWeekPrepared
-        ? `<section style="margin-top:16px"><div class="between"><span><p class="eyebrow">Prepared from your recap</p><h3 class="title">Next week</h3></span><button class="text-action" onclick="go('I-02')">Review recap</button></div><div class="planner-prepared">${[
+        ? `<section style="margin-top:16px"><div class="between"><span><p class="eyebrow">Prepared from your recap</p><h3 class="title">Next week</h3></span><button class="text-action" onclick="openLightweightPanel('plannerInsights')">Review recap</button></div><div class="planner-prepared">${[
             [assets.look3, "Monday", "Office"],
             [assets.look, "Wednesday", "Client review"],
             [assets.look2, "Friday", "Dinner"],
@@ -5321,7 +5483,7 @@ function mirrorPlanner() {
             )
             .join("")}</div></section>`
         : ""
-    }<button class="mirror-plan" onclick="go('J-01')"><img src="${assets.look4}" alt="Travel wardrobe"><span class="mirror-plan-copy"><p class="eyebrow">Trip</p><h3>Alexandria · 3 days</h3><small class="body">Plan a Trip</small></span></button><div class="row" style="margin-top:12px"><button class="btn grow" onclick="go('I-06')">Share Calendar</button><button class="btn grow" onclick="go('I-02')">Weekly recap</button></div>`,
+    }<button class="mirror-plan" onclick="go('J-01')"><img src="${assets.look4}" alt="Travel wardrobe"><span class="mirror-plan-copy"><p class="eyebrow">Trip</p><h3>Alexandria · 3 days</h3><small class="body">Plan a Trip</small></span></button><div class="row" style="margin-top:12px"><button class="btn grow" onclick="openLightweightPanel('shareCalendar')">Share Calendar</button><button class="btn grow" onclick="openLightweightPanel('plannerInsights')">Weekly recap</button></div>`,
     { active: "planner" },
   );
 }
@@ -5625,21 +5787,24 @@ function submitPlannerEvent(event) {
   }
 
   if (proactiveEditIndex !== null) {
-    go("I-04");
+    plannerValidationOpen = true;
+    plannerLookChooserOpen = false;
+    render();
     return;
   }
 
   savePlannerEvent();
 }
 function editPlannerEvent() {
-  go("I-03");
+  plannerValidationOpen = false;
+  plannerLookChooserOpen = false;
+  if (currentId === "I-04") render();
+  else go("I-04");
 }
 function continuePlannerValidation() {
-  if (proactiveEditIndex !== null) {
-    go("I-05");
-    return;
-  }
-  savePlannerEvent();
+  plannerValidationOpen = false;
+  plannerLookChooserOpen = true;
+  render();
 }
 function choosePlannerLook(id) {
   plannerLookChoice = id;
@@ -5650,7 +5815,7 @@ function savePlannerEvent() {
   if (proactiveEditIndex !== null && proactiveWeek[proactiveEditIndex]) {
     Object.assign(proactiveWeek[proactiveEditIndex], plannerEventDraft, { day: new Date(`${plannerEventDraft.date}T12:00:00`).toLocaleDateString('en-US',{weekday:'short'}).toUpperCase(), context: plannerEventDraft.occasion, lookId: look.id, look: look.title, image: look.sheet });
     localStorage.setItem('styleiqProactiveWeekV1', JSON.stringify(proactiveWeek));
-    proactiveEditIndex = null; plannerValidationErrors = []; go('I-01'); toast('Weekly context updated'); return;
+    proactiveEditIndex = null; plannerValidationErrors = []; plannerValidationOpen = false; plannerLookChooserOpen = false; go('I-01'); toast('Weekly context updated'); return;
   }
   plannerEvent = {
     ...plannerEventDraft,
@@ -5669,6 +5834,7 @@ function savePlannerEvent() {
   };
   localStorage.setItem("styleiqPlannerIntentV1", JSON.stringify(plannerIntent));
   plannerValidationErrors = [];
+  plannerLookChooserOpen = false;
   go("I-01");
   toast("Event planned");
 }
@@ -5752,7 +5918,7 @@ function decorateWeeklyRecapEntry() {
   if (currentId !== "L-01") return;
   content.insertAdjacentHTML(
     "beforeend",
-    `<button class="signal-card" style="width:100%;margin-top:12px" onclick="go('I-02')"><img src="${assets.look3}" alt="Weekly style recap" style="width:58px;height:68px;border-radius:12px;object-fit:cover"><span class="grow"><p class="eyebrow">Your week in clothes</p><b>5 outfits · 14 pieces used</b><small class="body" style="display:block">See what worked and prepare next week.</small></span><span>›</span></button>`,
+    `<button class="signal-card" style="width:100%;margin-top:12px" onclick="openLightweightPanel('plannerInsights')"><img src="${assets.look3}" alt="Weekly style recap" style="width:58px;height:68px;border-radius:12px;object-fit:cover"><span class="grow"><p class="eyebrow">Your week in clothes</p><b>5 outfits · 14 pieces used</b><small class="body" style="display:block">See what worked and prepare next week.</small></span><span>›</span></button>`,
   );
 }
 function mirrorDiscover() {
@@ -6370,6 +6536,16 @@ const studioRoles = [
   "Accessory",
   "Dress",
 ];
+function normalizeStudioRole(piece = {}) {
+  const source = String(piece.role || piece.category || "Accessory").trim().toLowerCase();
+  if (["top", "tops", "shirt", "shirts", "blouse", "blouses", "knitwear"].includes(source)) return "Top";
+  if (["bottom", "bottoms", "trouser", "trousers", "pants", "skirt", "skirts", "shorts"].includes(source)) return "Bottom";
+  if (["outerwear", "layer", "layers", "jacket", "jackets", "coat", "coats"].includes(source)) return "Outerwear";
+  if (["shoe", "shoes", "footwear", "loafer", "loafers", "sneaker", "sneakers"].includes(source)) return "Shoes";
+  if (["bag", "bags", "handbag", "handbags"].includes(source)) return "Bag";
+  if (["dress", "dresses", "dress & suit", "dresses & suits", "suit", "suits"].includes(source)) return "Dress";
+  return "Accessory";
+}
 if (!studioRoles.includes(studioUI.role)) studioUI.role = "Top";
 if (!["All", "Owned", "Suggested", "Search"].includes(studioUI.source))
   studioUI.source = "All";
@@ -6608,6 +6784,7 @@ async function updateStudioTryOn() {
   }
 }
 function studioPreview() {
+  canvasState.items = canvasState.items.map((piece) => ({ ...piece, role: normalizeStudioRole(piece) }));
   const visible = canvasState.items.filter((x) => x.visible !== false);
   if (!canvasState.items.length)
     return `<section class="studio-starter" aria-label="Start your Look"><div class="studio-starter-art">${studioPieceArt({ name: "Eyelet shirt" })}${studioPieceArt({ name: "Black trousers" })}${studioPieceArt({ name: "Tan suede loafers" })}</div><h3>Start your Look</h3><p>One piece is all you need.</p><button class="btn primary wide" onclick="openStudioSources()">Add first piece</button><div class="studio-starter-actions"><button onclick="studioUI.source='Owned';persistStudioUI();go('F-09')">Start from Closet</button><button onclick="openStudioLens()">Use Lens</button><button onclick="openMuse(museContextFor('F-01'))">Ask Muse</button></div></section>`;
@@ -6916,7 +7093,7 @@ function canonicalStudio() {
               "",
             )}<button onclick="studioAnotherCombination()">Try another combination</button></div></section>`
         : ""
-  }${canvasState.lookFormula ? `<details class="tryon-studio-formula"><summary>Source Look · ${escapeMarkup(canvasState.lookFormula.title)}</summary><p>${canvasState.items.filter((x) => x.owned).length} of ${canvasState.items.length} roles matched to available Closet items.</p>${canvasState.items.map((x) => `<div>${escapeMarkup(x.name)} · ${x.owned ? "Closet match" : "Find an alternative"}</div>`).join("")}</details>` : ""}</div>${studioLensMarkup()}</section>`;
+  }${canvasState.lookFormula ? `<details class="tryon-studio-formula"><summary>Source Look · ${escapeMarkup(canvasState.lookFormula.title)}</summary><p>${canvasState.items.filter((x) => x.owned).length} of ${canvasState.items.length} roles matched to available Closet items.</p>${canvasState.items.map((x) => `<div>${escapeMarkup(x.name)} · ${x.owned ? "Closet match" : "Find an alternative"}</div>`).join("")}</details>` : ""}${canvasState.items.length ? `<section class="studio-simple-panel" aria-label="Use this Look"><p class="eyebrow">Use this Look</p><div class="studio-quick-jobs"><button onclick="go('I-04')">Add to Planner</button><button onclick="go('J-01')">Add to Trip</button><button onclick="startTryOn('coffee', { sourceType: 'studio' })">Try on</button></div></section>` : ""}</div>${studioLensMarkup()}</section>`;
 }
 function phaseOneCanonicalScreen(s) {
   if (s.id === "L-02") return mirrorProfile();
@@ -6945,19 +7122,18 @@ function mirrorScreen(s) {
   if (s.id === "D-02") return mirrorToday();
   if (s.id === "C-01") return scalableCloset();
   if (s.id === "C-02") return lifecycleItemDetail();
-  if (["A-05", "A-06", "A-09"].includes(s.id)) return onboarding({ ...s, id: "A-02" });
-  if (s.id === "A-10") return stylingContextSurface(true);
+  if (["A-03", "A-04"].includes(s.id)) return onboarding({ ...s, id: "A-16" });
+  if (["A-05", "A-09", "A-10"].includes(s.id)) return onboarding({ ...s, id: "A-02" });
+  if (s.id === "A-06") return importScreen({ ...s, id: "B-01" });
   if (s.id === "A-11") return mirrorToday();
   if (s.id === "A-12") return importScreen({ ...s, id: "B-01" });
   if (s.id === "A-13") return scalableCloset();
   if (s.id === "A-14") return myLooksGrid();
   if (s.id === "A-15") return tripIntentScreen();
   if (s.id === "I-01") return mirrorPlanner();
-  if (s.id === "I-03") return plannerEventForm();
-  if (s.id === "I-04") return (proactiveEditIndex !== null ? plannerValidationScreen() : plannerEventForm());
-  if (s.id === "I-05") return plannerLookChooser();
-  if (s.id === "I-02") return weeklyRecap();
-  if (s.id === "I-06") return calendarShare();
+  if (["I-02", "I-03", "I-06", "L-08"].includes(s.id)) return mirrorPlanner();
+  if (s.id === "I-04") return plannerLookChooserOpen ? plannerLookChooser() : plannerValidationOpen ? plannerValidationScreen() : plannerEventForm();
+  if (s.id === "I-05") return plannerValidationScreen();
   if (s.id === "J-01") return tripsList();
   if (s.id === "J-02") return tripIntentScreen();
   if (s.id === "J-03") return tripDetailsScreen();
@@ -6975,6 +7151,7 @@ function mirrorScreen(s) {
   if (s.id === "K-08") { communityPanel = "report"; return creatorLookDetail(); }
   if (s.id === "K-05") return canonicalTwinIntro();
   if (s.id === "L-01") return mirrorProfile();
+  if (s.id === "L-07") return myWishlist();
   if (s.id === "G-01") return myLooksGrid();
   if (s.section === "F") return canonicalStudio();
   if (["A-07", "H-01"].includes(s.id)) return canonicalTwinIntro();
@@ -6988,11 +7165,15 @@ function mirrorScreen(s) {
   if (s.id === "H-11") return creatorDiscoveryScreen();
   if (s.id === "H-12") return creatorProfileScreen();
   if (s.id === "H-13") return creatorLookDetailScreen();
-  if (s.id === "B-02") return batchPhotoImport();
+  if (s.id === "B-02") return importScreen({ ...s, id: "B-01" });
   if (s.id === "B-03") return singlePhotoProcessing();
-  if (s.id === "B-08") return singleImportResult();
-  if (s.id === "B-10" && batchImportActive) return batchImportReview();
-  if (s.id === "B-10") return batchImportReview();
+  if (s.id === "B-06" && batchImportActive && importConfidence !== "low")
+    return batchReadyToConfirm ? batchImportSuccess() : batchImportReview();
+  if (s.id === "B-08") return batchImportActive ? batchImportReview() : singleImportResult();
+  if (s.id === "B-10") {
+    lightweightPanel = "draftImports";
+    return importScreen({ ...s, id: "B-01" });
+  }
   if (s.id === "B-11") return batchImportActive ? batchImportSuccess() : shell("Added", `<section class="closet-success"><div class="success-icon-wrap"><span>${icon("check")}</span></div><p class="success-kicker">${icon("check")} Closet updated</p><h2>Added to your Closet</h2><p class="body">Your new piece is ready to style.</p><button class="btn primary wide" onclick="finishOnboardingClosetImport()">${localStorage.getItem("styleiqOnboardingClosetPendingV1") === "true" ? "Continue to Today" : "View updated Closet"}</button></section>`, { active: "closet" });
   if (["G-03", "G-04", "G-05", "G-06", "G-07"].includes(s.id)) {
     savedLookTab = { "G-03": "items", "G-04": "details", "G-05": "details", "G-06": "planning", "G-07": "activity" }[s.id];
@@ -7015,7 +7196,8 @@ function renderScreen(s) {
 function renderNotes(s) {
   const managingTwin =
     twinSetup.complete && ["H-01", "H-10", "L-09", "E-05"].includes(s.id);
-  notes.innerHTML = `${customerScenarioControls(s.id)}<span class="phase-pill">Phase ${s.phase}</span><p class="eyebrow" style="margin-top:16px">${s.id} · ${sections[s.section]}</p><h2>${managingTwin ? "Style Twin · manage existing Twin" : s.title}</h2><p class="body">${managingTwin ? "View the completed Twin, try a Look, or refine without repeating setup." : s.detail}</p><div class="notes-grid"><div class="metric"><b>Surface</b><span>${["B-01", "I-03", "J-11"].includes(s.id) ? "Bottom sheet / menu" : s.section === "F" ? "Full-screen editor" : "Mobile screen / state"}</span></div><div class="metric"><b>Style</b><span>Warm pearl, espresso, restrained plum</span></div><div class="metric"><b>Inventory</b><span>${screens.indexOf(s) + 1} of ${screens.length}</span></div><div class="metric"><b>Keyboard</b><span><span class="kbd">←</span> <span class="kbd">→</span></span></div></div>${s.section === "F" ? "<ul><li>Editable title and persistent draft</li><li>Flat lay and optional Style Twin</li><li>Owned versus Shop provenance</li><li>Category layers, visibility, replace, remove</li><li>Closet/Wishlist selector with search and filters</li><li>Date, location, calendar, feedback, Save Look</li></ul>" : ""}<div class="row" style="margin-top:18px"><button class="btn grow" onclick="openPreviousInventoryScreen()">Previous screen</button><button class="btn primary grow" onclick="openNextInventoryScreen()">Next screen</button></div>`;
+  const visibleScreen = screens.find((screen) => screen.id === getCanonicalScreen(s.id)) || screens[0];
+  notes.innerHTML = `${customerScenarioControls(s.id)}<span class="phase-pill">Phase ${s.phase}</span><p class="eyebrow" style="margin-top:16px">${s.id} · ${sections[s.section]}</p><h2>${managingTwin ? "Style Twin · manage existing Twin" : s.title}</h2><p class="body">${managingTwin ? "View the completed Twin, try a Look, or refine without repeating setup." : s.detail}</p><div class="notes-grid"><div class="metric"><b>Surface</b><span>${["B-01", "I-03", "J-11"].includes(s.id) ? "Bottom sheet / menu" : s.section === "F" ? "Full-screen editor" : "Mobile screen / state"}</span></div><div class="metric"><b>Style</b><span>Warm pearl, espresso, restrained plum</span></div><div class="metric"><b>Inventory</b><span>${screens.indexOf(visibleScreen) + 1} of ${screens.length}</span></div><div class="metric"><b>Keyboard</b><span><span class="kbd">←</span> <span class="kbd">→</span></span></div></div>${s.section === "F" ? "<ul><li>Editable title and persistent draft</li><li>Flat lay and optional Style Twin</li><li>Owned versus Shop provenance</li><li>Category layers, visibility, replace, remove</li><li>Closet/Wishlist selector with search and filters</li><li>Date, location, calendar, feedback, Save Look</li></ul>" : ""}<div class="row" style="margin-top:18px"><button class="btn grow" onclick="openPreviousInventoryScreen()">Previous screen</button><button class="btn primary grow" onclick="openNextInventoryScreen()">Next screen</button></div>`;
 }
 function renderList() {
   const q = document.getElementById("screen-search").value.toLowerCase(),
@@ -7039,7 +7221,7 @@ function render() {
     .querySelector(".nav-liquid-indicator")
     ?.getBoundingClientRect();
   const studioEntering = appliedStudioRoute !== currentId;
-  const s = screens.find((x) => x.id === currentId) || screens[0];
+  const s = routeScreens.find((x) => x.id === currentId) || screens[0];
   currentId = s.id;
   const canonicalId = getCanonicalScreen(s.id);
   applyStudioRoute(s.id);
@@ -7090,9 +7272,13 @@ function render() {
   const inventory = [...notes.querySelectorAll(".metric")].find(
     (x) => x.querySelector("b")?.textContent === "Inventory",
   );
-  if (inventory)
+  if (inventory) {
+    const visibleScreen = screens.find(
+      (screen) => screen.id === getCanonicalScreen(s.id),
+    ) || screens[0];
     inventory.querySelector("span").textContent =
-      `${screens.indexOf(s) + 1} of ${screens.length}`;
+      `${screens.indexOf(visibleScreen) + 1} of ${screens.length}`;
+  }
   renderList();
   document.getElementById("total-count").textContent =
     `${screens.length} / ${screens.length}`;
@@ -7149,7 +7335,7 @@ window.addEventListener("hashchange", () => {
   }
   if (pendingTryOn && currentId.startsWith("H-") && !id.startsWith("H-"))
     clearPendingTryOn();
-  if (id && id !== currentId && screens.some((s) => s.id === id)) {
+  if (id && id !== currentId && routeScreens.some((s) => s.id === id)) {
     if (
       localStorage.getItem("styleiqOnboardingClosetPendingV1") === "true" &&
       currentId.startsWith("B-") &&
@@ -7165,11 +7351,11 @@ window.addEventListener("hashchange", () => {
       navHistory.push(fromCanonical);
       if (navHistory.length > 80) navHistory.shift();
     }
-    currentId = id;
-    resolveCanonicalRoute(id);
     lightweightPanel = null;
     accountMenuOpen = false;
     notificationsOpen = false;
+    currentId = id;
+    resolveCanonicalRoute(id);
     render();
   }
 });
@@ -7182,6 +7368,7 @@ window.addEventListener("keydown", (e) => {
   else if (e.key === "Escape" && accountMenuOpen) closeAccountMenu();
   else if (e.key === "Escape" && notificationsOpen) closeNotifications();
 });
+resolveCanonicalRoute(currentId);
 if (pendingTryOn && twinSetup.complete && currentId.startsWith("H-"))
   resumeTryOn();
 else render();
@@ -7247,15 +7434,15 @@ function searchStyleIQ(value) {
     ["Amelia Hart · Profile", "L-01"],
     ["Style Twin", "H-01"],
     ["About you", "L-04"],
-    ["Style preferences", "L-05"],
-    ["Brands", "L-06"],
-    ["Budget", "L-07"],
-    ["Events", "L-08"],
+    ["Style preferences", "L-04"],
+    ["Brands", "L-04"],
+    ["Budget", "G-08"],
+    ["Events", "I-01"],
     ["Privacy & Settings", "L-11"],
     ["Tutorial", "L-12"],
   ];
   destinations.forEach(([title, id]) =>
-    entries.push({ title, detail: "Pages", action: `go('${id}')` }),
+    entries.push({ title, detail: "Pages", action: title === "Budget" ? "openShoppingBudget()" : title === "Events" ? "openRecurringPlanner()" : title === "Style preferences" ? "openProfilePreferences('style')" : title === "Brands" ? "openProfilePreferences('brands')" : `go('${id}')` }),
   );
   const matches = entries.filter((entry) =>
     query
@@ -7285,10 +7472,10 @@ function accountMenuV2() {
       "Preferences",
       [
         ["user", "About you", "L-04"],
-        ["spark", "Style preferences", "L-05"],
-        ["heart", "Brands", "L-06"],
-        ["bag", "Budget", "L-07"],
-        ["calendar", "Events", "L-08"],
+        ["spark", "Style preferences", "L-04"],
+        ["heart", "Brands", "L-04"],
+        ["bag", "Budget", "G-08"],
+        ["calendar", "Events", "I-01"],
         ["user", "Style Twin", "L-09"],
       ],
     ],
@@ -7301,7 +7488,7 @@ function accountMenuV2() {
       ],
     ],
   ];
-  return `<div class="account-menu-layer"><button class="account-menu-scrim" aria-label="Close account menu" onclick="closeAccountMenu()"></button><aside class="account-menu" aria-label="Account navigation"><div class="account-menu-head"><button class="account-profile-link" aria-label="Open Amelia Hart profile" onclick="go('L-01')"><img src="${assets.profile}" alt=""><span><b>Amelia Hart</b><small class="body" style="display:block">My Atelier</small></span></button><button class="icon-btn account-menu-close" aria-label="Close account menu" onclick="closeAccountMenu()">×</button></div><label class="account-menu-search">${icon("search")}<input type="search" aria-label="Search StyleIQ" placeholder="Search pieces, Looks, brands…" oninput="searchStyleIQ(this.value)"></label><section class="app-search-results" aria-label="StyleIQ search results" hidden></section>${groups.map(([label, links]) => `<div class="menu-group"><p class="menu-group-label">${label}</p>${links.map(([ico, text, id]) => `<button class="menu-link ${currentId === id ? "current" : ""}" onclick="go('${id}')">${icon(ico)}<span>${text}</span><b>›</b></button>`).join("")}</div>`).join("")}<div class="menu-group"><button class="menu-link" onclick="openLogout()">${icon("logout")}<span>Log out</span><b>›</b></button></div></aside></div>`;
+  return `<div class="account-menu-layer"><button class="account-menu-scrim" aria-label="Close account menu" onclick="closeAccountMenu()"></button><aside class="account-menu" aria-label="Account navigation"><div class="account-menu-head"><button class="account-profile-link" aria-label="Open Amelia Hart profile" onclick="go('L-01')"><img src="${assets.profile}" alt=""><span><b>Amelia Hart</b><small class="body" style="display:block">My Atelier</small></span></button><button class="icon-btn account-menu-close" aria-label="Close account menu" onclick="closeAccountMenu()">×</button></div><label class="account-menu-search">${icon("search")}<input type="search" aria-label="Search StyleIQ" placeholder="Search pieces, Looks, brands…" oninput="searchStyleIQ(this.value)"></label><section class="app-search-results" aria-label="StyleIQ search results" hidden></section>${groups.map(([label, links]) => `<div class="menu-group"><p class="menu-group-label">${label}</p>${links.map(([ico, text, id]) => `<button class="menu-link ${currentId === id ? "current" : ""}" onclick="${text === "Budget" ? "openShoppingBudget()" : text === "Events" ? "openRecurringPlanner()" : text === "Style preferences" ? "openProfilePreferences('style')" : text === "Brands" ? "openProfilePreferences('brands')" : `go('${id}')`}">${icon(ico)}<span>${text}</span><b>›</b></button>`).join("")}</div>`).join("")}<div class="menu-group"><button class="menu-link" onclick="openLogout()">${icon("logout")}<span>Log out</span><b>›</b></button></div></aside></div>`;
 }
 function outfitFamilies(title = "Today", lookId = "coffee") {
   const anchoredItem = closetStyleIntent ? selectedClosetItem() : null;
@@ -7343,11 +7530,11 @@ function profileScreen(s) {
       `<div class="source-tabs"><button class="active" onclick="go('G-01')">Saved Looks</button><button onclick="go('J-01')">Trips</button></div><div class="item-grid" style="margin-top:14px"><button class="item-card" onclick="go('G-02')"><img src="${assets.look}" alt="Saved Look"><span class="copy"><b>${canvasState.title}</b><small class="body" style="display:block">Look</small></span></button><button class="item-card" onclick="go('J-14')"><img src="${assets.look4}" alt="Alexandria Trip"><span class="copy"><b>Alexandria</b><small class="body" style="display:block">Trip · Aug 23–25</small></span></button></div>`,
       { active: "profile" },
     );
-  if (idx === 4 || idx === 5 || idx === 6 || idx === 7 || idx === 8) {
-    const activeSec = profilePrefSection || (idx === 5 ? "style" : idx === 6 ? "brands" : idx === 7 ? "budget" : idx === 8 ? "events" : "about");
+  if (idx === 4 || idx === 5 || idx === 6) {
+    const activeSec = profilePrefSection || (idx === 5 ? "style" : idx === 6 ? "brands" : "about");
     return shell(
       "Profile & Style Preferences",
-      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Muse follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack" style="margin-top:16px"><details class="card progressive-card" ${activeSec === "about" ? "open" : ""}><summary><b>About you</b><span class="small">Name · wardrobe · location</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" ${activeSec === "style" ? "open" : ""}><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" ${activeSec === "brands" ? "open" : ""}><summary><b>Brands</b><span class="small">Favorites · excluded</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div></div></details><details class="card progressive-card" ${activeSec === "budget" ? "open" : ""}><summary><b>Budget</b><span class="small">Price tiers</span></summary><div class="chips" style="margin-top:12px"><span class="chip">Under $100</span><span class="chip active">$100–$250</span><span class="chip active">$250–$1,000</span><span class="chip">$1,000+</span></div></details><details class="card progressive-card" ${activeSec === "events" ? "open" : ""}><summary><b>Repeating styling events</b><span class="small">Work · client dinners</span></summary><div class="stack" style="margin-top:12px"><p class="body">Weekly office day, Client dinner, Weekend social</p></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
+      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Muse follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack" style="margin-top:16px"><details class="card progressive-card" ${activeSec === "about" ? "open" : ""}><summary><b>About you</b><span class="small">Name · wardrobe · location</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" ${activeSec === "style" ? "open" : ""}><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" ${activeSec === "brands" ? "open" : ""}><summary><b>Brands &amp; Fit</b><span class="small">Favorites · sizes · fit notes</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div><div class="row"><div class="field grow"><label>Top size</label><input class="input" value="M · EU 38"></div><div class="field grow"><label>Bottom size</label><input class="input" value="EU 40 · W30"></div></div><div class="field"><label>Shoe size</label><input class="input" value="EU 39"></div><div class="field"><label>Brand fit notes</label><textarea class="textarea">COS outerwear runs relaxed; A.P.C. trousers fit snug at the waist.</textarea></div></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
       { active: "profile" },
     );
   }
@@ -7386,7 +7573,7 @@ function profileScreen(s) {
     const sec = settingsSection || "all";
     return shell(
       "Settings",
-      `<div class="settings-hero"><span class="settings-hero-icon">${icon("gear")}</span><span><p class="eyebrow">Account & app</p><h2 class="title">Settings</h2><p class="body">Control your profile, styling preferences, privacy, and access.</p></span></div><div class="stack" style="margin-top:14px"><details class="card progressive-card" ${sec === "photos" ? "open" : ""}><summary><b>Original photos &amp; media</b><span class="small">Storage · privacy</span></summary><div class="stack" style="margin-top:12px"><p class="body">Keep original high-resolution photos: On</p><p class="body">Local background cleanup: Enabled</p></div></details><details class="card progressive-card" ${sec === "notifications" ? "open" : ""}><summary><b>Notifications</b><span class="small">Daily ideas · trips · alerts</span></summary><div class="stack" style="margin-top:12px"><div class="select-row"><span class="grow">Daily styling ideas</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div><div class="select-row"><span class="grow">Trip reminders</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div></div></details><details class="card progressive-card" ${sec === "privacy" ? "open" : ""}><summary><b>Privacy &amp; visibility</b><span class="small">Profile · Twin · Closet</span></summary><div class="stack" style="margin-top:12px"><div class="select-row"><span class="grow">Private profile</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div><div class="select-row"><span class="grow">Style Twin visibility</span><b class="small">Only me</b></div></div></details><div class="settings-list" style="margin-top:14px"><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-04')"><span class="icon-wrap">${icon("spark")}</span><span class="grow"><b>Style Preferences</b><small class="body">Aesthetic, brands, budget</small></span><span>›</span></button><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-12')"><span class="icon-wrap">${icon("help")}</span><span class="grow">Tutorial &amp; Walkthrough</span><span>›</span></button><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-14')"><span class="icon-wrap">${icon("help")}</span><span class="grow">Help Center</span><span>›</span></button></div></div>`,
+      `<div class="settings-hero"><span class="settings-hero-icon">${icon("gear")}</span><span><p class="eyebrow">Account & app</p><h2 class="title">Settings</h2><p class="body">Control your profile, styling preferences, privacy, and access.</p></span></div><div class="stack" style="margin-top:14px"><details class="card progressive-card" ${sec === "photos" ? "open" : ""}><summary><b>Original photos &amp; media</b><span class="small">Storage · privacy</span></summary><div class="stack" style="margin-top:12px"><p class="body">Keep original high-resolution photos: On</p><p class="body">Local background cleanup: Enabled</p></div></details><details class="card progressive-card" ${sec === "notifications" ? "open" : ""}><summary><b>Notifications</b><span class="small">Daily ideas · trips · alerts</span></summary><div class="stack" style="margin-top:12px"><div class="select-row"><span class="grow">Daily styling ideas</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div><div class="select-row"><span class="grow">Trip reminders</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div></div></details><details class="card progressive-card" ${sec === "privacy" ? "open" : ""}><summary><b>Privacy &amp; visibility</b><span class="small">Profile · Twin · Closet</span></summary><div class="stack" style="margin-top:12px"><div class="select-row"><span class="grow">Private profile</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div><div class="select-row"><span class="grow">Style Twin visibility</span><b class="small">Only me</b></div></div></details><div class="settings-list" style="margin-top:14px"><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-04')"><span class="icon-wrap">${icon("spark")}</span><span class="grow"><b>Style Preferences</b><small class="body">Aesthetic, brands, and fit</small></span><span>›</span></button><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-12')"><span class="icon-wrap">${icon("help")}</span><span class="grow">Tutorial &amp; Walkthrough</span><span>›</span></button><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-14')"><span class="icon-wrap">${icon("help")}</span><span class="grow">Help Center</span><span>›</span></button></div></div>`,
       { active: "profile" },
     );
   }
@@ -7413,7 +7600,7 @@ function enrichCoreScreens(s) {
   if (s.id === "L-01") {
     content.insertAdjacentHTML(
       "beforeend",
-      `<section class="muse-profile"><div class="muse-profile-head"><img src="${assets.muse}" alt="Muse"><span class="grow"><p class="eyebrow">What Muse has learned</p><h3 class="title">Your style, in focus</h3></span><button class="btn small-btn" onclick="go('L-05')">Refine</button></div><p class="body">You lean toward warm neutrals, clean lines, and relaxed tailoring. You save structured layers but wear softer combinations most often.</p><div class="palette" aria-label="Your learned color palette"><i style="background:#241f1b"></i><i style="background:#8d623d"></i><i style="background:#d7c4a5"></i><i style="background:#eee7db"></i><i style="background:#788071"></i></div><button class="btn primary wide" onclick="go('M-01')">Open Muse profile</button></section><section class="card" style="margin-top:12px"><div class="between"><span><p class="eyebrow">Style evolution</p><b>Relaxed tailoring is up 18%</b></span><span class="pill gold">This month</span></div><div class="evolution-bar"><span></span></div><p class="body" style="margin-top:10px">Muse found 3 new combinations around your blazer without adding another purchase.</p><button class="btn wide" style="margin-top:12px" onclick="go('M-03')">See the wardrobe insight</button></section>`,
+      `<section class="muse-profile"><div class="muse-profile-head"><img src="${assets.muse}" alt="Muse"><span class="grow"><p class="eyebrow">What Muse has learned</p><h3 class="title">Your style, in focus</h3></span><button class="btn small-btn" onclick="openProfilePreferences('style')">Refine</button></div><p class="body">You lean toward warm neutrals, clean lines, and relaxed tailoring. You save structured layers but wear softer combinations most often.</p><div class="palette" aria-label="Your learned color palette"><i style="background:#241f1b"></i><i style="background:#8d623d"></i><i style="background:#d7c4a5"></i><i style="background:#eee7db"></i><i style="background:#788071"></i></div><button class="btn primary wide" onclick="go('M-01')">Open Muse profile</button></section><section class="card" style="margin-top:12px"><div class="between"><span><p class="eyebrow">Style evolution</p><b>Relaxed tailoring is up 18%</b></span><span class="pill gold">This month</span></div><div class="evolution-bar"><span></span></div><p class="body" style="margin-top:10px">Muse found 3 new combinations around your blazer without adding another purchase.</p><button class="btn wide" style="margin-top:12px" onclick="go('M-03')">See the wardrobe insight</button></section>`,
     );
   }
 }

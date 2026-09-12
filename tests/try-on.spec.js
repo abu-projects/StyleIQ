@@ -112,7 +112,7 @@ test('abandoned Try On does not hijack Profile Twin completion', async ({ page }
   expect(result.sourceScreen).toBe('L-01');
 });
 
-test('E-06 is unique and direct entry shares the Today result and angle state', async ({ page }) => {
+test('E-06 stays hidden as a compatibility route and preserves the Today result and angle state', async ({ page }) => {
   await openToday(page);
   await page.locator('.today-look-card').filter({ hasText: 'Asymmetric Black Dress' }).click();
   await tryOn(page).click();
@@ -122,8 +122,9 @@ test('E-06 is unique and direct entry shares the Today result and angle state', 
   await page.locator("#app").getByRole('button', { name: 'Back to selected Look' }).click();
   const ids = await page.locator('#screen-list [data-id]').evaluateAll(links => links.map(link => link.dataset.id));
   expect(new Set(ids).size).toBe(ids.length);
-  expect(ids.filter(id => id === 'E-06')).toHaveLength(1);
-  // Direct hash entry is also the path used by the mobile inventory.
+  expect(ids).toHaveLength(34);
+  expect(ids).not.toContain('E-06');
+  // Direct hash entry remains supported by the compatibility resolver.
   await page.goto('/index.html#E-06');
   await expect(page.locator('.tryon-screen')).toBeVisible();
   await expect(page.locator('.tryon-copy h2')).toHaveText('Asymmetric Black Dress');

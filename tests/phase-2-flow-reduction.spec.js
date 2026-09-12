@@ -23,8 +23,10 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     expect(await getCanonical(page)).toBe('A-16'); // Still Step 1
 
     // Fill email and request code - renders inline OTP without route change
+    await app(page).locator('#signup-first-name').fill('Alex');
+    await app(page).locator('#signup-last-name').fill('Morgan');
     await app(page).getByPlaceholder('name@email.com').fill('alex@example.com');
-    await app(page).getByRole('button', { name: 'Continue' }).click();
+    await app(page).getByRole('button', { name: 'Create Account' }).click();
     await expect(app(page).getByRole('button', { name: 'Verify email' })).toBeVisible();
     expect(await getCanonical(page)).toBe('A-16'); // Still Step 1
 
@@ -54,14 +56,43 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     await page.goto('/index.html#A-02');
     expect(await getCanonical(page)).toBe('A-02');
 
-    // Fill consolidated setup form
-    await app(page).locator('#signup-first-name').fill('Sam');
+    // Select personalization without repeating account identity fields.
     await app(page).getByRole('button', { name: 'Get dressed faster' }).click();
 
     // Click "Start with StyleIQ" -> completes setup in 1 step
     await app(page).getByRole('button', { name: 'Start with StyleIQ' }).click();
     expect(['D-02', 'C-01']).toContain(await getCanonical(page));
   });
+
+  test('A-16 owns identity while A-02 contains only wardrobe context and first goal', async ({ page }) => {
+    await page.goto('/index.html#A-16');
+    await app(page).getByRole('button', { name: 'Continue with email' }).click();
+    await expect(app(page).getByLabel('First Name')).toBeVisible();
+    await expect(app(page).getByLabel('Last Name')).toBeVisible();
+    await expect(app(page).getByLabel('Email', { exact: true })).toBeVisible();
+
+    await page.goto('/index.html#A-02');
+    await expect(app(page).getByRole('group', { name: 'Wardrobe context' })).toBeVisible();
+    await expect(app(page).getByText('What do you want StyleIQ to help with first?')).toBeVisible();
+    await expect(app(page).getByLabel('First Name')).toHaveCount(0);
+    await expect(app(page).getByLabel('Email', { exact: true })).toHaveCount(0);
+    await expect(app(page).getByText(/Build your closet/i)).toHaveCount(0);
+  });
+
+  for (const [goal, destination] of [
+    ['Get dressed faster', 'D-02'],
+    ['Make more outfits from Closet', 'B-01'],
+    ['Plan outfits', 'I-01'],
+    ['Shop more intentionally', 'G-08'],
+    ['Pack for a trip', 'J-02'],
+  ]) {
+    test(`A-02 routes the ${goal} goal to ${destination}`, async ({ page }) => {
+      await page.goto('/index.html#A-02');
+      await app(page).getByRole('button', { name: goal }).click();
+      await app(page).getByRole('button', { name: 'Start with StyleIQ' }).click();
+      expect(await getCanonical(page)).toBe(destination);
+    });
+  }
 
   test('Flow 4 & 5: Closet Intake & Review (B-01 -> B-06 -> C-01 in <= 2 steps)', async ({ page }) => {
     // Step 1: B-01 universal intake
@@ -217,6 +248,15 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     await expect(app(page).getByRole('heading', { name: /Profile & Style Preferences/i }).first()).toBeVisible();
   });
 
+  test('L-04 owns coherent profile preferences and excludes budget and recurring events', async ({ page }) => {
+    await page.goto('/index.html#L-04');
+    for (const section of ['About you', 'Style preferences', 'Brands & Fit', 'Style Inspiration']) {
+      await expect(app(page).getByText(section, { exact: true }).first()).toBeVisible();
+    }
+    await expect(app(page).getByText('Shopping budget', { exact: true })).toHaveCount(0);
+    await expect(app(page).getByText('Recurring events', { exact: true })).toHaveCount(0);
+  });
+
   test('Flow 20: Settings (L-01 -> L-11 in 2 steps)', async ({ page }) => {
     await page.goto('/index.html#L-01');
     expect(await getCanonical(page)).toBe('L-01');
@@ -255,6 +295,53 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     // #L-05 resolves to canonical L-04
     await page.goto('/index.html#L-05');
     expect(await getCanonical(page)).toBe('L-04');
+  });
+
+  test('Phase 2 compatibility routes open their canonical owner and intended state', async ({ page }) => {
+    const cases = [
+      ['A-06', 'B-01', 'Choose garment photos'],
+      ['I-02', 'I-01', 'Planner Insights'],
+      ['I-03', 'I-01', 'Planned looks & events'],
+      ['I-06', 'I-01', 'Share Planner'],
+      ['L-07', 'G-08', 'Shopping budget'],
+      ['L-08', 'I-01', 'Recurring events'],
+    ];
+    for (const [legacy, canonical, visibleText] of cases) {
+      await page.goto(`/index.html#${legacy}`);
+      expect(await getCanonical(page)).toBe(canonical);
+      expect(await getScreen(page)).toBe(legacy);
+      await expect(app(page).getByText(visibleText, { exact: true }).first()).toBeVisible();
+    }
+  });
+
+  test('Visible inventory contains only the 34 canonical screens', async ({ page }) => {
+    await page.goto('/index.html#D-02');
+    const ids = await page.locator('#screen-list [data-id]').evaluateAll(links =>
+      links.map(link => link.dataset.id)
+    );
+    expect(ids).toEqual([
+      'S-00', 'S-01',
+      'A-01', 'A-02', 'A-16',
+      'B-01', 'B-06',
+      'C-01', 'C-02',
+      'D-02',
+      'F-01',
+      'G-01', 'G-02', 'G-08', 'G-09',
+      'H-01', 'H-06', 'H-10', 'H-11', 'H-12', 'H-13',
+      'I-01', 'I-04',
+      'J-01', 'J-02', 'J-08',
+      'K-01', 'K-04',
+      'L-01', 'L-04', 'L-11', 'L-12', 'L-14',
+      'M-01',
+    ]);
+    await expect(page.locator('#total-count')).toHaveText('34 / 34');
+    await expect(page.locator('#screen-list')).not.toContainText('OUTFIT ACTIONS');
+    const counts = await page.evaluate(() => ({
+      visible: screens.length,
+      compatibility: routeScreens.length - screens.length,
+      supported: routeScreens.length,
+    }));
+    expect(counts).toEqual({ visible: 34, compatibility: 93, supported: 127 });
   });
 
 });
