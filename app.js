@@ -496,6 +496,24 @@ let authInlineState = "providers", // "providers" | "email" | "otp"
   plannerRecurringEditorOpen = false,
   settingsSection = "general",
   discoverSearchOpen = false;
+const defaultSettingsPreferences = {
+  keepOriginalPhotos: true,
+  backgroundCleanup: true,
+  dailyStylingIdeas: true,
+  tripReminders: true,
+  privateProfile: true,
+  styleTwinVisibility: "Only me",
+};
+let settingsPreferences = (() => {
+  try {
+    return {
+      ...defaultSettingsPreferences,
+      ...JSON.parse(localStorage.getItem("styleiqSettingsV1")),
+    };
+  } catch {
+    return { ...defaultSettingsPreferences };
+  }
+})();
 let currentId = location.hash.slice(1) || "S-00",
   overlay = null,
   lightweightPanel = null,
@@ -2118,6 +2136,31 @@ function inlineEditRow(label, value, extra = "") {
   const id = `inline-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
   return `<div class="inline-edit-row"><label for="${id}">${label}</label><input id="${id}" class="input" value="${escapeMarkup(value)}" ${extra}></div>`;
 }
+function settingsToggle(key, label) {
+  const enabled = Boolean(settingsPreferences[key]);
+  return `<button class="settings-toggle${enabled ? " on" : ""}" type="button" role="switch" aria-checked="${enabled}" aria-label="${label}" onclick="toggleSettingsPreference('${key}', this)"><span aria-hidden="true"></span></button>`;
+}
+function persistSettingsPreferences() {
+  localStorage.setItem("styleiqSettingsV1", JSON.stringify(settingsPreferences));
+}
+function toggleSettingsPreference(key, control) {
+  settingsPreferences[key] = !settingsPreferences[key];
+  persistSettingsPreferences();
+  control.classList.toggle("on", settingsPreferences[key]);
+  control.setAttribute("aria-checked", String(settingsPreferences[key]));
+}
+function updateStyleTwinVisibility(value, control) {
+  settingsPreferences.styleTwinVisibility = value;
+  persistSettingsPreferences();
+  control
+    .closest(".settings-segmented")
+    ?.querySelectorAll("button")
+    .forEach((button) => {
+      const selected = button === control;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+}
 function approvalCard(title, description) {
   return `<div class="approval-card"><span class="icon-wrap">${icon("check")}</span><span><b>${title}</b><small>${description}</small></span></div>`;
 }
@@ -2794,6 +2837,15 @@ function completeOnboarding(destination = "D-02") {
   localStorage.removeItem("styleiqOnboardingClosetPendingV1");
   go(destination);
 }
+function completeSignIn(destination = "D-02") {
+  customerScenario = "existing";
+  syncCustomerScenarioUrl();
+  if (closetItemCount() === 0) {
+    closetState.size = 12;
+    localStorage.setItem("styleiqClosetSizeV1", String(closetState.size));
+  }
+  completeOnboarding(destination);
+}
 function startNewUserOnboarding(destination = "A-02") {
   customerScenario = "new";
   syncCustomerScenarioUrl();
@@ -2994,7 +3046,7 @@ function selectSetupOption(kind, value, button) {
 function onboarding(s) {
   let main = "";
   if (s.id === "A-01")
-    main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Welcome back</p><h1 class="display">Sign in to your wardrobe.</h1><p class="body">Pick up where you left off with your Closet, Looks, plans, and Muse preferences.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="login-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="login-email" class="input auth-screen-input" type="email" autocomplete="email" placeholder="name@email.com"></div></div><div class="field"><div class="auth-field-label"><label for="login-password">Password</label><button class="auth-inline-link" type="button" onclick="toast('Password reset link sent')">Forgot password?</button></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("lock-keyhole")}</span><input id="login-password" class="input auth-screen-input" type="password" autocomplete="current-password" placeholder="Enter your password"></div></div><button class="btn primary wide auth-primary" type="button" onclick="completeOnboarding('D-02')">Sign in</button></div><div class="auth-divider"><span>or continue with</span></div><div class="auth-social-grid"><button class="btn auth-provider" type="button" aria-label="Sign in with Google" onclick="completeOnboarding('D-02')">${authIcon("google")}<span>Google</span></button><button class="btn auth-provider" type="button" aria-label="Sign in with Apple" onclick="completeOnboarding('D-02')">${authIcon("apple")}<span>Apple</span></button></div></div></div><div class="auth-switch"><span>Don’t have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-16')">Sign up</button></div></div>`;
+    main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Welcome back</p><h1 class="display">Sign in to your wardrobe.</h1><p class="body">Pick up where you left off with your Closet, Looks, plans, and Muse preferences.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="login-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="login-email" class="input auth-screen-input" type="email" autocomplete="email" placeholder="name@email.com"></div></div><div class="field"><div class="auth-field-label"><label for="login-password">Password</label><button class="auth-inline-link" type="button" onclick="toast('Password reset link sent')">Forgot password?</button></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("lock-keyhole")}</span><input id="login-password" class="input auth-screen-input" type="password" autocomplete="current-password" placeholder="Enter your password"></div></div><button class="btn primary wide auth-primary" type="button" onclick="completeSignIn('D-02')">Sign in</button></div><div class="auth-divider"><span>or continue with</span></div><div class="auth-social-grid"><button class="btn auth-provider" type="button" aria-label="Sign in with Google" onclick="completeSignIn('D-02')">${authIcon("google")}<span>Google</span></button><button class="btn auth-provider" type="button" aria-label="Sign in with Apple" onclick="completeSignIn('D-02')">${authIcon("apple")}<span>Apple</span></button></div></div></div><div class="auth-switch"><span>Don’t have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-16')">Sign up</button></div></div>`;
   else if (s.id === "A-16") {
     if (authInlineState === "email") {
       main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Create your account.</h1><p class="body">Account identity stays here. Personalization comes next.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="row"><div class="field grow"><label for="signup-first-name">First Name</label><input id="signup-first-name" class="input auth-screen-input" required autocomplete="given-name" value="${escapeMarkup(accountIdentity.firstName || '')}"></div><div class="field grow"><label for="signup-last-name">Last Name</label><input id="signup-last-name" class="input auth-screen-input" required autocomplete="family-name" value="${escapeMarkup(accountIdentity.lastName || '')}"></div></div><div class="field"><div class="auth-field-label"><label for="signup-email">Email</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" value="${escapeMarkup(accountIdentity.email || otpSession.email || '')}" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="beginOtpInline()">Create Account</button><div style="text-align:center;margin-top:10px"><button class="auth-inline-link" type="button" onclick="authInlineState='providers';render()">Back to account options</button></div></div></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
@@ -3862,6 +3914,9 @@ let activeCreatorId = "maya-chen";
 let activeCreatorLookId = "maya-work";
 let creatorFilter = "All";
 let creatorSearchQuery = "";
+let followedCreatorIds = readWishlistData("styleiqFollowedCreatorsV1", []).filter(
+  (id) => creatorDataset.some((creator) => creator.id === id),
+);
 let studioSourceContext = null; // 'creator' | 'scratch' | 'closet' | 'muse' | 'draft' | null
 let creatorReferenceContext = null;
 
@@ -3875,6 +3930,54 @@ function getCreatorLook(lookId = activeCreatorLookId) {
     if (l) return { ...l, creator: c };
   }
   return { ...creatorDataset[0].looks[0], creator: creatorDataset[0] };
+}
+
+function isCreatorFollowed(creatorId) {
+  return followedCreatorIds.includes(creatorId);
+}
+
+function toggleCreatorFollow(creatorId) {
+  const creator = getCreator(creatorId);
+  if (isCreatorFollowed(creatorId)) {
+    followedCreatorIds = followedCreatorIds.filter((id) => id !== creatorId);
+  } else {
+    followedCreatorIds = [...followedCreatorIds, creatorId];
+  }
+  localStorage.setItem(
+    "styleiqFollowedCreatorsV1",
+    JSON.stringify(followedCreatorIds),
+  );
+  render();
+  toast(
+    isCreatorFollowed(creatorId)
+      ? `Following ${creator.name}`
+      : `Unfollowed ${creator.name}`,
+  );
+}
+
+function followedCreatorsSection() {
+  const creators = creatorDataset.filter((creator) =>
+    isCreatorFollowed(creator.id),
+  );
+  return `<section class="mirror-section followed-creators-section" aria-label="Creators I follow">
+    <div class="mirror-section-head">
+      <span><p class="eyebrow">Inspiration</p><h3>Creators I follow</h3></span>
+      <button class="text-action" onclick="go('H-11')">${creators.length ? "View all" : "Find creators"} ${icon("arrow-right")}</button>
+    </div>
+    ${
+      creators.length
+        ? `<div class="followed-creators-rail">${creators
+            .map(
+              (creator) => `<button class="followed-creator-card" onclick="openCreatorProfile('${creator.id}')">
+                <img src="${creator.avatar}" alt="">
+                <span><b>${escapeMarkup(creator.name)}</b><small>${escapeMarkup(creator.styleDirection)}</small></span>
+                ${icon("chevron-right")}
+              </button>`,
+            )
+            .join("")}</div>`
+        : `<div class="followed-creators-empty"><span class="followed-creators-empty-icon">${icon("users")}</span><span><b>Your creator edit starts here</b><small>Follow creators to keep their newest looks close.</small></span></div>`
+    }
+  </section>`;
 }
 
 function openCreatorProfile(creatorId) {
@@ -4261,6 +4364,7 @@ function studioCreatorMatching() {
 function creatorDiscoveryScreen() {
   const categories = [
     "All",
+    "Following",
     "Minimal",
     "Classic",
     "Work",
@@ -4279,6 +4383,7 @@ function creatorDiscoveryScreen() {
   const filteredLooks = allLooks.filter((look) => {
     const matchesFilter =
       creatorFilter === "All" ||
+      (creatorFilter === "Following" && isCreatorFollowed(look.creator.id)) ||
       look.styleDirection.includes(creatorFilter) ||
       look.occasion === creatorFilter ||
       look.creator.dominantTags.includes(creatorFilter);
@@ -4296,6 +4401,7 @@ function creatorDiscoveryScreen() {
   const filteredCreators = creatorDataset.filter((creator) => {
     const matchesFilter =
       creatorFilter === "All" ||
+      (creatorFilter === "Following" && isCreatorFollowed(creator.id)) ||
       creator.dominantTags.includes(creatorFilter) ||
       creator.styleDirection.includes(creatorFilter);
 
@@ -4347,7 +4453,10 @@ function creatorDiscoveryScreen() {
                 <small class="body">${escapeMarkup(creator.styleDirection)}</small>
               </div>
             </div>
-            <button class="btn small-btn wide" onclick="openCreatorProfile('${creator.id}')">View Creator</button>
+            <div class="creator-card-actions">
+              <button class="btn small-btn grow" onclick="openCreatorProfile('${creator.id}')">View Creator</button>
+              <button class="btn small-btn creator-follow-mini${isCreatorFollowed(creator.id) ? " is-following" : ""}" aria-pressed="${isCreatorFollowed(creator.id)}" aria-label="${isCreatorFollowed(creator.id) ? "Unfollow" : "Follow"} ${escapeMarkup(creator.name)}" onclick="toggleCreatorFollow('${creator.id}')">${isCreatorFollowed(creator.id) ? icon("check") : icon("plus")} ${isCreatorFollowed(creator.id) ? "Following" : "Follow"}</button>
+            </div>
           </div>
         `,
           )
@@ -4403,6 +4512,7 @@ function creatorProfileScreen() {
         <img src="${creator.avatar}" alt="${escapeMarkup(creator.name)}" class="creator-profile-avatar">
         <h2 class="title creator-profile-name">${escapeMarkup(creator.name)}</h2>
         <p class="creator-profile-meta">${creator.looks.length} looks to explore <span>·</span> Demo profile</p>
+        <button class="btn creator-profile-follow${isCreatorFollowed(creator.id) ? " is-following" : ""}" aria-pressed="${isCreatorFollowed(creator.id)}" onclick="toggleCreatorFollow('${creator.id}')">${isCreatorFollowed(creator.id) ? icon("check") : icon("plus")} ${isCreatorFollowed(creator.id) ? "Following" : "Follow creator"}</button>
       </div>
     </header>
 
@@ -5704,6 +5814,12 @@ function mirrorDiscover() {
   const creatorPreviews = creatorDataset
     .flatMap((c) => c.looks.slice(0, 1).map((l) => ({ ...l, creator: c })))
     .slice(0, 4);
+  const followedCreators = creatorDataset.filter((creator) =>
+    isCreatorFollowed(creator.id),
+  );
+  const followedLooks = followedCreators.flatMap((creator) =>
+    creator.looks.slice(0, 2).map((look) => ({ ...look, creator })),
+  );
   const filterTabs = AppTabs({
     id: "discover-filter-tabs",
     label: "Discover filters",
@@ -5716,11 +5832,14 @@ function mirrorDiscover() {
   });
   const stylistLooks = activeFilter === "Stylists" ? creatorPreviews : creatorPreviews.slice(0, 1);
   const stylistSection = `<section class="mirror-section discover-feed-section creator-insp-module" aria-label="Stylist inspiration"><div class="mirror-section-head"><span><p class="eyebrow">Stylist inspiration</p><h3>${activeFilter === "Stylists" ? "Stylists to know" : "Looks worth making your own"}</h3></span><button class="text-action" onclick="go('H-11')">View all ${icon("arrow-right")}</button></div><div class="discover-look-stack">${stylistLooks.map((look) => `<button class="discover-feature-look" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b><em>${escapeMarkup(look.styleDirection || look.occasion)}</em></span></button>`).join("")}</div></section>`;
+  const followingSection = `<section class="mirror-section discover-feed-section creator-insp-module" aria-label="Creators you follow"><div class="mirror-section-head"><span><p class="eyebrow">Following</p><h3>${followedCreators.length ? "From creators you follow" : "Your following feed is ready"}</h3></span><button class="text-action" onclick="go('H-11')">${followedCreators.length ? "Manage" : "Find creators"} ${icon("arrow-right")}</button></div>${followedCreators.length ? `<div class="discover-following-creators">${followedCreators.map((creator) => `<button class="discover-following-creator" onclick="openCreatorProfile('${creator.id}')"><img src="${creator.avatar}" alt=""><span><b>${escapeMarkup(creator.name)}</b><small>${creator.looks.length} looks</small></span></button>`).join("")}</div><div class="discover-look-stack">${followedLooks.map((look) => `<button class="discover-feature-look discover-feature-look--compact" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b><em>${escapeMarkup(look.styleDirection || look.occasion)}</em></span></button>`).join("")}</div>` : `<div class="empty discover-empty"><p class="body">Follow a creator to see their newest looks here.</p><button class="btn" onclick="go('H-11')">Browse creators</button></div>`}</section>`;
   const communitySection = `<section class="mirror-section discover-feed-section" aria-label="${activeFilter} looks"><div class="mirror-section-head"><span><p class="eyebrow">${activeFilter === "Brands" ? "Brand edit" : activeFilter}</p><h3>${visible.length ? (activeFilter === "Following" ? "From people you follow" : "Outfits on your radar") : "Nothing here yet"}</h3></span>${visible.length ? `<button class="text-action" onclick="go('H-11')">View all ${icon("arrow-right")}</button>` : ""}</div>${visible.length ? `<div class="discover-look-stack">${visible.slice(0, 2).map((item, index) => `<button class="discover-feature-look discover-feature-look--compact" onclick="openCommunityLook('${item.id}')"><img src="${assets[["look3", "look2", "look4"][index]]}" alt="${escapeMarkup(item.title)}"><span><small>${escapeMarkup(item.creator)} · ${escapeMarkup(item.brand)}</small><b>${escapeMarkup(item.title)}</b></span></button>`).join("")}</div>` : `<div class="empty discover-empty"><p class="body">Follow stylists and creators to build this feed.</p><button class="btn" onclick="setDiscoverFilter('For You')">Explore For You</button></div>`}</section>`;
   const productSection = `<section class="mirror-section discover-feed-section" aria-label="Trending pieces"><div class="mirror-section-head"><span><p class="eyebrow">Trending pieces</p><h3>Most-loved right now</h3></span><button class="text-action" onclick="openDiscoverSearch()">View all ${icon("arrow-right")}</button></div><div class="wishlist-grid">${[wishlistProduct("leather-loafers"), wishlistProduct("shoulder-bag")].map((item) => wishlistProductCard(item)).join("")}</div></section>`;
   const discoverFeed = activeFilter === "Stylists"
     ? stylistSection
-    : activeFilter === "Following" || selectedBrand
+    : activeFilter === "Following"
+      ? followingSection
+      : selectedBrand
       ? communitySection
       : activeFilter === "Brands"
         ? `${communitySection}${productSection}`
@@ -5738,7 +5857,7 @@ function openProfileTwin() {
 function newCustomerProfile() {
   return shell(
     "My Atelier",
-    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Your style profile will learn as you use StyleIQ.</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="empty image-first-empty profile-first-state"><div><div class="empty-art"><img src="${assets.blazer}" alt="A first wardrobe piece"></div><p class="eyebrow">Start your Atelier</p><h2 class="title">Your profile grows from your real wardrobe.</h2><p class="body">Add one piece to unlock Closet-based Looks, or create your private Style Twin when you want to preview an outfit.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item</button><button class="btn wide" style="margin-top:8px" onclick="openProfileTwin()">Create private preview</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Save pieces to review later</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Not created yet</small></button></div>`,
+    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Your style profile will learn as you use StyleIQ.</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="empty image-first-empty profile-first-state"><div><div class="empty-art"><img src="${assets.blazer}" alt="A first wardrobe piece"></div><p class="eyebrow">Start your Atelier</p><h2 class="title">Your profile grows from your real wardrobe.</h2><p class="body">Add one piece to unlock Closet-based Looks, or create your private Style Twin when you want to preview an outfit.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item</button><button class="btn wide" style="margin-top:8px" onclick="openProfileTwin()">Create private preview</button></div></section>${followedCreatorsSection()}<div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Save pieces to review later</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Not created yet</small></button></div>`,
     { active: "profile" },
   );
 }
@@ -5746,7 +5865,7 @@ function mirrorProfile() {
   if (!isExistingCustomer()) return newCustomerProfile();
   return shell(
     "My Atelier",
-    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button onclick="go('G-01')">View All</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-01')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section><section class="mirror-profile-preview"><p class="eyebrow">My Closet</p><h3 class="title" style="font-size:20px">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body" style="display:block">1 owned piece</small></span><button class="btn small-btn" onclick="openTodayAlternatives()">Style</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Pieces under review</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
+    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button onclick="go('G-01')">View All</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-01')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section><section class="mirror-profile-preview"><p class="eyebrow">My Closet</p><h3 class="title" style="font-size:20px">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body" style="display:block">1 owned piece</small></span><button class="btn small-btn" onclick="openTodayAlternatives()">Style</button></div></section>${followedCreatorsSection()}<div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Pieces under review</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
     { active: "profile" },
   );
 }
@@ -7587,7 +7706,7 @@ function profileScreen(s) {
     const activeSec = profilePrefSection || (idx === 5 ? "style" : idx === 6 ? "brands" : "about");
     return shell(
       "Profile & Style Preferences",
-      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Muse follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack" style="margin-top:16px"><details class="card progressive-card" ${activeSec === "about" ? "open" : ""}><summary><b>About you</b><span class="small">Name · wardrobe · location</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" ${activeSec === "style" ? "open" : ""}><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" ${activeSec === "brands" ? "open" : ""}><summary><b>Brands &amp; Fit</b><span class="small">Favorites · sizes · fit notes</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div><div class="row"><div class="field grow"><label>Top size</label><input class="input" value="M · EU 38"></div><div class="field grow"><label>Bottom size</label><input class="input" value="EU 40 · W30"></div></div><div class="field"><label>Shoe size</label><input class="input" value="EU 39"></div><div class="field"><label>Brand fit notes</label><textarea class="textarea">COS outerwear runs relaxed; A.P.C. trousers fit snug at the waist.</textarea></div></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
+      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Muse follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack preferences-form" style="margin-top:16px"><details class="card progressive-card" ${activeSec === "about" ? "open" : ""}><summary><b>About you</b><span class="small">Name · wardrobe · location</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" ${activeSec === "style" ? "open" : ""}><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" ${activeSec === "brands" ? "open" : ""}><summary><b>Brands &amp; Fit</b><span class="small">Favorites · sizes · fit notes</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div><div class="row"><div class="field grow"><label>Top size</label><input class="input" value="M · EU 38"></div><div class="field grow"><label>Bottom size</label><input class="input" value="EU 40 · W30"></div></div><div class="field"><label>Shoe size</label><input class="input" value="EU 39"></div><div class="field"><label>Brand fit notes</label><textarea class="textarea">COS outerwear runs relaxed; A.P.C. trousers fit snug at the waist.</textarea></div></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
       { active: "profile" },
     );
   }
@@ -7623,10 +7742,55 @@ function profileScreen(s) {
     return profileScreen({ ...s, id: "L-11" });
   }
   if (idx === 11) {
-    const sec = settingsSection || "all";
     return shell(
       "Settings",
-      `<div class="settings-hero"><span class="settings-hero-icon">${icon("gear")}</span><span><p class="eyebrow">Account & app</p><h2 class="title">Settings</h2><p class="body">Control your profile, styling preferences, privacy, and access.</p></span></div><div class="stack" style="margin-top:14px"><details class="card progressive-card" ${sec === "photos" ? "open" : ""}><summary><b>Original photos &amp; media</b><span class="small">Storage · privacy</span></summary><div class="stack" style="margin-top:12px"><p class="body">Keep original high-resolution photos: On</p><p class="body">Local background cleanup: Enabled</p></div></details><details class="card progressive-card" ${sec === "notifications" ? "open" : ""}><summary><b>Notifications</b><span class="small">Daily ideas · trips · alerts</span></summary><div class="stack" style="margin-top:12px"><div class="select-row"><span class="grow">Daily styling ideas</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div><div class="select-row"><span class="grow">Trip reminders</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div></div></details><details class="card progressive-card" ${sec === "privacy" ? "open" : ""}><summary><b>Privacy &amp; visibility</b><span class="small">Profile · Twin · Closet</span></summary><div class="stack" style="margin-top:12px"><div class="select-row"><span class="grow">Private profile</span><button class="toggle on" onclick="this.classList.toggle('on')"><span></span></button></div><div class="select-row"><span class="grow">Style Twin visibility</span><b class="small">Only me</b></div></div></details><div class="settings-list" style="margin-top:14px"><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-04')"><span class="icon-wrap">${icon("spark")}</span><span class="grow"><b>Style Preferences</b><small class="body">Aesthetic, brands, and fit</small></span><span>›</span></button><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-12')"><span class="icon-wrap">${icon("help")}</span><span class="grow">Tutorial &amp; Walkthrough</span><span>›</span></button><button class="select-row" style="width:100%;border:0;background:transparent;text-align:left" onclick="go('L-14')"><span class="icon-wrap">${icon("help")}</span><span class="grow">Help Center</span><span>›</span></button></div></div>`,
+      `<main class="settings-page">
+        <div class="settings-hero">
+          <span class="settings-hero-icon">${icon("gear")}</span>
+          <span><p class="eyebrow">Account &amp; app</p><h2 class="title">Your settings</h2><p class="body">Manage your experience, privacy, and access in one place.</p></span>
+        </div>
+
+        <div class="settings-card-grid">
+          <section class="settings-card" aria-labelledby="settings-media-title">
+            <div class="settings-card-head">
+              <span class="settings-card-icon">${icon("image")}</span>
+              <span class="grow"><h3 id="settings-media-title">Photos &amp; media</h3><p>Storage and image processing</p></span>
+            </div>
+            <div class="settings-card-body">
+              <div class="settings-control-row"><span><b>Keep original photos</b><small>Save high-resolution uploads</small></span>${settingsToggle("keepOriginalPhotos", "Keep original photos")}</div>
+              <div class="settings-control-row"><span><b>Background cleanup</b><small>Process images on this device</small></span>${settingsToggle("backgroundCleanup", "Background cleanup")}</div>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settings-notifications-title">
+            <div class="settings-card-head">
+              <span class="settings-card-icon">${icon("bell")}</span>
+              <span class="grow"><h3 id="settings-notifications-title">Notifications</h3><p>Ideas, trips, and useful alerts</p></span>
+            </div>
+            <div class="settings-card-body">
+              <div class="settings-control-row"><span><b>Daily styling ideas</b><small>A fresh outfit suggestion each morning</small></span>${settingsToggle("dailyStylingIdeas", "Daily styling ideas")}</div>
+              <div class="settings-control-row"><span><b>Trip reminders</b><small>Packing nudges before your plans</small></span>${settingsToggle("tripReminders", "Trip reminders")}</div>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settings-privacy-title">
+            <div class="settings-card-head">
+              <span class="settings-card-icon">${icon("eye")}</span>
+              <span class="grow"><h3 id="settings-privacy-title">Privacy &amp; visibility</h3><p>Control what others can see</p></span>
+            </div>
+            <div class="settings-card-body">
+              <div class="settings-control-row"><span><b>Private profile</b><small>Only approved people can view it</small></span>${settingsToggle("privateProfile", "Private profile")}</div>
+              <div class="settings-choice-row"><span><b>Style Twin visibility</b><small>Your virtual try-on profile</small></span><div class="settings-segmented" role="group" aria-label="Style Twin visibility">${["Only me", "Followers", "Everyone"].map((option) => `<button type="button" class="${settingsPreferences.styleTwinVisibility === option ? "selected" : ""}" aria-pressed="${settingsPreferences.styleTwinVisibility === option}" onclick="updateStyleTwinVisibility('${option}', this)">${option}</button>`).join("")}</div></div>
+            </div>
+          </section>
+
+          <section class="settings-card settings-links-card" aria-label="Preferences and support">
+            <button class="settings-link-row" onclick="go('L-04')"><span class="settings-card-icon">${icon("spark")}</span><span class="grow"><b>Style preferences</b><small>Aesthetic, brands, and fit</small></span><span class="settings-chevron">›</span></button>
+            <button class="settings-link-row" onclick="go('L-12')"><span class="settings-card-icon">${icon("play-circle")}</span><span class="grow"><b>Tutorial &amp; walkthrough</b><small>Learn the StyleIQ essentials</small></span><span class="settings-chevron">›</span></button>
+            <button class="settings-link-row" onclick="go('L-14')"><span class="settings-card-icon">${icon("help")}</span><span class="grow"><b>Help center</b><small>Guides and support</small></span><span class="settings-chevron">›</span></button>
+          </section>
+        </div>
+      </main>`,
       { active: "profile" },
     );
   }

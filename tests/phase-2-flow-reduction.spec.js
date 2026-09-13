@@ -65,7 +65,21 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     // Direct sign-in routes to D-02 Today
     await app(page).getByRole('button', { name: 'Sign in' }).first().click();
     expect(await getCanonical(page)).toBe('D-02');
+    await expect(app(page).getByRole('heading', { name: 'Good morning, Amelia' })).toBeVisible();
+    await expect(app(page).getByText('Muse Starter Look')).toHaveCount(0);
+    expect(new URL(page.url()).searchParams.get('customer')).toBe('existing');
   });
+
+  for (const provider of ['Google', 'Apple']) {
+    test(`${provider} sign-in opens the existing-user Today experience`, async ({ page }) => {
+      await page.goto('/index.html?customer=new#A-01');
+      await app(page).getByRole('button', { name: `Sign in with ${provider}` }).click();
+
+      expect(await getCanonical(page)).toBe('D-02');
+      await expect(app(page).getByRole('heading', { name: 'Good morning, Amelia' })).toBeVisible();
+      expect(new URL(page.url()).searchParams.get('customer')).toBe('existing');
+    });
+  }
 
   test('Flow 3: First-use setup (A-02 consolidated setup in 1 step)', async ({ page }) => {
     await page.goto('/index.html#A-02');
