@@ -7048,7 +7048,12 @@ function menswearStudioArt(role, index) {
 function menswearInstantPreview() {
   const roles = Object.keys(menswearStudioWardrobe).filter(role => instantWardrobeIndex(role) >= 0);
   const description = roles.map(role => instantWardrobe[role][instantWardrobeIndex(role)]).join(', ');
-  return `<div class="instant-menswear-flat" aria-label="Selected menswear outfit: ${escapeMarkup(description)}">${roles.map(role => `<button class="menswear-flat-${role.toLowerCase()}" aria-label="Change ${escapeMarkup(instantWardrobe[role][instantWardrobeIndex(role)])}" onclick="focusInstantCategory('${role}')">${menswearStudioArt(role, instantWardrobeIndex(role))}</button>`).join('')}</div>`;
+  const jacket = instantWardrobeIndex('Outerwear');
+  return `<div class="instant-avatar instant-male-avatar${jacket >= 0 ? ' has-male-jacket' : ''}" role="img" aria-label="Male avatar · Front outfit preview: ${escapeMarkup(description)}">
+    ${['Top', 'Bottom', 'Shoes'].map(role => `<span class="instant-male-layer male-${role.toLowerCase()}" style="--variant:${instantWardrobeIndex(role)}"></span>`).join('')}
+    ${jacket >= 0 ? `<span class="instant-male-layer male-jacket" style="--variant:${jacket}"></span>` : ''}
+    ${roles.includes('Watch') ? `<span class="instant-male-watch">${menswearStudioArt('Watch', instantWardrobeIndex('Watch'))}</span>` : ''}
+  </div>${roles.map((role,index) => `<button class="instant-worn" style="--chip-row:${Math.floor(index / 2)};--chip-side:${index % 2}" aria-label="Change ${escapeMarkup(instantWardrobe[role][instantWardrobeIndex(role)])}" onclick="focusInstantCategory('${role}')">${menswearStudioArt(role, instantWardrobeIndex(role))}</button>`).join('')}`;
 }
 const instantLabels = { Top:'Tops', Bottom:'Bottoms', Shoes:'Shoes', Outerwear:'Jackets', Dress:'Dresses', Glasses:'Sunglasses', Earrings:'Earrings', Watch:'Watches' };
 const instantAccessoryRoles = ['Glasses', 'Earrings', 'Watch'];
@@ -7109,7 +7114,7 @@ function setInstantPose(index) {
   refreshInstantWardrobe();
 }
 function instantPoseControls() {
-  if (stylingContext === 'Menswear') return '<span class="instant-pose-note">Flat lay · Your selected outfit</span>';
+  if (stylingContext === 'Menswear') return '<span class="instant-pose-note">Front view · Custom outfit</span>';
   const choices = instantPoseChoices();
   const pose = Math.min(canvasState.photoPose || 0, choices.length - 1);
   return choices.length === 1 ? '<span class="instant-pose-note">Front view · Custom outfit</span>' : choices.map((name, index) => `<button aria-label="${name} view" aria-pressed="${pose === index}" onclick="setInstantPose(${index})">${name}</button>`).join('');

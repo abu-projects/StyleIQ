@@ -16939,6 +16939,24 @@ summary:focus-visible {
   background-position: calc(var(--product-column) * 100% / 3) var(--product-y);
 }
 .instant-worn .instant-menswear-art { width: 38px; height: 44px; }
+.instant-male-layer {
+  position: absolute;
+  inset: 0;
+  background: url('images/studio-male-avatar-sheet.png') no-repeat;
+  background-size: 400% 200%;
+  background-position: calc(var(--variant) * 100% / 3) 0;
+}
+.instant-male-avatar .male-top { clip-path: inset(0 0 61%); }
+.instant-male-avatar .male-bottom { clip-path: inset(39% 0 16%); }
+/* Leave a gap below the shoes: the next sprite row starts before the cell edge. */
+.instant-male-avatar .male-shoes { clip-path: inset(84% 0 8%); }
+.instant-male-avatar .male-jacket {
+  background-position-y: 100%;
+  transform: translateY(6%);
+  clip-path: polygon(0 8%, 38% 8%, 43% 33%, 57% 33%, 62% 8%, 100% 8%, 100% 48%, 62% 48%, 62% 36%, 38% 36%, 38% 48%, 0 48%);
+}
+.instant-male-watch { position: absolute; top: 48%; left: 18%; width: 7%; height: 4%; overflow: hidden; }
+.instant-male-watch .instant-menswear-art { width: 100%; height: 100%; }
 .instant-menswear-flat { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 8px; width: 100%; padding: 8px 22px; }
 .instant-menswear-flat button { display: grid; place-items: center; min-width: 0; padding: 0; border: 0; background: transparent; }
 .instant-menswear-flat .instant-menswear-art { width: 90px; height: 110px; }
