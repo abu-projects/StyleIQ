@@ -363,15 +363,29 @@ const assets = {
 };
 const defaultProfilePhoto = peoplePhotos.womanPortrait;
 const savedProfilePhoto = localStorage.getItem("styleiqProfilePhotoV1");
-if (savedProfilePhoto?.startsWith("data:image/")) assets.profile = savedProfilePhoto;
+if (savedProfilePhoto?.startsWith("data:image/") || [peoplePhotos.womanFashion, peoplePhotos.manFashion].includes(savedProfilePhoto)) assets.profile = savedProfilePhoto;
 
 function profilePhotoEditor() {
   const hasCustomPhoto = assets.profile !== defaultProfilePhoto;
   return `<section class="profile-photo-editor" aria-label="Profile photo">
     <div class="profile-photo-preview"><img src="${assets.profile}" alt="Current profile photo"><span aria-hidden="true">${icon("camera")}</span></div>
-    <div class="profile-photo-copy"><b>Profile photo</b><small>JPG, PNG, or WebP · up to 4 MB</small><div class="profile-photo-actions"><button class="btn small-btn" type="button" onclick="document.getElementById('profile-photo-input')?.click()">${icon("camera")} ${hasCustomPhoto ? "Change photo" : "Choose photo"}</button>${hasCustomPhoto ? `<button class="text-action" type="button" onclick="removeProfilePhoto()">Remove</button>` : ""}</div></div>
+    <div class="profile-photo-copy"><b>Profile photo</b><small>Upload a photo or use your Style Twin.</small><small>JPG, PNG, or WebP · up to 4 MB</small></div>
+    <div class="profile-photo-actions"><button class="btn small-btn" type="button" onclick="document.getElementById('profile-photo-input')?.click()">${icon("camera")} ${hasCustomPhoto ? "Change photo" : "Choose photo"}</button><button class="btn small-btn" type="button" onclick="useTwinProfilePhoto()">${icon("spark")} Use Twin photo</button>${hasCustomPhoto ? `<button class="text-action" type="button" onclick="removeProfilePhoto()">Remove</button>` : ""}</div>
     <input class="sr-only" id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose profile photo" onchange="readProfilePhoto(this)">
   </section>`;
+}
+function useTwinProfilePhoto() {
+  if (!twinSetup.complete) {
+    go("H-01");
+    toast("Create your Style Twin to use its photo.");
+    return;
+  }
+  assets.profile = assets.body;
+  let persisted = true;
+  try { localStorage.setItem("styleiqProfilePhotoV1", assets.profile); }
+  catch { persisted = false; }
+  render();
+  toast(persisted ? "Twin photo set as your profile photo" : "Twin photo updated for this session.");
 }
 function readProfilePhoto(input) {
   const file = input.files?.[0];
@@ -608,6 +622,14 @@ let feedbackReason = "",
 let museConversation = [];
 let stylingContext =
   localStorage.getItem("styleiqStylingContextV1") || "Womenswear";
+// Shared local films for the introduction and reusable Look motion previews.
+const museMotionMedia = [
+  { type: "video", src: "app%20videos/woman.mp4", label: "Womenswear motion", stylingContext: "Womenswear" },
+  { type: "video", src: "app%20videos/man.mp4", label: "Menswear motion", stylingContext: "Menswear" },
+];
+function lookMotionMedia() {
+  return museMotionMedia.filter(media => stylingContext === "Both" || media.stylingContext === stylingContext);
+}
 // Resolve only bundled demo visuals; personal uploads and styling-choice cards
 // keep their original images. Stored Looks remain intact when context changes.
 const menswearVisuals = {
@@ -2549,8 +2571,8 @@ function lightweightPanelMarkup() {
     changeLook: {
       eyebrow: "Alternatives for today",
       title: "Change Look",
-      body: `<div class="chips" role="group" aria-label="Outfit families">${["Business casual", "Party", "Dressy", "Professional", "Semi-formal"].map((family, idx) => `<button class="chip ${idx === 0 ? "active" : ""}" onclick="toast('Showing ${family} variants')">${family}</button>`).join("")}</div><div class="today-look-rail" style="margin-top:14px">${Object.values(tryOnLooks).map((look) => `<button class="today-look-card" onclick="selectTodayLook('${look.id}');closeLightweightPanel()"><span class="tryon-frame-preview" role="img" aria-label="${escapeMarkup(look.title)}" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context)}</small></span></button>`).join("")}</div>`,
-      action: "Keep Current Look",
+      body: `<div class="chips" role="group" aria-label="Outfit families">${["Business casual", "Party", "Dressy", "Professional", "Semi-formal"].map((family, idx) => `<button class="chip ${idx === 0 ? "active" : ""}" onclick="toast('Showing ${family} variants')">${family}</button>`).join("")}</div><div class="today-look-rail" style="margin-top:14px">${Object.values(tryOnLooks).map(todayAlternativeCard).join("")}</div>`,
+      action: null,
     },
     plannerEventDetails: {
       eyebrow: `${escapeMarkup(selectedPlan?.date || "Upcoming")} · ${escapeMarkup(selectedPlan?.time || selectedPlan?.daypart || "All day")}`,
@@ -2673,7 +2695,7 @@ function lightweightPanelMarkup() {
     : ["plannerEventDetails", "recurringEventDetails"].includes(lightweightPanel)
       ? ""
       : "primary";
-  return `<div class="lightweight-layer"><button class="lightweight-scrim" aria-label="Dismiss ${panel.title}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet" role="dialog" aria-modal="true" aria-labelledby="lightweight-title"><div class="grab" aria-hidden="true"></div><div class="lightweight-head"><span><p class="eyebrow">${panel.eyebrow}</p><h2 id="lightweight-title" class="title">${panel.title}</h2></span><button class="icon-btn" aria-label="Close ${panel.title}" onclick="closeLightweightPanel()">×</button></div>${panel.body}<button class="btn ${actionClass} wide" style="margin-top:16px" onclick="approveLightweightPanel('${lightweightPanel}')">${panel.action}</button></section></div>`;
+  return `<div class="lightweight-layer"><button class="lightweight-scrim" aria-label="Dismiss ${panel.title}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet" role="dialog" aria-modal="true" aria-labelledby="lightweight-title"><div class="grab" aria-hidden="true"></div><div class="lightweight-head"><span><p class="eyebrow">${panel.eyebrow}</p><h2 id="lightweight-title" class="title">${panel.title}</h2></span><button class="icon-btn" aria-label="Close ${panel.title}" onclick="closeLightweightPanel()">×</button></div>${panel.body}${panel.action ? `<button class="btn ${actionClass} wide" style="margin-top:16px" onclick="approveLightweightPanel('${lightweightPanel}')">${panel.action}</button>` : ""}</section></div>`;
 }
 function decorateSettingsRows() {
   if (currentId !== "L-11") return;
@@ -2912,19 +2934,64 @@ function installGestures() {
     }
   }
 }
+let disposeMusePlayback = null;
 function installWalkthroughGestures() {
   if (currentId !== "S-01") return;
-  const video = app.querySelector(".meet-muse-video-screen video");
-  if (video) {
-    video.muted = true;
-    video.playsInline = true;
-    const playPromise = video.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {});
-    }
-    video.addEventListener("ended", () => {
-      video.play().catch(() => {});
+  const videos = [...app.querySelectorAll(".meet-muse-video-screen video")];
+  if (videos.length) {
+    let active = 0, switching = false, disposed = false, fadeTimer;
+    const fadeMs = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
+    const advance = () => {
+      if (switching || disposed || document.hidden) return;
+      switching = true;
+      const outgoing = videos[active];
+      const nextIndex = (active + 1) % videos.length;
+      const incoming = videos[nextIndex];
+      incoming.currentTime = 0;
+      // Keep the outgoing frame visible until the next film is actually decoded.
+      const reveal = () => {
+        if (disposed) return;
+        incoming.classList.add("is-incoming", "is-active");
+        fadeTimer = setTimeout(() => {
+          outgoing.classList.remove("is-active");
+          outgoing.pause();
+          incoming.classList.remove("is-incoming");
+          active = nextIndex;
+          switching = false;
+        }, fadeMs);
+      };
+      incoming.play().then(() => {
+        if (disposed) { incoming.pause(); return; }
+        // play() resolves once playback is ready. A frame callback can stall
+        // indefinitely while the incoming video is fully transparent.
+        reveal();
+      }).catch(() => { switching = false; });
+    };
+    videos.forEach((video, index) => {
+      video.muted = true;
+      video.playsInline = true;
+      video.addEventListener("timeupdate", () => {
+        if (index === active && video.duration - video.currentTime <= fadeMs / 1000 + 0.15) advance();
+      });
+      video.addEventListener("ended", () => { if (index === active) advance(); });
     });
+    const onVisibility = () => {
+      if (document.hidden) videos.forEach(video => video.pause());
+      else if (!disposed) {
+        videos.forEach((video, index) => {
+          if (index === active || video.classList.contains("is-active")) video.play().catch(() => {});
+        });
+        if (videos[active].ended) advance();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    if (!document.hidden) videos[0].play().catch(() => {});
+    disposeMusePlayback = () => {
+      disposed = true;
+      clearTimeout(fadeTimer);
+      videos.forEach(video => video.pause());
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }
   const story = app.querySelector(".walkthrough-story");
   let start = null;
@@ -3143,7 +3210,7 @@ function entryScreen(s) {
   if (s.id === "S-00")
     return `<section class="screen entry-screen entry-splash" role="button" tabindex="0" aria-label="Open StyleIQ" onclick="openStyleIQ()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStyleIQ()}"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="Curated wardrobe with natural light and linen drape"><div class="splash-tint" aria-hidden="true"></div><div class="splash-tag" aria-hidden="true"><span class="splash-tag-text">Styled for you ♡</span></div><div class="entry-frame"><div class="entry-top"><span class="splash-brand">StyleIQ</span></div><div class="splash-copy"><h1 class="splash-title">Your closet.<br>Smarter.</h1><p class="splash-body">Know what you own.<br>Know what to wear.<br>Buy better.</p></div></div></section>`;
   if (s.id === "S-01") {
-    return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen"><video class="walkthrough-story-bg" autoplay loop muted playsinline poster="images/meet-muse-poster.jpg" preload="auto"><source src="videos/meet-muse-runway.mp4" type="video/mp4"></video><div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Meet Muse</p><h1 class="display">Hi, I’m Muse.</h1><p class="body">Your personal stylist—learning your wardrobe, plans, and taste to help you dress with purpose.</p></div><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
+return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen">${museMotionMedia.map((media, index) => `<video class="walkthrough-story-bg muse-film ${index === 0 ? 'is-active' : ''}" src="${media.src}" muted playsinline preload="auto" ${index === 0 ? 'poster="images/meet-muse-poster.jpg"' : ''} aria-hidden="true"></video>`).join("")}<div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Meet Muse</p><h1 class="display">Hi, I’m Muse.</h1><p class="body">Your personal stylist—learning your wardrobe, plans, and taste to help you dress with purpose.</p></div><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
   }
   return stylingContextSurface(false);
 }
@@ -3711,6 +3778,7 @@ function lookMatchesFilter(look, filter) {
 }
 let lookFilter = "All",
   selectedSavedLookId = localStorage.getItem("styleiqSelectedSavedLookV1") || "Design Review",
+  todayDetailsLookId = null,
   savedLookTab = "overview",
   savedLookMediaIndex = 0,
   savedLookWorn = localStorage.getItem("styleiqSavedLookWornV1") === "true",
@@ -3724,6 +3792,7 @@ function setLookFilter(value) {
   render();
 }
 function selectSavedLook(id) {
+  todayDetailsLookId = null;
   selectedSavedLookId = id;
   savedLookTab = "overview";
   savedLookMediaIndex = 0;
@@ -3743,6 +3812,10 @@ function stepSavedLookMedia(direction) {
   setSavedLookMedia(savedLookMediaIndex + direction);
 }
 function savedLookRecord() {
+  if (todayDetailsLookId && tryOnLooks[todayDetailsLookId]) {
+    const look = tryOnLooks[todayDetailsLookId];
+    return { ...look, media: [{ type: "image", src: look.sheet, label: "Look still" }, ...lookMotionMedia()] };
+  }
   const record = lookCatalog.find((look) => look.title === selectedSavedLookId) || lookCatalog[0];
   const source = record.title === "Dinner Classic" ? tryOnLooks.evening : record.title === "Gallery Tailoring" ? tryOnLooks.tailoring : tryOnLooks.coffee;
   return {
@@ -3756,7 +3829,7 @@ function savedLookRecord() {
     media: [
       { type: "image", src: "images/generated-look-hero-v2.png", label: "Generated editorial" },
       { type: "image", src: record.image, label: "Look still" },
-      { type: "video", src: "videos/generated-look-motion.mp4", label: "Generated model motion" },
+      ...lookMotionMedia(),
     ],
   };
 }
@@ -3784,6 +3857,7 @@ function removeSavedLook() {
   toast("Saved Look removed");
 }
 function myLooksGrid() {
+  todayDetailsLookId = null;
   const filters = ["All", "Created by Me", "With Muse", "Muse Generated", "Recreated from Inspiration"];
   const visible = lookCatalog.filter((look) =>
     lookMatchesFilter(look, lookFilter) && (!savedLookRemoved || look.title !== selectedSavedLookId),
@@ -5426,13 +5500,13 @@ function mirrorToday() {
   const look = tryOnLooks[selectedTodayLook];
   return shell(
     "Today",
-    `<div class="today-visual-head"><span><p class="eyebrow">Sunday · Cairo</p><h2>Good morning, ${escapeMarkup(profileFirstName())}</h2></span><button class="today-muse-pill" onclick="go('M-01')"><img src="${assets.muse}" alt="Muse"><span>Ask Muse</span></button></div><div class="today-context-strip" aria-label="Today’s context"><span>${icon("spark")}<b>18°C</b><small>Rain later</small></span><span>${icon("calendar")}<b>Office</b><small>First plan · 10:00</small></span></div><section class="today-hero" aria-label="Today’s recommended Look"><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("heart")}</button><div class="today-hero-panel"><span>${look.context}</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
+    `<div class="today-visual-head"><span><p class="eyebrow">Sunday · Cairo</p><h2>Good morning, ${escapeMarkup(profileFirstName())}</h2></span><button class="today-muse-pill" onclick="go('M-01')"><img src="${assets.muse}" alt="Muse"><span>Ask Muse</span></button></div><div class="today-context-strip" aria-label="Today’s context"><span>${icon("spark")}<b>18°C</b><small>Rain later</small></span><span>${icon("calendar")}<b>Office</b><small>First plan · 10:00</small></span></div><section class="today-hero" aria-label="Today’s recommended Look"><button class="today-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"></button><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("heart")}</button><div class="today-hero-panel"><span>${look.context}</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
       tryOnLooks,
     )
       .filter((other) => other.id !== look.id)
       .map(
         (other) =>
-          `<button class="today-look-card" onclick="selectTodayLook('${other.id}')"><span class="tryon-frame-preview ${other.reference ? "reference" : ""} ${other.remote ? "remote-photo" : ""}" role="img" aria-label="${other.title}" style="background-image:url('${other.sheet}');background-position:0 ${other.row * 100}%"></span><span><b>${other.title}</b><small>${other.reference ? "From your reference" : "Office"}</small></span></button>`,
+          `<button class="today-look-card" onclick="openTodayLookDetails('${other.id}')"><span class="tryon-frame-preview ${other.reference ? "reference" : ""} ${other.remote ? "remote-photo" : ""}" role="img" aria-label="${other.title}" style="background-image:url('${other.sheet}');background-position:0 ${other.row * 100}%"></span><span><b>${other.title}</b><small>${other.reference ? "From your reference" : "Office"}</small></span></button>`,
       )
       .join("")}</div></section>`,
     { active: "home", surfaceClass: "image-first-surface" },
@@ -6129,6 +6203,23 @@ const tryOnAngles = ["Front", "3/4", "Side", "Back"];
 function tryOnBackgroundPosition(look, angle = 0) {
   return look.remote ? `${48 + angle * 1.5}% center` : `${(angle * 100) / 3}% ${look.row * 100}%`;
 }
+function todayAlternativeCard(look) {
+  return `<div class="today-alternative"><button class="today-look-card" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${escapeMarkup(look.title)}" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context)}</small></span></button><button class="btn primary wide" aria-label="Use ${escapeMarkup(look.title)} for today" onclick="useLookForToday('${look.id}')">Use for today</button></div>`;
+}
+function openTodayLookDetails(id = selectedTodayLook) {
+  if (!tryOnLooks[id]) return;
+  todayDetailsLookId = id;
+  savedLookTab = "overview";
+  savedLookMediaIndex = 0;
+  go("G-02");
+}
+function useLookForToday(id) {
+  if (!tryOnLooks[id]) return;
+  selectedTodayLook = id;
+  localStorage.setItem("styleiqTodayLookV1", id);
+  todayDetailsLookId = null;
+  go("D-02");
+}
 function selectTodayLook(id) {
   if (!tryOnLooks[id]) return;
   selectedTodayLook = id;
@@ -6504,6 +6595,8 @@ function twinRefine() {
   );
 }
 function leanSavedLook() {
+  const fromToday = Boolean(todayDetailsLookId);
+  const detailTitle = fromToday ? "Look Details" : "Saved Look";
   const record = savedLookRecord(),
     tabs = [["overview", "Overview"], ["items", "Items"], ["details", "Why it works"], ["activity", "Activity"], ["planning", "Planning"]],
     tabBar = AppTabs({
@@ -6512,10 +6605,10 @@ function leanSavedLook() {
       variant: "secondary",
       items: tabs.map(([id, label]) => ({ label, selected: savedLookTab === id, onSelect: `setSavedLookTab('${id}')` })),
     });
-  const overview = `<section class="card" style="margin-top:14px"><p class="eyebrow">Why this Look works</p><h3 class="title">A repeatable ${escapeMarkup(record.title)} formula.</h3><p class="body">The silhouette, palette, and proportions fit your saved preferences. Keep it ready for the next day it earns.</p><div class="row" style="margin-top:12px"><button class="btn grow" onclick="markSavedLookWorn()">${savedLookWorn ? "Worn today" : "Wear"}</button><button class="btn grow" onclick="startTryOn('saved', { sourceType: 'saved-look' })">Try On</button></div></section>`;
+  const overview = `<section class="card" style="margin-top:14px"><p class="eyebrow">Why this Look works</p><h3 class="title">A repeatable ${escapeMarkup(record.title)} formula.</h3><p class="body">The silhouette, palette, and proportions fit your saved preferences. Keep it ready for the next day it earns.</p><div class="row" style="margin-top:12px"><button class="btn grow" onclick="markSavedLookWorn()">${savedLookWorn ? "Worn today" : "Wear"}</button><button class="btn grow" onclick="startTryOn('${fromToday ? record.id : 'saved'}', { sourceType: '${fromToday ? 'today' : 'saved-look'}' })">Try On</button></div></section>`;
   const items = `<section class="card" style="margin-top:14px"><div class="between"><b>${record.pieces.length} pieces in this Look</b><button class="text-action" onclick="go('F-01')">Edit copy</button></div>${record.pieces.map((piece) => `<div class="pack-row"><img src="${piece[2] || assets.look}" alt="${escapeMarkup(piece[1])}"><span><b>${escapeMarkup(piece[1])}</b><small class="body">${escapeMarkup(piece[0])} · ${piece[2] ? "From Closet" : "Suggested"}</small></span></div>`).join("")}</section>`;
   const savedEntry =
-    lookCatalog.find((look) => look.title === selectedSavedLookId) || {};
+    fromToday ? { creationSource: "muse_generated" } : lookCatalog.find((look) => look.title === selectedSavedLookId) || {};
   const attribution =
     savedEntry.creatorAttribution ||
     (savedEntry.title === canvasState.title
@@ -6526,9 +6619,9 @@ function leanSavedLook() {
   const planning = `<section class="card" style="margin-top:14px"><p class="eyebrow">Planning</p><h3 class="title">Keep this Look in your rotation.</h3><p class="body">Add the selected Saved Look to a Planner event without losing its source context.</p><button class="btn primary wide" style="margin-top:12px" onclick="planSavedLook()">Add to Planner</button></section>`;
   const body = { overview, items, details, activity, planning }[savedLookTab] || overview;
   return shell(
-    "Saved Look",
-    `${savedLookMediaSurface(record)}<div class="between" style="margin-top:14px"><span><p class="eyebrow">Saved Look</p><h2 class="title">${escapeMarkup(record.title)}</h2><p class="body">${escapeMarkup(record.context)}</p></span><button class="icon-btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">${icon("more")}</button></div>${tabBar}${AppTabPanel("saved-look-section-tabs", Math.max(0, tabs.findIndex(([id]) => id === savedLookTab)), body)}`,
-    { active: "profile" },
+    detailTitle,
+    `${savedLookMediaSurface(record)}${fromToday ? `<button class="btn primary wide" style="margin-top:14px" onclick="useLookForToday('${record.id}')">Use for today</button>` : ""}<div class="between" style="margin-top:14px"><span><p class="eyebrow">${detailTitle}</p><h2 class="title">${escapeMarkup(record.title)}</h2><p class="body">${escapeMarkup(record.context)}</p></span>${fromToday ? "" : `<button class="icon-btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">${icon("more")}</button>`}</div>${tabBar}${AppTabPanel("saved-look-section-tabs", Math.max(0, tabs.findIndex(([id]) => id === savedLookTab)), body)}`,
+    { active: fromToday ? "home" : "profile" },
   );
 }
 function setStudioMode(mode) {
@@ -7568,6 +7661,8 @@ function applyStyleIQDesignSystem() {
   });
 
   app.querySelectorAll("button,.btn").forEach((button) => {
+    // The full-card detail target must keep the hero's dimensions.
+    if (button.classList.contains("today-detail-link")) return;
     button.classList.add("siq-button");
     if (button.classList.contains("primary") || button.classList.contains("gold")) button.classList.add("siq-button--primary");
     else if (button.classList.contains("danger") || button.classList.contains("danger-action")) button.classList.add("siq-button--danger");
@@ -7699,6 +7794,8 @@ function synchronizeStylingData() {
   }
 }
 function render() {
+  disposeMusePlayback?.();
+  disposeMusePlayback = null;
   synchronizeStylingData();
   const previousNavLens = app
     .querySelector(".nav-liquid-indicator")

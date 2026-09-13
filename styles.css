@@ -10511,6 +10511,19 @@ body {
   height: 100%;
   object-fit: cover;
 }
+.today-detail-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.today-hero > .today-save { z-index: 2; }
 .today-save {
   position: absolute;
   right: 12px;
@@ -10676,7 +10689,7 @@ body {
 }
 .today-look-card {
   position: relative;
-  width: 142px;
+  width: 75%;
   height: 184px;
   flex: none;
   overflow: hidden;
@@ -10691,6 +10704,14 @@ body {
   height: 100%;
   object-fit: cover;
 }
+.today-alternative {
+  display: grid;
+  flex: 0 0 75%;
+  gap: 10px;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.today-alternative > .today-look-card { width: 100%; }
 .today-look-card span {
   position: absolute;
   left: 8px;
@@ -10911,13 +10932,13 @@ body {
   background-position: center !important;
 }
 .today-hero > .tryon-frame-preview {
-  width: 50%;
+  width: 100%;
   margin: auto;
 }
 .today-look-card > .tryon-frame-preview {
   position: static;
   display: block;
-  width: 95px;
+  width: 100%;
   margin: auto;
   padding: 0;
   height: 190px;
@@ -10933,7 +10954,10 @@ body {
 }
 .today-hero > .tryon-frame-preview {
   height: 300px;
-  width: 150px;
+  width: 100%;
+}
+.today-look-card > .tryon-frame-preview.remote-photo {
+  background-size: cover;
 }
 .today-hero {
   background: #e9e4dd;
@@ -12670,6 +12694,18 @@ body {
   object-fit: cover;
   object-position: center;
   animation: walkthrough-image-in 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.meet-muse-video-screen .muse-film {
+  animation: none;
+  opacity: 0;
+  transition: opacity 650ms ease-out;
+}
+.meet-muse-video-screen .muse-film.is-active { opacity: 1; }
+.meet-muse-video-screen .muse-film.is-incoming { z-index: -2; }
+.meet-muse-video-screen .walkthrough-story-shade { z-index: -1; }
+.meet-muse-video-screen .walkthrough-story-frame { position: relative; z-index: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .meet-muse-video-screen .muse-film { transition: none; }
 }
 .walkthrough-story-shade {
   z-index: -2;
@@ -16675,7 +16711,7 @@ summary:focus-visible {
 /* Profile photo control shared by the canonical preferences and legacy edit route. */
 .profile-photo-editor {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-columns: 88px minmax(0, 1fr);
   align-items: center;
   gap: 14px;
   padding: 14px;
@@ -16685,8 +16721,8 @@ summary:focus-visible {
 }
 .profile-photo-preview {
   position: relative;
-  width: 76px;
-  height: 76px;
+  width: 88px;
+  height: 88px;
 }
 .profile-photo-preview img {
   width: 100%;
@@ -16713,15 +16749,18 @@ summary:focus-visible {
 .profile-photo-copy { min-width: 0; display: grid; gap: 5px; }
 .profile-photo-copy > b { font-size: 13px; }
 .profile-photo-copy > small { color: var(--siq-text-secondary, var(--muted)); font-size: 9px; line-height: 1.4; }
-.profile-photo-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin-top: 3px; }
+.profile-photo-actions { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .profile-photo-actions .btn {
-  min-height: 38px;
-  padding-inline: 11px;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  justify-content: center;
+  padding-inline: 8px;
   gap: 6px;
   font-size: 10px;
 }
 .profile-photo-actions .btn .icon { width: 14px; height: 14px; }
-.profile-photo-actions .text-action { min-height: 36px; color: var(--siq-danger, #a13d35); font-size: 10px; }
+.profile-photo-actions .text-action { grid-column: 1 / -1; justify-self: center; min-height: 36px; color: var(--siq-danger, #a13d35); font-size: 10px; }
 
 @media (max-width: 360px) {
   .profile-photo-editor { grid-template-columns: 66px minmax(0, 1fr); padding: 12px; }
@@ -16767,7 +16806,7 @@ summary:focus-visible {
   height: 248px;
   margin-top: 9px;
 }
-.app[data-screen="D-02"][data-customer-scenario="existing"] .today-hero > .tryon-frame-preview { height: 190px; }
+.app[data-screen="D-02"][data-customer-scenario="existing"] .today-hero > .tryon-frame-preview { height: 100%; }
 .app[data-screen="D-02"][data-customer-scenario="existing"] .today-actions { margin-top: 10px; }
 .today-first-use { padding: 1px 2px 8px; }
 .today-first-head {
