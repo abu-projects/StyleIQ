@@ -219,6 +219,13 @@ const screens = [
     "phase": 3
   },
   {
+    "id": "L-03",
+    "section": "L",
+    "title": "My content",
+    "detail": "Saved Looks and Trips collected from the Profile.",
+    "phase": 3
+  },
+  {
     "id": "L-04",
     "section": "L",
     "title": "Profile & Style Preferences",
@@ -255,6 +262,21 @@ const screens = [
   }
 ];
 const canonicalVisualScreenIds = new Set(screens.map((screen) => screen.id));
+// Action-result routes remain addressable without appearing as additional
+// inventory screens. E-06 is the transient Try On result for any source Look.
+const compatibilityScreens = {
+  "E-06": {
+    id: "E-06",
+    section: "E",
+    title: "Try On",
+    detail: "Selected Look on the Style Twin with full-body angle controls.",
+    phase: 2,
+  },
+};
+const routableScreenIds = new Set([
+  ...canonicalVisualScreenIds,
+  ...Object.keys(compatibilityScreens),
+]);
 const iconMap = {
   back: "arrow-left",
   home: "sun",
@@ -339,6 +361,47 @@ const assets = {
   body: peoplePhotos.womanFashion,
   face: peoplePhotos.womanPortrait,
 };
+const defaultProfilePhoto = peoplePhotos.womanPortrait;
+const savedProfilePhoto = localStorage.getItem("styleiqProfilePhotoV1");
+if (savedProfilePhoto?.startsWith("data:image/")) assets.profile = savedProfilePhoto;
+
+function profilePhotoEditor() {
+  const hasCustomPhoto = assets.profile !== defaultProfilePhoto;
+  return `<section class="profile-photo-editor" aria-label="Profile photo">
+    <div class="profile-photo-preview"><img src="${assets.profile}" alt="Current profile photo"><span aria-hidden="true">${icon("camera")}</span></div>
+    <div class="profile-photo-copy"><b>Profile photo</b><small>JPG, PNG, or WebP · up to 4 MB</small><div class="profile-photo-actions"><button class="btn small-btn" type="button" onclick="document.getElementById('profile-photo-input')?.click()">${icon("camera")} ${hasCustomPhoto ? "Change photo" : "Choose photo"}</button>${hasCustomPhoto ? `<button class="text-action" type="button" onclick="removeProfilePhoto()">Remove</button>` : ""}</div></div>
+    <input class="sr-only" id="profile-photo-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose profile photo" onchange="readProfilePhoto(this)">
+  </section>`;
+}
+function readProfilePhoto(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    input.value = "";
+    toast("Choose a JPG, PNG, or WebP photo.");
+    return;
+  }
+  if (file.size > 4 * 1024 * 1024) {
+    input.value = "";
+    toast("Choose a photo smaller than 4 MB.");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    assets.profile = String(reader.result);
+    try { localStorage.setItem("styleiqProfilePhotoV1", assets.profile); }
+    catch { toast("Photo updated for this session."); }
+    render();
+    toast("Profile photo updated");
+  };
+  reader.readAsDataURL(file);
+}
+function removeProfilePhoto() {
+  assets.profile = defaultProfilePhoto;
+  localStorage.removeItem("styleiqProfilePhotoV1");
+  render();
+  toast("Profile photo removed");
+}
 const alternatives = {
   Top: [
     ["Eyelet shirt", "StyleIQ Atelier", assets.top, false],
@@ -475,11 +538,11 @@ let tripDraft = (() => {
   }
 })();
 function getCanonicalScreen(id) {
-  return canonicalVisualScreenIds.has(id) ? id : null;
+  return routableScreenIds.has(id) ? id : null;
 }
 
 function resolveCanonicalRoute(id) {
-  return canonicalVisualScreenIds.has(id)
+  return routableScreenIds.has(id)
     ? { screen: id, canonical: id }
     : { screen: null, canonical: null };
 }
@@ -1891,8 +1954,8 @@ function replaceRouteHash(id) {
   url.hash = id;
   history.replaceState(null, "", url);
 }
-function go(id, { record = true, keepPanel = false } = {}) {
-  if (!canonicalVisualScreenIds.has(id)) return;
+function go(id, { record = true, keepPanel = false, replace = false } = {}) {
+  if (!routableScreenIds.has(id)) return;
   const targetCanonical = id;
   if (id === "M-01" && currentId !== "M-01" && museContext.origin !== currentId)
     museContext = museContextFor(currentId);
@@ -1935,8 +1998,10 @@ function go(id, { record = true, keepPanel = false } = {}) {
     creatorReferenceContext = null;
   }
   wishlistDialog = null;
+  const replaceSetupStep = pendingTryOn && currentId.startsWith("H-") && id.startsWith("H-");
   currentId = id;
-  location.hash = id;
+  if (replace || replaceSetupStep) replaceRouteHash(id);
+  else location.hash = id;
   overlay = null;
   accountMenuOpen = false;
   notificationsOpen = false;
@@ -1951,6 +2016,15 @@ function backScreen() {
   if (overlay) { closeOverlay(); return; }
   if (accountMenuOpen) { closeAccountMenu(); return; }
   if (notificationsOpen) { closeNotifications(); return; }
+  if (currentId === "H-01" && twinViewMode === "reference-edit") {
+    twinViewMode = "manage";
+    render();
+    return;
+  }
+  if (currentId === "E-06") {
+    leaveTryOn();
+    return;
+  }
   if (currentId.startsWith("F-") && studioSourceContext) {
     if (studioSourceContext === "creator") {
       const returnTarget = creatorReferenceContext?.lookId ? "H-13" : "H-11";
@@ -2031,7 +2105,11 @@ function head(title) {
   return `<header class="screen-head root-head"><div class="root-title-block"><p>${c.label}</p><h1>${c.title}</h1></div><div class="root-actions">${c.actions}</div></header>`;
 }
 function ensureAppNavigation() {
-  if (["S", "A"].includes(currentId.split("-")[0])) {
+  if (
+    ["S", "A"].includes(currentId.split("-")[0]) ||
+    currentId === "E-06" ||
+    (currentId.startsWith("H-") && app.querySelector(".content.no-nav"))
+  ) {
     app.querySelectorAll(".bottom-nav").forEach((nav) => nav.remove());
     return;
   }
@@ -2524,7 +2602,7 @@ function connectPrivacySettings() {
 function decorateInlineEditors() {
   const content = app.querySelector(".content");
   if (!content) return;
-  if (["L-01", "L-02"].includes(currentId)) {
+  if (currentId === "L-02") {
     const header = content.querySelector(".mirror-profile-head");
     header?.insertAdjacentHTML(
       "afterend",
@@ -5229,7 +5307,7 @@ function mirrorToday() {
   const look = tryOnLooks[selectedTodayLook];
   return shell(
     "Today",
-    `<div class="today-visual-head"><h2>Good morning, Amelia</h2><button class="today-muse-pill" onclick="go('M-01')"><img src="${assets.muse}" alt="Muse"><span>Ask Muse</span></button></div><section class="today-hero" aria-label="Today’s recommended Look"><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("heart")}</button><div class="today-hero-panel"><span>${look.context}</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><p class="body" style="margin:8px 0 14px">${look.pieces.map((piece) => piece[1]).join(" · ")}</p><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
+    `<div class="today-visual-head"><span><p class="eyebrow">Sunday · Cairo</p><h2>Good morning, Amelia</h2></span><button class="today-muse-pill" onclick="go('M-01')"><img src="${assets.muse}" alt="Muse"><span>Ask Muse</span></button></div><div class="today-context-strip" aria-label="Today’s context"><span>${icon("spark")}<b>18°C</b><small>Rain later</small></span><span>${icon("calendar")}<b>Office</b><small>First plan · 10:00</small></span></div><section class="today-hero" aria-label="Today’s recommended Look"><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("heart")}</button><div class="today-hero-panel"><span>${look.context}</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
       tryOnLooks,
     )
       .filter((other) => other.id !== look.id)
@@ -5247,39 +5325,17 @@ function setTodayMode(mode) {
   if (currentId === "D-02") render();
 }
 function todayBeforeClosetState() {
+  const firstName = escapeMarkup(accountIdentity.firstName || "Amelia");
   return shell(
     "Today",
-    `<div class="muse-starter-look-screen">
-      <div class="card starter-look-card">
-        <div class="starter-look-tag-bar">
-          <span class="pill gold">StyleIQ Editorial</span>
-          <span class="pill">Starter Inspiration</span>
-        </div>
-        <div class="starter-look-visual">
-          <img src="images/alta-look-ivory-black-flatlay.png" alt="StyleIQ Editorial Starter Look" class="starter-look-img">
-        </div>
-        <div class="starter-look-content">
-          <p class="eyebrow">Muse Starter Look</p>
-          <h2 class="title">An easy direction to begin with</h2>
-          <p class="body">A flexible StyleIQ editorial look to help you get started. Add pieces anytime for outfits personalized from your own wardrobe.</p>
-          <div class="chips starter-chips" role="group" aria-label="Style direction tags">
-            <span class="chip">Easy Layers</span>
-            <span class="chip">Smart Casual</span>
-            <span class="chip">Day-to-Evening</span>
-            <span class="chip">Minimal</span>
-          </div>
-          <div class="starter-muse-note">
-            <span class="starter-muse-icon">${icon("spark")}</span>
-            <small class="body">Muse combines versatile foundation pieces to show how proportion and neutral layering work before your closet is added.</small>
-          </div>
-        </div>
-      </div>
-      <div class="starter-actions" style="margin-top:16px">
-        <button class="btn primary wide" onclick="go('B-01')">Add First Item</button>
-        <button class="btn wide" style="margin-top:8px" onclick="go('K-01')">See Another Direction</button>
-        <button class="btn wide" style="margin-top:8px" onclick="go('H-01')">Build My Style Profile</button>
-        <button class="btn wide" style="margin-top:8px" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started before I add Closet items.', origin: 'D-02' })">Ask Muse</button>
-      </div>
+    `<div class="today-first-use">
+      <header class="today-first-head"><span><p class="eyebrow">Welcome to your Today</p><h2>Let’s style your first Look, ${firstName}.</h2></span><button class="today-muse-pill" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started before I add Closet items.', origin: 'D-02' })"><img src="${assets.muse}" alt="Muse"><span>Ask Muse</span></button></header>
+      <section class="today-first-hero" aria-labelledby="today-first-title">
+        <div class="today-first-art"><img src="images/illustrations/illustration-today-first-look-transparent.png" alt="A woman choosing versatile pieces from her wardrobe"></div>
+        <div class="today-first-copy"><span class="today-first-badge">${icon("spark")} Your first step</span><h3 id="today-first-title">Start with one piece you already love.</h3><p>Add it to your Closet and Muse will build outfit ideas around what you actually own.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item ${icon("arrow-right")}</button></div>
+      </section>
+      <section class="today-unlocks" aria-label="What adding an item unlocks"><p class="eyebrow">Then Today becomes yours</p><div><span>${icon("shirt")}<b>Daily Looks</b><small>Built from your Closet</small></span><span>${icon("calendar")}<b>Plan ahead</b><small>Dress for real plans</small></span><span>${icon("user")}<b>Try it on</b><small>Preview privately</small></span></div></section>
+      <button class="today-explore-link" onclick="go('K-01')">Explore inspiration while I set up ${icon("arrow-right")}</button>
     </div>`,
     { active: "home", surfaceClass: "starter-look-surface" }
   );
@@ -5762,8 +5818,8 @@ function decorateProfileEntries() {
   };
   reconnect(content.querySelector("img[alt='Weekend outfit']")?.closest("button"), () => go("J-08"));
   reconnect([...content.querySelectorAll("button")].find((button) => button.textContent.trim() === "Style"), openTodayAlternatives);
-  if (!content.querySelector("[aria-label='My content']")) {
-    content.insertAdjacentHTML("beforeend", `<section class="card" style="margin-top:12px" aria-label="My content"><p class="eyebrow">My Atelier</p><h3 class="title">My content</h3><p class="body">Your saved Looks and Trips in one place.</p><button class="btn wide" style="margin-top:10px" onclick="go('G-01')">Open My Content</button></section>`);
+  if (isExistingCustomer() && !content.querySelector("[aria-label='My content']")) {
+    content.insertAdjacentHTML("beforeend", `<section class="card" style="margin-top:12px" aria-label="My content"><p class="eyebrow">My Atelier</p><h3 class="title">My content</h3><p class="body">Your saved Looks and Trips in one place.</p><button class="btn wide" style="margin-top:10px" onclick="go('L-03')">Open My Content</button></section>`);
   }
 }
 function tripsList() {
@@ -5855,9 +5911,13 @@ function openProfileTwin() {
   else startTryOn('saved', { sourceType: 'profile' });
 }
 function newCustomerProfile() {
+  const firstName = escapeMarkup(accountIdentity.firstName || "Amelia");
   return shell(
     "My Atelier",
-    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Your style profile will learn as you use StyleIQ.</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="empty image-first-empty profile-first-state"><div><div class="empty-art"><img src="${assets.blazer}" alt="A first wardrobe piece"></div><p class="eyebrow">Start your Atelier</p><h2 class="title">Your profile grows from your real wardrobe.</h2><p class="body">Add one piece to unlock Closet-based Looks, or create your private Style Twin when you want to preview an outfit.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item</button><button class="btn wide" style="margin-top:8px" onclick="openProfileTwin()">Create private preview</button></div></section>${followedCreatorsSection()}<div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Save pieces to review later</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Not created yet</small></button></div>`,
+    `<header class="mirror-profile-head profile-identity profile-identity--new"><img src="${assets.profile}" alt="${firstName}'s profile"><span><p class="eyebrow">My Style Profile</p><h2>${firstName}</h2><small class="body">A fresh Atelier, ready to learn your style.</small></span><span class="profile-status-pill">Just started</span></header>
+    <section class="profile-start-card" aria-labelledby="profile-start-title"><div class="profile-start-copy"><p class="eyebrow">Your first step</p><h2 id="profile-start-title">Build from one piece you already love.</h2><p class="body">Add it to your Closet and StyleIQ can start creating Looks around your real wardrobe.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item ${icon("arrow-right")}</button></div><img src="${assets.blazer}" alt="Camel blazer ready to add to your Closet"></section>
+    <section class="profile-setup" aria-label="Atelier setup progress"><div class="profile-section-title"><span><p class="eyebrow">Atelier setup</p><h3>Make it yours</h3></span><b>0 of 3</b></div><div class="profile-setup-list"><button onclick="go('B-01')"><span class="profile-step-index">1</span><span><b>Add a Closet piece</b><small>Unlock wardrobe-based styling</small></span>${icon("chevron-right")}</button><button onclick="openProfileTwin()"><span class="profile-step-index">2</span><span><b>Create your Style Twin</b><small>Optional, private outfit previews</small></span>${icon("chevron-right")}</button><button onclick="openProfilePreferences('style')"><span class="profile-step-index">3</span><span><b>Share your preferences</b><small>Silhouettes, colors, and fit</small></span>${icon("chevron-right")}</button></div></section>
+    <section class="profile-secondary-action"><span class="profile-secondary-icon">${icon("heart")}</span><span><b>Saving inspiration already?</b><small>Your Wishlist will keep it together.</small></span><button class="text-action" onclick="setClosetTab('wishlist')">Open</button></section>`,
     { active: "profile" },
   );
 }
@@ -5865,7 +5925,12 @@ function mirrorProfile() {
   if (!isExistingCustomer()) return newCustomerProfile();
   return shell(
     "My Atelier",
-    `<header class="mirror-profile-head"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="mirror-circle-action" onclick="go('M-01')" aria-label="Ask Muse">${icon("spark")}</button></header><section class="mirror-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button onclick="go('G-01')">View All</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-01')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section><section class="mirror-profile-preview"><p class="eyebrow">My Closet</p><h3 class="title" style="font-size:20px">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body" style="display:block">1 owned piece</small></span><button class="btn small-btn" onclick="openTodayAlternatives()">Style</button></div></section>${followedCreatorsSection()}<div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.shoes}" alt="Wishlist"><b>Wishlist</b><small>Pieces under review</small></button><button class="profile-utility" onclick="openProfileTwin()"><img src="${assets.profile}" alt="Style Twin"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
+    `<header class="mirror-profile-head profile-identity"><img src="${assets.profile}" alt="Amelia Hart"><span><p class="eyebrow">My Style Profile</p><h2>Amelia Hart</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="profile-edit-link" onclick="openProfilePreferences('about')" aria-label="Edit profile">Edit</button></header>
+    <section class="profile-overview" aria-label="Atelier overview"><button onclick="go('C-01')"><b>12</b><small>Closet pieces</small></button><button onclick="go('G-01')"><b>3</b><small>Saved Looks</small></button><button onclick="go('J-01')"><b>1</b><small>Upcoming trip</small></button></section>
+    <section class="mirror-section profile-looks-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button class="text-action" onclick="go('G-01')">View all ${icon("arrow-right")}</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-01')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section>
+    <section class="mirror-profile-preview profile-closet-preview"><div class="profile-section-title"><span><p class="eyebrow">Closet spotlight</p><h3>Your most versatile piece</h3></span><button class="text-action" onclick="go('C-01')">Closet</button></div><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body">5 styling directions</small></span><button class="btn small-btn" onclick="openTodayAlternatives()">Style it</button></div></section>
+    <section class="profile-shortcuts" aria-label="Profile shortcuts"><button onclick="setClosetTab('wishlist')">${icon("heart")}<span><b>Wishlist</b><small>Pieces under review</small></span>${icon("chevron-right")}</button><button onclick="openProfileTwin()">${icon("user")}<span><b>Style Twin</b><small>Private try-on ready</small></span>${icon("chevron-right")}</button></section>
+    ${followedCreatorsSection()}<section class="profile-content-link" aria-label="My content"><span><p class="eyebrow">My Atelier</p><h3>Looks, Trips &amp; saved ideas</h3></span><button class="btn" onclick="go('L-03')">Open My Content</button></section>`,
     { active: "profile" },
   );
 }
@@ -5875,6 +5940,7 @@ let twinSetup = (storedTwinSetup?.complete || requestedCustomerScenario === "exi
   : storedTwinSetup && !storedTwinSetup.complete
     ? storedTwinSetup
     : { method: "photo", step: 1, complete: false };
+let twinViewMode = "manage";
 
 // Look formula + renderer manifest. Production renderers can supply per-Twin assets here.
 const tryOnLooks = {
@@ -5941,6 +6007,9 @@ if (pendingTryOn?.intent !== "tryOn" || !(pendingTryOn?.selectedLook?.pieces || 
   pendingTryOn = null;
 if (!(tryOnSession?.selectedLook?.pieces || tryOnLookFor(tryOnSession?.lookId))) tryOnSession = null;
 const tryOnAngles = ["Front", "3/4", "Side", "Back"];
+function tryOnBackgroundPosition(look, angle = 0) {
+  return look.remote ? `${48 + angle * 1.5}% center` : `${(angle * 100) / 3}% ${look.row * 100}%`;
+}
 function selectTodayLook(id) {
   if (!tryOnLooks[id]) return;
   selectedTodayLook = id;
@@ -5977,6 +6046,7 @@ function startTryOn(id = selectedTodayLook, options = {}) {
 }
 function resumeTryOn() {
   if (!pendingTryOn || !twinSetup.complete) return;
+  const replacingSetupFlow = currentId.startsWith("H-");
   if (!twinSetup.id) {
     twinSetup.id = "twin-" + Date.now();
     persistTwin();
@@ -5993,7 +6063,7 @@ function resumeTryOn() {
   navHistory = navHistory.filter(
     (id) => !id.startsWith("H-") || ["H-11", "H-12", "H-13"].includes(id),
   );
-  go("H-10", { record: false });
+  go("E-06", { record: false, replace: replacingSetupFlow });
 }
 function completeTwinSetup() {
   twinSetup.step = 3;
@@ -6035,7 +6105,7 @@ function setTryOnAngle(index) {
   const frame = app.querySelector(".tryon-frame"),
     look = tryOnSession.selectedLook;
   if (frame) {
-    frame.style.backgroundPosition = `${(tryOnSession.angle * 100) / 3}% ${look.row * 100}%`;
+    frame.style.backgroundPosition = tryOnBackgroundPosition(look, tryOnSession.angle);
     frame.setAttribute(
       "aria-label",
       `${look.title} on your Style Twin — ${tryOnAngles[tryOnSession.angle]} view`,
@@ -6126,7 +6196,7 @@ function tryOnResult() {
   }
   const look = tryOnSession.selectedLook,
     angle = tryOnSession.angle || 0;
-  return `<section class="screen tryon-screen"><header class="tryon-head"><button class="icon-btn" aria-label="Back to selected Look" onclick="leaveTryOn()">${icon("back")}</button><b>Try On</b><span style="width:44px" aria-hidden="true"></span></header><div class="tryon-copy"><p class="eyebrow">On your Style Twin</p><h2>${escapeMarkup(look.title)}</h2><small>${escapeMarkup(look.context)}</small></div><div class="tryon-stage gesture-surface" tabindex="0" role="group" aria-label="Inspect your dressed Style Twin. Swipe or use left and right arrow keys."><div class="tryon-frame ${look.reference ? "reference" : ""}" role="img" aria-label="${escapeMarkup(look.title)} on your Style Twin — ${tryOnAngles[angle]} view" style="background-image:url('${look.sheet}');background-position:${(angle * 100) / 3}% ${look.row * 100}%"></div><button class="tryon-arrow previous" aria-label="Previous view" onclick="setTryOnAngle(tryOnSession.angle-1)">${icon("chevron-left")}</button><button class="tryon-arrow next" aria-label="Next view" onclick="setTryOnAngle(tryOnSession.angle+1)">${icon("chevron-right")}</button></div><p class="tryon-hint"><span id="tryon-angle-status" aria-live="polite">${tryOnAngles[angle]} view · ${angle + 1} / 4</span> · Swipe to explore</p><footer class="tryon-footer"><button class="btn primary wide" onclick="makeLookMine(tryOnSession.selectedLook)">Make it mine</button><button class="btn wide" onclick="tryAnotherLook()">Try another Look</button><details><summary>${look.pieces.length} pieces in this Look</summary><ul>${look.pieces.map((piece) => `<li>${escapeMarkup(piece[1])}</li>`).join("")}</ul></details><small class="small">Prepared prototype views · Neutral studio</small></footer></section>`;
+  return `<section class="screen tryon-screen"><header class="tryon-head"><button class="icon-btn" aria-label="Back to selected Look" onclick="leaveTryOn()">${icon("back")}</button><b>Try On</b><span style="width:44px" aria-hidden="true"></span></header><div class="tryon-copy"><p class="eyebrow">On your Style Twin</p><h2>${escapeMarkup(look.title)}</h2><small>${escapeMarkup(look.context)}</small></div><div class="tryon-stage gesture-surface" tabindex="0" role="group" aria-label="Inspect your dressed Style Twin. Swipe or use left and right arrow keys."><div class="tryon-frame ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${escapeMarkup(look.title)} on your Style Twin — ${tryOnAngles[angle]} view" style="background-image:url('${look.sheet}');background-position:${tryOnBackgroundPosition(look, angle)}"></div><button class="tryon-arrow previous" aria-label="Previous view" onclick="setTryOnAngle(tryOnSession.angle-1)">${icon("chevron-left")}</button><button class="tryon-arrow next" aria-label="Next view" onclick="setTryOnAngle(tryOnSession.angle+1)">${icon("chevron-right")}</button></div><p class="tryon-hint"><span id="tryon-angle-status" aria-live="polite">${tryOnAngles[angle]} view · ${angle + 1} / 4</span> · Swipe to explore</p><footer class="tryon-footer"><button class="btn primary wide" onclick="makeLookMine(tryOnSession.selectedLook)">Make it mine</button><button class="btn wide" onclick="tryAnotherLook()">Try another Look</button><details><summary>${look.pieces.length} pieces in this Look</summary><ul>${look.pieces.map((piece) => `<li>${escapeMarkup(piece[1])}</li>`).join("")}</ul></details><small class="small">Prepared prototype views · Neutral studio</small></footer></section>`;
 }
 
 const scenarioScreenGroups = {
@@ -6161,6 +6231,7 @@ function setCustomerScenario(scenario) {
   if (scenario === "new")
     twinSetup = { method: "photo", step: 1, complete: false };
   else twinSetup = { id: "demo-existing-twin", method: "photo", step: 4, complete: true };
+  twinViewMode = "manage";
   if (scenario === "new") pendingTryOn = null;
   tryOnSession = null;
   navHistory = navHistory.filter(
@@ -6192,7 +6263,13 @@ function twinManagement() {
   const hasPending = Boolean(pendingTryOn);
   return shell(
     "Style Twin",
-    `<p class="eyebrow">Private · Ready to use</p><h2 class="title">Your Style Twin</h2><div class="studio-live-preview"><img src="${assets.body}" alt="Your completed Style Twin, full body" style="display:block;width:100%;height:340px;object-fit:contain"></div><p class="body">Your Style Twin is ready. ${hasPending ? "Resume the Look you were trying on, or refine your Twin." : "Try different Looks or refine your Twin without repeating setup."}</p><div class="stack" style="margin-top:16px"><button class="btn primary wide" onclick="continueTryOnFromTwin()">${hasPending ? "Resume Try-On" : "Try a Look"}</button><button class="btn wide" onclick="go('H-06')">Refine Style Twin</button><button class="btn wide" onclick="canvasState.mode='avatar';persist();go('F-01')">Use in Studio</button><button class="text-action" onclick="go('L-01')">Back to Profile</button></div>`,
+    `<section class="twin-existing-hero" aria-labelledby="twin-existing-title">
+      <div class="twin-existing-visual"><img src="${assets.body}" alt="Your completed Style Twin, full body"><span>${icon("check")} Ready</span></div>
+      <div class="twin-existing-copy"><p class="eyebrow">Private Style Twin</p><h2 id="twin-existing-title">Your Twin is ready to evolve.</h2><p>${hasPending ? "Your saved Twin is ready for the Look you selected. You can continue now or fine-tune it first." : "Keep using your Twin as it is, or refine the details whenever your style or fit changes."}</p><dl><div><dt>Reference</dt><dd>2 photos</dd></div><div><dt>Fit profile</dt><dd>Regular</dd></div></dl></div>
+    </section>
+    <section class="twin-existing-actions" aria-label="Style Twin actions"><button class="btn primary wide" onclick="go('H-06')">Refine Style Twin</button><button class="btn wide" onclick="beginTwinReferenceEdit()">Edit reference photos</button></section>
+    <section class="twin-existing-shortcuts" aria-label="Use your Style Twin"><button onclick="continueTryOnFromTwin()"><span>${icon("user")}</span><b>${hasPending ? "Resume Try-On" : "Try a Look"}</b><small>${hasPending ? "Continue where you left off" : "Preview an outfit privately"}</small>${icon("chevron-right")}</button><button onclick="canvasState.mode='avatar';persist();go('F-01')"><span>${icon("spark")}</span><b>Use in Studio</b><small>Build and adjust a Look</small>${icon("chevron-right")}</button></section>
+    <button class="text-action twin-back-profile" onclick="go('L-01')">Back to Profile</button>`,
     { active: "profile", noNav: true },
   );
 }
@@ -6204,21 +6281,43 @@ function startTwinSetup(method) {
   persistTwin();
   go("H-06");
 }
+function beginTwinReferenceEdit() {
+  twinViewMode = "reference-edit";
+  render();
+}
+function saveTwinReferences() {
+  twinViewMode = "manage";
+  twinSetup.method = "photo";
+  persistTwin();
+  render();
+  toast("Reference photos updated");
+}
+function saveTwinRefinements() {
+  twinSetup.step = 4;
+  persistTwin();
+  go("H-01");
+  toast("Style Twin refinements saved");
+}
 function twinStepBar(step) {
   return `<div class="twin-step-bar" aria-label="Style Twin setup progress"><span class="${step >= 1 ? "on" : ""}">1 · Reference</span><span class="${step >= 2 ? "on" : ""}">2 · Details</span><span class="${step >= 3 ? "on" : ""}">3 · Result</span></div>`;
 }
 function canonicalTwinIntro() {
-  if (twinSetup.complete) return twinManagement();
+  if (twinSetup.complete && twinViewMode !== "reference-edit") return twinManagement();
+  const editingReference = twinSetup.complete && twinViewMode === "reference-edit";
   const manual = twinSetup.method === "manual";
-  const primaryCta = manual
+  const primaryCta = editingReference
+    ? `<button class="btn primary wide" onclick="saveTwinReferences()">Save reference photos</button>`
+    : manual
     ? `<button class="btn primary wide" onclick="twinSetup.step=2;persistTwin();go('H-06')">Use this reference</button>`
     : `<button class="btn primary wide" onclick="twinSetup.step=2;persistTwin();go('H-06')">Continue to details</button>`;
-  const altCta = manual
+  const altCta = editingReference
+    ? `<button class="text-action twin-reference-cancel" onclick="twinViewMode='manage';render()">Cancel</button>`
+    : manual
     ? `<button class="btn wide" style="margin-top:8px" onclick="twinSetup.method='photo';persistTwin();go('H-01')">Switch to photo references</button>`
     : `<button class="btn wide" style="margin-top:8px" onclick="twinSetup.method='manual';persistTwin();render()">Create without personal photos</button>`;
   return shell(
-    "Create Style Twin",
-    `${twinStepBar(1)}<div class="mirror-upload-intro"><p class="eyebrow">Step 1 of 3 · Style Twin reference</p><h2>Create your Style Twin</h2><p class="body">Add your face and body reference photos, or create using measurements without personal photos.</p></div>${!manual ? `<div class="twin-reference-pair" style="margin-top:14px"><button class="mirror-upload-guide" type="button" onclick="toast('Face photo selected')"><img src="${assets.face}" alt="Face photo reference"><span>Face photo · ready</span></button><button class="mirror-upload-guide" type="button" onclick="toast('Body photo selected')"><img src="${assets.body}" alt="Body photo reference"><span>Body photo · ready</span></button></div><p class="helper" style="margin-top:10px">Photos remain strictly private and are processed locally.</p><div class="row" style="margin-top:12px"><button class="btn grow" type="button" onclick="toast('Camera opened')">${icon("camera")} Take photo</button><button class="btn grow" type="button" onclick="toast('Library opened')">${icon("image-up")} Choose library</button></div>` : `<div class="card" style="margin-top:14px"><figure class="twin-editorial-visual"><img src="${assets.body}" alt="Basic no-photo reference"><figcaption>No personal photos · measurement mode</figcaption></figure></div>`}<div style="margin-top:14px">${primaryCta}${altCta}</div>`,
+    editingReference ? "Edit Twin References" : "Create Style Twin",
+    `${editingReference ? "" : twinStepBar(1)}<section class="twin-create-hero ${editingReference ? "is-editing" : ""}" aria-labelledby="twin-create-title"><div class="twin-create-art"><img src="${editingReference ? assets.body : screenIllustrations.styleTwin}" alt="${editingReference ? "Your current Style Twin reference" : "A personal Style Twin built around your wardrobe"}"></div><div class="twin-create-copy"><p class="eyebrow">${editingReference ? "Current Style Twin" : "Step 1 of 3 · Your reference"}</p><h2 id="twin-create-title">${editingReference ? "Update your reference photos." : "Create your Style Twin from scratch."}</h2><p>${editingReference ? "Replace either photo to keep your existing Twin accurate. Your saved Looks and settings will stay unchanged." : "Start with two private reference photos, then shape the fit and details so virtual try-on feels like you."}</p></div></section>${!manual ? `<section class="twin-reference-section" aria-labelledby="twin-reference-title"><div class="twin-section-heading"><span><p class="eyebrow">${editingReference ? "Your references" : "Add two photos"}</p><h3 id="twin-reference-title">Face and full body</h3></span><small>${editingReference ? "Tap to replace" : "2 of 2 ready"}</small></div><div class="twin-reference-pair"><button class="mirror-upload-guide" type="button" onclick="toast('Face photo selected')"><img src="${assets.face}" alt="Face photo reference"><span>${icon("camera")} Face photo</span></button><button class="mirror-upload-guide" type="button" onclick="toast('Body photo selected')"><img src="${assets.body}" alt="Body photo reference"><span>${icon("camera")} Full body</span></button></div><p class="twin-privacy-note">${icon("lock")} Your photos stay private and are only used for your Style Twin.</p><div class="twin-photo-actions"><button class="btn" type="button" onclick="toast('Camera opened')">${icon("camera")} Take photo</button><button class="btn" type="button" onclick="toast('Library opened')">${icon("image-up")} Choose library</button></div></section>` : `<section class="twin-manual-card"><figure class="twin-editorial-visual"><img src="${assets.body}" alt="Basic no-photo reference"><figcaption>No personal photos · measurement mode</figcaption></figure><div><p class="eyebrow">Measurement mode</p><h3>Build a simple fit reference.</h3><p>Use height and fit details instead of personal photos.</p></div></section>`}<div class="twin-create-actions">${primaryCta}${altCta}</div>`,
     { active: "profile", noNav: true },
   );
 }
@@ -6226,10 +6325,11 @@ function twinReference(method = twinSetup.method) {
   return canonicalTwinIntro();
 }
 function twinBasicDetails() {
-  const submitLabel = pendingTryOn ? "Create first preview" : "Create Style Twin";
+  const refiningExisting = twinSetup.complete;
+  const submitLabel = refiningExisting ? "Save refinements" : pendingTryOn ? "Create first preview" : "Create Style Twin";
   return shell(
-    "Twin Details & Adjustments",
-    `${twinStepBar(2)}<section class="siq-section twin-details-intro"><p class="eyebrow">Step 2 of 3</p><h2 class="title">Shape the reference, then refine only what matters.</h2><p class="body">Height and fit guide the first preview. Every fine-tuning choice stays optional.</p></section><section class="siq-section twin-core-fields" aria-labelledby="twin-core-title"><div class="siq-section-header"><div><h3 id="twin-core-title">Core details</h3><p>Used to keep proportions natural.</p></div></div><div class="siq-field field"><label for="twin-height-detail">Height</label><input id="twin-height-detail" class="siq-input input" value="168 cm" inputmode="decimal" aria-describedby="twin-height-help"><span class="siq-description helper" id="twin-height-help">Use centimetres or feet and inches.</span></div><div class="siq-field field"><label for="twin-fit">Fit reference</label><select id="twin-fit" class="siq-select input" aria-describedby="twin-fit-help"><option>Regular</option><option>Relaxed</option><option>Fitted</option></select><span class="siq-description helper" id="twin-fit-help">Choose how your everyday clothes usually sit.</span></div></section><details class="siq-disclosure twin-refinement"><summary><span><b>Fine-tune my Twin</b><small>Pose, tuck and appearance</small></span><span class="siq-disclosure-indicator" aria-hidden="true">⌄</span></summary><div class="siq-disclosure-content"><div class="siq-value-row"><span>Pose</span><strong>Standing relaxed</strong></div><div class="siq-value-row"><span>Tuck</span><strong>Front tuck · natural</strong></div><div class="siq-value-row"><span>Appearance</span><strong>Warm neutral reference</strong></div></div></details><button class="siq-button siq-button--primary btn primary wide twin-create-cta" onclick="completeTwinSetup()">${submitLabel}</button>`,
+    refiningExisting ? "Refine Style Twin" : "Twin Details & Adjustments",
+    `${refiningExisting ? "" : twinStepBar(2)}<section class="siq-section twin-details-intro"><p class="eyebrow">${refiningExisting ? "Existing Style Twin" : "Step 2 of 3"}</p><h2 class="title">${refiningExisting ? "Fine-tune the Twin you already use." : "Shape the reference, then refine only what matters."}</h2><p class="body">${refiningExisting ? "Adjust fit and appearance without rebuilding your Twin or changing saved Looks." : "Height and fit guide the first preview. Every fine-tuning choice stays optional."}</p></section><section class="siq-section twin-core-fields" aria-labelledby="twin-core-title"><div class="siq-section-header"><div><h3 id="twin-core-title">Core details</h3><p>Used to keep proportions natural.</p></div></div><div class="siq-field field"><label for="twin-height-detail">Height</label><input id="twin-height-detail" class="siq-input input" value="168 cm" inputmode="decimal" aria-describedby="twin-height-help"><span class="siq-description helper" id="twin-height-help">Use centimetres or feet and inches.</span></div><div class="siq-field field"><label for="twin-fit">Fit reference</label><select id="twin-fit" class="siq-select input" aria-describedby="twin-fit-help"><option>Regular</option><option>Relaxed</option><option>Fitted</option></select><span class="siq-description helper" id="twin-fit-help">Choose how your everyday clothes usually sit.</span></div></section><details class="siq-disclosure twin-refinement" ${refiningExisting ? "open" : ""}><summary><span><b>Fine-tune my Twin</b><small>Pose, tuck and appearance</small></span><span class="siq-disclosure-indicator" aria-hidden="true">⌄</span></summary><div class="siq-disclosure-content"><div class="siq-value-row"><span>Pose</span><strong>Standing relaxed</strong></div><div class="siq-value-row"><span>Tuck</span><strong>Front tuck · natural</strong></div><div class="siq-value-row"><span>Appearance</span><strong>Warm neutral reference</strong></div></div></details><button class="siq-button siq-button--primary btn primary wide twin-create-cta" onclick="${refiningExisting ? "saveTwinRefinements()" : "completeTwinSetup()"}">${submitLabel}</button>${refiningExisting ? `<button class="text-action twin-refine-cancel" onclick="go('H-01')">Back to Style Twin</button>` : ""}`,
     { active: "profile", noNav: true },
   );
 }
@@ -7124,6 +7224,7 @@ function mirrorScreen(s) {
   if (s.id === "G-08") return myWishlist();
   if (s.id === "G-09") return wishlistDetail();
   if (s.id === "D-02") return mirrorToday();
+  if (s.id === "E-06") return tryOnResult();
   if (s.id === "C-01") return scalableCloset();
   if (s.id === "C-02") return lifecycleItemDetail();
   if (s.id === "I-01") return mirrorPlanner();
@@ -7382,11 +7483,12 @@ function render() {
   const previousNavLens = app
     .querySelector(".nav-liquid-indicator")
     ?.getBoundingClientRect();
-  const s = screens.find((x) => x.id === currentId) || screens[0];
+  const s = screens.find((x) => x.id === currentId) || compatibilityScreens[currentId] || screens[0];
   currentId = s.id;
   const canonicalId = s.id;
   applyStudioRoute(s.id);
   app.dataset.screen = s.id;
+  app.dataset.customerScenario = customerScenario;
   app.dataset.canonicalScreen = canonicalId;
   app.dataset.phase2Canonical = canonicalId;
   const deviceStatus = document.getElementById("device-status");
@@ -7488,11 +7590,26 @@ document.getElementById("mobile-index").addEventListener("click", () => {
   const id = prompt("Open one of the 34 indexed screen IDs", currentId);
   if (id) go(id.toUpperCase());
 });
+window.addEventListener("popstate", () => {
+  const requestedId = location.hash.slice(1);
+  const target = resolveCanonicalRoute(requestedId).canonical;
+  if (!routableScreenIds.has(target) || target === currentId) return;
+  const requestedScenario = new URLSearchParams(location.search).get("customer");
+  if (["new", "existing"].includes(requestedScenario)) customerScenario = requestedScenario;
+  if (pendingTryOn && currentId.startsWith("H-") && !target.startsWith("H-")) clearPendingTryOn();
+  currentId = target;
+  lightweightPanel = null;
+  wishlistDialog = null;
+  overlay = null;
+  accountMenuOpen = false;
+  notificationsOpen = false;
+  render();
+});
 window.addEventListener("hashchange", () => {
   const requestedId = location.hash.slice(1);
   const resolution = resolveCanonicalRoute(requestedId);
   const targetCanonical = resolution.canonical;
-  if (!canonicalVisualScreenIds.has(targetCanonical)) {
+  if (!routableScreenIds.has(targetCanonical)) {
     currentId = "S-00";
     lightweightPanel = null;
     replaceRouteHash(currentId);
@@ -7536,7 +7653,7 @@ window.addEventListener("keydown", (e) => {
   else if (e.key === "Escape" && notificationsOpen) closeNotifications();
 });
 const initialRoute = resolveCanonicalRoute(currentId);
-currentId = canonicalVisualScreenIds.has(initialRoute.canonical) ? initialRoute.canonical : "S-00";
+currentId = routableScreenIds.has(initialRoute.canonical) ? initialRoute.canonical : "S-00";
 replaceRouteHash(currentId);
 if (pendingTryOn && twinSetup.complete && currentId.startsWith("H-"))
   resumeTryOn();
@@ -7690,7 +7807,7 @@ function profileScreen(s) {
   if (idx === 2)
     return shell(
       "Edit profile",
-      `<div class="profile-summary"><img src="${assets.profile}" alt="Amelia Hart"><span><button class="btn small-btn" onclick="toast('Photo picker opened')">Change photo</button><p class="small" style="margin-top:7px">Visible on your Atelier profile.</p></span></div><div class="stack" style="margin-top:22px"><div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Bio</label><textarea class="textarea">Product designer building a quieter, more intentional wardrobe.</textarea></div><button class="btn primary wide" onclick="go('L-01');toast('Profile updated')">Save changes</button></div>`,
+      `${profilePhotoEditor()}<div class="stack" style="margin-top:22px"><div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Bio</label><textarea class="textarea">Product designer building a quieter, more intentional wardrobe.</textarea></div><button class="btn primary wide" onclick="go('L-01');toast('Profile updated')">Save changes</button></div>`,
       { active: "profile" },
     );
   if (idx === 3)
@@ -7706,7 +7823,7 @@ function profileScreen(s) {
     const activeSec = profilePrefSection || (idx === 5 ? "style" : idx === 6 ? "brands" : "about");
     return shell(
       "Profile & Style Preferences",
-      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Muse follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack preferences-form" style="margin-top:16px"><details class="card progressive-card" ${activeSec === "about" ? "open" : ""}><summary><b>About you</b><span class="small">Name · wardrobe · location</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" ${activeSec === "style" ? "open" : ""}><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" ${activeSec === "brands" ? "open" : ""}><summary><b>Brands &amp; Fit</b><span class="small">Favorites · sizes · fit notes</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div><div class="row"><div class="field grow"><label>Top size</label><input class="input" value="M · EU 38"></div><div class="field grow"><label>Bottom size</label><input class="input" value="EU 40 · W30"></div></div><div class="field"><label>Shoe size</label><input class="input" value="EU 39"></div><div class="field"><label>Brand fit notes</label><textarea class="textarea">COS outerwear runs relaxed; A.P.C. trousers fit snug at the waist.</textarea></div></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
+      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Muse follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack preferences-form" style="margin-top:16px"><details class="card progressive-card" ${activeSec === "about" ? "open" : ""}><summary><b>About you</b><span class="small">Photo · name · location</span></summary><div class="stack preferences-form-fields" style="margin-top:12px">${profilePhotoEditor()}<div class="field"><label>Display name</label><input class="input" value="Amelia Hart"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" ${activeSec === "style" ? "open" : ""}><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" ${activeSec === "brands" ? "open" : ""}><summary><b>Brands &amp; Fit</b><span class="small">Favorites · sizes · fit notes</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div><div class="row"><div class="field grow"><label>Top size</label><input class="input" value="M · EU 38"></div><div class="field grow"><label>Bottom size</label><input class="input" value="EU 40 · W30"></div></div><div class="field"><label>Shoe size</label><input class="input" value="EU 39"></div><div class="field"><label>Brand fit notes</label><textarea class="textarea">COS outerwear runs relaxed; A.P.C. trousers fit snug at the waist.</textarea></div></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
       { active: "profile" },
     );
   }
@@ -7832,7 +7949,6 @@ function enrichCoreScreens(s) {
   const shellIllustrations = {
     "B-01": [screenIllustrations.addToCloset, "Add a garment to your digital Closet"],
     "B-06": [screenIllustrations.importStatus, "Closet import progress and review"],
-    "H-01": [screenIllustrations.styleTwin, "Your personal Style Twin"],
     "J-02": [screenIllustrations.tripSetup, "A curated wardrobe packed for a trip"],
   };
   const shellIllustration = shellIllustrations[s.id];
