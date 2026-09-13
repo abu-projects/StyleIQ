@@ -13324,6 +13324,29 @@ body {
   margin-top: auto;
 }
 
+/* Discovery posts: one look at a time, with details on the look page. */
+/* Scoped discovery layout, independent of profile and detail cards. */
+.creator-discovery-header .creator-search-wrap { margin: 0 0 16px; }
+#creator-category-results { min-width: 0; }
+#creator-category-results .mirror-section { margin-top: 26px; }
+#creator-category-results .mirror-section-head { margin-bottom: 16px; gap: 12px; align-items: center; }
+#creator-category-results .mirror-section-head h3 { margin: 0; font-size: 20px; line-height: 1.3; }
+#creator-category-results .mirror-section-head small { white-space: nowrap; font-size: 12px; }
+#creator-category-results .creator-cards-rail { gap: 12px; padding: 0 0 8px; }
+#creator-category-results .creator-card {
+  flex: 0 0 220px;
+  box-sizing: border-box;
+  padding: 16px;
+  gap: 18px;
+  border-radius: 18px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+}
+#creator-category-results .creator-card-header { display: flex; align-items: flex-start; gap: 12px; }
+#creator-category-results .creator-avatar { width: 40px; height: 40px; flex: 0 0 40px; }
+#creator-category-results .creator-meta { display: grid; gap: 6px; min-width: 0; }
+#creator-category-results .creator-meta b { font-size: 14px; line-height: 1.4; }
+#creator-category-results .creator-meta small { font-size: 12px; line-height: 1.5; }
 /* Creator Profile (H-12) */
 .creator-profile-header {
   padding-bottom: 16px;
@@ -13336,8 +13359,8 @@ body {
   margin-top: 6px;
 }
 .creator-profile-avatar {
-  width: 84px;
-  height: 84px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--paper);
@@ -13390,32 +13413,128 @@ body {
   margin-top: 1px;
   flex-shrink: 0;
 }
+.creator-profile-name { margin: 16px 0 6px; font-size: 28px; letter-spacing: -0.04em; }
+.creator-profile-meta { margin: 0; color: var(--muted); font-size: 12px; }
+.creator-profile-meta span { margin: 0 6px; }
+.creator-profile-screen .creator-patterns-card {
+  margin: 4px 0 28px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+.creator-patterns-card summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.creator-patterns-card summary span { float: right; color: var(--muted); font-size: 11px; font-weight: 400; }
+.creator-profile-screen .creator-notes-source { margin: 14px 0; font-size: 12px; line-height: 1.6; }
+.creator-profile-screen .creator-profile-direction { font-size: 13px; text-transform: none; letter-spacing: 0; }
+.creator-profile-screen .creator-profile-bio { margin: 8px 0 14px; font-size: 13px; }
+.creator-profile-looks .mirror-section-head { align-items: flex-start; gap: 12px; margin-bottom: 16px; }
+.creator-profile-looks .mirror-section-head h3 { margin: 0 0 6px; font-size: 20px; }
+.creator-looks-intro { margin: 0; font-size: 12px; line-height: 1.5; }
+.creator-profile-looks .creator-looks-grid { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+.creator-profile-looks .creator-look-card { margin: 0; box-shadow: none; border: 1px solid var(--line); border-radius: 20px; }
+.creator-profile-looks .creator-look-image-wrap { display: block; padding: 0; border: 0; aspect-ratio: 1; text-align: left; }
+.creator-profile-looks .creator-look-img { object-fit: contain; }
+.creator-profile-looks .creator-look-card:hover .creator-look-img { transform: none; }
+.creator-profile-looks .creator-look-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-content: center;
+  column-gap: 12px;
+  row-gap: 4px;
+  padding: 12px 14px;
+  flex: none;
+}
+.creator-profile-looks .creator-look-title { grid-column: 1; margin: 0; font-size: 16px; line-height: 1.3; cursor: default; align-self: end; }
+.creator-profile-looks .creator-look-tags { grid-column: 1; margin: 0; font-size: 11px; line-height: 1.5; align-self: start; }
+.creator-profile-looks .creator-look-actions {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: stretch;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.creator-profile-looks .creator-look-actions .btn {
+  width: auto;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.creator-profile-looks .creator-look-actions .btn .icon { width: 16px; height: 16px; }
+.creator-profile-looks .creator-look-detail-link {
+  justify-self: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  gap: 6px;
+}
+.creator-profile-looks .creator-look-detail-link:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+.creator-look-detail-link { display: flex; align-items: center; gap: 4px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; font-size: 12px; cursor: pointer; }
+.creator-look-detail-link .icon { width: 14px; height: 14px; }
+.creator-profile-screen summary:focus-visible,
+.creator-profile-looks button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
 /* Creator Look Detail (H-13) */
 .creator-detail-header {
   padding-bottom: 10px;
 }
-.creator-detail-head-copy {
-  flex: 1;
-}
 .creator-detail-author-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
   cursor: pointer;
-  justify-content: center;
-  font-size: 13px;
 }
 .creator-detail-author-thumb {
-  width: 24px;
-  height: 24px;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
   border-radius: 50%;
   object-fit: cover;
 }
-.creator-detail-direction {
+.creator-detail-author-copy {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.creator-detail-author-copy b { font-size: 16px; line-height: 1.4; }
+.creator-detail-profile-link {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--canvas);
   color: var(--gold);
-  font-weight: 500;
+}
+.creator-detail-profile-link .icon { width: 16px; height: 16px; }
+.creator-detail-direction {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 400;
 }
 .creator-hero-image-wrap {
   position: relative;
@@ -15535,6 +15654,27 @@ summary:focus-visible {
   padding-inline: 3px;
   font-size: 14px;
 }
+.app[data-screen="C-01"] #closet-category-tabs {
+  gap: 8px;
+  padding: 3px;
+  border-bottom: 0;
+}
+.app[data-screen="C-01"] #closet-category-tabs .app-tab {
+  min-height: 44px;
+  padding-inline: 20px;
+  border: 1px solid var(--siq-border, var(--line));
+  border-radius: 999px;
+  background: #fff;
+  color: var(--siq-text, var(--ink));
+}
+.app[data-screen="C-01"] #closet-category-tabs .app-tab[aria-selected="true"] {
+  border-color: var(--siq-accent, var(--gold));
+  background: var(--siq-accent, var(--gold));
+  color: #fff;
+}
+.app[data-screen="C-01"] #closet-category-tabs .app-tab::after {
+  display: none;
+}
 .app[data-screen="C-01"] .closet-no-results {
   min-height: 290px;
   padding: 30px 20px 32px;
@@ -15557,14 +15697,6 @@ summary:focus-visible {
   display: block;
   width: 58px;
   height: 58px;
-}
-.app[data-screen="C-01"] .empty-art-lips,
-.app[data-screen="C-01"] .empty-art-lips-seam {
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2.35;
 }
 .app[data-screen="C-01"] .closet-no-results b {
   font-size: 21px;
@@ -15671,7 +15803,8 @@ summary:focus-visible {
 }
 .app[data-screen="K-01"] .mirror-section-head .text-action .icon { width: 12px; height: 12px; }
 .discover-look-stack { display: grid; gap: 12px; margin-top: 12px; }
-#app[data-screen="K-01"] .discover-feature-look {
+#app[data-screen="K-01"] .discover-feature-look,
+#creator-category-results .discover-feature-look {
   position: relative;
   width: 100%;
   min-height: 330px;
@@ -15684,7 +15817,8 @@ summary:focus-visible {
   text-align: left;
   cursor: pointer;
 }
-#app[data-screen="K-01"] .discover-feature-look--compact { min-height: 240px; }
+#app[data-screen="K-01"] .discover-feature-look--compact,
+#creator-category-results .discover-feature-look--compact { min-height: 240px; }
 .discover-feature-look img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .discover-feature-look span {
   position: absolute;

@@ -1556,10 +1556,7 @@ window.setClosetDemoSize = function (size) {
 };
 function closetNoResultsIllustration() {
   return `<div class="closet-no-results-art" aria-hidden="true">
-    <svg viewBox="0 0 70 70" focusable="false">
-      <path class="empty-art-lips" d="M8 34c7-2 13-10 21-12 3-1 5 3 6 5 2-2 5-6 8-5 8 2 13 10 19 12-7 11-16 16-27 16S15 45 8 34Z"/>
-      <path class="empty-art-lips-seam" d="M9 34c9 3 17 2 26-1 9 3 18 4 26 1"/>
-    </svg>
+    ${icon("shirt")}
   </div>`;
 }
 function scalableCloset() {
@@ -3560,6 +3557,7 @@ function myLooksGrid() {
 // SECTION H EXTENSION: CREATOR EXPERIENCE & STUDIO INTEGRATION
 // ---------------------------------------------------------------------------
 
+// Prototype fixtures, not creator-authored bios or live StyleIQ analysis.
 const creatorDataset = [
   {
     id: "maya-chen",
@@ -4323,15 +4321,6 @@ function creatorDiscoveryScreen() {
   return shell(
     "Creator Looks",
     `<header class="creator-discovery-header">
-      <div class="between">
-        <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
-        <div class="creator-header-title">
-          <p class="eyebrow" style="text-align:center">Creator Looks</p>
-          <h2 class="title" style="margin:0;font-size:22px;text-align:center">Style Inspiration</h2>
-        </div>
-        <div style="width:36px"></div>
-      </div>
-      <p class="body creator-discovery-sub">Style inspiration you can make your own. Browse curated creator outfits and recreate them with your Closet.</p>
       <div class="creator-search-wrap">
         <span class="search-icon">${icon("search")}</span>
         <input class="input creator-search-input" placeholder="Search creators, outfits, styles…" value="${escapeMarkup(creatorSearchQuery)}" oninput="setCreatorSearch(this.value)">
@@ -4342,7 +4331,6 @@ function creatorDiscoveryScreen() {
     <div id="creator-category-results" class="app-tab-panel" role="tabpanel" aria-labelledby="creator-category-tabs-tab-${Math.max(0, categories.indexOf(creatorFilter))}" tabindex="0"><section class="mirror-section creator-featured-section">
       <div class="mirror-section-head">
         <span>
-          <p class="eyebrow">Curated Creators</p>
           <h3>Featured Creators</h3>
         </span>
         <small class="body">${filteredCreators.length} creators</small>
@@ -4359,16 +4347,6 @@ function creatorDiscoveryScreen() {
                 <small class="body">${escapeMarkup(creator.styleDirection)}</small>
               </div>
             </div>
-            <div class="creator-look-previews">
-              ${creator.looks
-                .slice(0, 3)
-                .map(
-                  (look) => `
-                <img src="${look.image}" class="creator-mini-thumb" alt="${escapeMarkup(look.title)}" onclick="openCreatorLook('${look.id}')">
-              `,
-                )
-                .join("")}
-            </div>
             <button class="btn small-btn wide" onclick="openCreatorProfile('${creator.id}')">View Creator</button>
           </div>
         `,
@@ -4380,35 +4358,23 @@ function creatorDiscoveryScreen() {
     <section class="mirror-section creator-trending-section">
       <div class="mirror-section-head">
         <span>
-          <p class="eyebrow">Outfits to Recreate</p>
           <h3>Trending Looks</h3>
         </span>
         <small class="body">${filteredLooks.length} looks</small>
       </div>
       ${
         filteredLooks.length
-          ? `<div class="creator-looks-grid">
+          ? `<div class="discover-look-stack">
         ${filteredLooks
           .map(
             (look) => `
-          <div class="creator-look-card card">
-            <div class="creator-look-image-wrap" onclick="openCreatorLook('${look.id}')">
-              <img src="${look.image}" alt="${escapeMarkup(look.title)}" class="creator-look-img">
-              <span class="creator-look-badge">${escapeMarkup(look.occasion)}</span>
-            </div>
-            <div class="creator-look-body">
-              <div class="creator-look-author" onclick="openCreatorProfile('${look.creator.id}')">
-                <img src="${look.creator.avatar}" alt="${escapeMarkup(look.creator.name)}" class="creator-author-thumb">
-                <small class="body">by <b>${escapeMarkup(look.creator.name)}</b></small>
-              </div>
-              <h4 class="creator-look-title" onclick="openCreatorLook('${look.id}')">${escapeMarkup(look.title)}</h4>
-              <p class="creator-look-tags">${escapeMarkup(look.styleDirection)}</p>
-              <div class="creator-look-actions">
-                <button class="btn primary small-btn grow" onclick="makeCreatorLookMine('${look.id}')">Make It Mine</button>
-                <button class="btn small-btn" onclick="openCreatorLook('${look.id}')">View Look</button>
-              </div>
-            </div>
-          </div>
+          <button class="discover-feature-look discover-feature-look--compact" onclick="openCreatorLook('${look.id}')">
+            <img src="${look.image}" alt="${escapeMarkup(look.title)}">
+            <span>
+              <small>${escapeMarkup(look.creator.name)}</small>
+              <b>${escapeMarkup(look.title)}</b>
+            </span>
+          </button>
         `,
           )
           .join("")}
@@ -4433,32 +4399,28 @@ function creatorProfileScreen() {
   return shell(
     creator.name,
     `<header class="creator-profile-header">
-      <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
       <div class="creator-profile-hero">
         <img src="${creator.avatar}" alt="${escapeMarkup(creator.name)}" class="creator-profile-avatar">
-        <h2 class="title" style="margin:10px 0 4px;font-size:24px">${escapeMarkup(creator.name)}</h2>
-        <p class="creator-profile-direction">${escapeMarkup(creator.styleDirection)}</p>
-        <p class="body creator-profile-bio">${escapeMarkup(creator.description)}</p>
-        <div class="creator-profile-tags">
-          ${creator.dominantTags.map((tag) => `<span class="pill-tag">${tag}</span>`).join("")}
-        </div>
+        <h2 class="title creator-profile-name">${escapeMarkup(creator.name)}</h2>
+        <p class="creator-profile-meta">${creator.looks.length} looks to explore <span>·</span> Demo profile</p>
       </div>
     </header>
 
-    <section class="card creator-patterns-card" aria-label="Signature style patterns">
-      <p class="eyebrow">Signature Formulations</p>
-      <h3 class="title" style="font-size:16px;margin:2px 0 8px">Style Patterns</h3>
-      <p class="body" style="margin-bottom:10px">What this creator wears, and the structural rules to borrow.</p>
+    <details class="creator-patterns-card">
+      <summary>StyleIQ style notes <span>Demo content</span></summary>
+      <p class="body creator-notes-source">Sample editorial notes for this prototype — not a creator-written bio or live AI analysis.</p>
+      <p class="creator-profile-direction">${escapeMarkup(creator.styleDirection)}</p>
+      <p class="body creator-profile-bio">${escapeMarkup(creator.description)}</p>
       <ul class="creator-pattern-list">
         ${creator.patterns.map((pat) => `<li><span class="pattern-bullet">✦</span> <span>${escapeMarkup(pat)}</span></li>`).join("")}
       </ul>
-    </section>
+    </details>
 
     <section class="mirror-section creator-profile-looks">
       <div class="mirror-section-head">
         <span>
-          <p class="eyebrow">Curated Archive</p>
-          <h3>Featured Looks</h3>
+          <h3>Featured looks</h3>
+          <p class="body creator-looks-intro">Find a look, then adapt it with your Closet.</p>
         </span>
         <small class="body">${creator.looks.length} looks</small>
       </div>
@@ -4468,20 +4430,20 @@ function creatorProfileScreen() {
         ${creator.looks
           .map(
             (look) => `
-          <div class="creator-look-card card">
-            <div class="creator-look-image-wrap" onclick="openCreatorLook('${look.id}')">
+          <article class="creator-look-card card">
+            <button class="creator-look-image-wrap" aria-label="View ${escapeMarkup(look.title)}" onclick="openCreatorLook('${look.id}')">
               <img src="${look.image}" alt="${escapeMarkup(look.title)}" class="creator-look-img">
               <span class="creator-look-badge">${escapeMarkup(look.occasion)}</span>
-            </div>
+            </button>
             <div class="creator-look-body">
-              <h4 class="creator-look-title" onclick="openCreatorLook('${look.id}')">${escapeMarkup(look.title)}</h4>
-              <p class="creator-look-tags">${escapeMarkup(look.styleDirection)}</p>
+              <h4 class="creator-look-title">${escapeMarkup(look.title)}</h4>
+              <p class="creator-look-tags">${look.pieces.length} pieces · ${escapeMarkup(look.occasion)}</p>
               <div class="creator-look-actions">
-                <button class="btn primary small-btn grow" onclick="makeCreatorLookMine('${look.id}')">Make It Mine</button>
-                <button class="btn small-btn" onclick="openCreatorLook('${look.id}')">View</button>
+                <button class="btn primary" aria-label="Make ${escapeMarkup(look.title)} mine" onclick="makeCreatorLookMine('${look.id}')">${icon("spark")} Make it mine</button>
+                <button class="creator-look-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openCreatorLook('${look.id}')">View details ${icon("chevron-right")}</button>
               </div>
             </div>
-          </div>
+          </article>
         `,
           )
           .join("")}
@@ -4491,7 +4453,7 @@ function creatorProfileScreen() {
       </div>`
       }
     </section>`,
-    { active: "home", noNav: false },
+    { active: "home", noNav: false, surfaceClass: "creator-profile-screen" },
   );
 }
 
@@ -4505,18 +4467,14 @@ function creatorLookDetailScreen() {
   return shell(
     look.title,
     `<header class="creator-detail-header">
-      <div class="between">
-        <button class="mirror-circle-action" aria-label="Back" onclick="backScreen()">${icon("back")}</button>
-        <div class="creator-detail-head-copy">
-          <p class="eyebrow" style="text-align:center">Creator Look</p>
-          <h2 class="title" style="margin:0;font-size:20px;text-align:center">${escapeMarkup(look.title)}</h2>
-        </div>
-        <button class="mirror-circle-action" aria-label="View Creator" onclick="openCreatorProfile('${look.creator.id}')">${icon("user")}</button>
-      </div>
-      <div class="creator-detail-author-row" onclick="openCreatorProfile('${look.creator.id}')">
-        <img src="${look.creator.avatar}" alt="${escapeMarkup(look.creator.name)}" class="creator-detail-author-thumb">
-        <span>by <b>${escapeMarkup(look.creator.name)}</b> · <span class="creator-detail-direction">${escapeMarkup(look.styleDirection)}</span></span>
-      </div>
+      <button class="creator-detail-author-row" aria-label="View ${escapeMarkup(look.creator.name)} profile" onclick="openCreatorProfile('${look.creator.id}')">
+        <img src="${look.creator.avatar}" alt="" class="creator-detail-author-thumb">
+        <span class="creator-detail-author-copy">
+          <b>${escapeMarkup(look.creator.name)}</b>
+          <span class="creator-detail-direction">${escapeMarkup(look.styleDirection)}</span>
+        </span>
+        <span class="creator-detail-profile-link" aria-hidden="true">${icon("arrow-right")}</span>
+      </button>
     </header>
 
     <div class="creator-hero-image-wrap">
