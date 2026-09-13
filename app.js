@@ -4406,16 +4406,6 @@ function creatorProfileScreen() {
       </div>
     </header>
 
-    <details class="creator-patterns-card">
-      <summary>StyleIQ style notes <span>Demo content</span></summary>
-      <p class="body creator-notes-source">Sample editorial notes for this prototype — not a creator-written bio or live AI analysis.</p>
-      <p class="creator-profile-direction">${escapeMarkup(creator.styleDirection)}</p>
-      <p class="body creator-profile-bio">${escapeMarkup(creator.description)}</p>
-      <ul class="creator-pattern-list">
-        ${creator.patterns.map((pat) => `<li><span class="pattern-bullet">✦</span> <span>${escapeMarkup(pat)}</span></li>`).join("")}
-      </ul>
-    </details>
-
     <section class="mirror-section creator-profile-looks">
       <div class="mirror-section-head">
         <span>
