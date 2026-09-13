@@ -16887,3 +16887,35 @@ summary:focus-visible {
   font-size: 9px;
   font-weight: 700;
 }
+
+/* Menswear preview uses its own full-body reference instead of female sprites. */
+.instant-menswear-preview { position: absolute; inset: 0; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.instant-menswear-preview img { width: 100%; height: calc(100% - 28px); object-fit: contain; }
+.instant-menswear-preview figcaption { margin-top: 8px; font-size: 11px; color: var(--siq-text-secondary, #80756c); }
+
+.app[data-styling-context="Menswear"] .content.no-nav:has(.auth-shell) > .onboard::before { background-image: url("images/person-menswear-profile.png"); }
+
+.app[data-styling-context="Menswear"] .onboard::before { background-image: url("images/person-menswear-profile.png"); }
+.instant-menswear-piece { display: block; width: 64px; height: 74px; object-fit: contain; }
+.instant-worn .instant-menswear-piece { width: 48px; height: 52px; }
+
+/* Menswear Studio: independent transparent product variants. */
+.instant-menswear-art {
+  display: block;
+  width: 64px;
+  height: 74px;
+  background: url('images/studio-menswear-products.png') no-repeat;
+  background-size: 400% var(--product-height);
+  background-position: calc(var(--product-column) * 100% / 3) var(--product-y);
+}
+.instant-worn .instant-menswear-art { width: 38px; height: 44px; }
+.instant-menswear-flat { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 8px; width: 100%; padding: 8px 22px; }
+.instant-menswear-flat button { display: grid; place-items: center; min-width: 0; padding: 0; border: 0; background: transparent; }
+.instant-menswear-flat .instant-menswear-art { width: 90px; height: 110px; }
+.instant-menswear-flat .menswear-flat-bottom { grid-column: 2; grid-row: 1 / 3; }
+.instant-menswear-flat .menswear-flat-bottom .instant-menswear-art { width: 86px; height: 230px; }
+.instant-menswear-flat button:focus-visible { outline: 2px solid #51493f; outline-offset: 2px; border-radius: 6px; }
+
+.instant-menswear-flat .menswear-flat-shoes { grid-column: 1; grid-row: 2; }
+.instant-menswear-flat .menswear-flat-outerwear { grid-column: 3; grid-row: 1; }
+.instant-menswear-flat .menswear-flat-watch { grid-column: 3; grid-row: 2; }
