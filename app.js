@@ -3208,7 +3208,7 @@ function buildClosetOnboarding() {
 }
 function entryScreen(s) {
   if (s.id === "S-00")
-    return `<section class="screen entry-screen entry-splash" role="button" tabindex="0" aria-label="Open StyleIQ" onclick="openStyleIQ()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openStyleIQ()}"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="Curated wardrobe with natural light and linen drape"><div class="splash-tint" aria-hidden="true"></div><div class="splash-tag" aria-hidden="true"><span class="splash-tag-text">Styled for you ♡</span></div><div class="entry-frame"><div class="entry-top"><span class="splash-brand">StyleIQ</span></div><div class="splash-copy"><h1 class="splash-title">Your closet.<br>Smarter.</h1><p class="splash-body">Know what you own.<br>Know what to wear.<br>Buy better.</p></div></div></section>`;
+    return `<section class="screen entry-screen entry-splash" aria-labelledby="splash-title"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="A thoughtfully curated wardrobe in warm natural light"><div class="splash-tint" aria-hidden="true"></div><div class="entry-frame"><div class="splash-copy">${brandLockup("splash-wordmark")}<p class="splash-eyebrow">Your wardrobe, reimagined</p><h1 id="splash-title" class="splash-title">Your closet.<br>A fresh perspective.</h1><p class="splash-body">Rediscover what you own. Find what to wear.<br>Let Muse bring it all together.</p><button class="btn primary wide splash-start" onclick="openStyleIQ()"><span>Get Started</span>${icon("arrow-right")}</button><p class="splash-footer">Your pieces. Your taste. Your everyday.</p></div></div></section>`;
   if (s.id === "S-01") {
 return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen">${museMotionMedia.map((media, index) => `<video class="walkthrough-story-bg muse-film ${index === 0 ? 'is-active' : ''}" src="${media.src}" muted playsinline preload="auto" ${index === 0 ? 'poster="images/meet-muse-poster.jpg"' : ''} aria-hidden="true"></video>`).join("")}<div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Meet Muse</p><h1 class="display">Hi, I’m Muse.</h1><p class="body">Your personal stylist—learning your wardrobe, plans, and taste to help you dress with purpose.</p></div><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
   }
@@ -7661,6 +7661,8 @@ function applyStyleIQDesignSystem() {
   });
 
   app.querySelectorAll("button,.btn").forEach((button) => {
+    // Switches retain their own track and thumb styling, not icon-button styling.
+    if (button.getAttribute("role") === "switch") return;
     // The full-card detail target must keep the hero's dimensions.
     if (button.classList.contains("today-detail-link")) return;
     button.classList.add("siq-button");

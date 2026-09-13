@@ -7530,6 +7530,7 @@ body {
 }
 .settings-card-grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
 }
 .settings-card {
@@ -7629,36 +7630,42 @@ body {
 .settings-control-row .settings-toggle {
   flex: none;
 }
-.settings-toggle {
+#app .settings-toggle {
   position: relative;
   width: 52px;
   min-width: 52px;
-  height: 28px;
-  padding: 3px;
-  border: 1px solid var(--siq-border-strong, #bdb3a9);
-  border-radius: 9px;
-  background: var(--siq-surface-subtle, #f1ede8);
-  box-shadow: inset 0 1px 2px rgba(42, 32, 27, 0.08);
+  height: 26px;
+  min-height: 26px;
+  padding: 2px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--siq-text-secondary, #756c67);
+  box-shadow: none;
   cursor: pointer;
-  transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  transition: background-color 180ms ease-out;
+}
+.settings-toggle::before {
+  content: "";
+  position: absolute;
+  inset: -9px 0;
 }
 .settings-toggle span {
   display: block;
-  width: 22px;
-  height: 20px;
-  border-radius: 6px;
+  width: 30px;
+  height: 22px;
+  border-radius: 999px;
   background: var(--siq-surface-elevated, #fff);
-  box-shadow: 0 2px 5px rgba(34, 26, 22, 0.2);
+  box-shadow: none;
   transform: translateX(0);
-  transition: transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition: transform 180ms ease-out;
 }
-.settings-toggle.on {
+#app .settings-toggle.on {
   border-color: var(--siq-accent-strong, #745018);
   background: var(--siq-accent-strong, #745018);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 .settings-toggle.on span {
-  transform: translateX(22px);
+  transform: translateX(18px);
 }
 .settings-toggle:focus-visible,
 .settings-segmented button:focus-visible {
@@ -7736,15 +7743,7 @@ body {
 .settings-link-row:active {
   opacity: 0.7;
 }
-@media (min-width: 720px) {
-  .app[data-screen="L-11"] .settings-card-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .app[data-screen="L-11"] .settings-links-card {
-    grid-column: 1 / -1;
-  }
-}
-@media (max-width: 600px) {
+@container styleiq-phone (max-width: 600px) {
   .app[data-screen="L-11"] .screen-head + .content {
     padding-top: 112px !important;
   }
@@ -12446,93 +12445,83 @@ body {
   }
 }
 
-/* Editorial Splash Screen (S-00) matching user design */
+/* S-00: a focused welcome hero using the app's warm surfaces and typography. */
 .app .entry-splash {
   position: relative;
   height: 100%;
-  background: #f4ece3;
-  color: #171717;
+  background: var(--siq-bg);
+  color: var(--siq-text);
   overflow: hidden;
-  cursor: pointer;
 }
 .app .entry-splash .splash-media {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
+  height: 64%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center 28%;
 }
 .app .entry-splash .splash-tint {
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    transparent 30%,
-    transparent 50%,
-    rgba(246, 239, 232, 0.45) 70%,
-    rgba(246, 239, 232, 0.95) 92%,
-    #f6efe8 100%
+    rgba(248, 246, 243, 0.32) 0%,
+    transparent 20%,
+    rgba(248, 246, 243, 0.06) 38%,
+    rgba(248, 246, 243, 0.72) 53%,
+    var(--siq-bg) 65%
   );
   pointer-events: none;
   z-index: 1;
 }
-.app .entry-splash .splash-tag {
+.app .entry-splash .splash-insight {
   position: absolute;
   top: 35%;
-  left: 22px;
+  right: 24px;
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 12px 20px 10px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.42);
-  border: 1.2px solid rgba(255, 255, 255, 0.88);
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--siq-radius-lg);
+  background: var(--siq-glass);
+  border: 1px solid var(--siq-glass-border);
   box-shadow:
     0 12px 28px rgba(60, 45, 35, 0.1),
     inset 0 1px 1px rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px) saturate(120%);
   -webkit-backdrop-filter: blur(12px) saturate(120%);
-  transform: rotate(-4.5deg);
   pointer-events: none;
 }
-.app .entry-splash .splash-tag-text {
-  font-family: "Caveat", cursive, sans-serif;
-  font-size: 26px;
-  font-weight: 600;
-  color: #171717;
-  line-height: 1;
-  letter-spacing: 0.01em;
-  white-space: nowrap;
-}
+.splash-insight-mark { color: var(--siq-accent); }
+.splash-insight-mark .icon { width: 20px; height: 20px; }
+.splash-insight b { display: block; font-size: 12px; font-weight: 600; }
+.splash-insight small { display: block; margin-top: 3px; font-size: 10px; color: var(--siq-text-secondary); }
 .app .entry-splash .entry-frame {
   position: relative;
   z-index: 2;
   height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 22px 22px calc(24px + env(safe-area-inset-bottom));
+  padding: 24px 24px calc(20px + env(safe-area-inset-bottom));
 }
 .app .entry-splash .entry-top {
   display: flex;
   align-items: center;
   justify-content: flex-start;
 }
-.app .entry-splash .splash-brand {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  font-size: 27px;
-  font-weight: 750;
-  letter-spacing: -0.035em;
-  color: #171717;
-  line-height: 1;
-}
+.app .entry-splash .splash-wordmark .brand-lockup-name { font-size: 27px; color: var(--siq-text); }
+.app .entry-splash .splash-copy > .splash-wordmark { align-self: flex-start; margin-bottom: 20px; }
+.splash-edition { max-width: 88px; text-align: right; font-size: 10px; line-height: 1.45; color: var(--siq-text-secondary); }
+.splash-scenario { margin-top: 16px; }
+.splash-scenario > span { display: block; margin-bottom: 7px; font-size: 9px; color: var(--siq-text-secondary); }
+.splash-scenario > div { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 13px; background: var(--siq-surface-subtle); }
+.splash-scenario button { min-height: 44px; padding: 8px 12px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--siq-text-secondary); font: 500 11px/1.3 var(--font-ui); cursor: pointer; }
+.splash-scenario button[aria-pressed="true"] { background: var(--siq-surface); border-color: var(--siq-border); color: var(--siq-text); }
+.splash-scenario button:focus-visible { outline: 2px solid var(--siq-focus); outline-offset: 1px; }
+.splash-eyebrow { margin: 0 0 12px; color: var(--siq-accent-strong); font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
 .app .entry-splash .splash-copy {
   margin-top: auto;
   display: flex;
@@ -12540,41 +12529,51 @@ body {
   padding-bottom: 2px;
 }
 .app .entry-splash .splash-title {
-  margin: 0 0 10px;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  font-size: 33px;
-  font-weight: 750;
-  line-height: 1.06;
-  letter-spacing: -0.038em;
-  color: #171717;
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: clamp(30px, 8vw, 38px);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  color: var(--siq-text);
 }
 .app .entry-splash .splash-body {
   margin: 0;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
-  font-size: 13.5px;
-  line-height: 1.45;
-  color: rgba(23, 23, 23, 0.78);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--siq-text-secondary);
   letter-spacing: -0.01em;
 }
-.app .entry-splash .splash-body u {
-  text-decoration: underline;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 2.5px;
-  text-decoration-color: rgba(23, 23, 23, 0.55);
+.app .entry-splash .splash-copy .splash-start {
+  justify-content: space-between;
+  min-height: 52px;
+  margin-top: 14px;
+  padding-inline: 18px;
+  border-radius: var(--siq-radius-lg);
+  background: var(--siq-text);
+  color: var(--siq-surface);
+  border: 1px solid var(--siq-text);
+  box-shadow: none;
+  transition: transform 180ms ease, background 180ms ease;
 }
-.app .entry-splash:focus-visible {
+.app .entry-splash .splash-start:hover { background: #342c27; }
+.app .entry-splash .splash-start:active { transform: scale(.98); }
+.app .entry-splash .splash-start:focus-visible {
   outline: 2px solid var(--gold);
-  outline-offset: -4px;
+  outline-offset: 3px;
+}
+.splash-start .icon { width: 18px; height: 18px; }
+.splash-footer { margin: 14px 0 0; text-align: center; color: var(--siq-text-tertiary); font-size: 9px; }
+@media (max-height: 700px) {
+  .app .entry-splash .entry-frame { padding-top: 14px; padding-bottom: 14px; }
+  .app .entry-splash .splash-insight { top: 27%; padding: 9px 12px; }
+  .app .entry-splash .splash-title { font-size: 30px; margin-bottom: 10px; }
+  .app .entry-splash .splash-copy .splash-start { margin-top: 14px; }
+  .splash-eyebrow { margin-bottom: 8px; }
+  .splash-scenario { margin-top: 10px; }
+  .app .entry-splash .splash-insight { top: 25%; }
+  .splash-footer { margin-top: 10px; }
 }
 .app[data-screen="S-01"] .walkthrough-actions .btn.primary {
   background: #171717;
@@ -13076,7 +13075,7 @@ body {
 .instant-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 9px; color: #8a857f; margin-top: 6px; }
 .instant-footer button { display: flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; font-size: 10px; color: #625c55; }
 .instant-footer .icon { width: 12px; height: 12px; }
-@media (max-width: 600px) {
+@container styleiq-phone (max-width: 600px) {
   .instant-avatar-stage { height: clamp(210px, 34svh, 300px); }
   .app .studio-instant .instant-content { padding-inline: 18px; }
 }
@@ -13144,7 +13143,7 @@ body {
 .wearable-earrings.earring-right { left: 48%; clip-path: inset(0 0 0 50%); }
 .wearable-watch { width: 12%; left: 75%; top: 45%; transform: rotate(-8deg); }
 .instant-worn.worn-dress { top: 32%; left: 8%; height: 60px; }
-@media (max-width: 600px) {
+@container styleiq-phone (max-width: 600px) {
   .instant-avatar-stage { height: clamp(190px, 29svh, 260px); }
 }
 
@@ -13705,7 +13704,7 @@ body {
   gap: 12px;
   margin-top: 10px;
 }
-@media (max-width: 480px) {
+@container styleiq-phone (max-width: 480px) {
   .creator-looks-grid {
     grid-template-columns: 1fr;
   }
@@ -14490,6 +14489,8 @@ body {
 .stage::after { display: none; }
 .phone {
   background: var(--siq-bg);
+  /* Inner layouts follow the mobile surface, never the desktop preview window. */
+  container: styleiq-phone / inline-size;
   border-color: #2b2522;
   box-shadow: 0 28px 80px rgba(52, 40, 34, 0.17);
 }
@@ -15509,7 +15510,7 @@ summary:focus-visible {
   .app { padding-top: 0; }
   .siq-content { max-width: 640px; }
 }
-@media (max-width: 420px) {
+@container styleiq-phone (max-width: 420px) {
   .siq-content { padding-inline: var(--siq-space-4); }
   .app[data-canonical-screen="A-16"] .auth-form > .row { grid-template-columns: 1fr; gap: var(--siq-space-5); }
   .row:has(> .siq-field.grow) { align-items: stretch; }
@@ -15700,7 +15701,7 @@ summary:focus-visible {
 .studio-saved-card button:focus-visible,
 .studio-feed-card button:focus-visible { outline: 2px solid #7b5948; outline-offset: 2px; }
 
-@media (max-width: 600px) {
+@container styleiq-phone (max-width: 600px) {
   .app .studio-instant .instant-content { padding-inline: 18px; }
   .studio-work-rail { margin-inline: -18px; padding-inline: 18px; }
 }
@@ -15937,7 +15938,7 @@ summary:focus-visible {
   opacity: 0.42;
   cursor: not-allowed;
 }
-@media (max-width: 360px) {
+@container styleiq-phone (max-width: 360px) {
   .app[data-canonical-screen="A-02"] .setup-wardrobe-option {
     min-height: 88px;
     grid-template-columns: 78px minmax(0, 1fr) 22px;
@@ -16196,7 +16197,7 @@ summary:focus-visible {
 .closet-style-entry b { font-size: 12px; }
 .closet-style-entry small { color: var(--siq-text-secondary, var(--muted)); font-size: 10px; }
 
-@media (max-width: 390px) {
+@container styleiq-phone (max-width: 390px) {
   .app[data-screen="C-01"] .closet-toolbar {
     grid-template-columns: minmax(0, 1fr) 112px;
   }
@@ -16422,7 +16423,7 @@ summary:focus-visible {
 .app[data-screen="K-01"] .wishlist-product .wishlist-product-image img { height: 158px; }
 .discover-empty { margin-top: 12px; border: 1px solid var(--siq-border, var(--line)); border-radius: 18px; }
 
-@media (max-width: 360px) {
+@container styleiq-phone (max-width: 360px) {
   .app[data-screen="K-01"] .mirror-section-head h3 { font-size: 20px; }
   #app[data-screen="K-01"] .discover-feature-look { min-height: 300px; }
 }
@@ -16463,16 +16464,6 @@ summary:focus-visible {
   border-color: var(--siq-focus);
   background: var(--siq-field-bg-focus);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--siq-focus) 20%, transparent);
-}
-
-/* A switch has an icon-only accessible name, but it is not an icon button. */
-.app[data-screen="L-11"] .settings-toggle.siq-button--icon-only {
-  width: 52px;
-  min-width: 52px;
-  height: 28px !important;
-  min-height: 28px !important;
-  padding: 3px !important;
-  border-radius: 9px !important;
 }
 
 /* L-01 Profile: first-use guidance and an established Atelier summary. */
@@ -16701,7 +16692,7 @@ summary:focus-visible {
 .profile-content-link h3 { margin: 4px 0 0; font-size: 13px; }
 .profile-content-link .btn { min-height: 40px; padding-inline: 12px; font-size: 10px; white-space: nowrap; }
 
-@media (max-width: 360px) {
+@container styleiq-phone (max-width: 360px) {
   .profile-start-card { grid-template-columns: minmax(0, 1fr) 86px; }
   .profile-start-copy h2 { font-size: 21px; }
   .profile-status-pill { display: none; }
@@ -16762,7 +16753,7 @@ summary:focus-visible {
 .profile-photo-actions .btn .icon { width: 14px; height: 14px; }
 .profile-photo-actions .text-action { grid-column: 1 / -1; justify-self: center; min-height: 36px; color: var(--siq-danger, #a13d35); font-size: 10px; }
 
-@media (max-width: 360px) {
+@container styleiq-phone (max-width: 360px) {
   .profile-photo-editor { grid-template-columns: 66px minmax(0, 1fr); padding: 12px; }
   .profile-photo-preview { width: 66px; height: 66px; }
 }
