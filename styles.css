@@ -14583,11 +14583,11 @@ body {
   --siq-radius-xl: 24px;
   --siq-editorial-gold: #c89b45;
   --siq-editorial-gold-text: #c89b45;
-  --siq-field-bg: #ffffff;
-  --siq-field-bg-hover: #f8f6f3;
-  --siq-field-bg-focus: #ffffff;
-  --siq-field-border: #ece7e1;
-  --siq-field-border-hover: #d6ccc2;
+  --siq-field-bg: rgba(255, 253, 250, 0.58);
+  --siq-field-bg-hover: rgba(255, 253, 250, 0.72);
+  --siq-field-bg-focus: rgba(255, 253, 250, 0.78);
+  --siq-field-border: rgba(137, 112, 92, 0.28);
+  --siq-field-border-hover: rgba(137, 112, 92, 0.48);
 }
 .app.siq-editorial .auth-heading .display {
   font-family: var(--font-display);
@@ -14603,13 +14603,21 @@ body {
   -webkit-backdrop-filter: none;
 }
 .app.siq-editorial .auth-shell > :is(.auth-glass-refract,.auth-glass-tint,.auth-glass-specular) { display: none; }
-.app.siq-editorial .auth-shell :is(input,select,textarea) { background: #ffffff; }
 .app.siq-editorial:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-input-wrap {
-  border-color: #ece7e1;
-  background: #ffffff;
+  border-color: var(--siq-field-border);
+  background: var(--siq-field-bg);
   box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
+}
+.app.siq-editorial:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-input-wrap:hover {
+  border-color: var(--siq-field-border-hover);
+  background: var(--siq-field-bg-hover);
+}
+.app.siq-editorial:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .auth-input-wrap:focus-within {
+  border-color: var(--siq-focus);
+  background: var(--siq-field-bg-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--siq-focus) 20%, transparent);
 }
 .app.siq-editorial .siq-input.sr-only { width: 1px !important; height: 1px !important; min-height: 0; padding: 0; border: 0; }
 .app.siq-editorial .siq-content :is(.eyebrow,.today-first-badge) {
@@ -14931,6 +14939,22 @@ body {
 .app.siq-editorial .siq-content .siq-editorial-charcoal.siq-disclosure > summary b { color: #ffffff; }
 .app.siq-editorial .siq-content .siq-editorial-charcoal.siq-disclosure > summary .small { color: #bcb5ae; }
 .app.siq-editorial .siq-content .siq-editorial-charcoal .text-action { color: #ebc77e !important; }
+.app.siq-editorial .siq-content .planner-add-event-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 20px;
+  text-align: center;
+}
+.app.siq-editorial .planner-add-event-card :is(h3,p) { margin: 0; }
+.app.siq-editorial .planner-add-event-card h3 { font: 500 25px/1.2 var(--font-display); letter-spacing: -.025em; }
+.app.siq-editorial .planner-add-event-card .body { max-width: 27ch; font-size: 14px; line-height: 1.5; }
+.app.siq-editorial .planner-add-event-card > .btn { align-self: center; margin-top: 6px; min-width: 150px; }
+.planner-event-icon { position: relative; display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 4px; border-radius: 18px; background: #fff9ed; color: #a77929; }
+.planner-event-icon > .icon { width: 28px; height: 28px; }
+.planner-event-icon > span { position: absolute; right: 5px; bottom: 5px; display: grid; place-items: center; width: 20px; height: 20px; border: 2px solid #fff9ed; border-radius: 50%; background: #c89b45; color: #ffffff; }
+.planner-event-icon > span .icon { width: 12px; height: 12px; }
 .app.siq-editorial .siq-content .siq-editorial-highlight {
   padding: 12px 14px;
   background: #fff9ed;
@@ -15746,15 +15770,16 @@ summary:focus-visible {
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .siq-field > .auth-screen-input {
   height: var(--siq-control-height) !important;
   padding: 0 var(--siq-space-4) !important;
-  border: 1px solid var(--siq-border) !important;
+  border: 1px solid var(--siq-field-border) !important;
   border-radius: var(--siq-radius-lg) !important;
-  background: var(--siq-surface-elevated) !important;
+  background: var(--siq-field-bg) !important;
   box-shadow: none !important;
   font-size: 15px !important;
 }
 .app:is([data-canonical-screen="A-01"],[data-canonical-screen="A-16"]) .siq-field > .auth-screen-input:focus-visible {
   outline: none !important;
   border-color: var(--siq-focus) !important;
+  background: var(--siq-field-bg-focus) !important;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--siq-focus) 20%, transparent) !important;
 }
 .app[data-canonical-screen="A-16"] :is(#signup-first-name, #signup-last-name) {
@@ -16805,7 +16830,25 @@ summary:focus-visible {
 .app[data-screen="K-01"] .wishlist-grid { gap: 12px; margin-top: 12px; }
 .app[data-screen="K-01"] .wishlist-product .wishlist-product-image { height: 174px !important; }
 .app[data-screen="K-01"] .wishlist-product .wishlist-product-image img { height: 158px; }
-.discover-empty { margin-top: 12px; border: 1px solid var(--siq-border, var(--line)); border-radius: 18px; }
+.app.siq-editorial .siq-content .discover-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-height: 0;
+  margin-top: 12px;
+  padding: 24px 20px;
+  border: 1px solid var(--siq-border, var(--line));
+  border-radius: 24px;
+  background: var(--siq-surface, #ffffff);
+  text-align: center;
+}
+.app.siq-editorial .discover-empty :is(h3,p) { margin: 0; }
+.app.siq-editorial .discover-empty h3 { font: 500 25px/1.2 var(--font-display); letter-spacing: -.025em; text-wrap: balance; }
+.app.siq-editorial .discover-empty .body { max-width: 27ch; font-size: 14px; line-height: 1.5; }
+.app.siq-editorial .discover-empty > .btn { align-self: center; margin-top: 6px; min-width: 150px; max-width: 100%; }
+.discover-empty-icon { display: grid; place-items: center; flex-shrink: 0; width: 56px; height: 56px; margin-bottom: 4px; border-radius: 18px; background: #fff9ed; color: #a77929; }
+.discover-empty-icon > .icon { width: 28px; height: 28px; }
 
 @container styleiq-phone (max-width: 360px) {
   .app[data-screen="K-01"] .mirror-section-head h3 { font-size: 20px; }
@@ -17351,3 +17394,207 @@ summary:focus-visible {
 .instant-menswear-flat .menswear-flat-shoes { grid-column: 1; grid-row: 2; }
 .instant-menswear-flat .menswear-flat-outerwear { grid-column: 3; grid-row: 1; }
 .instant-menswear-flat .menswear-flat-watch { grid-column: 3; grid-row: 2; }
+
+
+/* L-04 — Profile & Style Preferences: visible content and compact mobile rhythm. */
+.app.siq-editorial[data-canonical-screen="L-04"] .screen-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 8px;
+  min-height: 64px;
+  padding: 10px 16px;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .screen-head-title { min-width: 0; }
+.app.siq-editorial[data-canonical-screen="L-04"] .screen-head-title h1 {
+  font-size: 16px;
+  line-height: 1.3;
+  text-align: center;
+  white-space: normal;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .screen-head :is(.icon-btn, .head-muse) {
+  width: 44px;
+  height: 44px;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .mirror-upload-intro h2 {
+  font-size: 27px;
+  line-height: 1.15;
+  margin: 6px 0 8px;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .mirror-upload-intro .body {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form { gap: 12px; }
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form > .progressive-card {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--siq-border, var(--line));
+  border-radius: 18px;
+  background: var(--siq-surface, #fff);
+  box-shadow: none;
+  overflow: clip;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form > .progressive-card > summary {
+  min-height: 66px;
+  padding: 12px 16px;
+  background: var(--siq-surface, #fff);
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form > .progressive-card > summary > b {
+  color: var(--siq-text, var(--ink));
+  font-size: 16px;
+  font-weight: 650;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form > .progressive-card > summary > .small {
+  color: var(--siq-text-secondary, var(--muted));
+  font-size: 12px;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form > .progressive-card > summary + * {
+  margin-top: 0 !important;
+  padding: 14px 16px 16px;
+  gap: 14px;
+}
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form-fields .siq-field { gap: 6px; }
+.app.siq-editorial[data-canonical-screen="L-04"] .preferences-form-fields .row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+
+/* D-02 Today — one greeting card, with Muse in the shared header. */
+.app[data-screen="D-02"] .today-morning {
+  padding: 18px 18px 14px;
+  border: 1px solid var(--siq-border, var(--line));
+  border-radius: 22px;
+  background: var(--siq-surface, #fff);
+  box-shadow: none;
+}
+.app[data-screen="D-02"] .today-morning-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.app[data-screen="D-02"] .today-dayline {
+  margin: 0;
+  color: var(--siq-text-secondary, var(--muted));
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: .015em;
+}
+.app[data-screen="D-02"] .today-dayline > span { margin-inline: 3px; }
+.app[data-screen="D-02"] .today-morning-context {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app[data-screen="D-02"] .today-morning-context > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.app[data-screen="D-02"] .today-morning-context .icon {
+  width: 14px;
+  height: 14px;
+  color: var(--siq-accent-strong, var(--gold));
+}
+.app[data-screen="D-02"] .today-temperature b {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.app[data-screen="D-02"] .today-morning h2 {
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  text-wrap: initial;
+}
+.app[data-screen="D-02"] .today-salutation {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--siq-text-secondary, var(--muted));
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+.app[data-screen="D-02"] .today-first-name {
+  display: block;
+  font-size: 40px;
+  line-height: 1.08;
+  letter-spacing: -.035em;
+  overflow-wrap: anywhere;
+}
+.app[data-screen="D-02"] .today-morning-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--siq-border, var(--line));
+  color: var(--siq-text-secondary, var(--muted));
+  font-size: 10px;
+  line-height: 1.4;
+}
+.app[data-screen="D-02"] .today-morning-foot b {
+  margin-left: 6px;
+  color: var(--siq-text, var(--ink));
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.app[data-screen="D-02"] .root-head-today .root-actions { margin-left: auto; }
+.app[data-screen="D-02"][data-customer-scenario="existing"] .today-morning + .today-hero { margin-top: 16px; }
+@container styleiq-phone (max-width: 350px) {
+  .app[data-screen="D-02"] .today-morning { padding: 16px 14px 12px; }
+  .app[data-screen="D-02"] .today-morning-context { gap: 8px; }
+  .app[data-screen="D-02"] .today-dayline { font-size: 10px; }
+  .app[data-screen="D-02"] .today-first-name { font-size: 36px; }
+}
+
+/* A look-specific note balances the greeting without adding another card. */
+.app[data-screen="D-02"] .today-morning-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .9fr);
+  align-items: center;
+  gap: 18px;
+  margin: 25px 0 20px;
+}
+.app[data-screen="D-02"] .today-muse-note {
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--siq-border, var(--line));
+}
+.app[data-screen="D-02"] .today-muse-note-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--siq-accent-strong, var(--gold));
+  font-size: 9px;
+  font-weight: 550;
+  line-height: 1.4;
+}
+.app[data-screen="D-02"] .today-muse-note-label .icon { width: 12px; height: 12px; }
+.app[data-screen="D-02"] .today-muse-note-title {
+  margin: 8px 0 5px;
+  color: var(--siq-text, var(--ink));
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: -.015em;
+}
+.app[data-screen="D-02"] .today-muse-note-detail {
+  margin: 0;
+  color: var(--siq-text-secondary, var(--muted));
+  font-size: 10px;
+  line-height: 1.5;
+}
+@container styleiq-phone (max-width: 350px) {
+  .app[data-screen="D-02"] .today-morning-body { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .app[data-screen="D-02"] .today-muse-note { padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--siq-border, var(--line)); }
+}
