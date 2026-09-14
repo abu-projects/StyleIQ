@@ -1,6 +1,6 @@
 # StyleIQ Design System
 
-Version: Phase 3 static component system
+Version: Phase 3 static component system — warm editorial enhancement (2026-09-14)
 
 StyleIQ uses a calm editorial content layer with deliberately stronger glass navigation. HeroUI v3 informs component anatomy, composition, semantic variants, and state behavior; StyleIQ supplies the palette, typography, spacing, and fashion-oriented visual voice.
 
@@ -14,6 +14,9 @@ Semantic tokens live in the final `:root` layer in `styles.css`.
 | --- | --- | --- |
 | App background | `--siq-bg` | Page canvas |
 | Surface | `--siq-surface` | Grouped content and cards |
+| Warm guidance | `--siq-surface-warm`, `--siq-border-warm` | Cream Muse/context callouts with a warm boundary |
+| Editorial gold | `--siq-editorial-gold`, `--siq-editorial-gold-text` | Historical #c89b45 for editorial labels and decorative accents |
+| Dark summary text | `--siq-on-dark-secondary`, `--siq-accent-on-dark` | Readable metadata and ochre actions on charcoal |
 | Subtle surface | `--siq-surface-subtle` | Low-emphasis controls and tab tracks |
 | Elevated surface | `--siq-surface-elevated` | Inputs, popovers, modals |
 | Primary text | `--siq-text` | Headings and body emphasis |
@@ -43,7 +46,7 @@ Use `--siq-space-1/2/3/4/5/6/8/10/12`: 4, 8, 12, 16, 20, 24, 32, 40, and 48px. D
 
 ### Radius, border, and elevation
 
-- Radius: 8, 12, 16, 22px, and pill only.
+- Radius: 8, 12, 16, 20, 24px for historical content recipes; existing glass chrome retains its own radius.
 - Default border: 1px `--siq-border`; stronger border is reserved for hover/current emphasis.
 - Elevation: none for content, floating for navigation/floating controls, overlay for popovers and dialogs.
 - Glass: header, bottom navigation, transient overlays, and limited floating controls only.
@@ -124,8 +127,14 @@ Use the existing `.skeleton` inside the expected final layout, with a status mes
 
 ## Responsive behavior
 
+All 35 canonical routes use `.siq-editorial`: opaque white content groups, 24px feature corners, cream contextual guidance, charcoal Wishlist preferences and attached white image-caption bodies. Expanded forms contain their fields inside bordered cards. Playfair Display is scoped to editorial content; navigation and controls retain Inter. Current content and task flows remain intact. See `DESIGN_ENHANCEMENT_SCOPE.md` for historical recipe mappings.
+
 The primary viewport is 375×812. Controls stay useful-width, touch targets are at least 44px, content scrolls instead of compressing, and the content bottom inset clears the floating navigation. At desktop/prototype sizes, `.siq-content` is max-width constrained. Entry and Studio retain intentional immersive/media layouts.
 
 ## Accessibility contract
 
 Every visible form control has a programmatic label; descriptions/errors connect with `aria-describedby`; keyboard focus is visible; native semantics are preferred; tab/pressed/expanded states are exposed; autocomplete supports arrows, Enter, and Escape; dialogs have names, Escape handling, and a focus loop. Decorative icons and art remain hidden from assistive technology where appropriate.
+
+## Historical recipe source
+
+Content recipes are transferred from `old-app` commit `a977a5e`. Use 24px page interiors, 20px feature bodies and 12–16px utility interiors. Today and Discover feature images sit above an attached opaque white body; Discover product metadata belongs inside the product card. Wishlist is a vertical list of horizontal item cards. Expanded profile and planning forms are opaque bordered groups containing their fields. Preserve current content and Liquid Glass header/footer materials. See `DESIGN_ENHANCEMENT_SCOPE.md` for the current inventory mapping and verification limits.

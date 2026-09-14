@@ -7610,7 +7610,10 @@ function siqEnhanceTabs(root = app) {
     });
   });
 }
+const editorialScreens = new Set([...screens.map((screen) => screen.id), "E-06"]);
+
 function applyStyleIQDesignSystem() {
+  app.classList.toggle("siq-editorial", editorialScreens.has(currentId));
   const screen = app.querySelector(".screen");
   if (!screen) return;
   screen.classList.add("siq-screen");
@@ -7680,6 +7683,29 @@ function applyStyleIQDesignSystem() {
   app.querySelectorAll(".chip,.mirror-filter,.pill").forEach((node) => node.classList.add("siq-chip"));
   app.querySelectorAll(".card,.signal-card,.profile-utility,.settings-list").forEach((node) => node.classList.add("siq-surface"));
   app.querySelectorAll(".item-card,.closet-item,.mirror-outfit-card,.mirror-feed-card").forEach((node) => node.classList.add("siq-card"));
+  if (editorialScreens.has(currentId)) {
+    // Contain complete content objects, including metadata and expanded form groups.
+    app.querySelectorAll(".wishlist-snapshot,.wishlist-evaluation,.mirror-muse,.profile-overview,.profile-closet-preview,.profile-shortcuts,.profile-content-link,.creator-profile-hero,.creator-detail-author-row,.item-metrics,.trip-context-summary,.planner-empty-prompt,.mirror-upload-guide,.twin-manual-card")
+      .forEach((node) => node.classList.add("siq-editorial-surface"));
+    app.querySelectorAll(".wishlist-detail-heading").forEach((node) => node.classList.add("siq-editorial-surface"));
+    app.querySelectorAll(".wishlist-product,.twin-create-hero,.twin-reference-section,.twin-core-fields.siq-section,.saved-look-media-block,.planner-schedule,.planner-repeat-section,.planner-add-event-card,.profile-setup,.profile-secondary-action,.settings-section,.choice-list,.muse-welcome,.twin-editorial-visual,.studio-starter,.studio-context-card")
+      .forEach((node) => node.classList.add("siq-editorial-surface"));
+    if (["I-04", "J-02"].includes(currentId)) {
+      app.querySelectorAll(".siq-content > form").forEach((node) => node.classList.add("siq-editorial-form"));
+    }
+    if (currentId === "B-01") {
+      app.querySelectorAll(".siq-content [role='tabpanel']").forEach((node) => node.classList.add("siq-editorial-surface"));
+    }
+    if (["C-02", "G-02", "J-08", "K-04"].includes(currentId)) {
+      app.querySelector(".siq-content > .between")?.classList.add("siq-editorial-surface");
+    }
+    app.querySelectorAll(".contextual-insight,.muse-context-card,.creator-muse-card,.wishlist-muse,.wishlist-budget,.wishlist-review,.planner-intent-card,.twin-privacy-note,.today-context-strip")
+      .forEach((node) => node.classList.add("siq-editorial-note"));
+    app.querySelectorAll(".profile-overview,.item-metrics,.wishlist-budget")
+      .forEach((node) => node.classList.add("siq-editorial-charcoal"));
+    app.querySelectorAll(".today-first-copy > p,.wishlist-evaluation-row:last-child p,.twin-create-copy > p:last-child,.muse-answer-note")
+      .forEach((node) => node.classList.add("siq-editorial-highlight"));
+  }
   app.querySelectorAll("details").forEach((details, index) => {
     details.classList.add("siq-disclosure");
     if (details.querySelector("input,textarea,select")) details.classList.add("siq-form-disclosure");

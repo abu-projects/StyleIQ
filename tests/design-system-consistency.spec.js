@@ -201,11 +201,13 @@ test('planner navigation groups larger arrows at the right and changes the visib
   await expect(page.locator('.mirror-day').first().locator('b')).not.toHaveText(before);
 });
 
-test('form disclosures are flat, full width, and keep secondary copy beneath the title', async ({ page }) => {
+// Regression: legacy form styling stripped the surface from expanded preference groups.
+test('expanded form groups contain their fields on opaque cards and keep secondary copy beneath the title', async ({ page }) => {
   for (const [id, name] of [['I-04', 'More details'], ['J-02', 'Must bring & notes'], ['L-04', 'About you']]) {
     await page.goto(`/index.html#${id}`);
     const details = page.locator('.siq-form-disclosure').filter({ has: page.getByText(name, { exact: true }) }).first();
     await expect(details).toBeVisible();
+    if ((await details.getAttribute('open')) === null) await details.locator(':scope > summary').click();
     const audit = await details.evaluate(node => {
       const summary = node.querySelector(':scope > summary');
       const title = summary.querySelector('b').getBoundingClientRect();
@@ -213,13 +215,15 @@ test('form disclosures are flat, full width, and keep secondary copy beneath the
       const style = getComputedStyle(node);
       return {
         shadow: style.boxShadow,
-        radius: style.borderRadius,
-        background: style.backgroundColor,
-        fullWidth: Math.abs(node.getBoundingClientRect().width - node.parentElement.getBoundingClientRect().width) < 1,
+        opaque: style.backgroundColor === 'rgb(255, 255, 255)',
+        fieldsContained: [...node.querySelectorAll('input,select,textarea')].filter(field => field.getBoundingClientRect().width > 0).every(field => {
+          const card = node.getBoundingClientRect(), bounds = field.getBoundingClientRect();
+          return bounds.left >= card.left && bounds.right <= card.right + 1 && bounds.bottom <= card.bottom + 1;
+        }),
         secondaryBelow: secondary.top >= title.bottom
       };
     });
-    expect(audit).toEqual({ shadow: 'none', radius: '0px', background: 'rgba(0, 0, 0, 0)', fullWidth: true, secondaryBelow: true });
+    expect(audit).toEqual({ shadow: 'none', opaque: true, fieldsContained: true, secondaryBelow: true });
   }
 
   await page.goto('/index.html#L-04');
