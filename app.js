@@ -25,8 +25,8 @@ const screens = [
   {
     "id": "S-01",
     "section": "S",
-    "title": "Meet Muse",
-    "detail": "Introduce the personal stylist and preview what StyleIQ can do.",
+    "title": "Welcome to StyleIQ",
+    "detail": "Introduce StyleIQ and preview wardrobe, daily styling, and trip planning.",
     "phase": 1
   },
   {
@@ -624,8 +624,8 @@ let stylingContext =
   localStorage.getItem("styleiqStylingContextV1") || "Womenswear";
 // Shared local films for the introduction and reusable Look motion previews.
 const museMotionMedia = [
-  { type: "video", src: "app%20videos/woman.mp4", label: "Womenswear motion", stylingContext: "Womenswear" },
-  { type: "video", src: "app%20videos/man.mp4", label: "Menswear motion", stylingContext: "Menswear" },
+  { type: "video", src: "app%20videos/new-woman.mp4", label: "Womenswear motion", stylingContext: "Womenswear" },
+  { type: "video", src: "app%20videos/new-mens.mp4", label: "Menswear motion", stylingContext: "Menswear" },
 ];
 function lookMotionMedia() {
   return museMotionMedia.filter(media => stylingContext === "Both" || media.stylingContext === stylingContext);
@@ -3208,9 +3208,9 @@ function buildClosetOnboarding() {
 }
 function entryScreen(s) {
   if (s.id === "S-00")
-    return `<section class="screen entry-screen entry-splash" aria-labelledby="splash-title"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="A thoughtfully curated wardrobe in warm natural light"><div class="splash-tint" aria-hidden="true"></div><div class="entry-frame"><div class="splash-copy">${brandLockup("splash-wordmark")}<p class="splash-eyebrow">Your wardrobe, reimagined</p><h1 id="splash-title" class="splash-title">Your closet.<br>A fresh perspective.</h1><p class="splash-body">Rediscover what you own. Find what to wear.<br>Let Muse bring it all together.</p><button class="btn primary wide splash-start" onclick="openStyleIQ()"><span>Get Started</span>${icon("arrow-right")}</button><p class="splash-footer">Your pieces. Your taste. Your everyday.</p></div></div></section>`;
+    return `<section class="screen entry-screen entry-splash" aria-labelledby="splash-title"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="A thoughtfully curated wardrobe in warm natural light"><div class="splash-tint" aria-hidden="true"></div><div class="entry-frame"><div class="splash-copy">${brandLockup("splash-wordmark")}<p class="splash-eyebrow">Your wardrobe, reimagined</p><h1 id="splash-title" class="splash-title">Closet with<br>a Brain</h1><p class="splash-body">Rediscover what you own. Find what to wear.<br>Bring your style to life.</p><button class="btn primary wide splash-start" onclick="openStyleIQ()"><span>Get Started</span>${icon("arrow-right")}</button><p class="splash-footer">Your pieces. Your taste. Your everyday.</p></div></div></section>`;
   if (s.id === "S-01") {
-return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen">${museMotionMedia.map((media, index) => `<video class="walkthrough-story-bg muse-film ${index === 0 ? 'is-active' : ''}" src="${media.src}" muted playsinline preload="auto" ${index === 0 ? 'poster="images/meet-muse-poster.jpg"' : ''} aria-hidden="true"></video>`).join("")}<div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Meet Muse</p><h1 class="display">Hi, I’m Muse.</h1><p class="body">Your personal stylist—learning your wardrobe, plans, and taste to help you dress with purpose.</p></div><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
+return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen">${museMotionMedia.map((media, index) => `<video class="walkthrough-story-bg muse-film ${index === 0 ? 'is-active' : ''}" src="${media.src}" muted playsinline preload="auto" ${index === 0 ? 'poster="images/meet-muse-poster.jpg"' : ''} aria-hidden="true"></video>`).join("")}<div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Welcome to StyleIQ</p><h1 class="display">Your style.<br>Every day.</h1><p class="body">Make the most of your wardrobe, find outfits for your plans, and dress with purpose.</p></div><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
   }
   return stylingContextSurface(false);
 }
