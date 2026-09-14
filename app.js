@@ -19,7 +19,7 @@ const screens = [
     "id": "S-00",
     "section": "S",
     "title": "StyleIQ splash",
-    "detail": "Editorial brand introduction and the first app entry point.",
+    "detail": "Unified cinematic entry: welcome films, then interactive introduction and access choices.",
     "phase": 1
   },
   {
@@ -2050,13 +2050,15 @@ function submitMuseQuestion(event) {
   }
   canvasState.creationSource = "muse_assisted";
   persist();
-  museConversation.push({ question, reply: museReplyFor(question) });
+  if (museVoiceRecorder?.state === "recording") { toast("Stop recording before sending your note."); return; }
+  museConversation.push({ question, reply: museReplyFor(question), voiceUrl: museVoiceUrl, voiceSeconds: museVoiceSeconds, time: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) });
+  museVoiceUrl = null;
   if (museConversation.length > 4) museConversation = museConversation.slice(-4);
   render();
   requestAnimationFrame(() => {
     const thread = app.querySelector(".muse-thread");
     thread?.scrollTo({ top: thread.scrollHeight, behavior: "smooth" });
-    app.querySelector("#muse-natural-language")?.focus();
+    app.querySelector("#muse-natural-language")?.focus({ preventScroll: true });
   });
 }
 
@@ -2096,6 +2098,11 @@ function replaceRouteHash(id) {
 }
 function go(id, { record = true, keepPanel = false, replace = false } = {}) {
   if (!routableScreenIds.has(id)) return;
+  if (currentId === "M-01" && id !== "M-01") {
+    if (museVoiceRecorder?.state === "recording") museVoiceRecorder.stop();
+    museVoiceStream?.getTracks().forEach(track => track.stop());
+    window.speechSynthesis?.cancel();
+  }
   const targetCanonical = id;
   if (id === "M-01" && currentId !== "M-01" && museContext.origin !== currentId)
     museContext = museContextFor(currentId);
@@ -2935,86 +2942,121 @@ function installGestures() {
   }
 }
 let disposeMusePlayback = null;
+let welcomeIntroComplete = false;
+let revealWelcomeOverlay = null;
+function updateWelcomeSlide() {
+  const card = app.querySelector('.welcome-carousel');
+  if (!card) return;
+  const slide = walkthroughSlides[walkthroughIndex];
+  card.querySelector('[data-slide-eyebrow]').textContent = slide.eyebrow;
+  card.querySelector('[data-slide-title]').textContent = slide.title;
+  card.querySelector('[data-slide-body]').textContent = slide.body;
+  card.querySelectorAll('[data-slide-index]').forEach((dot, index) => {
+    dot.classList.toggle('active', index === walkthroughIndex);
+    dot.setAttribute('aria-pressed', String(index === walkthroughIndex));
+  });
+  card.querySelector('[data-slide-count]').textContent = `${walkthroughIndex + 1} / ${walkthroughSlides.length}`;
+}
 function installWalkthroughGestures() {
-  if (currentId !== "S-01") return;
-  const videos = [...app.querySelectorAll(".meet-muse-video-screen video")];
-  if (videos.length) {
-    let active = 0, switching = false, disposed = false, fadeTimer;
-    const fadeMs = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 650;
-    const advance = () => {
-      if (switching || disposed || document.hidden) return;
-      switching = true;
-      const outgoing = videos[active];
-      const nextIndex = (active + 1) % videos.length;
-      const incoming = videos[nextIndex];
-      incoming.currentTime = 0;
-      // Keep the outgoing frame visible until the next film is actually decoded.
-      const reveal = () => {
-        if (disposed) return;
-        incoming.classList.add("is-incoming", "is-active");
-        fadeTimer = setTimeout(() => {
-          outgoing.classList.remove("is-active");
-          outgoing.pause();
-          incoming.classList.remove("is-incoming");
-          active = nextIndex;
-          switching = false;
-        }, fadeMs);
-      };
-      incoming.play().then(() => {
-        if (disposed) { incoming.pause(); return; }
-        // play() resolves once playback is ready. A frame callback can stall
-        // indefinitely while the incoming video is fully transparent.
-        reveal();
-      }).catch(() => { switching = false; });
-    };
-    videos.forEach((video, index) => {
-      video.muted = true;
-      video.playsInline = true;
-      video.addEventListener("timeupdate", () => {
-        if (index === active && video.duration - video.currentTime <= fadeMs / 1000 + 0.15) advance();
-      });
-      video.addEventListener("ended", () => { if (index === active) advance(); });
-    });
-    const onVisibility = () => {
-      if (document.hidden) videos.forEach(video => video.pause());
-      else if (!disposed) {
-        videos.forEach((video, index) => {
-          if (index === active || video.classList.contains("is-active")) video.play().catch(() => {});
-        });
-        if (videos[active].ended) advance();
-      }
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    if (!document.hidden) videos[0].play().catch(() => {});
-    disposeMusePlayback = () => {
-      disposed = true;
-      clearTimeout(fadeTimer);
-      videos.forEach(video => video.pause());
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }
-  const story = app.querySelector(".walkthrough-story");
-  let start = null;
+  if (!['S-00', 'S-01'].includes(currentId)) return;
+  const story = app.querySelector('.meet-muse-video-screen');
   if (!story) return;
+  const videos = [...story.querySelectorAll('video')];
+  const intro = story.querySelector('.meet-muse-hero-copy');
+  const card = story.querySelector('.welcome-carousel');
+  const actions = story.querySelector('.walkthrough-story-actions');
+  welcomeIntroComplete = currentId === 'S-01';
+  let active = 0, disposed = false, recoveryTimer, introTimer;
+  const reveal = () => {
+    if (disposed || story.classList.contains('welcome-ready')) return;
+    welcomeIntroComplete = true;
+    clearTimeout(recoveryTimer);
+    card.hidden = false;
+    actions.hidden = false;
+    story.classList.add('welcome-ready');
+    intro.setAttribute('aria-hidden', 'true');
+    introTimer = setTimeout(() => { intro.hidden = true; }, 240);
+  };
+  revealWelcomeOverlay = reveal;
+  const finish = () => {
+    if (disposed || welcomeIntroComplete) return;
+    if (currentId === 'S-00') go('S-01');
+    else reveal();
+  };
+  const armRecovery = () => {
+    clearTimeout(recoveryTimer);
+    // Prevent a failed or stalled local film from trapping the entry screen.
+    recoveryTimer = setTimeout(finish, 12000);
+  };
+  const playActive = () => {
+    if (disposed || document.hidden) return;
+    if (!welcomeIntroComplete) armRecovery();
+    videos[active].play().catch(finish);
+  };
+  videos.forEach((video, index) => {
+    video.muted = true;
+    video.playsInline = true;
+    video.addEventListener('timeupdate', () => {
+      if (index === active && !welcomeIntroComplete && !document.hidden) armRecovery();
+    });
+    video.addEventListener('error', finish);
+    video.addEventListener('ended', () => {
+      if (disposed || index !== active) return;
+      if (active === videos.length - 1 && !welcomeIntroComplete) finish();
+      const outgoing = videos[active];
+      active = (active + 1) % videos.length;
+      const incoming = videos[active];
+      incoming.currentTime = 0;
+      videos.forEach(video => video.classList.remove('is-incoming'));
+      incoming.classList.add('is-active', 'is-incoming');
+      outgoing.classList.remove('is-active');
+      outgoing.pause();
+      playActive();
+    });
+  });
+  const onVisibility = () => {
+    clearTimeout(recoveryTimer);
+    if (document.hidden) videos.forEach(video => video.pause());
+    else playActive();
+  };
+  document.addEventListener('visibilitychange', onVisibility);
+  story.addEventListener('click', event => {
+    if (!welcomeIntroComplete && !event.target.closest('button')) finish();
+  });
   story.tabIndex = 0;
-  story.setAttribute(
-    "aria-label",
-    "StyleIQ introduction. Swipe left or right to change page.",
-  );
-  story.addEventListener("pointerdown", (event) => {
-    if (event.target.closest("button")) return;
+  story.setAttribute('aria-label', 'StyleIQ introduction. Press Enter to explore.');
+  story.addEventListener('keydown', event => {
+    if (!welcomeIntroComplete && ['Enter', ' '].includes(event.key)) {
+      event.preventDefault(); finish();
+    }
+  });
+  let start = null;
+  card.addEventListener('pointerdown', event => {
+    if (event.target.closest('button')) return;
     start = { x: event.clientX, y: event.clientY };
-    story.setPointerCapture?.(event.pointerId);
+    card.setPointerCapture?.(event.pointerId);
   });
-  story.addEventListener("pointerup", (event) => {
+  card.addEventListener('pointerup', event => {
     if (!start) return;
-    const dx = event.clientX - start.x,
-      dy = event.clientY - start.y;
+    const dx = event.clientX - start.x, dy = event.clientY - start.y;
     start = null;
-    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy))
-      moveWalkthrough(dx < 0 ? 1 : -1);
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) moveWalkthrough(dx < 0 ? 1 : -1);
   });
-  story.addEventListener("pointercancel", () => (start = null));
+  card.addEventListener('pointercancel', () => { start = null; });
+  updateWelcomeSlide();
+  if (welcomeIntroComplete) {
+    intro.hidden = true;
+    reveal();
+  } else if (matchMedia('(prefers-reduced-motion: reduce)').matches) finish();
+  playActive();
+  disposeMusePlayback = () => {
+    disposed = true;
+    clearTimeout(introTimer);
+    revealWelcomeOverlay = null;
+    clearTimeout(recoveryTimer);
+    videos.forEach(video => video.pause());
+    document.removeEventListener('visibilitychange', onVisibility);
+  };
 }
 function guardGestureKeys() {
   app
@@ -3152,28 +3194,28 @@ const walkthroughSlides = [
   {
     image: peoplePhotos.onboardingMuse,
     alt: "Muse arranging outfit references in a sunlit wardrobe studio",
-    eyebrow: "Your personal stylist",
-    title: "Hi, I’m Muse.",
-    body: "I learn your wardrobe, your taste, and the choices you actually make—then help you get more from every piece you own.",
+    eyebrow: "Welcome to StyleIQ",
+    title: "More outfits. Less guesswork.",
+    body: "Not sure what to wear? StyleIQ helps you turn the clothes you own into outfits that fit your plans and your personal style.",
   },
   {
     image: peoplePhotos.manFashion,
     alt: "A man choosing a navy tailored jacket in a wardrobe studio",
-    eyebrow: "Daily style guidance",
-    title: "Dress with purpose, every day.",
-    body: "From workdays to weekends, StyleIQ helps you choose outfits that fit your plans, your lifestyle, and your personal style.",
+    eyebrow: "Your wardrobe, connected",
+    title: "Organise. Style. Plan.",
+    body: "Build your digital wardrobe, discover outfit combinations, and plan looks for your calendar and trips—all in one place.",
   },
   {
     image: peoplePhotos.coupleTravel,
     alt: "A couple packing a considered capsule wardrobe for a trip",
-    eyebrow: "Trip planning",
-    title: "Pack smarter for every trip.",
-    body: "Plan outfits for getaways, events, and everyday travel with styling help built around the wardrobe you already own.",
+    eyebrow: "Meet Muse · Your AI stylist",
+    title: "A stylist by your side.",
+    body: "Muse is StyleIQ’s AI stylist. Get outfit suggestions, help choosing between looks, and guidance shaped around your wardrobe, taste, and occasion.",
   },
 ];
 function setWalkthroughSlide(index) {
   walkthroughIndex = Math.max(0, Math.min(walkthroughSlides.length - 1, index));
-  render();
+  updateWelcomeSlide();
 }
 function moveWalkthrough(step) {
   setWalkthroughSlide(walkthroughIndex + step);
@@ -3207,10 +3249,9 @@ function buildClosetOnboarding() {
   return `<section class="screen entry-screen">${head("StyleIQ")}<div class="content no-nav"><div class="onboard"><div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Next, make it yours</p><h1 class="display">Build your closet</h1><p class="body">Let’s start with a few pieces. You can always add more later.</p></div><div class="choice-list" role="region" aria-label="Build your closet options"><button class="choice" onclick="b01Mode='photos';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("camera")}</span><span><b>Scan clothes</b><small class="body" style="display:block">Capture one or many pieces</small></span></span><span>›</span></button><button class="choice" onclick="b01Mode='photos';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("image-up")}</span><span><b>Add photos</b><small class="body" style="display:block">Choose garment photos from your library</small></span></span><span>›</span></button><button class="choice" onclick="b01Mode='search';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("search")}</span><span><b>Search an item</b><small class="body" style="display:block">Find a piece you own</small></span></span><span>›</span></button><button class="choice" onclick="b01Mode='receipt';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("bag")}</span><span><b>Import purchases</b><small class="body" style="display:block">Bring in items from receipts</small></span></span><span>›</span></button><button class="choice" onclick="completeOnboarding('D-02')"><span class="row"><span class="icon-wrap">${icon("arrow-right")}</span><span><b>Skip for now</b><small class="body" style="display:block">Explore Today first</small></span></span><span>›</span></button></div></div></div></div></section>`;
 }
 function entryScreen(s) {
-  if (s.id === "S-00")
-    return `<section class="screen entry-screen entry-splash" aria-labelledby="splash-title"><img class="splash-media" src="images/splash-curated-wardrobe.jpg" alt="A thoughtfully curated wardrobe in warm natural light"><div class="splash-tint" aria-hidden="true"></div><div class="entry-frame"><div class="splash-copy">${brandLockup("splash-wordmark")}<p class="splash-eyebrow">Your wardrobe, reimagined</p><h1 id="splash-title" class="splash-title">Closet with<br>a Brain</h1><p class="splash-body">Rediscover what you own. Find what to wear.<br>Bring your style to life.</p><button class="btn primary wide splash-start" onclick="openStyleIQ()"><span>Get Started</span>${icon("arrow-right")}</button><p class="splash-footer">Your pieces. Your taste. Your everyday.</p></div></div></section>`;
-  if (s.id === "S-01") {
-return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen">${museMotionMedia.map((media, index) => `<video class="walkthrough-story-bg muse-film ${index === 0 ? 'is-active' : ''}" src="${media.src}" muted playsinline preload="auto" ${index === 0 ? 'poster="images/meet-muse-poster.jpg"' : ''} aria-hidden="true"></video>`).join("")}<div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup("inverse micro")}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Welcome to StyleIQ</p><h1 class="display">Your style.<br>Every day.</h1><p class="body">Make the most of your wardrobe, find outfits for your plans, and dress with purpose.</p></div><div class="walkthrough-story-actions"><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
+  if (['S-00', 'S-01'].includes(s.id)) {
+    // Shared S-01 visual shell; S-00 transitions to the actual S-01 walkthrough route.
+    return `<section class="screen entry-screen walkthrough-story meet-muse-video-screen welcome-merged">${museMotionMedia.map((media, index) => `<video class="walkthrough-story-bg muse-film ${index === 0 ? 'is-active' : ''}" src="${media.src}" muted playsinline preload="auto" ${index === 0 ? 'poster="images/meet-muse-poster.jpg"' : ''} aria-hidden="true"></video>`).join('')}<div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="walkthrough-story-head"><span></span>${brandLockup('inverse micro')}<span></span></div><div class="walkthrough-story-body"><div class="meet-muse-hero-copy"><p class="eyebrow">Welcome to StyleIQ</p><h1 class="display">Your style.<br>Every day.</h1><p class="body">Make the most of your wardrobe, find outfits for your plans, and dress with purpose.</p></div><section class="walkthrough-glass welcome-carousel" hidden aria-label="What StyleIQ does" aria-roledescription="carousel"><div class="walkthrough-glass-refract"></div><div class="walkthrough-glass-tint"></div><div class="walkthrough-glass-specular"></div><div class="walkthrough-glass-content"><div class="welcome-slide" aria-live="polite" aria-atomic="true"><p class="eyebrow" data-slide-eyebrow></p><h1 data-slide-title></h1><p class="body" data-slide-body></p></div><div class="welcome-pagination"><button class="welcome-arrow" aria-label="Previous slide" onclick="moveWalkthrough(-1)">←</button><div class="walkthrough-dots">${walkthroughSlides.map((_, index) => `<button data-slide-index="${index}" aria-label="Slide ${index + 1}" aria-pressed="false" onclick="setWalkthroughSlide(${index})"></button>`).join('')}</div><span data-slide-count></span><button class="welcome-arrow" aria-label="Next slide" onclick="moveWalkthrough(1)">→</button></div></div></section><div class="walkthrough-story-actions" hidden><button class="btn primary wide walkthrough-primary" onclick="go('A-16')">Create account</button><button class="btn walkthrough-login" onclick="go('A-01')">Log in</button><button class="btn walkthrough-guest" onclick="exploreAsGuest()">Explore as guest</button></div></div></div></section>`;
   }
   return stylingContextSurface(false);
 }
@@ -7832,6 +7873,17 @@ function synchronizeStylingData() {
   }
 }
 function render() {
+  // Keep the mounted films and their playback clocks when only the entry overlay changes.
+  if (currentId === 'S-01' && app.querySelector('.welcome-merged') && revealWelcomeOverlay) {
+    app.dataset.screen = 'S-01';
+    app.dataset.canonicalScreen = 'S-01';
+    app.dataset.phase2Canonical = 'S-01';
+    revealWelcomeOverlay();
+    const welcome = screens.find(screen => screen.id === 'S-01');
+    renderNotes(welcome);
+    renderList();
+    return;
+  }
   disposeMusePlayback?.();
   disposeMusePlayback = null;
   synchronizeStylingData();
@@ -7931,7 +7983,7 @@ window.addEventListener(
   "keydown",
   (event) => {
     if (
-      currentId === "S-01" &&
+      ['S-00', 'S-01'].includes(currentId) && welcomeIntroComplete &&
       ["ArrowLeft", "ArrowRight"].includes(event.key)
     ) {
       event.preventDefault();
@@ -8324,21 +8376,76 @@ function enrichCoreScreens(s) {
     );
   }
 }
+let museReplyMode = "Voice + text";
+let museVoiceRecorder = null;
+let museVoiceStream = null;
+let museVoiceUrl = null;
+let museVoiceSeconds = 0;
+let museVoiceStarted = 0;
+
+async function toggleMuseRecording(button) {
+  if (museVoiceRecorder?.state === "recording") {
+    museVoiceSeconds = Math.max(1, Math.round((Date.now() - museVoiceStarted) / 1000));
+    museVoiceRecorder.stop();
+    button.textContent = "●";
+    button.setAttribute("aria-label", "Record voice note");
+    return;
+  }
+  try {
+    museVoiceStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (currentId !== "M-01" || !button.isConnected) { museVoiceStream.getTracks().forEach(track => track.stop()); return; }
+    const chunks = [];
+    museVoiceRecorder = new MediaRecorder(museVoiceStream);
+    museVoiceRecorder.ondataavailable = event => chunks.push(event.data);
+    museVoiceRecorder.onstop = () => {
+      if (museVoiceUrl) URL.revokeObjectURL(museVoiceUrl);
+      museVoiceUrl = URL.createObjectURL(new Blob(chunks, { type: museVoiceRecorder.mimeType }));
+      museVoiceStream.getTracks().forEach(track => track.stop());
+      toast("Voice note ready. Add its transcript, then send.");
+      document.querySelector('#muse-natural-language')?.focus();
+    };
+    museVoiceStarted = Date.now();
+    museVoiceRecorder.start();
+    button.textContent = "■";
+    button.setAttribute("aria-label", "Stop recording voice note");
+  } catch { toast("Microphone unavailable. You can still type your question."); }
+}
+function playMuseReply(button) {
+  if (!window.speechSynthesis) { toast("Voice playback is unavailable in this browser."); return; }
+  const card = button.closest(".muse-voice-reply");
+  const wasPlaying = card.classList.contains("is-playing");
+  speechSynthesis.cancel();
+  document.querySelectorAll(".muse-voice-reply.is-playing").forEach(active => {
+    active.classList.remove("is-playing");
+    const control = active.querySelector("button");
+    control.textContent = "▶";
+    control.setAttribute("aria-label", "Play Muse voice reply");
+  });
+  if (wasPlaying) return;
+  const speech = new SpeechSynthesisUtterance(button.dataset.text);
+  speech.rate = .92;
+  speech.onend = speech.onerror = () => {
+    card.classList.remove("is-playing");
+    button.textContent = "▶";
+    button.setAttribute("aria-label", "Play Muse voice reply");
+  };
+  card.classList.add("is-playing");
+  button.textContent = "■";
+  button.setAttribute("aria-label", "Stop Muse voice reply");
+  speechSynthesis.speak(speech);
+}
 function museResponseMarkup(entry) {
   const reply = entry.reply;
-  return `<article class="muse-exchange"><div class="muse-user-message">${escapeMarkup(entry.question)}</div><div class="muse-answer"><div class="muse-answer-head"><img src="${assets.muse}" alt=""><span><b>Muse</b><small>${escapeMarkup(reply.label)}</small></span></div><p class="muse-answer-copy">${escapeMarkup(reply.text)}</p><p class="muse-answer-note">${icon("spark")} ${escapeMarkup(reply.note)}</p><div class="muse-look-rail" aria-label="Suggested Looks">${reply.looks.map(([image, title, detail]) => `<button class="muse-look-card" onclick="go('F-01')"><img src="${image}" alt="${escapeMarkup(title)}"><span><b>${escapeMarkup(title)}</b><small>${escapeMarkup(detail)}</small></span></button>`).join("")}</div><div class="muse-refinements" aria-label="Refine Muse's suggestion">${reply.refinements.map((label) => `<button type="button" data-question="${escapeMarkup(label)}" onclick="askMusePreset(this.dataset.question)">${escapeMarkup(label)}</button>`).join("")}</div><button class="muse-result-action" onclick="go('${reply.action[1]}')">${escapeMarkup(reply.action[0])}<span aria-hidden="true">›</span></button></div></article>`;
+  return `<article class="muse-exchange"><div class="muse-user-message">${entry.voiceUrl ? `<audio controls src="${entry.voiceUrl}" aria-label="Your voice note"></audio><small>Voice note · ${entry.voiceSeconds}s</small>` : ""}<p>${escapeMarkup(entry.question)}</p><time>${entry.time || ""}</time></div><div class="muse-answer"><div class="muse-answer-head"><img src="${assets.muse}" alt=""><span><b>Muse</b><small>${escapeMarkup(reply.label)}</small></span></div><p class="muse-answer-copy">${escapeMarkup(reply.text)}</p><p class="muse-answer-note">${icon("spark")} ${escapeMarkup(reply.note)}</p><div class="muse-look-rail" aria-label="Suggested Looks">${reply.looks.map(([image, title, detail]) => `<button class="muse-look-card" onclick="go('F-01')"><img src="${image}" alt="${escapeMarkup(title)}"><span><b>${escapeMarkup(title)}</b><small>${escapeMarkup(detail)}</small><b>View Full Look →</b></span></button>`).join("")}</div>${museReplyMode === "Voice + text" ? `<div class="muse-voice-reply"><button type="button" aria-label="Play Muse voice reply" data-text="${escapeMarkup(reply.text)}" onclick="playMuseReply(this)">▶</button><span class="muse-waveform" aria-hidden="true">${[8,12,19,14,25,34,22,13,28,40,31,18,10,17,29,21,12,8,15,24,36,26,16,11,20,32,23,14,9,18,27,19,12,16,10,6].map((height, index) => `<i style="--bar-height:${height}px;--bar-delay:${-(index % 9) * .12}s"></i>`).join("")}</span><small>Voice reply</small><p>${escapeMarkup(reply.text)}</p></div>` : ""}<div class="muse-reply-style" role="group" aria-label="Reply style"><b>Reply style</b><div class="muse-reply-options">${["Voice + text", "Text only"].map(mode => `<button type="button" aria-pressed="${museReplyMode === mode}" data-mode="${mode}" onclick="museReplyMode=this.dataset.mode;render()">${mode}</button>`).join("")}</div></div><div class="muse-refinements" aria-label="Refine Muse's suggestion">${["Show another option", "Use only my Closet", "Dress it up"].map(label => `<button type="button" data-question="${escapeMarkup(label)}" onclick="askMusePreset(this.dataset.question)">${escapeMarkup(label)}</button>`).join("")}</div></div></article>`;
 }
 
 function museScreen(s) {
-  const starters = museContext.origin && !museContext.origin.startsWith("M-")
-    ? [museContext.prompt, "Use only my Closet", "Give me a different direction"]
-    : ["Style me for work today", "Help me pack lighter", "Find a useful wardrobe gap"];
-  const conversation = museConversation.length
-    ? museConversation.map(museResponseMarkup).join("")
-    : `<section class="muse-welcome"><div class="muse-welcome-mark"><img src="${assets.muse}" alt="Muse stylist"></div><p class="eyebrow">Your personal stylist</p><h2>What are you dressing for?</h2><p>Tell me the plan, the feeling, or what isn’t working. I’ll answer and show you options from your wardrobe.</p></section>`;
-  return shell(
-    "Muse",
-    `<div class="muse-assistant"><div class="muse-context-strip" role="status"><span>${icon("spark")}</span><p><small>Styling from</small><b>${escapeMarkup(museContext.label)}</b></p>${museConversation.length ? `<button onclick="clearMuseConversation()">New chat</button>` : ""}</div><div class="muse-thread" aria-live="polite">${conversation}</div><div class="muse-starters" aria-label="Suggested questions">${starters.map((label) => `<button type="button" data-question="${escapeMarkup(label)}" onclick="askMusePreset(this.dataset.question)">${escapeMarkup(label)}</button>`).join("")}</div><form class="muse-composer" onsubmit="submitMuseQuestion(event)"><label class="sr-only" for="muse-natural-language">Ask Muse in your own words</label><textarea id="muse-natural-language" rows="1" placeholder="Ask Muse anything about your style…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.requestSubmit()}"></textarea><button type="submit" aria-label="Send to Muse">${icon("send")}</button><small>Muse uses your Closet, plans, and style preferences.</small></form></div>`,
-    { active: "home" },
-  );
+  const active = museConversation.length > 0;
+  const actions = [
+    ["Style My Day", "Looks for your plans today", assets.look, "Style me for work today"],
+    ["Build From My Closet", "Create looks with what you own", assets.blazer, "Build a look using only my Closet"],
+    ["Plan a Trip", "Outfit ideas for your destination", assets.look2, "Help me pack lighter for a seaside trip"],
+    ["Check a Piece", "Find ways to style it", assets.top2, "Help me style a knit top from my Closet"]
+  ];
+  return shell("Muse", `<div class="muse-assistant ${active ? "is-conversation" : "is-intro"}"><div class="muse-hero" aria-label="Muse curating a wardrobe"><video src="app%20videos/muse.mp4" autoplay muted loop playsinline preload="metadata" poster="images/meet-muse-poster.jpg"></video></div>${!active ? `<section class="muse-welcome"><p class="eyebrow">STYLEIQ</p><h2>Meet Muse</h2><p>Your visual stylist for real life.<br>I use your closet, plans, and context to create looks that fit your day.</p></section>` : ""}<div class="muse-context-strip"><span>${icon("sun")}</span><p><small>Styling from</small><b>${escapeMarkup(!museContext.origin || museContext.origin.startsWith("M-") ? "Today’s look and weather" : museContext.label)}</b><small>Closet · plans · weather</small></p>${active ? `<button onclick="clearMuseConversation()">New chat</button>` : ""}</div>${active ? `<div class="muse-thread" aria-live="polite">${museConversation.map(museResponseMarkup).join("")}</div>` : `<div class="muse-entry-cards" aria-label="Start styling with Muse">${actions.map(([title, detail, image, question]) => `<button type="button" data-question="${escapeMarkup(question)}" onclick="askMusePreset(this.dataset.question)"><img src="${image}" alt=""><span><b>${title}</b><small>${detail}</small></span></button>`).join("")}</div>`}<form class="muse-composer" onsubmit="submitMuseQuestion(event)"><label class="sr-only" for="muse-natural-language">Ask Muse in your own words or add your voice transcript</label><textarea id="muse-natural-language" rows="1" placeholder="Ask Muse anything about your style…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.requestSubmit()}"></textarea><button type="button" aria-label="Record voice note" onclick="toggleMuseRecording(this)"><i data-lucide="mic" class="icon"></i></button><button type="submit" aria-label="Send to Muse">↑</button><small>Replies can be voice + text.</small></form></div>`, { active: "home", surfaceClass: "muse-visual-screen" });
 }

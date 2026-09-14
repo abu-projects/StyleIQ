@@ -17598,3 +17598,188 @@ summary:focus-visible {
   .app[data-screen="D-02"] .today-morning-body { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .app[data-screen="D-02"] .today-muse-note { padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--siq-border, var(--line)); }
 }
+
+/* S-00 / S-01 — unified cinematic welcome and glass introduction. */
+.welcome-merged [hidden] { display: none !important; }
+.welcome-merged .walkthrough-story-frame { overflow-y: auto; }
+.welcome-merged .meet-muse-hero-copy { margin-bottom: 36px; }
+.welcome-carousel { touch-action: pan-y; }
+.welcome-carousel .walkthrough-glass-refract {
+  background: rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(9px) saturate(125%);
+  backdrop-filter: blur(9px) saturate(125%);
+}
+@supports (backdrop-filter: url("#liquid-glass-soft")) {
+  .welcome-carousel .walkthrough-glass-refract {
+    backdrop-filter: blur(9px) url("#liquid-glass-soft") saturate(125%);
+  }
+}
+.welcome-slide { min-height: 190px; }
+.welcome-pagination { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.welcome-pagination .walkthrough-dots { display: flex; gap: 0; margin: 0 auto 0 0; }
+.welcome-pagination .walkthrough-dots button { width: 32px; height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.welcome-pagination .walkthrough-dots button::after { content: ''; display: block; margin: auto; width: 6px; height: 6px; border-radius: 50%; background: #8d857d; }
+.welcome-pagination .walkthrough-dots button.active::after { width: 18px; border-radius: 4px; background: #211e1b; }
+.welcome-pagination [data-slide-count] { font-size: 10px; color: #514a43; white-space: nowrap; }
+.welcome-arrow { width: 44px; height: 44px; border: 0; background: transparent; color: #211e1b; font-size: 20px; }
+.welcome-carousel button:focus-visible { outline: 2px solid #211e1b; outline-offset: 2px; }
+.welcome-ready .welcome-carousel { animation: walkthrough-card-in 520ms ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .welcome-ready .welcome-carousel { animation: none; }
+}
+@media (max-height: 700px) {
+  .welcome-merged .walkthrough-story-frame { padding-top: 32px; }
+  .welcome-slide { min-height: 155px; }
+  .welcome-carousel .walkthrough-glass-content { padding: 18px; }
+  .welcome-carousel .walkthrough-glass-content h1 { font-size: 29px; }
+}
+
+/* The walkthrough and account actions are separate surfaces. */
+.welcome-merged .welcome-carousel {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16);
+}
+.welcome-carousel .walkthrough-glass-tint {
+  background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.03) 48%, rgba(255,255,255,0.1));
+}
+.welcome-carousel .walkthrough-glass-specular {
+  box-shadow: inset 0 1.5px 1px rgba(255,255,255,0.85), inset 1px 0 1px rgba(255,255,255,0.3), inset 0 -1px 1px rgba(255,255,255,0.2);
+}
+.welcome-carousel .walkthrough-glass-content :is(h1, .body, .eyebrow),
+.welcome-carousel .welcome-arrow,
+.welcome-pagination [data-slide-count] { color: #fff; text-shadow: 0 1px 8px rgba(0,0,0,0.35); }
+.welcome-pagination .walkthrough-dots button::after { background: rgba(255,255,255,0.45); }
+.welcome-pagination .walkthrough-dots button.active::after { background: #fff; }
+.welcome-carousel button:focus-visible { outline-color: #fff; }
+.welcome-merged .walkthrough-story-actions { margin-top: 20px; }
+
+/* Entry transition affects overlays only; the mounted video never moves. */
+.welcome-merged .walkthrough-story-body { position: relative; }
+.welcome-merged .meet-muse-hero-copy { transition: opacity 240ms ease-out; }
+.welcome-ready .meet-muse-hero-copy {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.welcome-ready .welcome-carousel { animation: welcome-overlay-up 560ms cubic-bezier(0.22,1,0.36,1) 180ms both; }
+.welcome-ready .walkthrough-story-actions { animation: welcome-overlay-up 480ms cubic-bezier(0.22,1,0.36,1) 260ms both; }
+@keyframes welcome-overlay-up {
+  from { opacity: 0; transform: translateY(48px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-merged .meet-muse-hero-copy { transition: none; }
+  .welcome-ready .welcome-carousel,
+  .welcome-ready .walkthrough-story-actions { animation: none; }
+}
+
+/* Muse: the media dissolves into the exact same surface as the scrolling page. */
+.app[data-screen="M-01"] .siq-content {
+  overflow-y: auto;
+  padding: 0 16px calc(82px + env(safe-area-inset-bottom));
+  background: var(--siq-bg);
+}
+.muse-visual-screen .muse-assistant {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: auto;
+  min-height: 100%;
+  background: var(--siq-bg);
+}
+.muse-hero {
+  position: relative;
+  flex: none;
+  height: 390px;
+  margin: 0 -16px;
+  overflow: hidden;
+}
+.muse-hero video { width: 100%; height: 100%; object-fit: cover; object-position: center 35%; }
+.muse-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent 35%, color-mix(in srgb, var(--siq-bg) 15%, transparent) 52%, color-mix(in srgb, var(--siq-bg) 72%, transparent) 76%, var(--siq-bg) 98%);
+}
+.muse-visual-screen .muse-welcome {
+  position: relative;
+  z-index: 1;
+  max-width: none;
+  margin-top: -98px;
+  padding: 0 10px 2px;
+  text-align: center;
+}
+.muse-visual-screen .muse-welcome .eyebrow { justify-content: center; font-size: 9px; letter-spacing: .3em; }
+.muse-visual-screen .muse-welcome h2 { font-size: 42px; margin: 4px 0 8px; }
+.muse-visual-screen .muse-welcome > p:last-child { margin: auto; font-size: 12px; line-height: 1.45; }
+.muse-visual-screen .muse-context-strip { background: var(--siq-surface); border-radius: 22px; min-height: 55px; }
+.muse-entry-cards {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 42%;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.muse-entry-cards::-webkit-scrollbar { display: none; }
+.muse-entry-cards button { display: flex; flex-direction: column; padding: 0; overflow: hidden; text-align: left; border: 0; border-radius: 12px; background: var(--siq-surface); color: var(--ink); }
+.muse-entry-cards img { width: 100%; height: 136px; object-fit: cover; }
+.muse-entry-cards span { padding: 10px; display: grid; gap: 5px; }
+.muse-entry-cards b { font-family: var(--font-display); font-size: 15px; line-height: 1.1; }
+.muse-entry-cards small { color: var(--muted); font-size: 10px; line-height: 1.3; }
+.muse-visual-screen .muse-composer { position: sticky; bottom: 0; z-index: 3; grid-template-columns: minmax(0, 1fr) 42px 42px; margin-top: auto; background: color-mix(in srgb, var(--siq-bg) 94%, transparent); box-shadow: 0 -8px 20px color-mix(in srgb, var(--siq-bg) 75%, transparent); }
+.muse-visual-screen .muse-composer > button { border-radius: 50% !important; font-size: 25px; }
+.muse-visual-screen .muse-composer textarea { border-radius: 24px; }
+.muse-visual-screen .muse-thread { overflow: visible; flex: 1; }
+.is-conversation .muse-hero { height: 100px; margin-bottom: -45px; }
+.is-conversation .muse-context-strip { position: relative; z-index: 1; }
+.muse-visual-screen .muse-user-message { background: #ece3d7; color: var(--ink); }
+.muse-user-message p { margin: 0 0 5px; }
+.muse-user-message time { display: block; text-align: right; font-size: 9px; color: var(--muted); }
+.muse-user-message audio { max-width: 100%; height: 35px; }
+.muse-visual-screen .muse-answer-copy { padding: 12px; border: 1px solid var(--line); border-radius: 16px; background: var(--siq-surface); max-width: none; font-size: 12px; }
+.muse-visual-screen .muse-look-card { grid-template-rows: 210px auto; }
+.muse-visual-screen .muse-look-card img { height: 210px; }
+.muse-voice-reply { display: grid; grid-template-columns: 36px 1fr auto; gap: 8px; align-items: center; padding: 12px; background: var(--siq-surface); border: 1px solid var(--line); border-radius: 16px; }
+.muse-voice-reply button { border: 0; border-radius: 50%; height: 36px; background: var(--ink); color: white; }
+.muse-voice-reply .muse-waveform { display: flex; align-items: center; justify-content: space-between; gap: 3px; height: 44px; min-width: 0; overflow: hidden; }
+.muse-waveform i { display: block; flex: 1 1 2px; max-width: 3px; min-width: 1px; height: var(--bar-height); border-radius: 999px; background: #80602e; transform-origin: center; }
+.muse-voice-reply.is-playing .muse-waveform i { animation: muse-wave-pulse .85s ease-in-out infinite alternate; animation-delay: var(--bar-delay); }
+@keyframes muse-wave-pulse { from { transform: scaleY(.45); opacity: .55; } to { transform: scaleY(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .muse-voice-reply.is-playing .muse-waveform i { animation: none; } }
+.muse-voice-reply small { color: var(--muted); font-size: 9px; }
+.muse-voice-reply p { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.muse-reply-style { display: grid; gap: 8px; color: var(--ink); }
+.muse-reply-style > b { font-size: 12px; font-weight: 600; }
+.muse-reply-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.muse-reply-options button { min-height: 44px; padding: 10px; border: 1px solid var(--line); border-radius: 14px; background: var(--siq-surface); color: var(--ink); font-size: 12px; font-weight: 600; }
+.muse-reply-options button[aria-pressed="true"] { border-color: #b68a40; background: #f5ebd5; }
+.muse-reply-options button:focus-visible { outline: 2px solid #b68a40; outline-offset: 2px; }
+.app.siq-editorial[data-screen="M-01"] .siq-content .muse-welcome {
+  margin: -98px 0 0;
+  padding: 0 10px 2px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.app.siq-editorial[data-screen="M-01"] .siq-content .muse-assistant { gap: 14px; }
+.app.siq-editorial[data-screen="M-01"] .siq-content .muse-welcome h2 { font-size: 42px; }
+.app.siq-editorial[data-screen="M-01"] .siq-content .muse-welcome::before,
+.app.siq-editorial[data-screen="M-01"] .siq-content .muse-welcome::after { display: none; }
+.muse-assistant.is-intro .muse-hero { height: 310px; }
+
+/* Extend Muse media beneath the glass header, keeping its dissolve in the page. */
+.app.siq-editorial[data-screen="M-01"] .siq-content {
+  margin-top: -64px;
+  padding-top: 0;
+}
+.muse-assistant.is-intro .muse-hero { height: 374px; }
+.muse-assistant.is-conversation .muse-hero { height: 164px; }
+.muse-entry-cards button { scroll-snap-align: start; }
