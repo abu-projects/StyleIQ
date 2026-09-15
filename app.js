@@ -47,7 +47,14 @@ const screens = [
     "id": "A-16",
     "section": "A",
     "title": "Sign up",
-    "detail": "The single canonical account-creation surface with Google, Apple, and inline Email/OTP.",
+    "detail": "A single account-creation form with Google, Apple, email credentials, then OTP verification.",
+    "phase": 1
+  },
+  {
+    "id": "A-17",
+    "section": "A",
+    "title": "Forgot password",
+    "detail": "Request a password reset without leaving the editorial authentication identity.",
     "phase": 1
   },
   {
@@ -305,6 +312,7 @@ const onboardingIconMap = {
   "A-01": "log-in",
   "A-02": "user-round-plus",
   "A-16": "user-round-plus",
+  "A-17": "key-round",
 };
 const sectionIconMap = {
   S: "panels-top-left",
@@ -560,7 +568,8 @@ function resolveCanonicalRoute(id) {
     ? { screen: id, canonical: id }
     : { screen: null, canonical: null };
 }
-let authInlineState = "providers", // "providers" | "email" | "otp"
+let authInlineState = "form", // "form" | "otp"
+  passwordResetSent = false,
   a02FocusedSection = "wardrobe", // "wardrobe" | "goal"
   b01Mode = "photos", // "photos" | "search" | "receipt"
   b01Processing = false,
@@ -580,6 +589,8 @@ const defaultSettingsPreferences = {
   tripReminders: true,
   privateProfile: true,
   styleTwinVisibility: "Only me",
+  museReplyMode: "Voice + text",
+  liquidGlass: 50,
 };
 let settingsPreferences = (() => {
   try {
@@ -591,6 +602,11 @@ let settingsPreferences = (() => {
     return { ...defaultSettingsPreferences };
   }
 })();
+settingsPreferences.liquidGlass = normalizeLiquidGlassValue(settingsPreferences.liquidGlass);
+settingsPreferences.museReplyMode = ["Voice + text", "Text only"].includes(settingsPreferences.museReplyMode)
+  ? settingsPreferences.museReplyMode
+  : "Voice + text";
+applyLiquidGlassTransparency(settingsPreferences.liquidGlass);
 let currentId = location.hash.slice(1) || "S-00",
   overlay = null,
   lightweightPanel = null,
@@ -620,6 +636,7 @@ let feedbackReason = "",
     prompt: "Ask about your wardrobe, plans, or personal style.",
   };
 let museConversation = [];
+let museImageAttachment = null;
 let stylingContext =
   localStorage.getItem("styleiqStylingContextV1") || "Womenswear";
 // Shared local films for the introduction and reusable Look motion previews.
@@ -1924,6 +1941,7 @@ function fallbackBack(id) {
   if (id === "S-01") return "S-00";
   if (id === "A-01") return "S-01";
   if (id === "A-16") return "S-01";
+  if (id === "A-17") return "A-01";
   if (id === "A-02") return "A-16";
   return backRoutes[id] || "D-02";
 }
@@ -2043,15 +2061,16 @@ function museReplyFor(question) {
 function submitMuseQuestion(event) {
   event?.preventDefault();
   const field = event?.currentTarget?.querySelector("textarea") || document.querySelector("#muse-natural-language");
-  const question = field?.value.trim();
-  if (!question) {
+  const question = field?.value.trim() || (museImageAttachment ? "Help me style this image" : "");
+  if (!question && !museImageAttachment) {
     field?.focus();
     return;
   }
   canvasState.creationSource = "muse_assisted";
   persist();
   if (museVoiceRecorder?.state === "recording") { toast("Stop recording before sending your note."); return; }
-  museConversation.push({ question, reply: museReplyFor(question), voiceUrl: museVoiceUrl, voiceSeconds: museVoiceSeconds, time: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) });
+  museConversation.push({ question, reply: museReplyFor(question), imageAttachment: museImageAttachment, voiceUrl: museVoiceUrl, voiceSeconds: museVoiceSeconds, time: new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) });
+  museImageAttachment = null;
   museVoiceUrl = null;
   if (museConversation.length > 4) museConversation = museConversation.slice(-4);
   render();
@@ -2059,6 +2078,40 @@ function submitMuseQuestion(event) {
     const thread = app.querySelector(".muse-thread");
     thread?.scrollTo({ top: thread.scrollHeight, behavior: "smooth" });
     app.querySelector("#muse-natural-language")?.focus({ preventScroll: true });
+  });
+}
+
+function attachMuseImage(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    toast("Choose an image to attach.");
+    input.value = "";
+    return;
+  }
+  const draft = document.querySelector("#muse-natural-language")?.value || "";
+  const reader = new FileReader();
+  reader.onload = () => {
+    museImageAttachment = { src: reader.result, name: file.name };
+    render();
+    requestAnimationFrame(() => {
+      const field = document.querySelector("#muse-natural-language");
+      if (field) field.value = draft;
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeMuseImageAttachment() {
+  const draft = document.querySelector("#muse-natural-language")?.value || "";
+  museImageAttachment = null;
+  render();
+  requestAnimationFrame(() => {
+    const field = document.querySelector("#muse-natural-language");
+    if (field) {
+      field.value = draft;
+      field.focus({ preventScroll: true });
+    }
   });
 }
 
@@ -2368,6 +2421,28 @@ function settingsToggle(key, label) {
 function persistSettingsPreferences() {
   localStorage.setItem("styleiqSettingsV1", JSON.stringify(settingsPreferences));
 }
+function normalizeLiquidGlassValue(value) {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue)
+    ? Math.min(100, Math.max(0, Math.round(numericValue)))
+    : 50;
+}
+function applyLiquidGlassTransparency(value) {
+  document.documentElement.style.setProperty(
+    "--siq-liquid-glass-opacity",
+    String(normalizeLiquidGlassValue(value) / 100),
+  );
+}
+function updateLiquidGlassTransparency(value, control) {
+  const normalizedValue = normalizeLiquidGlassValue(value);
+  settingsPreferences.liquidGlass = normalizedValue;
+  applyLiquidGlassTransparency(normalizedValue);
+  persistSettingsPreferences();
+  control.style.setProperty("--glass-value", `${normalizedValue}%`);
+  control.setAttribute("aria-valuetext", `${normalizedValue}%`);
+  const output = document.getElementById("liquid-glass-value");
+  if (output) output.textContent = `${normalizedValue}%`;
+}
 function toggleSettingsPreference(key, control) {
   settingsPreferences[key] = !settingsPreferences[key];
   persistSettingsPreferences();
@@ -2376,6 +2451,18 @@ function toggleSettingsPreference(key, control) {
 }
 function updateStyleTwinVisibility(value, control) {
   settingsPreferences.styleTwinVisibility = value;
+  persistSettingsPreferences();
+  control
+    .closest(".settings-segmented")
+    ?.querySelectorAll("button")
+    .forEach((button) => {
+      const selected = button === control;
+      button.classList.toggle("selected", selected);
+      button.setAttribute("aria-pressed", String(selected));
+    });
+}
+function updateMuseReplyMode(value, control) {
+  settingsPreferences.museReplyMode = value;
   persistSettingsPreferences();
   control
     .closest(".settings-segmented")
@@ -3281,16 +3368,27 @@ function otpTick() {
 }
 setInterval(otpTick, 500);
 function beginOtpInline() {
-  const fields = ['#signup-first-name', '#signup-last-name', '#signup-email'].map(selector => app.querySelector(selector));
-  if (fields.some(input => input && !input.reportValidity())) return;
-  const [firstNameInput, lastNameInput, emailInput] = fields;
-  const firstName = firstNameInput?.value.trim() || profileFirstName();
-  const lastName = lastNameInput?.value.trim() || "Hart";
+  const fields = ['#signup-email', '#signup-password', '#signup-confirm-password'].map(selector => app.querySelector(selector));
+  if (fields.some(input => !input?.reportValidity())) return;
+  const [emailInput, passwordInput, confirmPasswordInput] = fields;
+  if (passwordInput.value !== confirmPasswordInput.value) {
+    confirmPasswordInput.setCustomValidity('Passwords do not match.');
+    confirmPasswordInput.reportValidity();
+    return;
+  }
+  confirmPasswordInput.setCustomValidity('');
   const email = emailInput?.value || "user@example.com";
-  persistAccountIdentity({ firstName, lastName, email, provider: "email" });
+  persistAccountIdentity({ firstName: profileFirstName(), lastName: accountIdentity.lastName || "Hart", email, provider: "email" });
   Object.assign(otpSession, { email, digits: '', attempts: 0, resendAt: Date.now()+28000, expiresAt: Date.now()+300000, blockedUntil: 0 });
   otpState = 'idle'; otpAttempts = 0; persistOtp();
   authInlineState = 'otp';
+  render();
+}
+function sendPasswordReset() {
+  const input = app.querySelector('#reset-email');
+  if (!input?.reportValidity()) return;
+  otpSession.email = input.value;
+  passwordResetSent = true;
   render();
 }
 function completeProviderSignup(provider) {
@@ -3300,17 +3398,7 @@ function completeProviderSignup(provider) {
 function completeSetupStyleIQ() {
   localStorage.setItem("styleiqOnboardingCompleteV1", "true");
   localStorage.removeItem("styleiqGuestModeV1");
-  if (["Make more outfits from Closet", "Make more outfits from my closet"].includes(onboardingGoal)) {
-    go(closetItems().length ? "C-01" : "B-01");
-  } else if (onboardingGoal === "Plan outfits") {
-    go("I-01");
-  } else if (onboardingGoal === "Shop more intentionally") {
-    go("G-08");
-  } else if (["Pack for a trip", "Pack for a trip / travel"].includes(onboardingGoal)) {
-    go("J-02");
-  } else {
-    go("D-02");
-  }
+  go("D-02");
 }
 const screenIllustrations = {
   createAccount: "images/illustrations/illustration-a16-create-account-transparent.png",
@@ -3329,9 +3417,9 @@ function screenIllustration(src, alt, modifier = "") {
   return `<figure class="screen-illustration ${modifier}"><img src="${src}" alt="${alt}" decoding="async"></figure>`;
 }
 function setupIllustrationDetails(context = stylingContext) {
-  if (context === "Menswear") return { src: screenIllustrations.menswear, alt: "Menswear styling illustration" };
-  if (context === "Both") return { src: screenIllustrations.both, alt: "Womenswear and menswear styling illustration" };
-  return { src: screenIllustrations.womenswear, alt: "Womenswear styling illustration" };
+  if (context === "Menswear") return { src: "images/look-menswear-studio-cairo.png", alt: "Tailored menswear in a fashion studio" };
+  if (context === "Both") return { src: "images/auth-tailoring-bg-v1.png", alt: "A considered wardrobe of tailored clothing" };
+  return { src: "images/look-soft-tailoring-cairo.png", alt: "Soft tailored womenswear" };
 }
 function selectSetupOption(kind, value, button) {
   const group = button?.closest('[role="radiogroup"]');
@@ -3348,28 +3436,36 @@ function selectSetupOption(kind, value, button) {
     option.setAttribute("aria-checked", String(option === button));
   });
 }
+function authEditorialScreen(content, modifier = "") {
+  return `<section class="screen entry-screen walkthrough-story login-splash-identity auth-tailoring-identity ${modifier}"><div class="login-story-media" aria-hidden="true"></div><div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="login-story-logo">${brandLockup("inverse micro")}</div><div class="walkthrough-story-body login-story-body">${content}</div></div></section>`;
+}
+function otpFeedback() {
+  if (otpState === "expired") return '<p class="auth-feedback error" role="alert">This code has expired. Request a new code.</p>';
+  if (otpState === "invalid") return '<p class="auth-feedback error" role="alert">That code is invalid. Try again.</p>';
+  if (otpState === "blocked") return '<p class="auth-feedback error" role="alert">Too many attempts. Please wait before trying again.</p>';
+  if (otpState === "resent") return '<p class="auth-feedback success-badge" role="status">A new code was sent.</p>';
+  if (otpState === "resendFailed") return '<p class="auth-feedback error" role="alert">We couldn’t resend the code. Try again.</p>';
+  if (otpState === "sendFailed") return '<p class="auth-feedback error" role="alert">We couldn’t send a code. Try again.</p>';
+  return "";
+}
 function onboarding(s) {
   let main = "";
   if (s.id === "A-01")
-    main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Welcome back</p><h1 class="display">Sign in to your wardrobe.</h1><p class="body">Pick up where you left off with your Closet, Looks, plans, and Muse preferences.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="login-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("user-round")}</span><input id="login-email" class="input auth-screen-input" type="email" autocomplete="email" placeholder="name@email.com"></div></div><div class="field"><div class="auth-field-label"><label for="login-password">Password</label><button class="auth-inline-link" type="button" onclick="toast('Password reset link sent')">Forgot password?</button></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("lock-keyhole")}</span><input id="login-password" class="input auth-screen-input" type="password" autocomplete="current-password" placeholder="Enter your password"></div></div><button class="btn primary wide auth-primary" type="button" onclick="completeSignIn('D-02')">Sign in</button></div><div class="auth-divider"><span>or continue with</span></div><div class="auth-social-grid"><button class="btn auth-provider" type="button" aria-label="Sign in with Google" onclick="completeSignIn('D-02')">${authIcon("google")}<span>Google</span></button><button class="btn auth-provider" type="button" aria-label="Sign in with Apple" onclick="completeSignIn('D-02')">${authIcon("apple")}<span>Apple</span></button></div></div></div><div class="auth-switch"><span>Don’t have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-16')">Sign up</button></div></div>`;
+    return `<section class="screen entry-screen walkthrough-story login-splash-identity"><div class="login-story-media" aria-hidden="true"></div><div class="walkthrough-story-shade" aria-hidden="true"></div><div class="walkthrough-story-frame"><div class="login-story-logo">${brandLockup("inverse micro")}</div><div class="walkthrough-story-body login-story-body"><section class="login-direct-content" aria-label="Sign in to StyleIQ"><p class="eyebrow">Welcome back</p><h1>Sign in.</h1><p class="body">Your wardrobe is waiting.</p><div class="stack auth-form login-glass-form"><div class="field"><label class="sr-only" for="login-email">Email address</label><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="login-email" class="input auth-screen-input" type="email" autocomplete="email" placeholder="Email"></div></div><div class="field"><label class="sr-only" for="login-password">Password</label><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("lock-keyhole")}</span><input id="login-password" class="input auth-screen-input" type="password" autocomplete="current-password" placeholder="Password"></div><button class="auth-inline-link" type="button" onclick="passwordResetSent=false;go('A-17')">Forgot password?</button></div></div></section><div class="walkthrough-story-actions login-story-actions"><button class="btn primary wide walkthrough-primary" type="button" onclick="completeSignIn('D-02')">Sign in</button><button class="btn walkthrough-login login-provider" type="button" aria-label="Sign in with Apple" onclick="completeSignIn('D-02')">${authIcon("apple")}<span>Apple</span></button><button class="btn walkthrough-guest login-provider" type="button" aria-label="Sign in with Google" onclick="completeSignIn('D-02')">${authIcon("google")}<span>Google</span></button></div><p class="login-create-switch">New to StyleIQ? <button type="button" onclick="go('A-16')">Create account</button></p><p class="auth-legal login-story-legal">By continuing, you agree to StyleIQ’s Terms and Privacy Policy.</p></div></div></section>`;
   else if (s.id === "A-16") {
-    if (authInlineState === "email") {
-      main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Create your account.</h1><p class="body">Account identity stays here. Personalization comes next.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="row"><div class="field grow"><label for="signup-first-name">First Name</label><input id="signup-first-name" class="input auth-screen-input" required autocomplete="given-name" value="${escapeMarkup(accountIdentity.firstName || '')}"></div><div class="field grow"><label for="signup-last-name">Last Name</label><input id="signup-last-name" class="input auth-screen-input" required autocomplete="family-name" value="${escapeMarkup(accountIdentity.lastName || '')}"></div></div><div class="field"><div class="auth-field-label"><label for="signup-email">Email</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" value="${escapeMarkup(accountIdentity.email || otpSession.email || '')}" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="beginOtpInline()">Create Account</button><div style="text-align:center;margin-top:10px"><button class="auth-inline-link" type="button" onclick="authInlineState='providers';render()">Back to account options</button></div></div></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
-    } else if (authInlineState === "otp") {
-      main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Verify email</p><h1 class="display">Check your inbox.</h1><p class="body">Enter the six-digit code we sent to ${escapeMarkup(otpSession.email || "your email")}.</p><p class="small">Prototype code: 123456</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-form">${otpState === "expired" ? '<p class="error" role="alert">This code has expired. Request a new code.</p>' : otpState === "invalid" ? '<p class="error" role="alert">That code is invalid. Try again.</p>' : otpState === "blocked" ? '<p class="error" role="alert">Too many attempts. Please wait before trying again.</p>' : otpState === "resent" ? '<p class="success-badge" role="status">A new code was sent.</p>' : otpState === "resendFailed" ? '<p class="error" role="alert">We couldn’t resend the code. Try again.</p>' : otpState === "sendFailed" ? '<p class="error" role="alert">We couldn’t send a code. Try again.</p>' : ""}<div class="otp">${Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" value="${otpSession.digits[i] || ''}" oninput="saveOtpDigits()" aria-label="Digit ${i + 1}">`).join("")}</div><div class="between" style="margin-top:12px"><span id="otp-timing" class="helper" role="status">${otpTiming()}</span><button id="otp-resend" class="auth-inline-link" type="button" ${otpWait() ? "disabled" : ""} onclick="resendOtp(true)">${otpState === "expired" ? "Send New Code" : "Resend code"}</button></div><button class="btn primary wide auth-primary" type="button" style="margin-top:14px" onclick="verifyOtp()" ${otpState === "blocked" ? "disabled" : ""}>Verify email</button><div style="text-align:center;margin-top:10px"><button class="auth-inline-link" type="button" onclick="authInlineState='email';render()">Change email</button></div><details style="margin-top:14px"><summary>Prototype states</summary><div class="chips" style="margin-top:8px"><button class="chip" onclick="setOtpState('valid')">Valid</button><button class="chip" onclick="setOtpState('invalid', true)">Invalid</button><button class="chip" onclick="setOtpState('expired')">Expired</button><button class="chip" onclick="setOtpState('resendFailed')">Resend failure</button><button class="chip" onclick="setOtpState('sendFailed')">Send failure</button></div></details></div></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
-    } else {
-      main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Your wardrobe, considered</p><h1 class="display">Create your StyleIQ.</h1><p class="body">Build a more intentional wardrobe with a personal stylist that learns from you.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="auth-social-grid"><button class="btn auth-provider" type="button" aria-label="Sign up with Google" onclick="completeProviderSignup('Google')">${authIcon("google")}<span>Google</span></button><button class="btn auth-provider" type="button" aria-label="Sign up with Apple" onclick="completeProviderSignup('Apple')">${authIcon("apple")}<span>Apple</span></button></div><div class="auth-divider"><span>or</span></div><button class="btn primary wide auth-provider auth-primary auth-email-choice" type="button" onclick="authInlineState='email';render()">${authIcon("mail")}<span>Continue with email</span></button><p class="auth-legal">By continuing, you agree to StyleIQ’s Terms and acknowledge the Privacy Policy.</p></div></div><div class="auth-switch"><span>Already have an account?</span><button class="auth-switch-action" type="button" onclick="go('A-01')">Sign in</button></div></div>`;
+    if (authInlineState === "otp") {
+      return authEditorialScreen(`<section class="login-direct-content otp-direct-content" aria-label="Verify your email"><p class="eyebrow">Verify email</p><h1>Check your inbox.</h1><p class="body">Enter the six-digit code sent to ${escapeMarkup(otpSession.email || "your email")}.</p>${otpFeedback()}<div class="otp editorial-otp">${Array.from({ length: 6 }, (_, i) => `<input inputmode="numeric" pattern="[0-9]*" maxlength="1" value="${otpSession.digits[i] || ''}" oninput="saveOtpDigits()" aria-label="Digit ${i + 1}">`).join("")}</div><div class="between otp-meta"><span id="otp-timing" class="helper" role="status">${otpTiming()}</span><button id="otp-resend" class="auth-inline-link" type="button" ${otpWait() ? "disabled" : ""} onclick="resendOtp(true)">${otpState === "expired" ? "Send new code" : "Resend code"}</button></div></section><div class="walkthrough-story-actions login-story-actions otp-story-actions"><button class="btn primary wide walkthrough-primary" type="button" onclick="verifyOtp()" ${otpState === "blocked" ? "disabled" : ""}>Verify email</button></div><p class="login-create-switch"><button type="button" onclick="authInlineState='form';render()">Change email</button></p>`, "signup-splash-identity otp-splash-identity");
     }
+    return authEditorialScreen(`<section class="login-direct-content signup-direct-content" aria-label="Create your StyleIQ account"><p class="eyebrow">Join StyleIQ</p><h1>Create account.</h1><p class="body">A more considered wardrobe starts here.</p><div class="walkthrough-story-actions login-story-actions signup-social-actions"><button class="btn walkthrough-login login-provider" type="button" aria-label="Sign up with Apple" onclick="completeProviderSignup('Apple')">${authIcon("apple")}<span>Apple</span></button><button class="btn walkthrough-guest login-provider" type="button" aria-label="Sign up with Google" onclick="completeProviderSignup('Google')">${authIcon("google")}<span>Google</span></button></div><div class="auth-divider signup-auth-divider"><span>or continue with email</span></div><div class="stack auth-form login-glass-form signup-glass-form"><div class="field"><label class="sr-only" for="signup-email">Email address</label><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" value="${escapeMarkup(accountIdentity.email || otpSession.email || '')}" placeholder="Email"></div></div><div class="field"><label class="sr-only" for="signup-password">Password</label><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("lock-keyhole")}</span><input id="signup-password" class="input auth-screen-input" type="password" required minlength="8" autocomplete="new-password" placeholder="Password"></div></div><div class="field"><label class="sr-only" for="signup-confirm-password">Confirm password</label><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("check")}</span><input id="signup-confirm-password" class="input auth-screen-input" type="password" required minlength="8" autocomplete="new-password" placeholder="Confirm password" oninput="this.setCustomValidity('')"></div></div></div></section><div class="walkthrough-story-actions login-story-actions signup-submit-actions"><button class="btn primary wide walkthrough-primary" type="button" onclick="beginOtpInline()">Create account</button></div><p class="login-create-switch">Already have an account? <button type="button" onclick="go('A-01')">Sign in</button></p><p class="auth-legal login-story-legal">By continuing, you agree to StyleIQ’s Terms and Privacy Policy.</p>`, "signup-splash-identity");
+  }
+  else if (s.id === "A-17") {
+    if (passwordResetSent) {
+      return authEditorialScreen(`<section class="login-direct-content reset-direct-content" aria-label="Password reset email sent"><p class="eyebrow">Email sent</p><h1>Check your inbox.</h1><p class="body">We sent reset instructions to ${escapeMarkup(otpSession.email || "your email")}.</p></section><div class="walkthrough-story-actions login-story-actions reset-story-actions"><button class="btn primary wide walkthrough-primary" type="button" onclick="go('A-01')">Back to sign in</button></div><p class="login-create-switch"><button type="button" onclick="passwordResetSent=false;render()">Use a different email</button></p>`, "reset-splash-identity reset-confirmation");
+    }
+    return authEditorialScreen(`<section class="login-direct-content reset-direct-content" aria-label="Reset your password"><p class="eyebrow">Account access</p><h1>Reset password.</h1><p class="body">Enter your email and we’ll send reset instructions.</p><div class="stack auth-form login-glass-form reset-glass-form"><div class="field"><label class="sr-only" for="reset-email">Email address</label><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="reset-email" class="input auth-screen-input" type="email" required autocomplete="email" value="${escapeMarkup(accountIdentity.email || '')}" placeholder="Email"></div></div></div></section><div class="walkthrough-story-actions login-story-actions reset-story-actions"><button class="btn primary wide walkthrough-primary" type="button" onclick="sendPasswordReset()">Send reset link</button></div><p class="login-create-switch"><button type="button" onclick="go('A-01')">Back to sign in</button></p>`, "reset-splash-identity");
   }
   else if (s.id === "A-02") {
-    const goals = [
-      ["shirt", "Get dressed faster"],
-      ["sparkles", "Make more outfits from Closet"],
-      ["calendar", "Plan outfits"],
-      ["search", "Shop more intentionally"],
-      ["briefcase", "Pack for a trip"],
-    ];
-    main = `<div class="onboard-main auth-step-main setup-main"><div class="auth-heading setup-heading"><p class="eyebrow">Personalize</p><h1 class="display">Set up your StyleIQ</h1><p class="body">Two quick choices, tailored to how you want to use your wardrobe.</p></div><div class="setup-flow"><section class="auth-shell setup-section setup-wardrobe" data-section="wardrobe" aria-labelledby="setup-wardrobe-title"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="setup-step"><span>01</span><span>Wardrobe</span></div><h2 id="setup-wardrobe-title">Who are we styling?</h2><p>Choose the wardrobe you want StyleIQ to understand first.</p><div class="setup-wardrobe-options" role="radiogroup" aria-label="Wardrobe context">${["Womenswear", "Menswear", "Both"].map(label => { const illustration = setupIllustrationDetails(label); return `<button type="button" class="setup-wardrobe-option" role="radio" aria-checked="${stylingContext === label}" onclick="selectSetupOption('wardrobe','${label}',this)"><span class="setup-wardrobe-art" aria-hidden="true"><img src="${illustration.src}" alt="" decoding="async"></span><span class="setup-wardrobe-label">${label}</span><span class="setup-check" aria-hidden="true">${icon("check")}</span></button>`; }).join("")}</div><div class="setup-scroll-cue" aria-hidden="true"><span>Next: choose your first goal</span><span>↓</span></div></div></section><section class="auth-shell setup-section setup-goals" data-section="goal" aria-labelledby="setup-goal-title"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="setup-step"><span>02</span><span>First goal</span></div><h2 id="setup-goal-title">What should StyleIQ help with first?</h2><p>Pick one place to start. Everything else will still be available.</p><div class="choice-list setup-goal-options" role="radiogroup" aria-label="First StyleIQ goal">${goals.map(([ico, label]) => `<button type="button" class="choice setup-goal-option" role="radio" aria-checked="${onboardingGoal === label}" onclick="selectSetupOption('goal','${label}',this)"><span class="row"><span class="icon-wrap">${icon(ico)}</span><b>${label}</b></span><span class="setup-goal-state" aria-hidden="true"><span class="setup-goal-arrow">›</span><span class="setup-check">${icon("check")}</span></span></button>`).join("")}</div><button id="setup-submit" class="btn primary wide auth-primary setup-submit" type="button" onclick="completeSetupStyleIQ()" ${onboardingGoal ? "" : "disabled"}>Start with StyleIQ</button></div></section></div></div>`;
+    return `<section class="screen setup-editorial-screen"><div class="setup-editorial-frame"><div class="setup-editorial-logo">${brandLockup("micro")}</div><main class="setup-editorial-main"><div class="setup-editorial-heading"><p class="eyebrow">Personalize</p><h1 id="setup-wardrobe-title">Who are we styling?</h1><p>Choose the wardrobe you want StyleIQ to understand first.</p></div><div class="setup-wardrobe-options" role="radiogroup" aria-labelledby="setup-wardrobe-title">${["Womenswear", "Menswear", "Both"].map(label => { const illustration = setupIllustrationDetails(label); return `<button type="button" class="setup-wardrobe-option" role="radio" aria-checked="${stylingContext === label}" onclick="selectSetupOption('wardrobe','${label}',this)"><span class="setup-wardrobe-art" aria-hidden="true"><img src="${illustration.src}" alt="" decoding="async"></span><span class="setup-wardrobe-copy"><span class="setup-wardrobe-label">${label}</span><small>${label === "Both" ? "A shared view of every wardrobe" : `Build looks from your ${label.toLowerCase()} pieces`}</small></span><span class="setup-check" aria-hidden="true">${icon("check")}</span></button>`; }).join("")}</div></main><footer class="setup-editorial-footer"><button id="setup-submit" class="btn primary wide setup-submit" type="button" onclick="completeSetupStyleIQ()">Continue to Today</button><p>You can change this later in your profile.</p></footer></div></section>`;
   }
   else if (s.id === "A-03")
     main = `<div class="onboard-main auth-main"><div class="auth-heading"><p class="eyebrow">Email sign-up</p><h1 class="display">Add your email.</h1><p class="body">Use this email to sign in and recognize shopping receipts you choose to forward.</p></div><div class="auth-shell"><div class="auth-glass-refract" aria-hidden="true"></div><div class="auth-glass-tint" aria-hidden="true"></div><div class="auth-glass-specular" aria-hidden="true"></div><div class="auth-panel"><div class="stack auth-form"><div class="field"><div class="auth-field-label"><label for="signup-email">Email address</label></div><div class="auth-input-wrap"><span class="auth-input-icon" aria-hidden="true">${icon("mail")}</span><input id="signup-email" class="input auth-screen-input" type="email" required autocomplete="email" placeholder="name@email.com"></div><span class="helper">Used for account access and optional receipt imports.</span></div><button class="btn primary wide auth-primary" type="button" onclick="beginOtp()">Create my account</button></div></div></div></div>`;
@@ -3485,7 +3581,7 @@ function verifyOtp() {
   saveOtpDigits();
   if (otpSession.digits === '123456' && otpState !== 'sendFailed') {
     otpAttempts = 0; otpState = 'valid'; persistOtp();
-    authInlineState = 'providers';
+    authInlineState = 'form';
     customerScenario = 'new';
     go("A-02");
     return;
@@ -7664,7 +7760,7 @@ function applyStyleIQDesignSystem() {
   if (!screen) return;
   screen.classList.add("siq-screen");
   app.querySelectorAll(".content").forEach((node) => node.classList.add("siq-content"));
-  app.querySelectorAll(".screen-head,.root-head,.onboard-top,.instant-header").forEach((node) => {
+  app.querySelectorAll(".screen-head,.root-head,.onboard-top,.instant-header,.tryon-head,.lens-head,.mirror-studio-head,.mirror-profile-head").forEach((node) => {
     node.classList.add("siq-header");
     if (node.classList.contains("root-head")) node.classList.add("siq-header--root");
     if (screen.classList.contains("entry-screen") || screen.classList.contains("studio-canonical")) node.classList.add("siq-header--immersive");
@@ -8279,6 +8375,20 @@ function profileScreen(s) {
         </div>
 
         <div class="settings-card-grid">
+          <section class="settings-card" aria-labelledby="settings-appearance-title">
+            <div class="settings-card-head">
+              <span class="settings-card-icon">${icon("sliders-horizontal")}</span>
+              <span class="grow"><h3 id="settings-appearance-title">Appearance</h3><p>Adjust the interface glass tint</p></span>
+            </div>
+            <div class="settings-card-body">
+              <div class="settings-range-row">
+                <div class="settings-range-head"><span><b>Liquid Glass</b><small>Header and bottom navigation transparency</small></span><output class="settings-range-value" id="liquid-glass-value" for="liquid-glass-range">${settingsPreferences.liquidGlass}%</output></div>
+                <input class="settings-range" id="liquid-glass-range" type="range" min="0" max="100" step="1" value="${settingsPreferences.liquidGlass}" aria-label="Liquid Glass transparency" aria-valuetext="${settingsPreferences.liquidGlass}%" style="--glass-value:${settingsPreferences.liquidGlass}%" oninput="updateLiquidGlassTransparency(this.value, this)">
+                <div class="settings-range-labels" aria-hidden="true"><span>Transparent</span><span>White</span></div>
+              </div>
+            </div>
+          </section>
+
           <section class="settings-card" aria-labelledby="settings-media-title">
             <div class="settings-card-head">
               <span class="settings-card-icon">${icon("image")}</span>
@@ -8298,6 +8408,16 @@ function profileScreen(s) {
             <div class="settings-card-body">
               <div class="settings-control-row"><span><b>Daily styling ideas</b><small>A fresh outfit suggestion each morning</small></span>${settingsToggle("dailyStylingIdeas", "Daily styling ideas")}</div>
               <div class="settings-control-row"><span><b>Trip reminders</b><small>Packing nudges before your plans</small></span>${settingsToggle("tripReminders", "Trip reminders")}</div>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settings-muse-title">
+            <div class="settings-card-head">
+              <span class="settings-card-icon">${icon("spark")}</span>
+              <span class="grow"><h3 id="settings-muse-title">Muse</h3><p>Choose how your stylist replies</p></span>
+            </div>
+            <div class="settings-card-body">
+              <div class="settings-choice-row"><span><b>Reply style</b><small>Voice playback with text, or text only</small></span><div class="settings-segmented settings-segmented--two" role="group" aria-label="Muse reply style">${["Voice + text", "Text only"].map((option) => `<button type="button" class="${settingsPreferences.museReplyMode === option ? "selected" : ""}" aria-pressed="${settingsPreferences.museReplyMode === option}" onclick="updateMuseReplyMode('${option}', this)">${option}</button>`).join("")}</div></div>
             </div>
           </section>
 
@@ -8342,21 +8462,6 @@ function profileScreen(s) {
 function enrichCoreScreens(s) {
   const content = app.querySelector(".content");
   if (!content) return;
-  if (["A-01", "A-03", "A-04", "A-16"].includes(s.id)) {
-    const isOtp = s.id === "A-04" || (s.id === "A-16" && authInlineState === "otp");
-    app.querySelector(".auth-heading")?.insertAdjacentHTML(
-      "beforebegin",
-      screenIllustration(
-        isOtp ? screenIllustrations.otp : screenIllustrations.createAccount,
-        isOtp
-          ? "Secure email verification"
-          : s.id === "A-01"
-            ? "A considered wardrobe ready for sign in"
-            : "A considered wardrobe ready for account setup",
-        `screen-illustration--auth${isOtp ? " screen-illustration--otp" : ""}`,
-      ),
-    );
-  }
   const shellIllustrations = {
     "B-01": [screenIllustrations.addToCloset, "Add a garment to your digital Closet"],
     "B-06": [screenIllustrations.importStatus, "Closet import progress and review"],
@@ -8376,7 +8481,6 @@ function enrichCoreScreens(s) {
     );
   }
 }
-let museReplyMode = "Voice + text";
 let museVoiceRecorder = null;
 let museVoiceStream = null;
 let museVoiceUrl = null;
@@ -8436,16 +8540,16 @@ function playMuseReply(button) {
 }
 function museResponseMarkup(entry) {
   const reply = entry.reply;
-  return `<article class="muse-exchange"><div class="muse-user-message">${entry.voiceUrl ? `<audio controls src="${entry.voiceUrl}" aria-label="Your voice note"></audio><small>Voice note · ${entry.voiceSeconds}s</small>` : ""}<p>${escapeMarkup(entry.question)}</p><time>${entry.time || ""}</time></div><div class="muse-answer"><div class="muse-answer-head"><img src="${assets.muse}" alt=""><span><b>Muse</b><small>${escapeMarkup(reply.label)}</small></span></div><p class="muse-answer-copy">${escapeMarkup(reply.text)}</p><p class="muse-answer-note">${icon("spark")} ${escapeMarkup(reply.note)}</p><div class="muse-look-rail" aria-label="Suggested Looks">${reply.looks.map(([image, title, detail]) => `<button class="muse-look-card" onclick="go('F-01')"><img src="${image}" alt="${escapeMarkup(title)}"><span><b>${escapeMarkup(title)}</b><small>${escapeMarkup(detail)}</small><b>View Full Look →</b></span></button>`).join("")}</div>${museReplyMode === "Voice + text" ? `<div class="muse-voice-reply"><button type="button" aria-label="Play Muse voice reply" data-text="${escapeMarkup(reply.text)}" onclick="playMuseReply(this)">▶</button><span class="muse-waveform" aria-hidden="true">${[8,12,19,14,25,34,22,13,28,40,31,18,10,17,29,21,12,8,15,24,36,26,16,11,20,32,23,14,9,18,27,19,12,16,10,6].map((height, index) => `<i style="--bar-height:${height}px;--bar-delay:${-(index % 9) * .12}s"></i>`).join("")}</span><small>Voice reply</small><p>${escapeMarkup(reply.text)}</p></div>` : ""}<div class="muse-reply-style" role="group" aria-label="Reply style"><b>Reply style</b><div class="muse-reply-options">${["Voice + text", "Text only"].map(mode => `<button type="button" aria-pressed="${museReplyMode === mode}" data-mode="${mode}" onclick="museReplyMode=this.dataset.mode;render()">${mode}</button>`).join("")}</div></div><div class="muse-refinements" aria-label="Refine Muse's suggestion">${["Show another option", "Use only my Closet", "Dress it up"].map(label => `<button type="button" data-question="${escapeMarkup(label)}" onclick="askMusePreset(this.dataset.question)">${escapeMarkup(label)}</button>`).join("")}</div></div></article>`;
+  return `<article class="muse-exchange"><div class="muse-user-message">${entry.imageAttachment ? `<img class="muse-user-attachment" src="${entry.imageAttachment.src}" alt="Attached image: ${escapeMarkup(entry.imageAttachment.name)}">` : ""}${entry.voiceUrl ? `<audio controls src="${entry.voiceUrl}" aria-label="Your voice note"></audio><small>Voice note · ${entry.voiceSeconds}s</small>` : ""}<p>${escapeMarkup(entry.question)}</p><time>${entry.time || ""}</time></div><div class="muse-answer"><div class="muse-answer-head"><img src="${assets.muse}" alt=""><span><b>Muse</b><small>${escapeMarkup(reply.label)}</small></span></div><p class="muse-answer-copy">${escapeMarkup(reply.text)}</p><p class="muse-answer-note">${icon("spark")} ${escapeMarkup(reply.note)}</p><div class="muse-look-rail" aria-label="Suggested Looks">${reply.looks.map(([image, title, detail]) => `<button class="muse-look-card" onclick="go('F-01')"><img src="${image}" alt="${escapeMarkup(title)}"><span><b>${escapeMarkup(title)}</b><small>${escapeMarkup(detail)}</small><b>View Full Look →</b></span></button>`).join("")}</div>${settingsPreferences.museReplyMode === "Voice + text" ? `<div class="muse-voice-reply"><button type="button" aria-label="Play Muse voice reply" data-text="${escapeMarkup(reply.text)}" onclick="playMuseReply(this)">▶</button><span class="muse-waveform" aria-hidden="true">${[8,12,19,14,25,34,22,13,28,40,31,18,10,17,29,21,12,8,15,24,36,26,16,11,20,32,23,14,9,18,27,19,12,16,10,6].map((height, index) => `<i style="--bar-height:${height}px;--bar-delay:${-(index % 9) * .12}s"></i>`).join("")}</span><small>Voice reply</small><p>${escapeMarkup(reply.text)}</p></div>` : ""}<div class="muse-refinements" aria-label="Refine Muse's suggestion">${["Show another option", "Use only my Closet", "Dress it up"].map(label => `<button type="button" data-question="${escapeMarkup(label)}" onclick="askMusePreset(this.dataset.question)">${escapeMarkup(label)}</button>`).join("")}</div></div></article>`;
 }
 
 function museScreen(s) {
   const active = museConversation.length > 0;
   const actions = [
     ["Style My Day", "Looks for your plans today", assets.look, "Style me for work today"],
-    ["Build From My Closet", "Create looks with what you own", assets.blazer, "Build a look using only my Closet"],
+    ["Build From My Closet", "", assets.blazer, "Build a look using only my Closet"],
     ["Plan a Trip", "Outfit ideas for your destination", assets.look2, "Help me pack lighter for a seaside trip"],
     ["Check a Piece", "Find ways to style it", assets.top2, "Help me style a knit top from my Closet"]
   ];
-  return shell("Muse", `<div class="muse-assistant ${active ? "is-conversation" : "is-intro"}"><div class="muse-hero" aria-label="Muse curating a wardrobe"><video src="app%20videos/muse.mp4" autoplay muted loop playsinline preload="metadata" poster="images/meet-muse-poster.jpg"></video></div>${!active ? `<section class="muse-welcome"><p class="eyebrow">STYLEIQ</p><h2>Meet Muse</h2><p>Your visual stylist for real life.<br>I use your closet, plans, and context to create looks that fit your day.</p></section>` : ""}<div class="muse-context-strip"><span>${icon("sun")}</span><p><small>Styling from</small><b>${escapeMarkup(!museContext.origin || museContext.origin.startsWith("M-") ? "Today’s look and weather" : museContext.label)}</b><small>Closet · plans · weather</small></p>${active ? `<button onclick="clearMuseConversation()">New chat</button>` : ""}</div>${active ? `<div class="muse-thread" aria-live="polite">${museConversation.map(museResponseMarkup).join("")}</div>` : `<div class="muse-entry-cards" aria-label="Start styling with Muse">${actions.map(([title, detail, image, question]) => `<button type="button" data-question="${escapeMarkup(question)}" onclick="askMusePreset(this.dataset.question)"><img src="${image}" alt=""><span><b>${title}</b><small>${detail}</small></span></button>`).join("")}</div>`}<form class="muse-composer" onsubmit="submitMuseQuestion(event)"><label class="sr-only" for="muse-natural-language">Ask Muse in your own words or add your voice transcript</label><textarea id="muse-natural-language" rows="1" placeholder="Ask Muse anything about your style…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.requestSubmit()}"></textarea><button type="button" aria-label="Record voice note" onclick="toggleMuseRecording(this)"><i data-lucide="mic" class="icon"></i></button><button type="submit" aria-label="Send to Muse">↑</button><small>Replies can be voice + text.</small></form></div>`, { active: "home", surfaceClass: "muse-visual-screen" });
+  return shell("Muse", `<div class="muse-assistant ${active ? "is-conversation" : "is-intro"}"><div class="muse-hero" aria-label="Muse curating a wardrobe"><video src="app%20videos/muse.mp4" autoplay muted loop playsinline preload="metadata" poster="images/meet-muse-poster.jpg"></video></div>${!active ? `<section class="muse-welcome"><p class="eyebrow">STYLEIQ</p><h2>Meet Muse</h2><p>Your visual stylist for real life.<br>I use your closet, plans, and context to create looks that fit your day.</p></section>` : ""}<div class="muse-context-strip"><span>${icon("sun")}</span><p><small>Styling from</small><b>${escapeMarkup(!museContext.origin || museContext.origin.startsWith("M-") ? "Today’s look and weather" : museContext.label)}</b><small>Closet · plans · weather</small></p>${active ? `<button onclick="clearMuseConversation()">New chat</button>` : ""}</div>${active ? `<div class="muse-thread" aria-live="polite">${museConversation.map(museResponseMarkup).join("")}</div>` : `<div class="muse-entry-cards" aria-label="Start styling with Muse">${actions.map(([title, detail, image, question]) => `<button type="button" data-question="${escapeMarkup(question)}" onclick="askMusePreset(this.dataset.question)"><img src="${image}" alt=""><span><b>${title}</b>${detail ? `<small>${detail}</small>` : ""}</span></button>`).join("")}</div>`}<form class="muse-composer" onsubmit="submitMuseQuestion(event)"><input class="sr-only" id="muse-image-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose an image to attach" onchange="attachMuseImage(this)"><button class="muse-attach-button" type="button" aria-label="Attach image" onclick="document.getElementById('muse-image-input')?.click()">${icon("image-plus")}</button><label class="sr-only" for="muse-natural-language">Ask Muse in your own words or add your voice transcript</label><textarea id="muse-natural-language" rows="1" placeholder="Ask Muse anything about your style…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.requestSubmit()}"></textarea><button type="button" aria-label="Record voice note" onclick="toggleMuseRecording(this)"><i data-lucide="mic" class="icon"></i></button><button type="submit" aria-label="Send to Muse">↑</button>${museImageAttachment ? `<div class="muse-attachment-preview"><img src="${museImageAttachment.src}" alt=""><span><b>${escapeMarkup(museImageAttachment.name)}</b><small>Ready to send</small></span><button type="button" aria-label="Remove attached image" onclick="removeMuseImageAttachment()">×</button></div>` : ""}<small>${settingsPreferences.museReplyMode === "Voice + text" ? "Replies can be voice + text." : "Replies are text only."}</small></form></div>`, { active: "home", surfaceClass: "muse-visual-screen" });
 }

@@ -34,14 +34,11 @@ test.describe("Green Phase 1 onboarding (Phase 2 Canonical Alignment)", () => {
     const app = page.locator("#app");
 
     await expect(app.getByRole("button", { name: "Sign up with Apple" })).toBeVisible();
-    await app.getByRole("button", { name: /Continue with email/ }).click();
-
-    // Inline email state inside A-16
     expect(await app.getAttribute("data-canonical-screen")).toBe("A-16");
-    await app.locator("#signup-first-name").fill("Test");
-    await app.locator("#signup-last-name").fill("Person");
-    await app.getByPlaceholder("name@email.com").fill("test@example.com");
-    await app.getByRole("button", { name: "Create Account" }).click();
+    await app.getByPlaceholder("Email").fill("test@example.com");
+    await app.getByPlaceholder("Password", { exact: true }).fill("password123");
+    await app.getByPlaceholder("Confirm password").fill("password123");
+    await app.getByRole("button", { name: "Create account", exact: true }).click();
 
     // Inline OTP state inside A-16
     expect(await app.getAttribute("data-canonical-screen")).toBe("A-16");
