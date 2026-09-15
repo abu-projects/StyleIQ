@@ -15990,16 +15990,16 @@ summary:focus-visible {
   position: absolute;
   z-index: -3;
   inset: 0;
-  background: url("images/login-editorial-bg-v3.png") 50% center / cover no-repeat;
+  background: url("images/welcome-duo-warm-v1.png") 50% center / cover no-repeat;
 }
 .login-splash-identity .walkthrough-story-shade {
   background: linear-gradient(
-    180deg,
-    rgba(15, 15, 15, 0) 16%,
-    rgba(15, 15, 15, 0.1) 30%,
-    rgba(15, 15, 15, 0.4) 52%,
-    rgba(15, 15, 15, 0.72) 76%,
-    rgba(15, 15, 15, 0.9) 100%
+    to top,
+    rgba(15, 12, 10, 0.92) 0%,
+    rgba(15, 12, 10, 0.72) 28%,
+    rgba(15, 12, 10, 0.34) 56%,
+    rgba(15, 12, 10, 0.08) 78%,
+    rgba(15, 12, 10, 0) 100%
   );
 }
 .login-splash-identity .walkthrough-story-frame {
@@ -16790,13 +16790,16 @@ summary:focus-visible {
 }
 .app[data-canonical-screen="A-02"] .setup-wardrobe-option {
   min-height: 102px;
-  grid-template-columns: 104px minmax(0, 1fr) 22px;
+  grid-template-columns: 104px minmax(0, 1fr);
   gap: 13px;
   padding: 7px 14px 7px 7px;
   border: 1px solid rgba(57, 46, 39, 0.17);
   border-radius: 17px;
   background: rgba(255, 253, 250, 0.66);
   box-shadow: none;
+}
+.app.siq-editorial[data-canonical-screen="A-02"] .setup-wardrobe-option {
+  background: rgba(255, 253, 250, 0.66);
 }
 .app[data-canonical-screen="A-02"] .setup-wardrobe-option:hover {
   border-color: rgba(57, 46, 39, 0.34);
@@ -16843,12 +16846,6 @@ summary:focus-visible {
   font-weight: 520;
   line-height: 1.35;
 }
-.app[data-canonical-screen="A-02"] .setup-wardrobe-option .setup-check {
-  width: 20px;
-  height: 20px;
-  border-color: #29221e;
-  background: #29221e;
-}
 .app[data-canonical-screen="A-02"] .setup-editorial-footer {
   width: 100%;
   max-width: 480px;
@@ -16879,7 +16876,7 @@ summary:focus-visible {
   .app[data-canonical-screen="A-02"] .setup-wardrobe-options { margin-top: 18px; }
   .app[data-canonical-screen="A-02"] .setup-wardrobe-option {
     min-height: 92px;
-    grid-template-columns: 88px minmax(0, 1fr) 20px;
+    grid-template-columns: 88px minmax(0, 1fr);
   }
   .app[data-canonical-screen="A-02"] .setup-wardrobe-art { width: 88px; height: 78px; }
 }
