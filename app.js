@@ -545,18 +545,19 @@ let tripState = (() => {
     return defaultTripState();
   }
 })();
+const emptyTripDraft = () => ({
+  destination: "",
+  startDate: "",
+  endDate: "",
+  occasions: [],
+  luggage: "Carry-on",
+  notes: "",
+});
 let tripDraft = (() => {
   try {
-    return JSON.parse(localStorage.getItem("styleiqTripDraftV2")) || {
-      destination: "Alexandria",
-      startDate: "2026-08-23",
-      endDate: "2026-08-25",
-      occasions: ["Museum visit", "Dinner by the Corniche"],
-      luggage: "Carry on",
-      notes: "Three days with a museum visit and dinner by the Corniche.",
-    };
+    return JSON.parse(localStorage.getItem("styleiqTripDraftV2")) || emptyTripDraft();
   } catch {
-    return { destination: "Alexandria", startDate: "2026-08-23", endDate: "2026-08-25", occasions: ["Museum visit", "Dinner by the Corniche"], luggage: "Carry on", notes: "" };
+    return emptyTripDraft();
   }
 })();
 function getCanonicalScreen(id) {
@@ -796,9 +797,11 @@ let recurringEvents = readWishlistData("styleiqRecurringEventsV1", [
 let recurringEditId = null;
 let selectedPlannerEntryIndex = null;
 let selectedRecurringEventId = null;
+let plannerDetailMediaIndex = 0;
 let plannerRecapStoryOpen = false;
 let plannerRecapStoryStep = 0;
 let plannerRecapStoryKind = "weekly";
+let plannerRecapReturnScroll = 0;
 function selectPlannerDate(date) {
   plannerSelectedDate = date;
   localStorage.setItem("styleiqPlannerSelectedDateV1", date);
@@ -834,10 +837,12 @@ function editRecurringEvent(id) {
 }
 function openPlannerEventDetails(index) {
   selectedPlannerEntryIndex = index;
+  plannerDetailMediaIndex = 0;
   openLightweightPanel("plannerEventDetails");
 }
 function openPrimaryPlannerEventDetails() {
   selectedPlannerEntryIndex = null;
+  plannerDetailMediaIndex = 0;
   openLightweightPanel("plannerEventDetails");
 }
 function openRecurringEventDetails(id) {
@@ -2429,8 +2434,9 @@ function shell(
     surfaceClass = "",
   } = {},
 ) {
-  const resolvedBody = currentId === "I-01" ? `${plannerDynamicHeroHTML}${body}${plannerMonthMarkup(plannerSelectedDate || new Date().toISOString().slice(0,10))}` : body;
-  return `<section class="screen ${dark ? "studio-screen" : ""} ${surfaceClass}">${head(title)}<div class="content ${noNav ? "no-nav" : ""}">${resolvedBody}</div>${noNav ? "" : nav(active)}${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
+  const resolvedBody = currentId === "I-01" ? `${plannerDynamicHeroHTML}${body}` : body;
+  const plannerLayers = currentId === "I-01" ? `${plannerMonthMarkup(plannerSelectedDate || new Date().toISOString().slice(0,10))}${plannerRecapStoryMarkup('weekly')}` : "";
+  return `<section class="screen ${dark ? "studio-screen" : ""} ${surfaceClass}">${head(title)}<div class="content ${noNav ? "no-nav" : ""}">${resolvedBody}</div>${plannerLayers}${noNav ? "" : nav(active)}${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
 }
 function logoutDialog() {
   if (overlay !== "logout") return "";
@@ -2531,6 +2537,71 @@ function chooseFeedbackReason(reason) {
   feedbackReason = reason;
   render();
 }
+function plannerDetailMedia(plan, look) {
+  const supplied = [
+    ...(Array.isArray(plan?.media) ? plan.media : []),
+    ...(Array.isArray(look?.media) ? look.media : []),
+  ];
+  const primary = plan?.image || look?.sheet;
+  if (primary) supplied.unshift({ type: "image", src: primary, label: "Full Look" });
+  if (look) supplied.push(...lookMotionMedia().map((media) => ({ ...media, label: "Look in motion" })));
+  const normalized = supplied
+    .map((media) => typeof media === "string"
+      ? { type: /\.(mp4|webm|mov)(\?|$)/i.test(media) ? "video" : "image", src: media, label: "Look view" }
+      : media)
+    .filter((media) => media?.src);
+  return normalized.filter((media, index) => normalized.findIndex((item) => item.src === media.src) === index);
+}
+function setPlannerDetailMedia(index) {
+  plannerDetailMediaIndex = index;
+  render();
+}
+function openPlannerFullLookDetails() {
+  const plan = Number.isInteger(selectedPlannerEntryIndex)
+    ? proactiveWeek[selectedPlannerEntryIndex]
+    : plannerEvent || plannerIntent;
+  if (!plan?.lookId) {
+    toast("Choose a Look before opening Look details");
+    return;
+  }
+  if (tryOnLooks[plan.lookId]) todayDetailsLookId = plan.lookId;
+  else todayDetailsLookId = null;
+  savedLookTab = "overview";
+  savedLookMediaIndex = 0;
+  document.activeElement?.blur();
+  lightweightPanel = null;
+  go("G-02");
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const content = document.querySelector(".content");
+      content?.scrollTo({ top: 0, behavior: "auto" });
+      const stage = document.querySelector(".stage");
+      stage?.scrollTo({ top: 0, behavior: "auto" });
+    });
+  });
+}
+function plannerEventDetailMarkup(plan, look) {
+  const media = plannerDetailMedia(plan, look);
+  const activeIndex = media.length ? (plannerDetailMediaIndex + media.length) % media.length : 0;
+  const active = media[activeIndex];
+  const eventTitle = plan?.title || plan?.context || plan?.occasion || "Planned event";
+  const lookTitle = plan?.look || plan?.lookTitle || look?.title;
+  const when = `${plan?.date || "Date not set"} · ${plan?.time || plan?.daypart || "All day"}`;
+  const changeAction = Number.isInteger(selectedPlannerEntryIndex)
+    ? `changeProactiveLook(${selectedPlannerEntryIndex})`
+    : "closeLightweightPanel();openTodayAlternatives()";
+  const editAction = Number.isInteger(selectedPlannerEntryIndex)
+    ? `closeLightweightPanel();editProactiveContext(${selectedPlannerEntryIndex})`
+    : "closeLightweightPanel();go('I-04')";
+  const mediaSurface = active
+    ? active.type === "video"
+      ? `<video class="planner-detail-media" src="${active.src}" autoplay muted loop playsinline aria-label="${escapeMarkup(active.label || `${lookTitle || eventTitle} video`)}"></video>`
+      : `<img class="planner-detail-media" src="${active.src}" alt="${escapeMarkup(`${lookTitle || eventTitle} · ${active.label || "Look view"}`)}">`
+    : `<div class="planner-detail-media-placeholder" role="img" aria-label="No Look visual added yet"><span>${escapeMarkup(new Date(`${plan?.date || "2026-09-17"}T12:00:00`).getDate())}</span><small>Look visual coming next</small></div>`;
+  const controls = media.length > 1 ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === activeIndex ? "active" : ""}" aria-label="Show ${escapeMarkup(item.label || `media ${index + 1}`)}" aria-pressed="${index === activeIndex}" onclick="setPlannerDetailMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous Look media" onclick="setPlannerDetailMedia(${activeIndex - 1})">‹</button><button class="saved-look-media-arrow" aria-label="Next Look media" onclick="setPlannerDetailMedia(${activeIndex + 1})">›</button></div></div>` : "";
+  const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === activeIndex ? "active" : ""}" aria-pressed="${index === activeIndex}" aria-label="${escapeMarkup(item.label || `media ${index + 1}`)}" onclick="setPlannerDetailMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${item.type === "video" ? "Video" : "Image"}</small></button>`).join("")}</div>` : "";
+  return `<div class="lightweight-layer planner-detail-layer"><button class="lightweight-scrim" aria-label="Dismiss ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet planner-visual-detail" role="dialog" aria-modal="true" aria-labelledby="planner-detail-title"><div class="planner-detail-media-stage">${mediaSurface}<div class="planner-detail-shade"></div>${active?.type === "video" ? '<span class="planner-detail-motion">Motion</span>' : ""}<button class="planner-detail-close" aria-label="Close ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()">×</button><span class="planner-detail-position">${media.length ? `${activeIndex + 1} / ${media.length}` : "No media"}</span>${controls}<div class="planner-detail-caption"><p>${lookTitle ? "Your Look" : "Plan"}</p><h2 id="planner-detail-title">${escapeMarkup(lookTitle || eventTitle)}</h2><span>${escapeMarkup(plan?.context || plan?.occasion || "Event")} · ${escapeMarkup(plan?.location || "Location not set")}</span></div></div>${mediaRail}<div class="planner-detail-content"><header><p class="eyebrow">${escapeMarkup(when)}</p><h3>${escapeMarkup(eventTitle)}</h3></header><dl class="planner-detail-list"><div><dt>Dress for</dt><dd>${escapeMarkup(plan?.context || plan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(plan?.weather || "Forecast added closer to the day")}</dd></div></dl><div class="planner-detail-actions planner-detail-primary-actions">${lookTitle ? '<button class="btn primary wide" onclick="openPlannerFullLookDetails()">Open full Look details</button>' : ""}<div class="planner-detail-secondary-actions"><button class="btn" onclick="${changeAction}">${lookTitle ? "Try another Look" : "Choose a Look"}</button><button class="btn" onclick="${editAction}">Edit plan</button></div></div><button class="danger-action planner-detail-remove" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove plan</button></div></section></div>`;
+}
 function approveLightweightPanel(kind) {
   if (kind === "plannerRemoveConfirm") { confirmPlannerEntryRemoval(); return; }
   if (kind === "recurringRemoveConfirm") {
@@ -2617,8 +2688,8 @@ function lightweightPanelMarkup() {
     ? proactiveWeek[selectedPlannerEntryIndex]
     : plannerEvent || plannerIntent;
   const selectedPlanLook = Number.isInteger(selectedPlannerEntryIndex)
-    ? plannerLook(selectedPlan?.lookId)
-    : plannerEvent ? plannerLook(plannerEvent.lookId) : null;
+    ? selectedPlan?.lookId ? plannerLook(selectedPlan.lookId) : null
+    : plannerEvent?.lookId ? plannerLook(plannerEvent.lookId) : null;
   const selectedRepeat = recurringEvents.find((event) => event.id === selectedRecurringEventId);
   const panels = {
     save: {
@@ -2697,8 +2768,8 @@ function lightweightPanelMarkup() {
     plannerEventDetails: {
       eyebrow: `${escapeMarkup(selectedPlan?.date || "Upcoming")} · ${escapeMarkup(selectedPlan?.time || selectedPlan?.daypart || "All day")}`,
       title: escapeMarkup(selectedPlan?.title || selectedPlan?.context || "Planned event"),
-      body: `<div class="planner-detail-hero"><img src="${selectedPlan?.image || selectedPlanLook?.sheet || assets.look2}" alt="${escapeMarkup(selectedPlan?.look || selectedPlan?.lookTitle || "Planned Look")}"><div><span class="planner-status">Look ready</span><p class="eyebrow">Outfit</p><h3>${escapeMarkup(selectedPlan?.look || selectedPlan?.lookTitle || "Soft tailoring")}</h3><p>${escapeMarkup(selectedPlan?.context || selectedPlan?.occasion || "Event")} · ${escapeMarkup(selectedPlan?.location || "Location not set")}</p></div></div><dl class="planner-detail-list"><div><dt>When</dt><dd>${escapeMarkup(selectedPlan?.date || "Date not set")} · ${escapeMarkup(selectedPlan?.time || selectedPlan?.daypart || "All day")}</dd></div><div><dt>Dress for</dt><dd>${escapeMarkup(selectedPlan?.context || selectedPlan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(selectedPlan?.weather || "Forecast added closer to the day")}</dd></div></dl><div class="planner-detail-actions"><button class="btn primary wide" onclick="${Number.isInteger(selectedPlannerEntryIndex) ? `changeProactiveLook(${selectedPlannerEntryIndex})` : "closeLightweightPanel();openTodayAlternatives()"}">Change Look</button><button class="btn wide" onclick="closeLightweightPanel();${Number.isInteger(selectedPlannerEntryIndex) ? `editProactiveContext(${selectedPlannerEntryIndex})` : "go('I-04')"}">Edit event details</button><button class="danger-action" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove from Planner</button></div>`,
-      action: "Done",
+      body: "",
+      action: null,
     },
     plannerRemoveConfirm: {
       eyebrow: "Remove plan",
@@ -2810,6 +2881,7 @@ function lightweightPanelMarkup() {
     },
   };
   const panel = panels[lightweightPanel] || panels.save;
+  if (lightweightPanel === "plannerEventDetails") return plannerEventDetailMarkup(selectedPlan, selectedPlanLook);
   const actionClass = ["plannerRemoveConfirm", "recurringRemoveConfirm"].includes(lightweightPanel)
     ? "danger"
     : ["plannerEventDetails", "recurringEventDetails"].includes(lightweightPanel)
@@ -4060,7 +4132,7 @@ function removeSavedLook() {
 }
 function myLooksGrid() {
   todayDetailsLookId = null;
-  const filters = ["All", "Created by Me", "With Muse", "Muse Generated", "Recreated from Inspiration"];
+  const filters = ["All", "Created by Me", "With Muse"];
   const visible = lookCatalog.filter((look) =>
     lookMatchesFilter(look, lookFilter) && (!savedLookRemoved || look.title !== selectedSavedLookId),
   );
@@ -4073,7 +4145,7 @@ function myLooksGrid() {
   const results = `<div class="item-grid" style="margin-top:12px">${visible.map((look) => `<button class="item-card" onclick="selectSavedLook('${escapeMarkup(look.title)}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span class="copy"><b>${escapeMarkup(look.title)}</b><small class="body" style="display:block">${lookSourceLabel(look.creationSource)}</small></span></button>`).join("")}</div>`;
   return shell(
     "My Looks",
-    `<div class="between"><span><p class="eyebrow">Canonical collection</p><h2 class="title">${visible.length} My Looks</h2></span><button class="text-action" onclick="newStudioLook()">Create Look</button></div>${tabs}${AppTabPanel("my-looks-source-tabs", Math.max(0, filters.indexOf(lookFilter)), results, "Filtered Looks")}`,
+    `<div class="between looks-library-head"><span><p class="eyebrow">${visible.length} ${visible.length === 1 ? 'look' : 'looks'} in your wardrobe</p><h2 class="title">My Looks</h2></span><button class="text-action" onclick="newStudioLook()">Create Look</button></div>${tabs}${AppTabPanel("my-looks-source-tabs", Math.max(0, filters.indexOf(lookFilter)), results, "Filtered Looks")}`,
     { active: "profile" },
   );
 }
@@ -5762,14 +5834,33 @@ function plannerMonthMarkup(anchorDate) {
     return date;
   }));
   const recapAvailable = proactiveWeek.length || plannerEvent || tripState.created;
-  return `<section class="planner-month-overlay" role="dialog" aria-modal="true" aria-labelledby="planner-month-title"><header><button aria-label="Close calendar" onclick="closePlannerCalendar()">×</button><span><small>Full calendar</small><h2 id="planner-month-title">${anchor.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h2></span><i></i></header><nav><button aria-label="Previous month" onclick="changePlannerCalendarMonth(-1)">‹</button><button aria-label="Next month" onclick="changePlannerCalendarMonth(1)">›</button></nav><div class="planner-month-weekdays">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day=>`<span>${day}</span>`).join('')}</div><div class="planner-month-grid">${cells.map(date => date ? (() => { const hasPlan = proactiveWeek.some(entry=>entry.date===date) || plannerEvent?.date===date; const isTrip = tripState.created && tripDates(tripState.basics || tripDraft).includes(date); const worn = proactiveWeek.some(entry=>entry.date===date && entry.worn) || (plannerEvent?.date===date && plannerEvent.worn); return `<button class="${date===plannerSelectedDate?'selected':''}" aria-label="${plannerDateLabel(date)}${hasPlan?', planned look':''}${isTrip?', trip':''}${worn?', worn':''}" onclick="selectPlannerDate('${date}')"><b>${Number(date.slice(8))}</b><span>${hasPlan?'<i class="planned"></i>':''}${isTrip?'<i class="trip"></i>':''}${worn?'<i class="worn"></i>':''}</span></button>`; })() : '<span></span>').join('')}</div><footer><button onclick="openPlannerRecap('monthly')" ${recapAvailable?'':'disabled'}>${anchor.toLocaleDateString('en-US',{month:'long'})} Recap →</button><button onclick="openPlannerRecap('weekly')">Weekly Recap →</button></footer></section>`;
+  const visualDates = cells.filter((date) => date && plannerDateVisual(date)?.image);
+  return `<section class="planner-month-overlay" role="dialog" aria-modal="true" aria-labelledby="planner-month-title"><header><button aria-label="Close calendar" onclick="closePlannerCalendar()">×</button><span><small>Outfit calendar</small><h2 id="planner-month-title">${anchor.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h2></span><i></i></header><nav><button aria-label="Previous month" onclick="changePlannerCalendarMonth(-1)">‹</button><button aria-label="Next month" onclick="changePlannerCalendarMonth(1)">›</button></nav><div class="planner-month-weekdays">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day=>`<span>${day}</span>`).join('')}</div><div class="planner-month-grid">${cells.map(date => date ? (() => { const visual = plannerDateVisual(date); const hasPlan = proactiveWeek.some(entry=>entry.date===date) || plannerEvent?.date===date; const isTrip = tripState.created && tripDates(tripState.basics || tripDraft).includes(date); const worn = proactiveWeek.some(entry=>entry.date===date && entry.worn) || (plannerEvent?.date===date && plannerEvent.worn); const revealIndex = visual?.image ? visualDates.indexOf(date) : -1; return `<button class="${date===plannerSelectedDate?'selected':''} ${visual?.image?'has-look':''}" aria-label="${plannerDateLabel(date)}${hasPlan?', planned look':''}${isTrip?', trip':''}${worn?', worn':''}" onclick="selectPlannerDate('${date}')">${visual?.image?`<img src="${visual.image}" alt="${escapeMarkup(visual.title || 'Planned Look')}" style="--reveal-index:${revealIndex}">`:''}<b>${Number(date.slice(8))}</b><span>${hasPlan?'<i class="planned"></i>':''}${isTrip?'<i class="trip"></i>':''}${worn?'<i class="worn"></i>':''}</span></button>`; })() : '<span></span>').join('')}</div><p class="planner-month-hint">Looks appear on the days they belong to.</p><footer><button onclick="openPlannerRecap('monthly')" ${recapAvailable?'':'disabled'}>${anchor.toLocaleDateString('en-US',{month:'long'})} in Looks →</button><button onclick="openPlannerRecap('weekly')" ${recapAvailable?'':'disabled'}>This Week in Looks →</button></footer></section>`;
+}
+function plannerDateVisual(date) {
+  const entry = proactiveWeek.find((item) => item.date === date) || (plannerEvent?.date === date ? plannerEvent : null);
+  if (entry) {
+    const image = entry.image || entry.lookImage || (entry.lookId ? plannerLook(entry.lookId).sheet : "");
+    return { image, title: entry.look || entry.lookTitle || entry.title || "Planned Look", date, worn: Boolean(entry.worn) };
+  }
+  const draft = tripState.basics || tripDraft;
+  const tripDayIndex = tripState.created ? tripDates(draft).indexOf(date) : -1;
+  if (tripDayIndex >= 0) {
+    const look = tripState.looks?.[tripDayIndex];
+    return { image: look?.image || (look?.lookId ? plannerLook(look.lookId).sheet : ""), title: look?.title || `Trip day ${tripDayIndex + 1}`, date, trip: true };
+  }
+  return null;
 }
 function plannerDayHeroMoment(moment, index, total) {
-  const hasLook = Boolean(moment.lookId || moment.look || moment.lookTitle);
+  const plannedLook = moment.lookId ? plannerLook(moment.lookId) : null;
+  const lookTitle = moment.look || moment.lookTitle || plannedLook?.title || "";
+  const hasLook = Boolean(moment.lookId || lookTitle);
   const confirmed = hasLook && !moment.fallback;
-  const image = moment.image || (moment.lookId ? plannerLook(moment.lookId).sheet : assets.look2);
+  const image = moment.image || plannedLook?.sheet || "";
+  const kind = moment.trip ? "Trip" : "Event";
   const action = moment.trip ? `go('${tripState.created ? 'J-08' : 'J-02'}')` : Number.isInteger(moment.index) ? `openPlannerEventDetails(${moment.index})` : moment.event ? "openPrimaryPlannerEventDetails()" : `beginPlannerAdd('${plannerSelectedDate}')`;
-  return `<article class="planner-day-moment"><button onclick="${action}" aria-label="${hasLook ? `Open ${escapeMarkup(moment.title || moment.context || 'planned moment')}` : `Add a Look for ${escapeMarkup(moment.title || 'event')}`}"><img src="${image}" alt="${escapeMarkup(hasLook ? moment.look || moment.lookTitle || moment.title || 'Planned outfit' : moment.title || 'Event awaiting a Look')}"><span class="planner-day-shade"></span><span class="planner-day-count">${index+1} / ${total}</span>${moment.trip ? `<span class="planner-day-trip-label">${escapeMarkup(moment.destination)} · Day ${moment.tripDay}</span>` : ''}<span class="planner-day-copy"><small>${escapeMarkup(moment.time || moment.daypart || (moment.trip ? 'Travel day' : 'All day'))}</small><b>${escapeMarkup(moment.title || moment.context || moment.occasion || (moment.trip ? `Trip to ${moment.destination}` : 'Planned moment'))}</b>${hasLook ? `<em>${escapeMarkup(moment.look || moment.lookTitle || plannerLook(moment.lookId).title)}</em>` : '<em class="missing">+ Add a Look</em>'}</span>${confirmed ? '<span class="planner-day-confirmed" role="img" aria-label="Look planned">✓</span>' : ''}${moment.worn ? '<span class="planner-day-worn">Worn</span>' : ''}</button></article>`;
+  const title = moment.title || moment.context || moment.occasion || (moment.trip ? `Trip to ${moment.destination}` : "Planned moment");
+  return `<article class="planner-day-moment${image ? '' : ' is-placeholder'}"><button onclick="${action}" aria-label="Open ${escapeMarkup(title)} details">${image ? `<img src="${image}" alt="${escapeMarkup(hasLook ? lookTitle || title : title)}">` : `<span class="planner-moment-placeholder" aria-hidden="true"><i>${escapeMarkup(kind)}</i><b>${Number(plannerSelectedDate.slice(8))}</b></span>`}<span class="planner-day-shade"></span><span class="planner-day-count">${index+1} / ${total}</span>${moment.trip ? `<span class="planner-day-trip-label">${escapeMarkup(moment.destination)} · Day ${moment.tripDay}</span>` : ''}<span class="planner-day-copy"><small>${escapeMarkup(moment.time || moment.daypart || (moment.trip ? 'Travel day' : 'All day'))} · ${kind}</small><b>${escapeMarkup(title)}</b><em${hasLook ? '' : ' class="missing"'}>${escapeMarkup(hasLook ? lookTitle : 'Look not chosen · Open plan')}</em></span>${confirmed ? '<span class="planner-day-confirmed" role="img" aria-label="Look planned">✓</span>' : ''}${moment.worn ? '<span class="planner-day-worn">Worn</span>' : ''}</button></article>`;
 }
 function mirrorPlanner() {
   const anchorValue = plannerSelectedDate || proactiveWeek[0]?.date || new Date().toISOString().slice(0,10);
@@ -5802,38 +5893,65 @@ function mirrorPlanner() {
     const tripLook = tripState.looks?.[tripDayIndex] || tripState.looks?.[0];
     heroMoments.push({ trip:true, destination:tripDestination, tripDay:tripDayIndex+1, time:tripDayIndex===0?'3:40 PM':'All day', title:tripDayIndex===0?`Travel to ${tripDestination}`:`${tripDestination} · Day ${tripDayIndex+1}`, lookId:tripLook?.lookId, look:tripLook?.title, image:tripLook?.image });
   }
-  const visualPlans = selectedEntries.map((entry) => `<button class="planner-look-card" onclick="${Number.isInteger(entry.index) ? `openPlannerEventDetails(${entry.index})` : 'openPrimaryPlannerEventDetails()'}"><img src="${entry.image || plannerLook(entry.lookId).sheet}" alt="${escapeMarkup(entry.look || entry.lookTitle || entry.title || 'Planned outfit')}"><span class="planner-look-gradient"></span><span class="planner-look-copy"><small>${escapeMarkup(entry.time || entry.daypart || 'All day')}</small><b>${escapeMarkup(entry.title || entry.context || entry.occasion || 'Planned moment')}</b><em>${escapeMarkup(entry.look || entry.lookTitle || plannerLook(entry.lookId).title)}</em></span><span class="planner-confirmed" role="img" aria-label="Look planned">✓</span>${entry.worn ? '<span class="planner-worn">Worn</span>' : ''}</button>`).join("");
-  const missingLook = `<button class="planner-look-card planner-look-empty" onclick="go('I-04')"><img src="${assets.look2}" alt="Softly blurred fashion look inspiration"><span class="planner-look-gradient"></span><span class="planner-add-look"><b>+</b><strong>Add a Look</strong><small>Plan this moment</small></span></button>`;
+  const visualPlans = selectedEntries.map((entry) => {
+    const plannedLook = entry.lookId ? plannerLook(entry.lookId) : null;
+    const entryImage = entry.image || plannedLook?.sheet || "";
+    const entryLook = entry.look || entry.lookTitle || plannedLook?.title || "";
+    const entryTitle = entry.title || entry.context || entry.occasion || "Planned moment";
+    const action = Number.isInteger(entry.index) ? `openPlannerEventDetails(${entry.index})` : "openPrimaryPlannerEventDetails()";
+    return `<button class="planner-look-card planner-event-card${entryImage ? '' : ' is-placeholder'}" onclick="${action}" aria-label="Open ${escapeMarkup(entryTitle)} details">${entryImage ? `<img src="${entryImage}" alt="${escapeMarkup(entryLook || entryTitle)}">` : `<span class="planner-agenda-visual" aria-hidden="true"><small>Event</small><b>${Number(selectedDate.slice(8))}</b></span>`}<span class="planner-look-gradient"></span><span class="planner-look-copy"><small>${escapeMarkup(entry.time || entry.daypart || 'All day')} · Event</small><b>${escapeMarkup(entryTitle)}</b><em>${escapeMarkup(entryLook || 'Look not chosen')}</em></span>${entryLook ? '<span class="planner-confirmed" role="img" aria-label="Look planned">✓</span>' : ''}${entry.worn ? '<span class="planner-worn">Worn</span>' : ''}</button>`;
+  }).join("");
+  const emptyAgenda = `<button class="planner-day-agenda-empty" onclick="beginPlannerAdd('${selectedDate}')"><span class="planner-day-agenda-mark" aria-hidden="true"><b>${Number(selectedDate.slice(8))}</b><i>+</i></span><span><small>Day agenda</small><strong>Nothing planned yet.</strong><em>Add an event or occasion →</em></span></button>`;
   const tripMoment = tripIsSelected ? `<button class="planner-look-card planner-trip-moment" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="Travel day for ${escapeMarkup(tripDestination)}"><span class="planner-look-gradient"></span><span class="planner-look-copy"><small>3:40 PM</small><b>Travel to ${escapeMarkup(tripDestination)}</b><em>${tripState.looks?.[0]?.title || 'Add an airport Look'}</em></span>${tripState.looks?.[0]?.lookId ? '<span class="planner-confirmed" role="img" aria-label="Look planned">✓</span>' : '<span class="planner-trip-add">+ Add a Look</span>'}</button>` : '';
-  const renderedMoments = heroMoments.length ? heroMoments : [{ title:"Editorial Look", look:"Muse’s Pick · Soft Tailoring", image:assets.look3, fallback:true }];
-  const dynamicHero = `<section class="planner-dynamic-hero" aria-label="Selected day"><div class="planner-dynamic-top"><h1>Planner</h1><div><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon('spark')}<span>Muse</span></button><button onclick="beginPlannerAdd('${selectedDate}')" aria-label="Add Event">${icon('plus')}</button></div></div><div class="planner-day-carousel" aria-label="${renderedMoments.length} moments for ${plannerDateLabel(selectedDate)}">${renderedMoments.map((moment,index)=>plannerDayHeroMoment(moment,index,renderedMoments.length)).join('')}</div>${renderedMoments.length>1?`<div class="planner-day-pagination" aria-hidden="true">${renderedMoments.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`:''}${!heroMoments.length?`<div class="planner-no-plans"><span>No plans today</span><button onclick="beginPlannerAdd('${selectedDate}')">Add to this day +</button></div>`:''}<div class="planner-dynamic-calendar"><span><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button><button class="planner-full-calendar-action" aria-label="Open full calendar" onclick="openPlannerCalendar()">${icon('calendar')}</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip,date])=>`<button class="${date===selectedDate?'active':''}" aria-label="${d} ${n}${trip?', trip':''}${hasPlan?', planned look':''}" onclick="selectPlannerDate('${date}')"><span>${d}</span><b>${n}</b><i class="${trip?'trip':hasPlan?'planned':''}"></i></button>`).join('')}</div></div></section>`;
+  const renderedMoments = heroMoments;
+  const daySurface = renderedMoments.length
+    ? `<div class="planner-day-carousel" aria-label="${renderedMoments.length} moments for ${plannerDateLabel(selectedDate)}">${renderedMoments.map((moment,index)=>plannerDayHeroMoment(moment,index,renderedMoments.length)).join('')}</div>`
+    : `<div class="planner-day-empty" aria-label="No plans for ${plannerDateLabel(selectedDate)}"><span class="planner-day-empty-art" aria-hidden="true"><small>Open day</small><b>${Number(selectedDate.slice(8))}</b></span><span class="planner-day-empty-copy"><span><small>${plannerDateLabel(selectedDate)}</small><b>A clear day.</b><em>Your day is open.</em></span><button onclick="beginPlannerAdd('${selectedDate}')"><span>Add a plan</span><b aria-hidden="true">+</b></button></span></div>`;
+  const dynamicHero = `<section class="planner-dynamic-hero" aria-label="Selected day"><div class="planner-dynamic-top"><h1>Planner</h1><div><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon('spark')}<span>Muse</span></button><button onclick="beginPlannerAdd('${selectedDate}')" aria-label="Add Event">${icon('plus')}</button></div></div>${daySurface}${renderedMoments.length>1?`<div class="planner-day-pagination" aria-hidden="true">${renderedMoments.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`:''}<div class="planner-dynamic-calendar"><span><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button><button class="planner-full-calendar-action" aria-label="Open full calendar" onclick="openPlannerCalendar()">${icon('calendar')}</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip,date])=>`<button class="${date===selectedDate?'active':''}" aria-label="${d} ${n}${trip?', trip':''}${hasPlan?', planned look':''}" onclick="selectPlannerDate('${date}')"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section>`;
+
+  const recapVisuals = days.map((day) => plannerDateVisual(day[6])).filter((entry) => entry?.image);
+  const recapWorn = recapVisuals.filter((entry) => entry.worn).length;
+  const recapPreview = recapVisuals.slice(0, 3);
+  const recapMonth = weekStart.toLocaleDateString('en-US', { month: 'long' });
+  const recapTeaser = `<section class="planner-recap-teaser planner-recap-home"><header><span><small>Your visual diary</small><h2>Recap</h2></span><span>${recapVisuals.length} planned${recapWorn ? ` · ${recapWorn} worn` : ''}</span></header>${recapPreview.length ? `<button class="planner-recap-feature" onclick="openPlannerRecap('weekly')"><span class="planner-recap-collage">${recapPreview.map((entry) => `<img src="${entry.image}" alt="${escapeMarkup(entry.title || 'Your planned Look')}">`).join('')}</span><span class="planner-recap-summary"><small>This week</small><strong>Your week, in Looks.</strong><em>Open your recap →</em></span></button>` : `<button class="planner-recap-feature planner-recap-feature-empty" onclick="beginPlannerAdd('${selectedDate}')"><span><small>Your week starts here</small><strong>Plan a Look to begin your visual diary.</strong></span><em>Add your first Look →</em></button>`}<nav aria-label="Recap period"><button onclick="openPlannerRecap('weekly')" ${recapVisuals.length?'':'disabled'}>Weekly recap</button><button onclick="openPlannerRecap('monthly')" ${recapVisuals.length?'':'disabled'}>${recapMonth} recap</button></nav></section>`;
 
   plannerDynamicHeroHTML = dynamicHero;
   return shell(
     "Planner",
-    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}<span>Muse</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b><i class="${trip ? 'trip' : hasPlan ? 'planned' : ''}"></i></button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>Upcoming trip</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="Upcoming ${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></section><section class="planner-selected-day"><header><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2><span>${selectedEntries.length}${tripIsSelected ? ' + trip' : ''} ${selectedEntries.length === 1 ? 'look' : 'looks'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : missingLook}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section><section class="planner-recap-teaser"><header><h2>Last Week</h2><span>5 looks · 4 worn</span></header><button onclick="openPlannerRecap('weekly')"><span class="planner-recap-collage"><img src="${assets.look3}" alt="Soft tailoring worn last week"><img src="${assets.look}" alt="Structured monochrome look worn last week"><img src="${assets.look2}" alt="Layered neutral look worn last week"></span><strong>View Recap →</strong></button></section><footer class="planner-utility-actions"><button onclick="openLightweightPanel('shareCalendar')">Share Calendar</button><button onclick="openRecurringPlanner()">Repeating plans</button></footer></section>${plannerRecapStoryMarkup('weekly')}`,
+    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}<span>Muse</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>Upcoming trip</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="Upcoming ${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></section><section class="planner-selected-day"><header><span class="planner-day-heading"><small>Day agenda</small><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2></span><span>${selectedEntries.length + (tripIsSelected ? 1 : 0) ? `${selectedEntries.length + (tripIsSelected ? 1 : 0)} ${selectedEntries.length + (tripIsSelected ? 1 : 0) === 1 ? 'plan' : 'plans'}` : 'No plans'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : emptyAgenda}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section>${recapTeaser}<footer class="planner-utility-actions"><button onclick="openLightweightPanel('shareCalendar')">Share Calendar</button><button onclick="openRecurringPlanner()">Repeating plans</button></footer></section>`,
     { active: "planner" },
   );
 }
 
 // TEMPORARY PLANNER HERO VIDEO — replace with final approved Planner film.
-function openPlannerRecap(kind = "weekly") { plannerRecapStoryOpen = true; plannerRecapStoryKind = kind; plannerRecapStoryStep = 0; plannerCalendarOpen = false; render(); }
-function closePlannerRecap() { plannerRecapStoryOpen = false; plannerRecapStoryStep = 0; render(); }
+function openPlannerRecap(kind = "weekly") {
+  plannerRecapReturnScroll = document.querySelector(".content")?.scrollTop || 0;
+  plannerRecapStoryOpen = true;
+  plannerRecapStoryKind = kind;
+  plannerRecapStoryStep = 0;
+  plannerCalendarOpen = false;
+  render();
+  requestAnimationFrame(() => { const content = document.querySelector(".content"); if (content) content.scrollTop = 0; });
+}
+function closePlannerRecap() {
+  plannerRecapStoryOpen = false;
+  plannerRecapStoryStep = 0;
+  render();
+  requestAnimationFrame(() => { const content = document.querySelector(".content"); if (content) content.scrollTop = plannerRecapReturnScroll; });
+}
 function advancePlannerRecap() { if (plannerRecapStoryStep < 3) plannerRecapStoryStep += 1; else closePlannerRecap(); render(); }
 function plannerRecapStoryMarkup(kind = "weekly") {
   if (!plannerRecapStoryOpen) return "";
   kind = plannerRecapStoryKind;
-  const plannedCount = proactiveWeek.length + (plannerEvent ? 1 : 0);
-  const wornCount = proactiveWeek.filter(entry => entry.worn).length + (plannerEvent?.worn ? 1 : 0);
-  const period = kind === "monthly" ? "Month" : "Week";
-  const moments = [
-    { eyebrow: `Your ${period} in Style`, title: `${kind === "monthly" ? plannedCount : 5} Looks Planned`, image: assets.look3 },
-    { eyebrow: "You made them yours", title: `${kind === "monthly" ? wornCount : 4} Looks Worn`, image: assets.look },
-    { eyebrow: "Your Most Worn Look", title: "Soft Tailoring", image: assets.look2 },
-    { eyebrow: `Your ${period}`, title: kind === "monthly" ? "A Month in Looks" : "Ready for another week?", image: assets.look3, collage: true },
-  ];
-  const moment = moments[plannerRecapStoryStep];
-  return `<section class="planner-recap-story" role="dialog" aria-modal="true" aria-label="${kind === 'monthly' ? 'Monthly' : 'Weekly'} style recap"><div class="planner-recap-progress">${moments.map((_,i)=>`<i class="${i <= plannerRecapStoryStep ? 'on' : ''}"></i>`).join('')}</div><button class="planner-recap-close" aria-label="Close recap" onclick="closePlannerRecap()">×</button><div class="planner-recap-moment" data-step="${plannerRecapStoryStep}">${moment.collage ? `<div class="planner-story-collage"><img src="${assets.look3}" alt=""><img src="${assets.look}" alt=""><img src="${assets.look2}" alt=""></div>` : `<img src="${moment.image}" alt="${escapeMarkup(moment.title)}">`}<span><small>${moment.eyebrow}</small><h2>${moment.title}</h2></span></div><button class="planner-recap-next" onclick="advancePlannerRecap()">${plannerRecapStoryStep === moments.length - 1 ? (kind === 'monthly' ? 'Close Month' : 'Plan This Week') : 'Continue'} →</button></section>`;
+  const visuals = [
+    ...proactiveWeek.map((entry) => plannerDateVisual(entry.date)),
+    ...(plannerEvent ? [plannerDateVisual(plannerEvent.date)] : []),
+    ...(tripState.created ? tripDates(tripState.basics || tripDraft).map((date) => plannerDateVisual(date)) : []),
+  ].filter((entry, index, all) => entry?.image && all.findIndex((item) => item?.date === entry.date) === index);
+  const plannedCount = visuals.length;
+  const wornCount = visuals.filter((entry) => entry.worn).length;
+  const period = kind === "monthly" ? "month" : "week";
+  return `<section class="planner-recap-story planner-recap-diary" role="dialog" aria-modal="true" aria-labelledby="planner-recap-title"><header><span><small>Your ${period} in looks</small><h2 id="planner-recap-title">${plannedCount ? `${plannedCount} ${plannedCount === 1 ? 'Look' : 'Looks'}, day by day.` : 'A clear page.'}</h2></span><button class="planner-recap-close" aria-label="Close recap" onclick="closePlannerRecap()">×</button></header>${visuals.length ? `<div class="planner-recap-look-grid">${visuals.map((entry,index)=>`<article style="--reveal-index:${index}"><img src="${entry.image}" alt="${escapeMarkup(entry.title)}"><span><small>${plannerDateLabel(entry.date)}</small><b>${escapeMarkup(entry.title)}</b>${entry.worn?'<em>Worn</em>':''}</span></article>`).join('')}</div><footer><span><b>${plannedCount}</b><small>planned</small></span><span><b>${wornCount}</b><small>worn</small></span></footer>` : `<div class="planner-recap-empty"><p>Add Looks to your calendar and they’ll build into a visual diary here.</p></div>`}<button class="planner-recap-next" onclick="closePlannerRecap()">Back to Calendar →</button></section>`;
 }
 
 function changePlannerWeek(delta) {
@@ -5856,7 +5974,8 @@ function tripPackingItems() {
 }
 function tripSummary() {
   const draft = tripState.basics || tripDraft;
-  return `${tripDates(draft).length} days · ${tripPackingItems().length} pieces · ${tripState.looks.length} outfits`;
+  const lookCount = tripState.looks.length;
+  return `${tripDates(draft).length} days · ${tripPackingItems().length} pieces · ${lookCount} ${lookCount === 1 ? 'look' : 'looks'}`;
 }
 // TEMPORARY TRIPS HERO VIDEO — replace with final approved travel video.
 const tripsHeroMedia = { video: "app videos/new-woman1.mp4", poster: "images/trip-packing-cairo.png" };
@@ -5876,9 +5995,9 @@ function tripStepNav(step) {
 function handleBuildTrip(event) {
   event.preventDefault();
   const data = new FormData(event.currentTarget);
-  tripDraft.destination = String(data.get("destination") || "").trim() || "Alexandria";
-  tripDraft.startDate = String(data.get("startDate") || "") || "2026-08-23";
-  tripDraft.endDate = String(data.get("endDate") || "") || "2026-08-25";
+  tripDraft.destination = String(data.get("destination") || "").trim();
+  tripDraft.startDate = String(data.get("startDate") || "");
+  tripDraft.endDate = String(data.get("endDate") || "");
   tripDraft.notes = String(data.get("notes") || "").trim();
   tripDraft.luggage = tripDraft.luggage || "Carry-on";
   if (!tripDraft.occasions.length) tripDraft.occasions = ["Dinner", "Beach", "Sightseeing"];
@@ -5909,7 +6028,7 @@ function tripIntentScreen() {
 
   return shell(
     "Trip Setup",
-      `<form class="trip-setup" onsubmit="handleBuildTrip(event)"><div class="trip-setup-visual"><img src="${tripsHeroMedia.poster}" alt="Travel wardrobe inspiration"><span><small>Your next edit</small><b>${escapeMarkup(d.destination || "Somewhere new")}</b></span></div><section class="trip-setup-section"><p class="eyebrow">Destination</p><h2>Where are you going?</h2><div class="field"><label class="sr-only" for="trip-destination">Destination</label><input class="input trip-destination-input" id="trip-destination" name="destination" value="${escapeMarkup(d.destination || "Alexandria")}" placeholder="City or destination" required></div></section><section class="trip-setup-section"><p class="eyebrow">Dates &amp; duration</p><h2>When?</h2><div class="trip-date-grid"><div class="field"><label for="trip-start-date">From</label><input class="input" id="trip-start-date" name="startDate" type="date" value="${escapeMarkup(d.startDate || "2026-08-23")}"></div><div class="field"><label for="trip-end-date">Until</label><input class="input" id="trip-end-date" name="endDate" type="date" value="${escapeMarkup(d.endDate || "2026-08-25")}"></div></div></section><section class="trip-setup-section"><p class="eyebrow">Occasion profile</p><h2>What will you be doing?</h2><div class="trip-occasion-grid" role="group" aria-label="Activities">${occasions.map(x => `<button type="button" class="trip-occasion ${d.occasions.includes(x) ? "active" : ""}" aria-pressed="${d.occasions.includes(x)}" onclick="toggleTripOccasion('${x}')">${x}</button>`).join("")}</div></section><section class="trip-context-line"><span><small>Weather direction</small><b>Warm days · coastal evenings</b></span><span><small>Luggage</small><select aria-label="Luggage context" onchange="tripDraft.luggage=this.value;localStorage.setItem('styleiqTripDraftV2',JSON.stringify(tripDraft))">${luggage.map(x => `<option ${d.luggage === x ? "selected" : ""}>${x}</option>`).join("")}</select></span></section><details class="trip-notes"><summary>Must-bring pieces &amp; notes</summary><div><label for="trip-must-bring">Must bring</label><input id="trip-must-bring" class="input" placeholder="Black blazer, comfortable loafers"><label for="trip-notes">Notes for Muse</label><input id="trip-notes" class="input" name="notes" value="${escapeMarkup(d.notes || "")}" placeholder="One dressy evening option"></div></details><button class="btn primary wide trip-build-cta" type="submit">Build My Packing Plan</button><button class="trip-save-link" type="button" onclick="saveTripDetails(event);toast('Trip preferences saved')">Save trip details</button></form>`,
+      `<form class="trip-setup" onsubmit="handleBuildTrip(event)"><div class="trip-setup-visual"><img src="${tripsHeroMedia.poster}" alt="Travel wardrobe inspiration"><span><small>Your next edit</small><b>${escapeMarkup(d.destination || "Somewhere new")}</b></span></div><section class="trip-setup-section"><p class="eyebrow">Destination</p><h2>Where are you going?</h2><div class="field"><label class="sr-only" for="trip-destination">Destination</label><input class="input trip-destination-input" id="trip-destination" name="destination" value="${escapeMarkup(d.destination || "")}" placeholder="City or destination" required></div></section><section class="trip-setup-section"><p class="eyebrow">Dates &amp; duration</p><h2>When?</h2><div class="trip-date-grid"><div class="field"><label for="trip-start-date">From</label><input class="input" id="trip-start-date" name="startDate" type="date" value="${escapeMarkup(d.startDate || "")}" required></div><div class="field"><label for="trip-end-date">Until</label><input class="input" id="trip-end-date" name="endDate" type="date" value="${escapeMarkup(d.endDate || "")}" required></div></div></section><section class="trip-setup-section"><p class="eyebrow">Occasion profile</p><h2>What will you be doing?</h2><div class="trip-occasion-grid" role="group" aria-label="Activities">${occasions.map(x => `<button type="button" class="trip-occasion ${d.occasions.includes(x) ? "active" : ""}" aria-pressed="${d.occasions.includes(x)}" onclick="toggleTripOccasion('${x}')">${x}</button>`).join("")}</div></section><section class="trip-context-line"><span><small>Weather</small><b>Added after destination</b></span><span><small>Luggage</small><select aria-label="Luggage context" onchange="tripDraft.luggage=this.value;localStorage.setItem('styleiqTripDraftV2',JSON.stringify(tripDraft))">${luggage.map(x => `<option ${d.luggage === x ? "selected" : ""}>${x}</option>`).join("")}</select></span></section><details class="trip-notes"><summary>Must-bring pieces &amp; notes</summary><div><label for="trip-must-bring">Must bring</label><input id="trip-must-bring" class="input" placeholder="Black blazer, comfortable loafers"><label for="trip-notes">Notes for Muse</label><input id="trip-notes" class="input" name="notes" value="${escapeMarkup(d.notes || "")}" placeholder="One dressy evening option"></div></details><button class="btn primary wide trip-build-cta" type="submit">Build My Packing Plan</button><button class="trip-save-link" type="button" onclick="saveTripDetails(event);toast('Trip preferences saved')">Save trip details</button></form>`,
     { active: "profile" },
   );
 }
@@ -5938,11 +6057,12 @@ function tripDetailsScreen() {
 }
 function generateSimplifiedTrip() {
   const dates = tripDates();
-  if (!dates.length) {
-    tripDraft.startDate = tripDraft.startDate || "2026-08-23";
-    tripDraft.endDate = tripDraft.endDate || "2026-08-25";
+  if (!tripDraft.destination || !dates.length) {
+    tripState.building = false;
+    toast("Add a destination and valid dates first");
+    go("J-02");
+    return;
   }
-  tripDraft.destination = tripDraft.destination || "Alexandria";
   tripDraft.luggage ||= "Carry-on";
   if (!tripDraft.occasions.length) tripDraft.occasions = ["Dinner", "Beach", "Sightseeing"];
   tripState.basics = JSON.parse(JSON.stringify(tripDraft));
@@ -6013,9 +6133,9 @@ function completeTripBuild() {
   go("J-08");
 }
 function tripHub(tab = tripHubTab || "packing") {
-  tripHubTab = ["outfits", "days", "looks"].includes(tab) ? tab : "packing";
+  tripHubTab = ["outfits", "days", "looks"].includes(tab) ? "looks" : "packing";
   const packing = tripHubTab === "packing";
-  const tripTabs = [["packing", "Packing"], ["looks", "Looks"], ["outfits", "Outfits"], ["days", "Days"]];
+  const tripTabs = [["packing", "Packing"], ["looks", "Daily Looks"]];
   const draft = tripState.basics || tripDraft;
 
   const successBadge = tripHubSaved
@@ -6033,7 +6153,7 @@ function tripHub(tab = tripHubTab || "packing") {
 
   let tabContent = "";
   if (packing) {
-    tabContent = `<section class="trip-capsule-head"><p class="eyebrow">Packing capsule</p><h3>${tripPackingItems().length} pieces</h3><span>${tripDates(draft).length} days · Multiple looks</span></section><div class="trip-capsule-grid">${tripPackingItems().map(item => `<button class="trip-capsule-piece" aria-pressed="${Boolean(tripState.packed[item.name])}" onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small>Owned closet</small><em>${tripState.packed[item.name] ? 'Packed' : 'Tap to pack'}</em></span></button>`).join('')}</div><section class="trip-checklist"><p class="eyebrow">Packing list</p>${tripPackingItems().map(item => `<button onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><span>${escapeMarkup(item.name)}<small>Owned closet</small></span><b>${tripState.packed[item.name] ? '✓' : '○'}</b></button>`).join('')}</section><div class="trip-plan-footer"><button class="btn" onclick="openLightweightPanel('tripAddLook')">Add piece</button><button class="btn primary" onclick="toast('Packing list ready')">All packed</button></div>`;
+    tabContent = `<section class="trip-capsule-head"><p class="eyebrow">Packing capsule</p><h3>${tripPackingItems().length} pieces</h3><span>${tripDates(draft).length} days · Tap a piece to mark it packed</span></section><div class="trip-capsule-grid">${tripPackingItems().map(item => `<button class="trip-capsule-piece" aria-pressed="${Boolean(tripState.packed[item.name])}" onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small>From your Closet</small><em>${tripState.packed[item.name] ? '✓ Packed' : 'Tap to pack'}</em></span></button>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openLightweightPanel('tripAddLook')">Add piece</button><button class="btn primary" onclick="toast('Packing list ready')">Packing ready</button></div>`;
   } else {
     tabContent = `<div class="trip-daily-looks">${tripState.looks.map((look, index) => `<article class="trip-day"><div><p>Day ${String(index + 1).padStart(2,'0')}</p><span>${escapeMarkup(draft.occasions?.[index % Math.max(draft.occasions?.length || 1, 1)] || 'Travel')}</span></div><img src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}"><h3>${escapeMarkup(look.title)}</h3><small>Styled from your travel capsule</small><footer><button onclick="openLightweightPanel('tripAddLook')">Change look</button><button onclick="startTryOn('${look.lookId || 'coffee'}', { sourceType: 'trip' })">Try On</button></footer></article>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openLightweightPanel('tripAddLook')">Add Look</button><button class="btn primary" onclick="openLightweightPanel('tripMuse')">Ask Muse</button></div>`;
   }
@@ -6230,7 +6350,7 @@ function plannerEventForm() {
     : "";
   return shell(
     "Add Event",
-    `<form class="stack" onsubmit="submitPlannerEvent(event)"><p class="eyebrow">Planner · new event</p><h2 class="title">What are you dressing for?</h2><p class="body">Describe your plan so Muse can build an outfit around your day.</p>${validationAlert}<div class="field"><label for="planner-event-title">What are you dressing for?</label><input class="input" id="planner-event-title" name="title" value="${escapeMarkup(d.title || "Client presentation at 10, dinner after work")}" placeholder="e.g. Client presentation at 10, dinner after work" required></div><div class="row"><div class="field grow"><label for="planner-event-date">Date</label><input class="input" id="planner-event-date" name="date" type="date" value="${escapeMarkup(d.date || new Date().toISOString().slice(0, 10))}"></div><div class="field grow"><label for="planner-event-time">Time</label><input class="input" id="planner-event-time" name="time" type="time" value="${escapeMarkup(d.time || "10:00")}"></div></div><div class="field"><label for="planner-event-occasion">Occasion / dress code</label><select class="input" id="planner-event-occasion" name="occasion">${["Work", "Dinner", "Weekend", "Travel", "Special occasion"].map((x) => `<option value="${x}" ${d.occasion === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><details class="card progressive-card" style="margin-top:8px"><summary><b>More details</b><span class="small">Daypart · location · notes</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label for="planner-event-daypart">Daypart</label><select class="input" id="planner-event-daypart" name="daypart"><option value="">Choose daypart</option>${["Morning", "Afternoon", "Evening", "All day"].map((x) => `<option value="${x}" ${d.daypart === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-location">Location</label><input class="input" id="planner-event-location" name="location" value="${escapeMarkup(d.location || "")}" placeholder="e.g. Downtown · indoors"></div><div class="field"><label for="planner-event-weather">Weather</label><input class="input" id="planner-event-weather" name="weather" value="${escapeMarkup(d.weather || "")}" placeholder="e.g. 26°C · sunny"></div></div></details><button class="btn primary wide auth-primary" type="submit" style="margin-top:16px">${proactiveEditIndex !== null ? "Review event" : "Plan My Look"}</button></form>`,
+    `<form class="stack" onsubmit="submitPlannerEvent(event)"><p class="eyebrow">Planner · new event</p><h2 class="title">What are you dressing for?</h2><p class="body">An Event belongs to one day. Muse will plan one Look around it.</p><button class="planner-trip-bridge" type="button" onclick="startNewTrip()"><span><small>Going away for several days?</small><b>Plan a Trip instead</b></span><span aria-hidden="true">→</span></button>${validationAlert}<div class="field"><label for="planner-event-title">What are you dressing for?</label><input class="input" id="planner-event-title" name="title" value="${escapeMarkup(d.title || "")}" placeholder="e.g. Client presentation and dinner" required></div><div class="row"><div class="field grow"><label for="planner-event-date">Date</label><input class="input" id="planner-event-date" name="date" type="date" value="${escapeMarkup(d.date || new Date().toISOString().slice(0, 10))}"></div><div class="field grow"><label for="planner-event-time">Time</label><input class="input" id="planner-event-time" name="time" type="time" value="${escapeMarkup(d.time || "")}"></div></div><div class="field"><label for="planner-event-occasion">Occasion / dress code</label><select class="input" id="planner-event-occasion" name="occasion">${["Work", "Dinner", "Weekend", "Single-day travel", "Special occasion"].map((x) => `<option value="${x}" ${d.occasion === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><details class="card progressive-card" style="margin-top:8px"><summary><b>More details</b><span class="small">Daypart · location · notes</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label for="planner-event-daypart">Daypart</label><select class="input" id="planner-event-daypart" name="daypart"><option value="">Choose daypart</option>${["Morning", "Afternoon", "Evening", "All day"].map((x) => `<option value="${x}" ${d.daypart === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-location">Location</label><input class="input" id="planner-event-location" name="location" value="${escapeMarkup(d.location || "")}" placeholder="e.g. Downtown · indoors"></div><div class="field"><label for="planner-event-weather">Weather</label><input class="input" id="planner-event-weather" name="weather" value="${escapeMarkup(d.weather || "")}" placeholder="e.g. 26°C · sunny"></div></div></details><button class="btn primary wide auth-primary" type="submit" style="margin-top:16px">${proactiveEditIndex !== null ? "Review event" : "Plan My Look"}</button></form>`,
     { active: "planner" },
   );
 }
@@ -6293,7 +6413,7 @@ function tripsList() {
     );
   return shell(
     "Trips",
-    `${tripsEditorialHero()}<section class="trips-upcoming"><div class="trips-section-head"><p>Upcoming trips</p><h3>Your next destination</h3></div><button class="trip-editorial-card" onclick="go('J-08')"><img src="images/onboarding-trip-planning.png" alt="Wardrobe for ${escapeMarkup((tripState.basics || tripDraft).destination)}"><span class="trip-card-shade"></span><span class="trip-card-copy"><small>${tripDateLabel()}</small><b>${escapeMarkup((tripState.basics || tripDraft).destination)}</b><em>${tripSummary()} · ${escapeMarkup((tripState.basics || tripDraft).occasions?.slice(0,2).join(' · ') || 'Travel edit')}</em><strong>${tripPackingItems().length}-piece capsule ready</strong></span></button></section><section class="trip-new-action"><span><small>Next destination</small><b>Plan a new travel edit</b></span><button onclick="resetTrip()">+ Add Trip</button></section>`,
+    `${tripsEditorialHero()}<section class="trips-upcoming"><div class="trips-section-head"><p>Upcoming trips</p><h3>Your next destination</h3></div><button class="trip-editorial-card" onclick="go('J-08')"><img src="images/onboarding-trip-planning.png" alt="Wardrobe for ${escapeMarkup((tripState.basics || tripDraft).destination)}"><span class="trip-card-shade"></span><span class="trip-card-copy"><small>${tripDateLabel()}</small><b>${escapeMarkup((tripState.basics || tripDraft).destination)}</b><em>${tripSummary()} · ${escapeMarkup((tripState.basics || tripDraft).occasions?.slice(0,2).join(' · ') || 'Travel edit')}</em><strong>${tripPackingItems().length}-piece capsule ready</strong></span></button></section><section class="trip-new-action"><span><small>Next destination</small><b>Plan a new travel edit</b></span><button onclick="startNewTrip()">+ Add Trip</button></section>`,
     { active: "profile" },
   );
 }
@@ -6867,14 +6987,14 @@ function leanSavedLook() {
   const fromToday = Boolean(todayDetailsLookId);
   const detailTitle = fromToday ? "Look Details" : "Saved Look";
   const record = savedLookRecord(),
-    tabs = [["overview", "Overview"], ["items", "Items"], ["details", "Why it works"], ["activity", "Activity"], ["planning", "Planning"]],
+    tabs = [["overview", "Look"], ["items", "Pieces"], ["planning", "Plan"]],
     tabBar = AppTabs({
       id: "saved-look-section-tabs",
       label: "Saved Look sections",
       variant: "secondary",
       items: tabs.map(([id, label]) => ({ label, selected: savedLookTab === id, onSelect: `setSavedLookTab('${id}')` })),
     });
-  const overview = `<section class="card" style="margin-top:14px"><p class="eyebrow">Why this Look works</p><h3 class="title">A repeatable ${escapeMarkup(record.title)} formula.</h3><p class="body">The silhouette, palette, and proportions fit your saved preferences. Keep it ready for the next day it earns.</p><div class="row" style="margin-top:12px"><button class="btn grow" onclick="markSavedLookWorn()">${savedLookWorn ? "Worn today" : "Wear"}</button><button class="btn grow" onclick="startTryOn('${fromToday ? record.id : 'saved'}', { sourceType: '${fromToday ? 'today' : 'saved-look'}' })">Try On</button></div></section>`;
+  const overview = `<section class="saved-look-summary" style="margin-top:14px"><p class="eyebrow">Why it works</p><h3 class="title">A repeatable ${escapeMarkup(record.title)} formula.</h3><p class="body">${escapeMarkup(record.context)}. The silhouette, palette, and proportions fit your saved preferences.</p><div class="saved-look-meta"><span>Office</span><span>Spring / autumn</span><span>Neutral palette</span></div><div class="row" style="margin-top:16px"><button class="btn grow" onclick="markSavedLookWorn()">${savedLookWorn ? "Worn today" : "Wear"}</button><button class="btn grow" onclick="startTryOn('${fromToday ? record.id : 'saved'}', { sourceType: '${fromToday ? 'today' : 'saved-look'}' })">Try On</button></div></section>`;
   const items = `<section class="card" style="margin-top:14px"><div class="between"><b>${record.pieces.length} pieces in this Look</b><button class="text-action" onclick="go('F-01')">Edit copy</button></div>${record.pieces.map((piece) => `<div class="pack-row"><img src="${piece[2] || assets.look}" alt="${escapeMarkup(piece[1])}"><span><b>${escapeMarkup(piece[1])}</b><small class="body">${escapeMarkup(piece[0])} · ${piece[2] ? "From Closet" : "Suggested"}</small></span></div>`).join("")}</section>`;
   const savedEntry =
     fromToday ? { creationSource: "muse_generated" } : lookCatalog.find((look) => look.title === selectedSavedLookId) || {};
@@ -6883,10 +7003,8 @@ function leanSavedLook() {
     (savedEntry.title === canvasState.title
       ? canvasState.creatorAttribution
       : null);
-  const details = `<section class="card" style="margin-top:14px"><p class="eyebrow">${lookSourceLabel(savedEntry.creationSource)}${attribution ? ` · Inspired by ${escapeMarkup(attribution)}` : ""}</p><h3 class="title">Made for repeat wear</h3><p class="body">${escapeMarkup(record.context)}. Warm neutrals and a clean layer keep the Look useful across work and social plans.</p><div class="saved-look-meta"><span>Office</span><span>Spring / autumn</span><span>Neutral palette</span></div></section>`;
-  const activity = `<section class="card" style="margin-top:14px"><p class="eyebrow">Recent activity</p><h3 class="title">Your relationship with this Look</h3><div class="item-metrics"><span class="item-metric"><b>${savedLookWorn ? "1×" : "0×"}</b><small>Worn recently</small></span><span class="item-metric"><b>7</b><small>Restyles</small></span><span class="item-metric"><b>11</b><small>Private sends</small></span></div></section>`;
-  const planning = `<section class="card" style="margin-top:14px"><p class="eyebrow">Planning</p><h3 class="title">Keep this Look in your rotation.</h3><p class="body">Add the selected Saved Look to a Planner event without losing its source context.</p><button class="btn primary wide" style="margin-top:12px" onclick="planSavedLook()">Add to Planner</button></section>`;
-  const body = { overview, items, details, activity, planning }[savedLookTab] || overview;
+  const planning = `<section class="saved-look-summary" style="margin-top:14px"><p class="eyebrow">Plan this Look</p><h3 class="title">Give it a real day.</h3><p class="body">Add this Look to a Planner event and keep its source and pieces connected.</p><div class="item-metrics"><span class="item-metric"><b>${savedLookWorn ? "1×" : "0×"}</b><small>Worn</small></span><span class="item-metric"><b>7</b><small>Restyles</small></span></div><button class="btn primary wide" style="margin-top:14px" onclick="planSavedLook()">Add to Planner</button></section>`;
+  const body = { overview, items, planning }[savedLookTab] || overview;
   return shell(
     detailTitle,
     `${savedLookMediaSurface(record)}${fromToday ? `<button class="btn primary wide" style="margin-top:14px" onclick="useLookForToday('${record.id}')">Use for today</button>` : ""}<div class="between" style="margin-top:14px"><span><p class="eyebrow">${detailTitle}</p><h2 class="title">${escapeMarkup(record.title)}</h2><p class="body">${escapeMarkup(record.context)}</p></span>${fromToday ? "" : `<button class="icon-btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">${icon("more")}</button>`}</div>${tabBar}${AppTabPanel("saved-look-section-tabs", Math.max(0, tabs.findIndex(([id]) => id === savedLookTab)), body)}`,
@@ -8110,6 +8228,8 @@ function render() {
   disposeMusePlayback?.();
   disposeMusePlayback = null;
   synchronizeStylingData();
+  const previousScreenId = app.dataset.screen;
+  const previousContentScroll = app.querySelector(".content")?.scrollTop || 0;
   const previousNavLens = app
     .querySelector(".nav-liquid-indicator")
     ?.getBoundingClientRect();
@@ -8178,6 +8298,12 @@ function render() {
   renderList();
   document.getElementById("total-count").textContent =
     `${screens.length} / ${screens.length}`;
+  if (previousScreenId === s.id && previousContentScroll > 0) {
+    requestAnimationFrame(() => {
+      const content = app.querySelector(".content");
+      if (content) content.scrollTop = previousContentScroll;
+    });
+  }
 }
 const glassInteractiveSelector =
   ".siq-header .siq-button,.siq-bottom-nav .nav-btn,.lightweight-sheet .icon-btn,.notifications-sheet .icon-btn,.lens-sheet .icon-btn,.head-muse,.root-action,.floating-index";
@@ -8298,9 +8424,9 @@ function toggleTripItem(name) {
   persistTrip();
   render();
 }
-function resetTrip() {
-  tripState = defaultTripState();
-  persistTrip();
+function startNewTrip() {
+  tripDraft = emptyTripDraft();
+  localStorage.removeItem("styleiqTripDraftV2");
   go("J-02");
 }
 function searchStyleIQ(value) {
