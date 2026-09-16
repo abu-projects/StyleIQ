@@ -575,7 +575,8 @@ let authInlineState = "form", // "form" | "otp"
   b01Mode = "photos", // "photos" | "search" | "receipt"
   b01Processing = false,
   todayMode = localStorage.getItem("styleiqTodayModeV1") || "normal",
-  tripHubTab = "packing",
+  tripHubTab = "looks",
+  tripDetailMediaIndex = 0,
   tripHubSaved = false,
   profilePrefSection = "about",
   wishlistBudgetOpen = false,
@@ -2301,7 +2302,7 @@ function brandLockup(mode = "") {
 }
 function head(title) {
   const root = ["D-02", "C-01", "I-01", "K-01", "L-01"].includes(currentId);
-  if (currentId === "I-01") return "";
+  if (["G-02", "I-01", "J-01", "J-02", "J-08"].includes(currentId)) return "";
   if (currentId.startsWith("A-") || currentId === "S-01") {
     return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><span class="brand-lockup micro"><span class="brand-lockup-name">StyleIQ</span></span></div><span class="head-action-placeholder" style="width:40px" aria-hidden="true"></span></header>`;
   }
@@ -2338,6 +2339,7 @@ function ensureAppNavigation() {
   if (
     ["S", "A"].includes(currentId.split("-")[0]) ||
     currentId === "E-06" ||
+    currentId === "G-02" ||
     (currentId.startsWith("H-") && app.querySelector(".content.no-nav"))
   ) {
     app.querySelectorAll(".bottom-nav").forEach((nav) => nav.remove());
@@ -2645,6 +2647,19 @@ function approveLightweightPanel(kind) {
     ensureInstantLookPieces();
     persist();
   }
+  if (kind === "instantSave") {
+    const titleInput = app.querySelector("#instant-save-title");
+    const title = titleInput?.value.trim();
+    if (!title) {
+      titleInput?.focus();
+      toast("Add a name for this Look");
+      return;
+    }
+    canvasState.title = title;
+    lightweightPanel = null;
+    commitInstantLook();
+    return;
+  }
   if (kind === "plan") {
     const note =
       app.querySelector("#planner-intent")?.value.trim() ||
@@ -2867,6 +2882,12 @@ function lightweightPanelMarkup() {
       body: `<div class="field"><label for="instant-look-title">Look name</label><input id="instant-look-title" class="input" value="${escapeMarkup(canvasState.title)}"></div><div class="card" style="margin-top:12px"><p class="eyebrow">Current outfit</p><div class="stack" style="margin-top:10px">${canvasState.items.filter((piece) => piece.visible !== false).map((piece) => `<div class="between"><span><b>${escapeMarkup(piece.role === "Bottom" ? "Bottoms" : piece.role)}</b><small class="body" style="display:block">${escapeMarkup(piece.name)}</small></span><span class="pill">${piece.owned === false ? "Suggested" : "Wardrobe"}</span></div>`).join("")}</div></div><p class="small" style="margin-top:12px">Your outfit stays on the interactive canvas while these details are edited.</p>`,
       action: "Save details",
     },
+    instantSave: {
+      eyebrow: "Style Studio",
+      title: "Name your Look",
+      body: `<div class="field"><label for="instant-save-title">Look name</label><input id="instant-save-title" class="input" value="${escapeMarkup(canvasState.title === "Untitled Look" ? "" : canvasState.title)}" placeholder="e.g. Monday client meeting" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();approveLightweightPanel('instantSave')}"></div><p class="small" style="margin-top:12px">It will be saved to My Looks as ${studioVisibilityLabel(canvasState.visibility).toLowerCase()}.</p>`,
+      action: "Save Look",
+    },
     wardrobeGap: {
       eyebrow: "Muse · Wardrobe intelligence",
       title: "Your useful wardrobe gap",
@@ -2887,7 +2908,10 @@ function lightweightPanelMarkup() {
     : ["plannerEventDetails", "recurringEventDetails"].includes(lightweightPanel)
       ? ""
       : "primary";
-  return `<div class="lightweight-layer"><button class="lightweight-scrim" aria-label="Dismiss ${panel.title}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet" role="dialog" aria-modal="true" aria-labelledby="lightweight-title"><div class="grab" aria-hidden="true"></div><div class="lightweight-head"><span><p class="eyebrow">${panel.eyebrow}</p><h2 id="lightweight-title" class="title">${panel.title}</h2></span><button class="icon-btn" aria-label="Close ${panel.title}" onclick="closeLightweightPanel()">×</button></div>${panel.body}${panel.action ? `<button class="btn ${actionClass} wide" style="margin-top:16px" onclick="approveLightweightPanel('${lightweightPanel}')">${panel.action}</button>` : ""}</section></div>`;
+  const layerClass = lightweightPanel === "instantSave"
+    ? "lightweight-layer lightweight-layer--instant-save"
+    : "lightweight-layer";
+  return `<div class="${layerClass}"><button class="lightweight-scrim" aria-label="Dismiss ${panel.title}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet" role="dialog" aria-modal="true" aria-labelledby="lightweight-title"><div class="grab" aria-hidden="true"></div><div class="lightweight-head"><span><p class="eyebrow">${panel.eyebrow}</p><h2 id="lightweight-title" class="title">${panel.title}</h2></span><button class="icon-btn" aria-label="Close ${panel.title}" onclick="closeLightweightPanel()">×</button></div>${panel.body}${panel.action ? `<button class="btn ${actionClass} wide" style="margin-top:16px" onclick="approveLightweightPanel('${lightweightPanel}')">${panel.action}</button>` : ""}</section></div>`;
 }
 function decorateSettingsRows() {
   if (currentId !== "L-11") return;
@@ -3113,15 +3137,23 @@ function installGestures() {
     }
     const mediaFrame = app.querySelector("[data-saved-look-media]");
     if (mediaFrame) {
-      let startX = 0;
+      let startX = null;
       mediaFrame.addEventListener("pointerdown", (event) => {
-        if (event.target.closest("button")) return;
+        if (event.target.closest("button")) {
+          startX = null;
+          return;
+        }
         startX = event.clientX;
         mediaFrame.setPointerCapture?.(event.pointerId);
       });
       mediaFrame.addEventListener("pointerup", (event) => {
+        if (startX === null || event.target.closest("button")) return;
         const delta = event.clientX - startX;
+        startX = null;
         if (Math.abs(delta) > 42) stepSavedLookMedia(delta < 0 ? 1 : -1);
+      });
+      mediaFrame.addEventListener("pointercancel", () => {
+        startX = null;
       });
     }
   }
@@ -3883,10 +3915,10 @@ function lensSourceLabel(source = lensSource) {
   return source === "camera" ? "Camera" : source === "library" ? "Photo library" : "Screenshot";
 }
 function lensSourceInputs() {
-  return `<input id="lens-camera-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" aria-label="Take a photo" onchange="startLensInput(this,'camera')"><input id="lens-library-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose from Photo library" onchange="startLensInput(this,'library')"><input id="lens-screenshot-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose a screenshot" onchange="startLensInput(this,'screenshot')">`;
+  return `<input id="lens-camera-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" aria-label="Take a photo" onchange="startLensInput(this,'camera')"><input id="lens-library-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose from Photo library" onchange="startLensInput(this,'library')">`;
 }
 function lensCaptureMarkup() {
-  return `<div class="lens-empty-state"><div class="lens-empty-illustration" aria-hidden="true"><span class="lens-illustration-frame">${icon("image")}</span><span class="lens-illustration-camera">${icon("camera")}</span><span class="lens-illustration-scan">${icon("scan")}</span></div><h3>Show Lens what you see.</h3><p>Take a photo or choose an image to get started.</p></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('camera')">${icon("camera")}Camera</button><button class="lens-source" onclick="lensCapture('library')">${icon("image")}Photo library</button><button class="lens-source" onclick="lensCapture('screenshot')">${icon("scan")}Screenshot</button></div>${lensSourceInputs()}`;
+  return `<div class="lens-empty-state"><div class="lens-empty-illustration" aria-hidden="true"><span class="lens-illustration-frame">${icon("image")}</span><span class="lens-illustration-camera">${icon("camera")}</span><span class="lens-illustration-scan">${icon("scan")}</span></div><h3>Show Lens what you see.</h3><p>Take a photo or choose an image to get started.</p></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('camera')">${icon("camera")}Camera</button><button class="lens-source" onclick="lensCapture('library')">${icon("image")}Photo library</button></div>${lensSourceInputs()}`;
 }
 function lensInputPreviewMarkup() {
   const sourceIcon = lensSource === "camera" ? "camera" : lensSource === "library" ? "image" : "scan";
@@ -4111,9 +4143,11 @@ function savedLookMediaSurface(record) {
   const media = record.media || [{ type: "image", src: record.sheet, label: "Look still" }];
   const selected = media[savedLookMediaIndex] || media[0];
   const activeMedia = selected.type === "video"
-    ? `<video class="saved-look-media" src="${selected.src}" autoplay muted loop playsinline aria-label="${escapeMarkup(selected.label)}"></video>`
-    : `<img class="saved-look-media" src="${selected.src}" alt="${escapeMarkup(record.title)} · ${escapeMarkup(selected.label)}">`;
-  return `<section class="saved-look-media-block" aria-label="Saved Look media"><div class="saved-look-media-frame" data-saved-look-media>${activeMedia}<span class="saved-look-media-badge">${selected.type === "video" ? "Motion" : "Still"}</span>${selected.type === "video" ? '<span class="saved-look-media-live">● Live look</span>' : ""}<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="Go to ${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous media" onclick="stepSavedLookMedia(-1)">‹</button><button class="saved-look-media-arrow" aria-label="Next media" onclick="stepSavedLookMedia(1)">›</button></div></div></div><div class="saved-look-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${item.type === "video" ? "Video" : "Image"}</small></button>`).join("")}</div></section>`;
+    ? `<video class="planner-detail-media saved-look-media" src="${selected.src}" autoplay muted loop playsinline aria-label="${escapeMarkup(selected.label)}"></video>`
+    : `<img class="planner-detail-media saved-look-media" src="${selected.src}" alt="${escapeMarkup(record.title)} · ${escapeMarkup(selected.label)}">`;
+  const controls = media.length > 1 ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="Go to ${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous media" onclick="stepSavedLookMedia(-1)">‹</button><button class="saved-look-media-arrow" aria-label="Next media" onclick="stepSavedLookMedia(1)">›</button></div></div>` : "";
+  const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${item.type === "video" ? "Video" : "Image"}</small></button>`).join("")}</div>` : "";
+  return `<section class="saved-look-media-block" aria-label="Saved Look media"><div class="planner-detail-media-stage" data-saved-look-media>${activeMedia}<div class="planner-detail-shade"></div><button class="planner-detail-close" aria-label="Close Look details" onclick="backScreen()">×</button><span class="planner-detail-position">${savedLookMediaIndex + 1} / ${media.length}</span>${controls}<div class="planner-detail-caption"><p>Your Look</p><h2>${escapeMarkup(record.title)}</h2><span>${escapeMarkup(record.context)}</span></div></div>${mediaRail}</section>`;
 }
 function markSavedLookWorn() {
   savedLookWorn = true;
@@ -5779,7 +5813,7 @@ function mirrorToday() {
   }[look.id] || ["Start with confidence.", "Your look for today is ready."];
   return shell(
     "Today",
-    `<header class="today-morning"><div class="today-morning-top"><p class="today-dayline">Sunday <span aria-hidden="true">·</span> Cairo</p><div class="today-morning-context" aria-label="Today’s context"><span class="today-office">${icon("calendar")}Office</span><span class="today-temperature">${icon("sun")}<b>18°C</b></span></div></div><div class="today-morning-body"><h2 aria-label="Good morning, ${escapeMarkup(profileFirstName())}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${escapeMarkup(profileFirstName())}</span></h2><aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p><p class="today-muse-note-detail">${escapeMarkup(morningNote[1])}</p></aside></div><div class="today-morning-foot"><span>First plan <b>10:00</b></span><span>Rain later</span></div></header><section class="today-hero" aria-label="Today’s recommended Look"><button class="today-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"></button><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("heart")}</button><div class="today-hero-panel"><span>${look.context}</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
+    `<section class="today-hero" aria-label="Today’s recommended Look"><button class="today-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"></button><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><div class="today-hero-scrim" aria-hidden="true"></div><header class="today-morning"><div class="today-morning-top"><p class="today-dayline">Sunday <span aria-hidden="true">·</span> Cairo</p><div class="today-morning-context" aria-label="Today’s context"><span class="today-office">${icon("calendar")}Office</span><span class="today-temperature">${icon("sun")}<b>18°C</b></span></div></div><div class="today-morning-body"><h2 aria-label="Good morning, ${escapeMarkup(profileFirstName())}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${escapeMarkup(profileFirstName())}</span></h2><aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p><p class="today-muse-note-detail">${escapeMarkup(morningNote[1])}</p></aside></div><div class="today-morning-foot"><span>First plan <b>10:00</b></span><span>Rain later</span></div></header><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button><div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
       tryOnLooks,
     )
       .filter((other) => other.id !== look.id)
@@ -5835,7 +5869,7 @@ function plannerMonthMarkup(anchorDate) {
   }));
   const recapAvailable = proactiveWeek.length || plannerEvent || tripState.created;
   const visualDates = cells.filter((date) => date && plannerDateVisual(date)?.image);
-  return `<section class="planner-month-overlay" role="dialog" aria-modal="true" aria-labelledby="planner-month-title"><header><button aria-label="Close calendar" onclick="closePlannerCalendar()">×</button><span><small>Outfit calendar</small><h2 id="planner-month-title">${anchor.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h2></span><i></i></header><nav><button aria-label="Previous month" onclick="changePlannerCalendarMonth(-1)">‹</button><button aria-label="Next month" onclick="changePlannerCalendarMonth(1)">›</button></nav><div class="planner-month-weekdays">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day=>`<span>${day}</span>`).join('')}</div><div class="planner-month-grid">${cells.map(date => date ? (() => { const visual = plannerDateVisual(date); const hasPlan = proactiveWeek.some(entry=>entry.date===date) || plannerEvent?.date===date; const isTrip = tripState.created && tripDates(tripState.basics || tripDraft).includes(date); const worn = proactiveWeek.some(entry=>entry.date===date && entry.worn) || (plannerEvent?.date===date && plannerEvent.worn); const revealIndex = visual?.image ? visualDates.indexOf(date) : -1; return `<button class="${date===plannerSelectedDate?'selected':''} ${visual?.image?'has-look':''}" aria-label="${plannerDateLabel(date)}${hasPlan?', planned look':''}${isTrip?', trip':''}${worn?', worn':''}" onclick="selectPlannerDate('${date}')">${visual?.image?`<img src="${visual.image}" alt="${escapeMarkup(visual.title || 'Planned Look')}" style="--reveal-index:${revealIndex}">`:''}<b>${Number(date.slice(8))}</b><span>${hasPlan?'<i class="planned"></i>':''}${isTrip?'<i class="trip"></i>':''}${worn?'<i class="worn"></i>':''}</span></button>`; })() : '<span></span>').join('')}</div><p class="planner-month-hint">Looks appear on the days they belong to.</p><footer><button onclick="openPlannerRecap('monthly')" ${recapAvailable?'':'disabled'}>${anchor.toLocaleDateString('en-US',{month:'long'})} in Looks →</button><button onclick="openPlannerRecap('weekly')" ${recapAvailable?'':'disabled'}>This Week in Looks →</button></footer></section>`;
+  return `<section class="planner-month-overlay" role="dialog" aria-modal="true" aria-labelledby="planner-month-title"><header><button aria-label="Close calendar" onclick="closePlannerCalendar()">×</button><span><small>Outfit calendar</small><h2 id="planner-month-title">${anchor.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h2></span><i></i></header><nav><button aria-label="Previous month" onclick="changePlannerCalendarMonth(-1)">‹</button><button aria-label="Next month" onclick="changePlannerCalendarMonth(1)">›</button></nav><div class="planner-month-weekdays">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day=>`<span>${day}</span>`).join('')}</div><div class="planner-month-grid">${cells.map(date => date ? (() => { const visual = plannerDateVisual(date); const hasPlan = proactiveWeek.some(entry=>entry.date===date) || plannerEvent?.date===date; const isTrip = tripState.created && tripDates(tripState.basics || tripDraft).includes(date); const worn = proactiveWeek.some(entry=>entry.date===date && entry.worn) || (plannerEvent?.date===date && plannerEvent.worn); const revealIndex = visual?.image ? visualDates.indexOf(date) : -1; return `<button class="${date===plannerSelectedDate?'selected':''} ${visual?.image?'has-look':''}" ${visual?.image?`style="--reveal-index:${revealIndex}"`:''} aria-label="${plannerDateLabel(date)}${hasPlan?', planned look':''}${isTrip?', trip':''}${worn?', worn':''}" onclick="selectPlannerDate('${date}')">${visual?.image?`<img src="${visual.image}" alt="${escapeMarkup(visual.title || 'Planned Look')}">`:''}<b>${Number(date.slice(8))}</b><span>${hasPlan?'<i class="planned"></i>':''}${isTrip?'<i class="trip"></i>':''}${worn?'<i class="worn"></i>':''}</span></button>`; })() : '<span></span>').join('')}</div><p class="planner-month-hint">Looks appear on the days they belong to.</p><footer><button onclick="openPlannerRecap('monthly')" ${recapAvailable?'':'disabled'}>${anchor.toLocaleDateString('en-US',{month:'long'})} in Looks →</button><button onclick="openPlannerRecap('weekly')" ${recapAvailable?'':'disabled'}>This Week in Looks →</button></footer></section>`;
 }
 function plannerDateVisual(date) {
   const entry = proactiveWeek.find((item) => item.date === date) || (plannerEvent?.date === date ? plannerEvent : null);
@@ -5986,8 +6020,13 @@ function tripDateLabel(draft = tripState.basics || tripDraft) {
   };
   return `${format(draft.startDate)} — ${format(draft.endDate)}`;
 }
+function tripEditorialTopbar(backAction = "backScreen()", label = "Trips", showAddTrip = false) {
+  return `<header class="trip-editorial-topbar${showAddTrip ? " has-add-trip" : ""}" aria-label="${label} navigation"><button type="button" aria-label="Back" onclick="${backAction}">${icon("back")}</button><button type="button" class="trip-editorial-wordmark" aria-label="Go to Today" onclick="go('D-02')">StyleIQ</button><div class="trip-editorial-actions">${showAddTrip ? `<button type="button" class="trip-add-action" aria-label="Plan a new trip" onclick="startNewTrip()">${icon("plus")}<span>Trip</span></button>` : ""}<button type="button" aria-label="Ask Muse about ${label}" onclick="openMuse()">${icon("spark")}</button></div></header>`;
+}
 function tripsEditorialHero() {
-  return `<section class="trips-hero" aria-labelledby="trips-hero-title"><video class="trips-hero-video" autoplay muted loop playsinline preload="metadata" poster="${tripsHeroMedia.poster}" aria-hidden="true"><source src="${tripsHeroMedia.video}" type="video/mp4"></video><img class="trips-hero-fallback" src="${tripsHeroMedia.poster}" alt="A considered travel wardrobe laid out for packing"><div class="trips-hero-shade"></div><div class="trips-hero-copy"><p>StyleIQ Travel</p><h2 id="trips-hero-title">Trips</h2><span>Where are you going next?</span><small>Plan the wardrobe, not just the destination.</small></div></section>`;
+  const target = tripState.created ? "J-08" : "J-02";
+  const action = tripState.created ? "Open your trip" : "Plan a trip";
+  return `<section class="trips-hero" aria-labelledby="trips-hero-title">${tripEditorialTopbar("backScreen()", "Trips", tripState.created)}<video class="trips-hero-video" autoplay muted loop playsinline preload="metadata" poster="${tripsHeroMedia.poster}" aria-hidden="true"><source src="${tripsHeroMedia.video}" type="video/mp4"></video><img class="trips-hero-fallback" src="${tripsHeroMedia.poster}" alt="A considered travel wardrobe laid out for packing"><div class="trips-hero-shade"></div><div class="trips-hero-copy"><p>StyleIQ Travel · The wardrobe edit</p><h2 id="trips-hero-title">Trips</h2><span>Where are you going next?</span><small>Looks shaped around your wardrobe, your plans, and the place.</small><button type="button" onclick="go('${target}')"><b>${action}</b><i aria-hidden="true">↗</i></button></div></section>`;
 }
 function tripStepNav(step) {
   return `<div class="trip-meaningful-steps" aria-label="Trip progress"><span class="${step >= 1 ? "on" : ""}">1 · Trips</span><span class="${step >= 2 ? "on" : ""}">2 · Setup</span><span class="${step >= 3 ? "on" : ""}">3 · Trip Hub</span></div>`;
@@ -6028,7 +6067,7 @@ function tripIntentScreen() {
 
   return shell(
     "Trip Setup",
-      `<form class="trip-setup" onsubmit="handleBuildTrip(event)"><div class="trip-setup-visual"><img src="${tripsHeroMedia.poster}" alt="Travel wardrobe inspiration"><span><small>Your next edit</small><b>${escapeMarkup(d.destination || "Somewhere new")}</b></span></div><section class="trip-setup-section"><p class="eyebrow">Destination</p><h2>Where are you going?</h2><div class="field"><label class="sr-only" for="trip-destination">Destination</label><input class="input trip-destination-input" id="trip-destination" name="destination" value="${escapeMarkup(d.destination || "")}" placeholder="City or destination" required></div></section><section class="trip-setup-section"><p class="eyebrow">Dates &amp; duration</p><h2>When?</h2><div class="trip-date-grid"><div class="field"><label for="trip-start-date">From</label><input class="input" id="trip-start-date" name="startDate" type="date" value="${escapeMarkup(d.startDate || "")}" required></div><div class="field"><label for="trip-end-date">Until</label><input class="input" id="trip-end-date" name="endDate" type="date" value="${escapeMarkup(d.endDate || "")}" required></div></div></section><section class="trip-setup-section"><p class="eyebrow">Occasion profile</p><h2>What will you be doing?</h2><div class="trip-occasion-grid" role="group" aria-label="Activities">${occasions.map(x => `<button type="button" class="trip-occasion ${d.occasions.includes(x) ? "active" : ""}" aria-pressed="${d.occasions.includes(x)}" onclick="toggleTripOccasion('${x}')">${x}</button>`).join("")}</div></section><section class="trip-context-line"><span><small>Weather</small><b>Added after destination</b></span><span><small>Luggage</small><select aria-label="Luggage context" onchange="tripDraft.luggage=this.value;localStorage.setItem('styleiqTripDraftV2',JSON.stringify(tripDraft))">${luggage.map(x => `<option ${d.luggage === x ? "selected" : ""}>${x}</option>`).join("")}</select></span></section><details class="trip-notes"><summary>Must-bring pieces &amp; notes</summary><div><label for="trip-must-bring">Must bring</label><input id="trip-must-bring" class="input" placeholder="Black blazer, comfortable loafers"><label for="trip-notes">Notes for Muse</label><input id="trip-notes" class="input" name="notes" value="${escapeMarkup(d.notes || "")}" placeholder="One dressy evening option"></div></details><button class="btn primary wide trip-build-cta" type="submit">Build My Packing Plan</button><button class="trip-save-link" type="button" onclick="saveTripDetails(event);toast('Trip preferences saved')">Save trip details</button></form>`,
+      `<form class="trip-setup" onsubmit="handleBuildTrip(event)"><div class="trip-setup-visual">${tripEditorialTopbar("go('J-01')", "Trip setup")}<img src="${tripsHeroMedia.poster}" alt="Travel wardrobe inspiration"><span class="trip-setup-visual-shade" aria-hidden="true"></span><div class="trip-setup-hero-copy"><small>Travel edit · 01 / 03</small><h1>Plan around<br>the moments.</h1><p>Your Closet first. Muse will shape the capsule.</p></div></div><div class="trip-setup-body"><div class="trip-setup-intro"><span>Trip brief</span><p>Three details are enough to create a considered travel wardrobe.</p></div><section class="trip-setup-section"><div class="trip-section-heading"><span>01</span><div><p class="eyebrow">Destination</p><h2>Where are you going?</h2></div></div><div class="field"><label class="sr-only" for="trip-destination">Destination</label><input class="input trip-destination-input" id="trip-destination" name="destination" value="${escapeMarkup(d.destination || "")}" placeholder="City or destination" required></div></section><section class="trip-setup-section"><div class="trip-section-heading"><span>02</span><div><p class="eyebrow">Dates &amp; duration</p><h2>When?</h2></div></div><div class="trip-date-grid"><div class="field"><label for="trip-start-date">From</label><input class="input" id="trip-start-date" name="startDate" type="date" value="${escapeMarkup(d.startDate || "")}" required></div><div class="field"><label for="trip-end-date">Until</label><input class="input" id="trip-end-date" name="endDate" type="date" value="${escapeMarkup(d.endDate || "")}" required></div></div></section><section class="trip-setup-section"><div class="trip-section-heading"><span>03</span><div><p class="eyebrow">Occasion profile</p><h2>What will you be doing?</h2></div></div><div class="trip-occasion-grid" role="group" aria-label="Activities">${occasions.map(x => `<button type="button" class="trip-occasion ${d.occasions.includes(x) ? "active" : ""}" aria-pressed="${d.occasions.includes(x)}" onclick="toggleTripOccasion('${x}')"><span>${x}</span><b aria-hidden="true">${d.occasions.includes(x) ? "✓" : "+"}</b></button>`).join("")}</div></section><section class="trip-context-line" aria-label="Trip context"><span><small>Weather</small><b>Added from destination</b></span><span><small>Luggage</small><select aria-label="Luggage context" onchange="tripDraft.luggage=this.value;localStorage.setItem('styleiqTripDraftV2',JSON.stringify(tripDraft))">${luggage.map(x => `<option ${d.luggage === x ? "selected" : ""}>${x}</option>`).join("")}</select></span></section><details class="trip-notes"><summary><span><small>Optional</small><b>Must-bring pieces &amp; notes</b></span><i aria-hidden="true">+</i></summary><div><label for="trip-must-bring">Must bring</label><input id="trip-must-bring" class="input" placeholder="Black blazer, comfortable loafers"><label for="trip-notes">Notes for Muse</label><input id="trip-notes" class="input" name="notes" value="${escapeMarkup(d.notes || "")}" placeholder="One dressy evening option"></div></details><div class="trip-muse-note">${icon("spark")}<p><b>Muse plans with what you own.</b><span>Weather and occasion refine the edit; they never replace your taste.</span></p></div><button class="btn primary wide trip-build-cta" type="submit"><span>Create my trip edit</span><b aria-hidden="true">↗</b></button><button class="trip-save-link" type="button" onclick="saveTripDetails(event);toast('Trip preferences saved')">Save as draft</button></div></form>`,
     { active: "profile" },
   );
 }
@@ -6129,8 +6168,29 @@ function completeTripBuild() {
   tripState.building = false;
   tripState.created = true;
   tripHubSaved = true;
+  tripHubTab = "looks";
+  tripDetailMediaIndex = 0;
   persistTrip();
   go("J-08");
+}
+function setTripDetailMedia(index) {
+  const total = Math.max(tripState.looks?.length || 0, 1);
+  tripDetailMediaIndex = (index + total) % total;
+  render();
+}
+function openTripLookDetails(index = tripDetailMediaIndex) {
+  const look = tripState.looks?.[index] || { lookId: "tailoring" };
+  const lookId = look.lookId && tryOnLooks[look.lookId]
+    ? look.lookId
+    : Object.values(tryOnLooks).find((candidate) => candidate.sheet === look.image)?.id || "tailoring";
+  if (!tryOnLooks[lookId]) {
+    toast("This Look is still being prepared");
+    return;
+  }
+  todayDetailsLookId = lookId;
+  savedLookTab = "overview";
+  savedLookMediaIndex = 0;
+  go("G-02");
 }
 function tripHub(tab = tripHubTab || "packing") {
   tripHubTab = ["outfits", "days", "looks"].includes(tab) ? "looks" : "packing";
@@ -6138,11 +6198,28 @@ function tripHub(tab = tripHubTab || "packing") {
   const tripTabs = [["packing", "Packing"], ["looks", "Daily Looks"]];
   const draft = tripState.basics || tripDraft;
 
-  const successBadge = tripHubSaved
-    ? `<div class="card" role="status" style="margin-bottom:14px;background:rgba(46,125,50,0.08);border:1px solid rgba(46,125,50,0.24)"><div class="row" style="align-items:center;gap:10px"><span style="color:#2e7d32;font-size:18px">✓</span><div><b>${escapeMarkup(draft.destination)} is ready ✨</b><small class="body" style="display:block">Trip saved with packing list and daily Looks.</small></div></div></div>`
+  const tripLooks = tripState.looks?.length
+    ? tripState.looks
+    : [{ title: "Travel Look", image: tryOnLooks.tailoring.sheet, lookId: "tailoring" }];
+  const activeLookIndex = (tripDetailMediaIndex + tripLooks.length) % tripLooks.length;
+  const activeLook = tripLooks[activeLookIndex];
+  const activeTitle = String(activeLook.title || "Travel Look").split(" · ").pop();
+  const activeOccasion = String(activeLook.title || "Travel").includes(" · ")
+    ? String(activeLook.title).split(" · ")[0]
+    : draft.occasions?.[activeLookIndex % Math.max(draft.occasions?.length || 1, 1)] || "Travel";
+  const parsedActiveDate = activeLook.date
+    ? new Date(/^\d{4}-\d{2}-\d{2}$/.test(activeLook.date) ? `${activeLook.date}T12:00:00` : activeLook.date)
+    : null;
+  const activeDate = parsedActiveDate && !Number.isNaN(parsedActiveDate.valueOf())
+    ? parsedActiveDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
+    : `Day ${activeLookIndex + 1}`;
+  const mediaControls = tripLooks.length > 1
+    ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Trip Look pages">${tripLooks.map((look, index) => `<button class="saved-look-media-dot ${index === activeLookIndex ? "active" : ""}" aria-label="Show Look for day ${index + 1}" aria-pressed="${index === activeLookIndex}" onclick="setTripDetailMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous trip Look" onclick="setTripDetailMedia(${activeLookIndex - 1})">‹</button><button class="saved-look-media-arrow" aria-label="Next trip Look" onclick="setTripDetailMedia(${activeLookIndex + 1})">›</button></div></div>`
     : "";
-
-  const header = `<section class="trip-plan-hero"><img src="${tripsHeroMedia.poster}" alt="${escapeMarkup(draft.destination)} travel wardrobe"><div class="trip-plan-hero-shade"></div><div class="trip-plan-title"><p>${tripDateLabel(draft)} · ${escapeMarkup(draft.luggage || "Carry-on")}</p><h2>Your ${escapeMarkup(draft.destination)} edit</h2><span data-trip-summary>${tripSummary()}</span></div><div class="trip-plan-actions"><button onclick="openLightweightPanel('tripReview')">Review</button><button onclick="go('J-02')">Edit</button></div></section><section class="trip-weather"><span>Weather direction</span><b>Warm days · breezy evenings</b><small>A light layer will carry the capsule after sunset.</small></section>`;
+  const mediaRail = tripLooks.length > 1
+    ? `<div class="saved-look-media-rail trip-look-media-rail" role="group" aria-label="Trip Looks">${tripLooks.map((look, index) => `<button class="saved-look-media-thumb ${index === activeLookIndex ? "active" : ""}" aria-label="Show day ${index + 1}: ${escapeMarkup(look.title || "Travel Look")}" aria-pressed="${index === activeLookIndex}" onclick="setTripDetailMedia(${index})"><img src="${look.image || assets.look}" alt=""><small>Day ${String(index + 1).padStart(2, "0")}</small></button>`).join("")}</div>`
+    : "";
+  const header = `<section class="trip-look-showcase" aria-labelledby="trip-look-title"><div class="trip-look-stage"><img src="${activeLook.image || assets.look}" alt="${escapeMarkup(`${activeTitle}, day ${activeLookIndex + 1} of the ${draft.destination || "trip"}`)}"><div class="trip-look-shade"></div><button class="planner-detail-close trip-detail-close" aria-label="Close trip details" onclick="go('J-01')">×</button><span class="trip-look-position">${activeLookIndex + 1} / ${tripLooks.length}</span><button class="trip-look-open" aria-label="Open full details for ${escapeMarkup(activeTitle)}" onclick="openTripLookDetails(${activeLookIndex})"></button>${mediaControls}<div class="trip-look-caption"><p>Your trip Look · ${escapeMarkup(activeDate)}</p><h2 id="trip-look-title">${escapeMarkup(activeTitle)}</h2><span>${escapeMarkup(activeOccasion)} · ${escapeMarkup(draft.destination || "Trip")}</span></div></div>${mediaRail}</section><section class="trip-overview"><div><p class="eyebrow">${escapeMarkup(tripDateLabel(draft))}</p><h3>Your ${escapeMarkup(draft.destination || "trip")} edit</h3><span data-trip-summary>${tripSummary()}</span></div><div class="trip-overview-actions"><button class="btn" onclick="openLightweightPanel('tripReview')">Review</button><button class="btn" onclick="go('J-02')">Edit trip</button></div><ul aria-label="Trip essentials"><li><small>Weather</small><b>Warm · breezy</b></li><li><small>Bag</small><b>${escapeMarkup(draft.luggage || "Carry-on")}</b></li></ul></section>`;
 
   const tabBar = AppTabs({
     id: "trip-hub-tabs",
@@ -6160,7 +6237,7 @@ function tripHub(tab = tripHubTab || "packing") {
 
   return shell(
     draft.destination || "Trip Hub",
-    `${tripStepNav(3)}${successBadge}${header}${tabBar}${AppTabPanel("trip-hub-tabs", Math.max(0, tripTabs.findIndex(([id]) => id === tripHubTab)), tabContent)}`,
+    `${tripStepNav(3)}${header}${tabBar}${AppTabPanel("trip-hub-tabs", Math.max(0, tripTabs.findIndex(([id]) => id === tripHubTab)), tabContent)}`,
     { active: "profile" },
   );
 }
@@ -6408,12 +6485,12 @@ function tripsList() {
   if (!tripState.created)
     return shell(
       "Trips",
-      `${tripsEditorialHero()}<section class="trips-empty-editorial"><img src="images/onboarding-trip-planning.png" alt="A travel wardrobe ready for a new destination"><div><p class="eyebrow">Your next edit</p><h3>Your next wardrobe starts with a destination.</h3><p>Muse will build a coordinated capsule around your schedule, weather, and wardrobe.</p><button class="btn primary" onclick="go('J-02')">Plan My First Trip</button></div></section>`,
+      `${tripsEditorialHero()}<section class="trips-empty-editorial"><div class="trips-empty-lead"><p class="eyebrow">The StyleIQ travel edit</p><h3>One capsule.<br>Every moment covered.</h3><p>Start with where, when, and what you have planned. Muse turns pieces from your Closet into a focused travel wardrobe.</p></div><ol class="trips-how"><li><span>01</span><div><b>Set the scene</b><small>Destination, dates, and plans.</small></div></li><li><span>02</span><div><b>Edit your capsule</b><small>Looks built from pieces you own.</small></div></li><li><span>03</span><div><b>Pack with clarity</b><small>Day-by-day outfits and checklist.</small></div></li></ol><button class="trips-inline-action" onclick="go('J-02')"><span>Begin your first trip</span><b aria-hidden="true">↗</b></button></section>`,
       { active: "profile" },
     );
   return shell(
     "Trips",
-    `${tripsEditorialHero()}<section class="trips-upcoming"><div class="trips-section-head"><p>Upcoming trips</p><h3>Your next destination</h3></div><button class="trip-editorial-card" onclick="go('J-08')"><img src="images/onboarding-trip-planning.png" alt="Wardrobe for ${escapeMarkup((tripState.basics || tripDraft).destination)}"><span class="trip-card-shade"></span><span class="trip-card-copy"><small>${tripDateLabel()}</small><b>${escapeMarkup((tripState.basics || tripDraft).destination)}</b><em>${tripSummary()} · ${escapeMarkup((tripState.basics || tripDraft).occasions?.slice(0,2).join(' · ') || 'Travel edit')}</em><strong>${tripPackingItems().length}-piece capsule ready</strong></span></button></section><section class="trip-new-action"><span><small>Next destination</small><b>Plan a new travel edit</b></span><button onclick="startNewTrip()">+ Add Trip</button></section>`,
+    `${tripsEditorialHero()}<section class="trips-upcoming"><div class="trips-section-head"><p>Upcoming trips</p><h3>Your next destination</h3></div><button class="trip-editorial-card" onclick="go('J-08')"><img src="images/onboarding-trip-planning.png" alt="Wardrobe for ${escapeMarkup((tripState.basics || tripDraft).destination)}"><span class="trip-card-shade"></span><span class="trip-card-copy"><small>${tripDateLabel()}</small><b>${escapeMarkup((tripState.basics || tripDraft).destination)}</b><em>${tripSummary()} · ${escapeMarkup((tripState.basics || tripDraft).occasions?.slice(0,2).join(' · ') || 'Travel edit')}</em><strong>${tripPackingItems().length}-piece capsule ready</strong></span></button></section>`,
     { active: "profile" },
   );
 }
@@ -6985,31 +7062,13 @@ function twinRefine() {
 }
 function leanSavedLook() {
   const fromToday = Boolean(todayDetailsLookId);
-  const detailTitle = fromToday ? "Look Details" : "Saved Look";
-  const record = savedLookRecord(),
-    tabs = [["overview", "Look"], ["items", "Pieces"], ["planning", "Plan"]],
-    tabBar = AppTabs({
-      id: "saved-look-section-tabs",
-      label: "Saved Look sections",
-      variant: "secondary",
-      items: tabs.map(([id, label]) => ({ label, selected: savedLookTab === id, onSelect: `setSavedLookTab('${id}')` })),
-    });
-  const overview = `<section class="saved-look-summary" style="margin-top:14px"><p class="eyebrow">Why it works</p><h3 class="title">A repeatable ${escapeMarkup(record.title)} formula.</h3><p class="body">${escapeMarkup(record.context)}. The silhouette, palette, and proportions fit your saved preferences.</p><div class="saved-look-meta"><span>Office</span><span>Spring / autumn</span><span>Neutral palette</span></div><div class="row" style="margin-top:16px"><button class="btn grow" onclick="markSavedLookWorn()">${savedLookWorn ? "Worn today" : "Wear"}</button><button class="btn grow" onclick="startTryOn('${fromToday ? record.id : 'saved'}', { sourceType: '${fromToday ? 'today' : 'saved-look'}' })">Try On</button></div></section>`;
-  const items = `<section class="card" style="margin-top:14px"><div class="between"><b>${record.pieces.length} pieces in this Look</b><button class="text-action" onclick="go('F-01')">Edit copy</button></div>${record.pieces.map((piece) => `<div class="pack-row"><img src="${piece[2] || assets.look}" alt="${escapeMarkup(piece[1])}"><span><b>${escapeMarkup(piece[1])}</b><small class="body">${escapeMarkup(piece[0])} · ${piece[2] ? "From Closet" : "Suggested"}</small></span></div>`).join("")}</section>`;
-  const savedEntry =
-    fromToday ? { creationSource: "muse_generated" } : lookCatalog.find((look) => look.title === selectedSavedLookId) || {};
-  const attribution =
-    savedEntry.creatorAttribution ||
-    (savedEntry.title === canvasState.title
-      ? canvasState.creatorAttribution
-      : null);
-  const planning = `<section class="saved-look-summary" style="margin-top:14px"><p class="eyebrow">Plan this Look</p><h3 class="title">Give it a real day.</h3><p class="body">Add this Look to a Planner event and keep its source and pieces connected.</p><div class="item-metrics"><span class="item-metric"><b>${savedLookWorn ? "1×" : "0×"}</b><small>Worn</small></span><span class="item-metric"><b>7</b><small>Restyles</small></span></div><button class="btn primary wide" style="margin-top:14px" onclick="planSavedLook()">Add to Planner</button></section>`;
-  const body = { overview, items, planning }[savedLookTab] || overview;
-  return shell(
-    detailTitle,
-    `${savedLookMediaSurface(record)}${fromToday ? `<button class="btn primary wide" style="margin-top:14px" onclick="useLookForToday('${record.id}')">Use for today</button>` : ""}<div class="between" style="margin-top:14px"><span><p class="eyebrow">${detailTitle}</p><h2 class="title">${escapeMarkup(record.title)}</h2><p class="body">${escapeMarkup(record.context)}</p></span>${fromToday ? "" : `<button class="icon-btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">${icon("more")}</button>`}</div>${tabBar}${AppTabPanel("saved-look-section-tabs", Math.max(0, tabs.findIndex(([id]) => id === savedLookTab)), body)}`,
-    { active: fromToday ? "home" : "profile" },
-  );
+  const record = savedLookRecord();
+  const pieces = `<section class="look-detail-pieces" aria-labelledby="look-detail-pieces-title"><header><span><p class="eyebrow">Inside the Look</p><h3 id="look-detail-pieces-title">${record.pieces.length} pieces, seen up close</h3></span><button class="text-action" onclick="go('F-01')">Edit</button></header><div class="look-piece-gallery">${record.pieces.map((piece) => `<article class="look-piece-card"><img src="${piece[2] || record.sheet || assets.look}" alt="${escapeMarkup(piece[1])}"><span><small>${escapeMarkup(piece[0])}</small><b>${escapeMarkup(piece[1])}</b></span></article>`).join("")}</div></section>`;
+  const primaryAction = fromToday
+    ? `<button class="btn primary wide" onclick="useLookForToday('${record.id}')">Use for today</button>`
+    : `<button class="btn primary wide" onclick="markSavedLookWorn()">${savedLookWorn ? "Worn today" : "Wear this Look"}</button>`;
+  const actions = `<section class="look-detail-action-dock" aria-label="Look actions">${primaryAction}<div><button class="btn" onclick="startTryOn('${fromToday ? record.id : 'saved'}', { sourceType: '${fromToday ? 'today' : 'saved-look'}' })">Try On</button><button class="btn" onclick="planSavedLook()">Plan</button>${fromToday ? "" : `<button class="btn" aria-label="Manage this Look" onclick="openLightweightPanel('lookManage')">Manage</button>`}</div></section>`;
+  return `<section class="screen look-detail-screen"><div class="lightweight-layer planner-detail-layer look-detail-route-layer"><section class="lightweight-sheet planner-visual-detail" aria-label="Look details">${savedLookMediaSurface(record)}${pieces}${actions}</section></div>${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
 }
 function setStudioMode(mode) {
   canvasState.studioMode = mode;
@@ -7647,7 +7706,7 @@ function instantRailKey(event, role) {
   buttons[index].focus({preventScroll:true});
   chooseInstantPiece(role, Number(buttons[index].dataset.index));
 }
-function saveInstantLook() {
+function commitInstantLook() {
   ensureInstantLookPieces();
   persist();
   const savedLook = {
@@ -7661,8 +7720,16 @@ function saveInstantLook() {
   if (existing >= 0) lookCatalog.splice(existing, 1, {...lookCatalog[existing], ...savedLook});
   else lookCatalog.unshift(savedLook);
   localStorage.setItem('styleiqSavedStudioLooksV1', JSON.stringify(lookCatalog.filter((look) => look.state)));
-  render();
+  selectedSavedLookId = savedLook.title;
+  lookFilter = 'All';
+  localStorage.setItem('styleiqSelectedSavedLookV1', savedLook.title);
+  go('G-01');
   toast(`Saved to My Looks · ${studioVisibilityLabel(canvasState.visibility)}`);
+}
+function saveInstantLook() {
+  lightweightPanel = 'instantSave';
+  render();
+  setTimeout(() => app.querySelector('#instant-save-title')?.focus(), 0);
 }
 function ensureInstantLookPieces() {
   const roles = instantWardrobeIndex('Dress') >= 0 ? ['Dress', 'Shoes'] : ['Top', 'Bottom', 'Shoes'];
@@ -8056,6 +8123,8 @@ function applyStyleIQDesignSystem() {
   });
 
   app.querySelectorAll("button,.btn").forEach((button) => {
+    // Scrims are full-layer dismiss targets, not visual icon buttons.
+    if (button.classList.contains("lightweight-scrim")) return;
     // Switches retain their own track and thumb styling, not icon-button styling.
     if (button.getAttribute("role") === "switch") return;
     // The full-card detail target must keep the hero's dimensions.
@@ -8213,6 +8282,78 @@ function synchronizeStylingData() {
     }
   }
 }
+
+let todayContrastRun = 0;
+function applyTodayAdaptiveContrast() {
+  const run = ++todayContrastRun;
+  const hero = app.querySelector('[data-screen="D-02"] .today-hero');
+  const imageLayer = hero?.querySelector('.tryon-frame-preview');
+  if (!hero || !imageLayer) return;
+
+  const imageUrl = getComputedStyle(imageLayer).backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1];
+  if (!imageUrl) return;
+
+  const image = new Image();
+  image.addEventListener('load', () => {
+    if (run !== todayContrastRun || !hero.isConnected) return;
+    const heroRect = hero.getBoundingClientRect();
+    if (!heroRect.width || !heroRect.height) return;
+
+    const sampleWidth = 96;
+    const sampleHeight = Math.max(96, Math.round(sampleWidth * heroRect.height / heroRect.width));
+    const canvas = document.createElement('canvas');
+    canvas.width = sampleWidth;
+    canvas.height = sampleHeight;
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    if (!context) return;
+
+    const scale = Math.max(sampleWidth / image.naturalWidth, sampleHeight / image.naturalHeight);
+    const drawnWidth = image.naturalWidth * scale;
+    const drawnHeight = image.naturalHeight * scale;
+    const position = getComputedStyle(imageLayer).backgroundPosition.split(/\s+/);
+    const positionX = Number.parseFloat(position[0]) / 100 || 0;
+    const positionY = Number.parseFloat(position[1]) / 100 || 0;
+    context.drawImage(
+      image,
+      (sampleWidth - drawnWidth) * positionX,
+      (sampleHeight - drawnHeight) * positionY,
+      drawnWidth,
+      drawnHeight,
+    );
+
+    const regions = [
+      hero.querySelector('.today-morning-top'),
+      hero.querySelector('.today-morning-body > h2'),
+    ].filter(Boolean);
+
+    try {
+      regions.forEach((region) => {
+        const rect = region.getBoundingClientRect();
+        const x = Math.max(0, Math.floor((rect.left - heroRect.left) / heroRect.width * sampleWidth));
+        const y = Math.max(0, Math.floor((rect.top - heroRect.top) / heroRect.height * sampleHeight));
+        const width = Math.max(1, Math.min(sampleWidth - x, Math.ceil(rect.width / heroRect.width * sampleWidth)));
+        const height = Math.max(1, Math.min(sampleHeight - y, Math.ceil(rect.height / heroRect.height * sampleHeight)));
+        const pixels = context.getImageData(x, y, width, height).data;
+        let luminance = 0;
+        let samples = 0;
+        for (let index = 0; index < pixels.length; index += 16) {
+          luminance += (pixels[index] * .2126 + pixels[index + 1] * .7152 + pixels[index + 2] * .0722) / 255;
+          samples += 1;
+        }
+        const average = samples ? luminance / samples : 0;
+        region.dataset.contrast = average >= .68 ? 'dark' : 'light';
+      });
+      hero.dataset.adaptiveContrast = 'ready';
+    } catch {
+      hero.dataset.adaptiveContrast = 'fallback';
+    }
+  }, { once: true });
+  image.addEventListener('error', () => {
+    if (run === todayContrastRun && hero.isConnected) hero.dataset.adaptiveContrast = 'fallback';
+  }, { once: true });
+  image.src = imageUrl;
+}
+
 function render() {
   // Keep the mounted films and their playback clocks when only the entry overlay changes.
   if (currentId === 'S-01' && app.querySelector('.welcome-merged') && revealWelcomeOverlay) {
@@ -8283,6 +8424,7 @@ function render() {
   applyStyleIQDesignSystem();
   applyStylingVisuals();
   window.lucide?.createIcons({ attrs: { "stroke-width": 1.5 } });
+  applyTodayAdaptiveContrast();
   installLiquidNav(previousNavLens);
   renderNotes(s);
   const inventory = [...notes.querySelectorAll(".metric")].find(
