@@ -8745,6 +8745,77 @@ body {
     400 24px/1.1 "Playfair Display",
     serif;
 }
+.lens-empty-state {
+  display: grid;
+  min-height: 230px;
+  place-items: center;
+  align-content: center;
+  gap: 7px;
+  border: 1px dashed rgba(140, 96, 32, 0.34);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(181, 130, 62, 0.14), transparent 42%),
+    rgba(255, 253, 250, 0.72);
+  padding: 22px;
+  text-align: center;
+}
+.lens-empty-illustration {
+  position: relative;
+  width: 124px;
+  height: 92px;
+  margin-bottom: 5px;
+}
+.lens-empty-illustration > span {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(140, 96, 32, 0.22);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  box-shadow: 0 12px 28px rgba(57, 43, 34, 0.1);
+}
+.lens-illustration-frame {
+  inset: 8px 20px 12px;
+  border-radius: 18px;
+  transform: rotate(-4deg);
+}
+.lens-illustration-frame .icon {
+  width: 31px;
+  height: 31px;
+  color: var(--gold);
+}
+.lens-illustration-camera,
+.lens-illustration-scan {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+}
+.lens-illustration-camera {
+  right: 0;
+  bottom: 0;
+  transform: rotate(6deg);
+}
+.lens-illustration-scan {
+  left: 0;
+  top: 0;
+  transform: rotate(-8deg);
+}
+.lens-illustration-camera .icon,
+.lens-illustration-scan .icon {
+  width: 20px;
+  height: 20px;
+}
+.lens-empty-state h3 {
+  margin: 0;
+  font: 600 18px/1.2 var(--font-display);
+}
+.lens-empty-state p {
+  max-width: 245px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
 .lens-source-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -8766,6 +8837,52 @@ body {
   width: 20px;
   height: 20px;
   margin: 0 auto 7px;
+}
+.lens-input-preview {
+  overflow: hidden;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(57, 43, 34, 0.08);
+}
+.lens-input-preview > img {
+  display: block;
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+}
+.lens-input-meta {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px 6px 13px;
+}
+.lens-input-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 9px;
+  font-weight: 750;
+}
+.lens-input-meta .icon {
+  width: 16px;
+  height: 16px;
+  color: var(--gold);
+}
+.lens-input-meta > div {
+  display: flex;
+  gap: 2px;
+}
+.lens-input-meta .text-action {
+  min-width: 0;
+  padding: 0 7px;
+  font-size: 8px;
+}
+.lens-intent-eyebrow {
+  margin-top: 0;
 }
 .lens-intents {
   display: grid;

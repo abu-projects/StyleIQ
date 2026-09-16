@@ -3689,7 +3689,7 @@ function openLens() {
 function openVisualSearch(source = "library") {
   lensOpen = true;
   lensSource = source;
-  lensStage = "intent";
+  lensStage = "capture";
   lensIntent = "";
   lensInputPreview = "";
   lightweightPanel = null;
@@ -3723,7 +3723,29 @@ function closeLens() {
 }
 function lensCapture(source) {
   lensSource = source;
-  lensStage = "intent";
+  document.getElementById(`lens-${source}-input`)?.click();
+}
+function startLensInput(input, source) {
+  const file = input.files?.[0];
+  if (!file) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    toast("Choose a JPG, PNG, or WebP image.");
+    input.value = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    lensInputPreview = reader.result;
+    lensSource = source;
+    lensStage = "intent";
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+function resetLensInput() {
+  lensStage = "capture";
+  lensIntent = "";
+  lensInputPreview = "";
   render();
 }
 function chooseLensIntent(intent) {
@@ -3759,6 +3781,19 @@ function lensEntry() {
     ? `<button class="lens-fab" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")} Lens</button>`
     : "";
 }
+function lensSourceLabel(source = lensSource) {
+  return source === "camera" ? "Camera" : source === "library" ? "Photo library" : "Screenshot";
+}
+function lensSourceInputs() {
+  return `<input id="lens-camera-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" aria-label="Take a photo" onchange="startLensInput(this,'camera')"><input id="lens-library-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose from Photo library" onchange="startLensInput(this,'library')"><input id="lens-screenshot-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose a screenshot" onchange="startLensInput(this,'screenshot')">`;
+}
+function lensCaptureMarkup() {
+  return `<div class="lens-empty-state"><div class="lens-empty-illustration" aria-hidden="true"><span class="lens-illustration-frame">${icon("image")}</span><span class="lens-illustration-camera">${icon("camera")}</span><span class="lens-illustration-scan">${icon("scan")}</span></div><h3>Show Lens what you see.</h3><p>Take a photo or choose an image to get started.</p></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('camera')">${icon("camera")}Camera</button><button class="lens-source" onclick="lensCapture('library')">${icon("image")}Photo library</button><button class="lens-source" onclick="lensCapture('screenshot')">${icon("scan")}Screenshot</button></div>${lensSourceInputs()}`;
+}
+function lensInputPreviewMarkup() {
+  const sourceIcon = lensSource === "camera" ? "camera" : lensSource === "library" ? "image" : "scan";
+  return `<div class="lens-input-preview"><img src="${lensInputPreview}" alt="Selected Lens input"><div class="lens-input-meta"><span>${icon(sourceIcon)}${lensSourceLabel()}</span><div><button class="text-action" onclick="lensCapture('${lensSource}')">Change</button><button class="text-action" onclick="resetLensInput()">Remove</button></div></div></div>${lensSourceInputs()}`;
+}
 function lensIntentPicker() {
   const likely = lensLikelyIntent(),
     intents = [
@@ -3774,7 +3809,7 @@ function lensIntentPicker() {
       ["screenshot", "Shop my Closet", "Find owned matches first"],
       ["similar", "Find owned alternatives", "Compare visual similarity"],
     ];
-  return `<p class="eyebrow">Likely intent from this context</p><h2 class="title">What should Lens do?</h2><p class="body">${lensSource === "camera" ? "Camera" : lensSource === "library" ? "Photo library" : "Screenshot"} input ready. Choose the closest job; nothing is uploaded in this prototype.</p><div class="lens-intents" role="group" aria-label="Lens intent">${intents.map(([id, title, note]) => `<button class="lens-intent ${id === likely ? "recommended" : ""}" onclick="chooseLensIntent('${id}')"><b>${title}${id === likely ? " · Suggested" : ""}</b><small>${note}</small></button>`).join("")}</div>`;
+  return `${lensInputPreviewMarkup()}<p class="eyebrow lens-intent-eyebrow">Likely intent from this context</p><h2 class="title">What should Lens do?</h2><p class="body">Choose what you want Lens to do with this image. It stays on this device in this prototype.</p><div class="lens-intents" role="group" aria-label="Lens intent">${intents.map(([id, title, note]) => `<button class="lens-intent ${id === likely ? "recommended" : ""}" onclick="chooseLensIntent('${id}')"><b>${title}${id === likely ? " · Suggested" : ""}</b><small>${note}</small></button>`).join("")}</div>`;
 }
 function lensMatches() {
   return `<div class="lens-match-grid" role="region" aria-label="Owned visual matches">${[
@@ -3850,7 +3885,7 @@ function lensResult() {
 }
 function lensLayerMarkup() {
   if (!lensOpen) return "";
-  return `<div class="lens-layer"><button class="lens-scrim" aria-label="Close StyleIQ Lens" onclick="closeLens()"></button><section class="lens-sheet" role="dialog" aria-modal="true" aria-label="StyleIQ Lens"><header class="lens-head"><span><p class="eyebrow">StyleIQ</p><h2 class="title" style="font-size:20px">Lens</h2></span><button class="icon-btn" aria-label="Close StyleIQ Lens" onclick="closeLens()">×</button></header>${lensStage === "capture" ? `<div class="lens-capture"><img src="${assets.look3}" alt="Camera preview placeholder"><span>Show Lens what you see.</span></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('camera')">${icon("camera")}Camera</button><button class="lens-source" onclick="lensCapture('library')">${icon("image")}Photo library</button><button class="lens-source" onclick="lensCapture('screenshot')">${icon("scan")}Screenshot</button></div>` : lensStage === "intent" ? lensIntentPicker() : lensResult()}</section></div>`;
+  return `<div class="lens-layer"><div class="lens-scrim" aria-hidden="true"></div><section class="lens-sheet" role="dialog" aria-modal="true" aria-label="StyleIQ Lens"><header class="lens-head"><span><p class="eyebrow">StyleIQ</p><h2 class="title" style="font-size:20px">Lens</h2></span><button class="icon-btn" aria-label="Close StyleIQ Lens" onclick="closeLens()">×</button></header>${lensStage === "capture" ? lensCaptureMarkup() : lensStage === "intent" ? lensIntentPicker() : lensResult()}</section></div>`;
 }
 function decorateVisualSearchEntries() {
   const content = app.querySelector(".content");
