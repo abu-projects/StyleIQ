@@ -20,7 +20,7 @@ test.describe("Planner event flow", () => {
     await page.locator("#planner-event-occasion").selectOption("Dinner");
     await page.locator("#planner-event-title").fill("Birthday dinner");
     await page.locator("#app").getByRole("button", { name: "Plan My Look" }).click();
-    await expect(page.locator("#app").getByRole("heading", { name: "Your planned Look" })).toBeVisible();
+    await expect(page.locator("#app .planner-confirmed").first()).toHaveAccessibleName("Look planned");
     await expect(page.locator("#app").getByText("Coffee Meeting").first()).toBeVisible();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("styleiqPlannerEventV2")));
     expect(saved).toMatchObject({ date: "2099-08-23", daypart: "Evening", occasion: "Dinner", title: "Birthday dinner", lookId: "coffee" });
@@ -30,7 +30,7 @@ test.describe("Planner event flow", () => {
     await openPlanner(page);
     await page.locator("#app").getByRole("button", { name: "Add Event" }).click();
     await page.locator("#app").getByRole("button", { name: "Plan My Look" }).click();
-    await expect(page.locator("#app").getByRole("heading", { name: "Your planned Look" })).toBeVisible();
+    await expect(page.locator("#app .planner-confirmed").first()).toHaveAccessibleName("Look planned");
     await expect(page.locator("#app").getByText("Coffee Meeting").first()).toBeVisible();
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("styleiqPlannerEventV2")));
     expect(saved).toMatchObject({
