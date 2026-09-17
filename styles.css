@@ -18873,6 +18873,9 @@ summary:focus-visible {
   min-height: 350px;
   background: var(--trips-page-bg);
 }
+.app[data-screen="J-01"] .app-tab-head.trips-main-header {
+  top: 0;
+}
 .app[data-screen="J-01"] .trips-hero :is(video,.trips-hero-fallback) {
   object-position: center 42%;
   transform: none;
@@ -20151,6 +20154,172 @@ summary:focus-visible {
     grid-row: 1 / 3;
     width: 42px;
     height: 42px;
+  }
+}
+
+/* Today hero: keep the greeting, Muse context, and Look caption in separate lanes. */
+.app[data-screen="D-02"] .today-hero .today-morning {
+  display: block;
+  padding: 120px 24px 84px;
+}
+.app[data-screen="D-02"] .today-hero .today-morning-body {
+  display: block;
+  margin: 0;
+}
+.app[data-screen="D-02"] .today-hero .today-salutation {
+  margin-bottom: 3px;
+  font-size: 15px;
+}
+.app[data-screen="D-02"] .today-hero .today-first-name {
+  font-size: clamp(50px, 14cqw, 62px);
+}
+.app[data-screen="D-02"] .today-hero .today-muse-note {
+  position: absolute;
+  right: 68px;
+  bottom: 167px;
+  left: 24px;
+  width: auto;
+  margin: 0;
+  padding: 14px 14px 12px;
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  background: rgba(67, 61, 57, .58);
+}
+.app[data-screen="D-02"] .today-hero .today-muse-note-label {
+  font-size: 10px;
+}
+.app[data-screen="D-02"] .today-hero .today-muse-note-title {
+  margin: 8px 0 0;
+  font-size: 19px;
+}
+.app[data-screen="D-02"] .today-hero .today-muse-note-detail {
+  font-size: 11px;
+  line-height: 1.4;
+  text-overflow: clip;
+  white-space: normal;
+}
+.app[data-screen="D-02"] .today-hero .today-morning-foot {
+  position: absolute;
+  right: 68px;
+  bottom: 118px;
+  left: 24px;
+  width: auto;
+  margin: 0;
+  min-height: 50px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, .34);
+  border-radius: 0 0 18px 18px;
+  background: rgba(67, 61, 57, .58);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, .08);
+  backdrop-filter: blur(16px) saturate(112%);
+  -webkit-backdrop-filter: blur(16px) saturate(112%);
+}
+.app[data-screen="D-02"] .today-morning-meta {
+  width: 100%;
+  gap: 7px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, .26);
+  font-size: 9px;
+}
+.app[data-screen="D-02"] .today-morning-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.app[data-screen="D-02"] .today-morning-meta > i {
+  color: rgba(255, 255, 255, .72);
+  font-style: normal;
+}
+.app[data-screen="D-02"] .today-morning-meta .icon {
+  width: 13px;
+  height: 13px;
+  color: #e9c576;
+}
+.app[data-screen="D-02"] .today-hero .today-save {
+  position: static;
+  grid-column: 2;
+  grid-row: 2;
+  width: 46px;
+  height: 46px;
+  pointer-events: auto;
+}
+.app[data-screen="D-02"] .today-hero .today-hero-panel {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) 46px;
+  align-items: end;
+  gap: 4px 12px;
+  max-width: calc(100% - 132px);
+}
+.app[data-screen="D-02"] .today-hero .today-hero-panel > span:first-child {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.app[data-screen="D-02"] .today-hero .today-hero-panel > span:first-child::after {
+  width: 38px;
+  height: 1px;
+  content: "";
+  background: rgba(255, 255, 255, .6);
+}
+.app[data-screen="D-02"] .today-hero .today-hero-panel h3 {
+  margin: 0;
+  align-self: center;
+}
+.app[data-screen="D-02"] .today-hero-lens {
+  position: absolute;
+  z-index: 4;
+  right: 18px;
+  bottom: 28px;
+  width: 100px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, .72);
+  border-radius: 999px;
+  background: rgba(25, 22, 20, .78);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16);
+  backdrop-filter: blur(12px) saturate(110%);
+  -webkit-backdrop-filter: blur(12px) saturate(110%);
+}
+.app[data-screen="D-02"] .today-hero-lens .icon {
+  width: 18px;
+  height: 18px;
+}
+
+@container styleiq-phone (max-width: 350px) {
+  .app[data-screen="D-02"] .today-hero .today-morning {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+  .app[data-screen="D-02"] .today-hero .today-first-name { font-size: 46px; }
+  .app[data-screen="D-02"] .today-hero .today-muse-note,
+  .app[data-screen="D-02"] .today-hero .today-morning-foot {
+    right: 18px;
+    left: 18px;
+  }
+  .app[data-screen="D-02"] .today-morning-meta { gap: 5px; }
+  .app[data-screen="D-02"] .today-hero .today-hero-panel {
+    left: 18px;
+    grid-template-columns: minmax(0, 128px) 42px;
+    gap: 4px 9px;
+  }
+  .app[data-screen="D-02"] .today-hero .today-hero-panel h3 { font-size: 22px; }
+  .app[data-screen="D-02"] .today-hero .today-save {
+    width: 44px;
+    height: 44px;
+  }
+  .app[data-screen="D-02"] .today-hero-lens {
+    right: 14px;
+    width: 84px;
   }
 }
 

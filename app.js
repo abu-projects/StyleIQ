@@ -3926,7 +3926,7 @@ function lensLikelyIntent() {
           : "improve";
 }
 function lensEntry() {
-  return lensRootIds.includes(currentId) && currentId !== "C-01" && !lensOpen
+  return lensRootIds.includes(currentId) && !["C-01", "D-02"].includes(currentId) && !lensOpen
     ? `<button class="lens-fab" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")} Lens</button>`
     : "";
 }
@@ -5832,7 +5832,18 @@ function mirrorToday() {
   }[look.id] || ["Start with confidence.", "Your look for today is ready."];
   return shell(
     "Today",
-    `<section class="today-hero" aria-label="Today’s recommended Look"><button class="today-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"></button><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><div class="today-hero-scrim" aria-hidden="true"></div><header class="today-morning"><div class="today-morning-body"><h2 aria-label="Good morning, ${escapeMarkup(profileFirstName())}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${escapeMarkup(profileFirstName())}</span></h2><aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p><p class="today-muse-note-detail">${escapeMarkup(morningNote[1])}</p></aside></div><div class="today-morning-foot"><div class="today-morning-meta" aria-label="Today’s context"><p class="today-dayline">Sunday <span aria-hidden="true">·</span> Cairo</p><span class="today-office">${icon("calendar")}Office</span><span class="today-temperature">${icon("sun")}<b>18°C</b></span></div><div class="today-morning-plan"><span>First plan <b>10:00</b></span><span>Rain later</span></div><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button></div></header><div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
+    `<section class="today-hero" aria-label="Today’s recommended Look">
+      <button class="today-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"></button>
+      <span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span>
+      <div class="today-hero-scrim" aria-hidden="true"></div>
+      <header class="today-morning">
+        <div class="today-morning-body"><h2 aria-label="Good morning, ${escapeMarkup(profileFirstName())}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${escapeMarkup(profileFirstName())}</span></h2></div>
+        <aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p></aside>
+        <div class="today-morning-foot"><div class="today-morning-meta" aria-label="Today’s context"><span>${icon("calendar")}Sunday</span><i aria-hidden="true">·</i><span>${icon("map-pin")}Cairo</span><i aria-hidden="true">·</i><span>${icon("briefcase")}Office</span><i aria-hidden="true">·</i><span>${icon("sun")}<b>18°C</b></span></div></div>
+      </header>
+      <div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button></div>
+      <button class="today-hero-lens" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")}<span>Lens</span></button>
+    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
       tryOnLooks,
     )
       .filter((other) => other.id !== look.id)
@@ -6084,10 +6095,13 @@ function tripDateLabel(draft = tripState.basics || tripDraft) {
   return `${format(draft.startDate)} — ${format(draft.endDate)}`;
 }
 function tripEditorialTopbar(backAction = "backScreen()", label = "Trips", showAddTrip = false) {
+  if (label === "Trips") {
+    return `<header class="siq-header app-tab-head trips-main-header" aria-label="Trips navigation"><div class="root-title-block"><h1 id="trips-hero-title">Trips</h1></div><div class="root-actions"><button type="button" class="root-action root-muse-action" aria-label="Ask Muse about Trips" onclick="openMuse()">${icon("spark")}<span>Muse</span></button><button type="button" class="root-action" aria-label="Back" onclick="${backAction}">${icon("back")}</button></div></header>`;
+  }
   return `<header class="trip-editorial-topbar${showAddTrip ? " has-add-trip" : ""}" aria-label="${label} navigation"><button type="button" aria-label="Back" onclick="${backAction}">${icon("back")}</button><button type="button" class="trip-editorial-wordmark" aria-label="Go to Today" onclick="go('D-02')">StyleIQ</button><div class="trip-editorial-actions">${showAddTrip ? `<button type="button" class="trip-add-action" aria-label="Plan a new trip" onclick="startNewTrip()">${icon("plus")}<span>Trip</span></button>` : ""}<button type="button" aria-label="Ask Muse about ${label}" onclick="openMuse()">${icon("spark")}</button></div></header>`;
 }
 function tripsEditorialHero() {
-  return `<section class="trips-hero" aria-labelledby="trips-hero-title">${tripEditorialTopbar("backScreen()", "Trips")}<video class="trips-hero-video" autoplay muted loop playsinline preload="metadata" poster="${tripsHeroMedia.poster}" aria-hidden="true"><source src="${tripsHeroMedia.video}" type="video/mp4"></video><img class="trips-hero-fallback" src="${tripsHeroMedia.poster}" alt="A considered travel wardrobe laid out for packing"><div class="trips-hero-shade"></div><div class="trips-hero-copy"><p>The wardrobe edit</p><h2 id="trips-hero-title">Trips</h2><small>Your destinations, outfits, and packing plans. Together.</small></div></section>`;
+return `<section class="trips-hero" aria-labelledby="trips-hero-title">${tripEditorialTopbar("backScreen()", "Trips")}<video class="trips-hero-video" autoplay muted loop playsinline preload="metadata" poster="${tripsHeroMedia.poster}" aria-hidden="true"><source src="${tripsHeroMedia.video}" type="video/mp4"></video><img class="trips-hero-fallback" src="${tripsHeroMedia.poster}" alt="A considered travel wardrobe laid out for packing"><div class="trips-hero-shade"></div><div class="trips-hero-copy"><p>The wardrobe edit</p><small>Your destinations, outfits, and packing plans. Together.</small></div></section>`;
 }
 function tripStepNav(step) {
   return `<div class="trip-meaningful-steps" aria-label="Trip progress"><span class="${step >= 1 ? "on" : ""}">1 · Trips</span><span class="${step >= 2 ? "on" : ""}">2 · Setup</span><span class="${step >= 3 ? "on" : ""}">3 · Trip Hub</span></div>`;
