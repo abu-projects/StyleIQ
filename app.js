@@ -810,7 +810,7 @@ function selectPlannerDate(date) {
   plannerCalendarOpen = false;
   render();
 }
-function openPlannerCalendar() { plannerCalendarOpen = true; plannerCalendarMonthOffset = 0; render(); }
+function openPlannerCalendar() { plannerCalendarMonthOffset = 0; openPlannerRecap("monthly"); }
 function closePlannerCalendar() { plannerCalendarOpen = false; render(); }
 function changePlannerCalendarMonth(delta) { plannerCalendarMonthOffset += delta; render(); }
 function beginPlannerAdd(date = plannerSelectedDate) {
@@ -2302,30 +2302,49 @@ function brandLockup(mode = "") {
 }
 function head(title) {
   const root = ["D-02", "C-01", "I-01", "K-01", "L-01"].includes(currentId);
-  if (["G-02", "I-01", "J-01", "J-02", "J-08"].includes(currentId)) return "";
+  if (["G-02", "J-01", "J-02", "J-08"].includes(currentId)) return "";
   if (currentId.startsWith("A-") || currentId === "S-01") {
     return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><span class="brand-lockup micro"><span class="brand-lockup-name">StyleIQ</span></span></div><span class="head-action-placeholder" style="width:40px" aria-hidden="true"></span></header>`;
   }
   if (!root)
     return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><h1>${title}</h1></div><button class="head-muse" aria-label="Ask Muse about this screen" onclick="openMuse()">${icon("spark")}</button></header>`;
-  if (currentId === "D-02")
-    return `<header class="screen-head root-head root-head-today"><button class="root-wordmark" aria-label="Go to Today" onclick="go('D-02')">StyleIQ</button><div class="root-actions"><button class="root-action" aria-label="Ask Muse about Today" onclick="openMuse()">${icon("spark")}</button><button class="root-profile-control" aria-label="Open profile" onclick="go('L-01')"><img src="${assets.profile}" alt="${escapeMarkup(profileFullName())}"><span class="notification-dot" aria-hidden="true"></span></button></div></header>`;
-  const configs = {
+  const todayUsesMediaHeader = currentId === "D-02" && isExistingCustomer() && closetItemCount() > 0 && todayMode === "normal";
+  const primaryTabs = {
+    "D-02": {
+      title: "Today",
+      media: todayUsesMediaHeader,
+      mastheadImage: assets.look,
+      museLabel: "Ask Muse about Today",
+      action: `<button class="root-profile-control app-tab-context-action" aria-label="Open profile" onclick="go('L-01')"><img src="${assets.profile}" alt="${escapeMarkup(profileFullName())}"><span class="notification-dot" aria-hidden="true"></span></button>`,
+    },
     "C-01": {
-      label: "Wardrobe",
       title: "Closet",
-      actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about Closet">${icon("spark")}</button><button class="root-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button>`,
+      mastheadImage: "images/splash-curated-wardrobe.jpg",
+      museLabel: "Ask Muse about Closet",
+      action: `<button class="root-action app-tab-context-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button>`,
     },
     "I-01": {
-      label: "Your Week",
       title: "Planner",
-      actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}</button><button class="root-action" onclick="go('I-04')" aria-label="Plan a new Look">${icon("plus")}</button>`,
+      media: true,
+      museLabel: "Ask Muse about Planner",
+      action: `<button class="root-action app-tab-context-action" onclick="beginPlannerAdd('${plannerSelectedDate || new Date().toISOString().slice(0,10)}')" aria-label="Add Event">${icon("plus")}</button>`,
     },
     "K-01": {
-      label: "Ideas selected for you",
       title: "Discover",
-      actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about Discover">${icon("spark")}</button><button class="root-action" onclick="setClosetTab('wishlist')" aria-label="Open Wishlist">${icon("bookmark")}</button>`,
+      mastheadImage: "images/alta-look-rust-cream-flatlay.png",
+      museLabel: "Ask Muse about Discover",
+      action: `<button class="root-action app-tab-context-action" onclick="setClosetTab('wishlist')" aria-label="Open Wishlist">${icon("bookmark")}</button>`,
     },
+  };
+  const primaryTab = primaryTabs[currentId];
+  if (primaryTab) {
+    const mode = primaryTab.media ? "media" : "surface";
+    const mediaCap = mode === "surface" && primaryTab.mastheadImage
+      ? `<div class="app-tab-media-cap" aria-hidden="true" style="background-image:url('${primaryTab.mastheadImage}')"></div>`
+      : "";
+    return `${mediaCap}<header class="screen-head root-head app-tab-head app-tab-head--${mode}"><div class="root-title-block"><h1>${primaryTab.title}</h1></div><div class="root-actions"><button class="root-action root-muse-action" aria-label="${primaryTab.museLabel}" onclick="openMuse()">${icon("spark")}<span>Muse</span></button>${primaryTab.action}</div></header>`;
+  }
+  const configs = {
     "L-01": {
       label: "Personal profile",
       title: "My Atelier",
@@ -5813,7 +5832,7 @@ function mirrorToday() {
   }[look.id] || ["Start with confidence.", "Your look for today is ready."];
   return shell(
     "Today",
-    `<section class="today-hero" aria-label="Today’s recommended Look"><button class="today-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"></button><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><div class="today-hero-scrim" aria-hidden="true"></div><header class="today-morning"><div class="today-morning-top"><p class="today-dayline">Sunday <span aria-hidden="true">·</span> Cairo</p><div class="today-morning-context" aria-label="Today’s context"><span class="today-office">${icon("calendar")}Office</span><span class="today-temperature">${icon("sun")}<b>18°C</b></span></div></div><div class="today-morning-body"><h2 aria-label="Good morning, ${escapeMarkup(profileFirstName())}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${escapeMarkup(profileFirstName())}</span></h2><aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p><p class="today-muse-note-detail">${escapeMarkup(morningNote[1])}</p></aside></div><div class="today-morning-foot"><span>First plan <b>10:00</b></span><span>Rain later</span></div></header><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button><div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
+    `<section class="today-hero" aria-label="Today’s recommended Look"><button class="today-detail-link" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"></button><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${look.title} full outfit" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><div class="today-hero-scrim" aria-hidden="true"></div><header class="today-morning"><div class="today-morning-body"><h2 aria-label="Good morning, ${escapeMarkup(profileFirstName())}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${escapeMarkup(profileFirstName())}</span></h2><aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p><p class="today-muse-note-detail">${escapeMarkup(morningNote[1])}</p></aside></div><div class="today-morning-foot"><div class="today-morning-meta" aria-label="Today’s context"><p class="today-dayline">Sunday <span aria-hidden="true">·</span> Cairo</p><span class="today-office">${icon("calendar")}Office</span><span class="today-temperature">${icon("sun")}<b>18°C</b></span></div><div class="today-morning-plan"><span>First plan <b>10:00</b></span><span>Rain later</span></div><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button></div></header><div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><span class="today-hero-count">${Object.keys(tryOnLooks).indexOf(look.id) + 1} / 3</span></div></section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
       tryOnLooks,
     )
       .filter((other) => other.id !== look.id)
@@ -5941,7 +5960,7 @@ function mirrorPlanner() {
   const daySurface = renderedMoments.length
     ? `<div class="planner-day-carousel" aria-label="${renderedMoments.length} moments for ${plannerDateLabel(selectedDate)}">${renderedMoments.map((moment,index)=>plannerDayHeroMoment(moment,index,renderedMoments.length)).join('')}</div>`
     : `<div class="planner-day-empty" aria-label="No plans for ${plannerDateLabel(selectedDate)}"><span class="planner-day-empty-art" aria-hidden="true"><small>Open day</small><b>${Number(selectedDate.slice(8))}</b></span><span class="planner-day-empty-copy"><span><small>${plannerDateLabel(selectedDate)}</small><b>A clear day.</b><em>Your day is open.</em></span><button onclick="beginPlannerAdd('${selectedDate}')"><span>Add a plan</span><b aria-hidden="true">+</b></button></span></div>`;
-  const dynamicHero = `<section class="planner-dynamic-hero" aria-label="Selected day"><div class="planner-dynamic-top"><h1>Planner</h1><div><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon('spark')}<span>Muse</span></button><button onclick="beginPlannerAdd('${selectedDate}')" aria-label="Add Event">${icon('plus')}</button></div></div>${daySurface}${renderedMoments.length>1?`<div class="planner-day-pagination" aria-hidden="true">${renderedMoments.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`:''}<div class="planner-dynamic-calendar"><span><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button><button class="planner-full-calendar-action" aria-label="Open full calendar" onclick="openPlannerCalendar()">${icon('calendar')}</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip,date])=>`<button class="${date===selectedDate?'active':''}" aria-label="${d} ${n}${trip?', trip':''}${hasPlan?', planned look':''}" onclick="selectPlannerDate('${date}')"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section>`;
+  const dynamicHero = `<section class="planner-dynamic-hero" aria-label="Selected day">${daySurface}${renderedMoments.length>1?`<div class="planner-day-pagination" aria-hidden="true">${renderedMoments.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`:''}<div class="planner-dynamic-calendar"><span><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button><button class="planner-full-calendar-action" aria-label="Open full calendar" onclick="openPlannerCalendar()">${icon('calendar')}</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip,date])=>`<button class="${date===selectedDate?'active':''}" aria-label="${d} ${n}${trip?', trip':''}${hasPlan?', planned look':''}" onclick="selectPlannerDate('${date}')"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section>`;
 
   const recapVisuals = days.map((day) => plannerDateVisual(day[6])).filter((entry) => entry?.image);
   const recapWorn = recapVisuals.filter((entry) => entry.worn).length;
@@ -5962,10 +5981,26 @@ function openPlannerRecap(kind = "weekly") {
   plannerRecapReturnScroll = document.querySelector(".content")?.scrollTop || 0;
   plannerRecapStoryOpen = true;
   plannerRecapStoryKind = kind;
+  if (kind === "monthly") plannerCalendarMonthOffset = 0;
   plannerRecapStoryStep = 0;
   plannerCalendarOpen = false;
   render();
   requestAnimationFrame(() => { const content = document.querySelector(".content"); if (content) content.scrollTop = 0; });
+}
+function setPlannerRecapKind(kind) {
+  plannerRecapStoryKind = kind;
+  if (kind === "monthly") plannerCalendarMonthOffset = 0;
+  render();
+}
+function selectPlannerRecapDate(date) {
+  plannerSelectedDate = date;
+  localStorage.setItem("styleiqPlannerSelectedDateV1", date);
+  render();
+}
+function viewPlannerRecapDay(date) {
+  plannerSelectedDate = date;
+  localStorage.setItem("styleiqPlannerSelectedDateV1", date);
+  closePlannerRecap();
 }
 function closePlannerRecap() {
   plannerRecapStoryOpen = false;
@@ -5977,15 +6012,43 @@ function advancePlannerRecap() { if (plannerRecapStoryStep < 3) plannerRecapStor
 function plannerRecapStoryMarkup(kind = "weekly") {
   if (!plannerRecapStoryOpen) return "";
   kind = plannerRecapStoryKind;
-  const visuals = [
-    ...proactiveWeek.map((entry) => plannerDateVisual(entry.date)),
-    ...(plannerEvent ? [plannerDateVisual(plannerEvent.date)] : []),
-    ...(tripState.created ? tripDates(tripState.basics || tripDraft).map((date) => plannerDateVisual(date)) : []),
-  ].filter((entry, index, all) => entry?.image && all.findIndex((item) => item?.date === entry.date) === index);
-  const plannedCount = visuals.length;
-  const wornCount = visuals.filter((entry) => entry.worn).length;
-  const period = kind === "monthly" ? "month" : "week";
-  return `<section class="planner-recap-story planner-recap-diary" role="dialog" aria-modal="true" aria-labelledby="planner-recap-title"><header><span><small>Your ${period} in looks</small><h2 id="planner-recap-title">${plannedCount ? `${plannedCount} ${plannedCount === 1 ? 'Look' : 'Looks'}, day by day.` : 'A clear page.'}</h2></span><button class="planner-recap-close" aria-label="Close recap" onclick="closePlannerRecap()">×</button></header>${visuals.length ? `<div class="planner-recap-look-grid">${visuals.map((entry,index)=>`<article style="--reveal-index:${index}"><img src="${entry.image}" alt="${escapeMarkup(entry.title)}"><span><small>${plannerDateLabel(entry.date)}</small><b>${escapeMarkup(entry.title)}</b>${entry.worn?'<em>Worn</em>':''}</span></article>`).join('')}</div><footer><span><b>${plannedCount}</b><small>planned</small></span><span><b>${wornCount}</b><small>worn</small></span></footer>` : `<div class="planner-recap-empty"><p>Add Looks to your calendar and they’ll build into a visual diary here.</p></div>`}<button class="planner-recap-next" onclick="closePlannerRecap()">Back to Calendar →</button></section>`;
+  const recapHeroImage = "images/splash-curated-wardrobe.jpg";
+  const anchorValue = plannerSelectedDate || new Date().toISOString().slice(0,10);
+  const anchor = new Date(`${anchorValue}T12:00:00`);
+  const recapTabs = `<div class="planner-recap-tabs" role="tablist" aria-label="Recap period"><button role="tab" aria-selected="${kind === 'weekly'}" class="${kind === 'weekly' ? 'active' : ''}" onclick="setPlannerRecapKind('weekly')">Week</button><button role="tab" aria-selected="${kind === 'monthly'}" class="${kind === 'monthly' ? 'active' : ''}" onclick="setPlannerRecapKind('monthly')">Month</button></div>`;
+  const topbar = `<header class="planner-recap-topbar"><button aria-label="Close Recap" onclick="closePlannerRecap()">×</button><span aria-hidden="true"></span><span aria-hidden="true"></span></header>`;
+  const recapHero = ({ title, period, worn, planned, open, image }) => `<div class="planner-recap-hero${image ? ' has-image' : ' is-empty'}">${image ? `<img class="planner-recap-hero-image" src="${image}" alt="" aria-hidden="true">` : ''}<span class="planner-recap-hero-shade" aria-hidden="true"></span>${topbar}${recapTabs}<section class="planner-recap-heading"><h2 id="planner-recap-title">${title}</h2><p>${period}</p></section><div class="planner-recap-metrics"><span><b>${worn}</b><small>Worn</small></span><span><b>${planned}</b><small>Planned</small></span><span><b>${open}</b><small>Open days</small></span></div></div>`;
+
+  if (kind === "monthly") {
+    anchor.setDate(1);
+    anchor.setMonth(anchor.getMonth() + plannerCalendarMonthOffset);
+    const year = anchor.getFullYear(), month = anchor.getMonth();
+    const firstOffset = (anchor.getDay() + 6) % 7;
+    const count = new Date(year, month + 1, 0).getDate();
+    const dates = Array.from({length: count}, (_, index) => `${year}-${String(month + 1).padStart(2,'0')}-${String(index + 1).padStart(2,'0')}`);
+    const cells = Array.from({length: firstOffset}, () => "").concat(dates);
+    const entries = dates.map((date) => ({ date, visual: plannerDateVisual(date) }));
+    const plannedCount = entries.filter(({visual}) => visual).length;
+    const wornCount = entries.filter(({visual}) => visual?.worn).length;
+    const openCount = count - plannedCount;
+    const visualDates = entries.filter(({visual}) => visual?.image).map(({date}) => date);
+    const highlights = entries.filter(({visual}) => visual?.image).slice(0, 3);
+    const heroImage = recapHeroImage;
+    return `<section class="planner-recap-story planner-recap-diary" role="dialog" aria-modal="true" aria-labelledby="planner-recap-title">${recapHero({ title: 'Your month<br>in looks.', period: anchor.toLocaleDateString('en-US',{month:'long',year:'numeric'}), worn: wornCount, planned: Math.max(0, plannedCount - wornCount), open: openCount, image: heroImage })}<div class="planner-recap-month-nav"><button aria-label="Previous month" onclick="changePlannerCalendarMonth(-1)">‹</button><b>${anchor.toLocaleDateString('en-US',{month:'long'})}</b><button aria-label="Next month" onclick="changePlannerCalendarMonth(1)">›</button></div><div class="planner-month-weekdays">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(day=>`<span>${day}</span>`).join('')}</div><div class="planner-month-grid planner-recap-month-grid">${cells.map(date => date ? (() => { const visual = plannerDateVisual(date); const revealIndex = visual?.image ? visualDates.indexOf(date) : -1; const state = visual?.worn ? 'Worn' : visual ? 'Planned' : 'Open day'; return `<button class="${date===plannerSelectedDate?'selected':''} ${visual?.image?'has-look':''}" ${visual?.image?`style="--reveal-index:${revealIndex}"`:''} aria-label="${plannerDateLabel(date)}, ${state}" onclick="selectPlannerRecapDate('${date}')">${visual?.image?`<img src="${visual.image}" alt="${escapeMarkup(visual.title || 'Planned Look')}">`:''}<b>${Number(date.slice(8))}</b><span>${visual?.worn?'<i class="worn"></i>':visual?'<i class="planned"></i>':'<i class="open"></i>'}</span></button>`; })() : '<span></span>').join('')}</div>${highlights.length ? `<section class="planner-recap-highlights"><header><h3>Month highlights</h3><small>${highlights.length} Looks</small></header><div>${highlights.map(({date,visual},index)=>`<button onclick="selectPlannerRecapDate('${date}')" style="--reveal-index:${index}"><img src="${visual.image}" alt="${escapeMarkup(visual.title)}"><span><b>${escapeMarkup(visual.title)}</b><small>${plannerDateLabel(date)}</small></span></button>`).join('')}</div></section>` : ''}</section>`;
+  }
+
+  const weekStart = new Date(anchor);
+  weekStart.setDate(weekStart.getDate() - (weekStart.getDay() + 6) % 7);
+  const weekDates = Array.from({length: 7}, (_, index) => { const day = new Date(weekStart); day.setDate(day.getDate() + index); return day.toISOString().slice(0,10); });
+  const entries = weekDates.map((date) => ({ date, visual: plannerDateVisual(date) }));
+  const plannedCount = entries.filter(({visual}) => visual).length;
+  const wornCount = entries.filter(({visual}) => visual?.worn).length;
+  const selectedDate = weekDates.includes(plannerSelectedDate) ? plannerSelectedDate : weekDates[0];
+  const selectedVisual = plannerDateVisual(selectedDate);
+  const rangeEnd = new Date(weekStart); rangeEnd.setDate(rangeEnd.getDate() + 6);
+  const rangeLabel = `${weekStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})} – ${rangeEnd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+  const heroImage = recapHeroImage;
+  return `<section class="planner-recap-story planner-recap-diary" role="dialog" aria-modal="true" aria-labelledby="planner-recap-title">${recapHero({ title: 'Your week<br>in looks.', period: rangeLabel, worn: wornCount, planned: Math.max(0, plannedCount - wornCount), open: 7 - plannedCount, image: heroImage })}<div class="planner-recap-week-rail" aria-label="Days in this week">${entries.map(({date,visual},index)=>{ const day = new Date(`${date}T12:00:00`); const state = visual?.worn ? 'Worn' : visual ? 'Planned' : 'Open day'; return `<button class="planner-recap-day${date===selectedDate?' selected':''}${visual?' has-look':''}" onclick="selectPlannerRecapDate('${date}')" style="--reveal-index:${index}" aria-label="${plannerDateLabel(date)}, ${state}"><span><small>${day.toLocaleDateString('en-US',{weekday:'short'})}</small><b>${day.getDate()}</b></span><span class="planner-recap-day-media">${visual?.image?`<img src="${visual.image}" alt="${escapeMarkup(visual.title)}">`:`<i class="planner-recap-open-day" aria-hidden="true">Open</i>`}</span><em class="${visual?.worn?'worn':visual?'planned':'open'}">${visual?.worn?'✓ Worn':visual?'• Planned':'Add look'}</em></button>`;}).join('')}</div>${selectedVisual?.image ? `<button class="planner-recap-featured-day" onclick="viewPlannerRecapDay('${selectedDate}')"><img src="${selectedVisual.image}" alt="${escapeMarkup(selectedVisual.title)}"><span><small>${plannerDateLabel(selectedDate)}</small><b>${escapeMarkup(selectedVisual.title)}</b><em>View day in Planner ›</em></span></button>` : `<button class="planner-recap-featured-day is-empty" onclick="viewPlannerRecapDay('${selectedDate}')"><span><small>${plannerDateLabel(selectedDate)}</small><b>An open day.</b><em>Add a Look in Planner ›</em></span></button>`}<section class="planner-recap-insights"><header><h3>Week insights</h3><small>${plannedCount ? 'Your rhythm at a glance' : 'Ready when you are'}</small></header><div><span>${icon('calendar')}<b>${plannedCount}</b><small>Looks planned</small></span><span>${icon('heart')}<b>${wornCount}</b><small>Looks worn</small></span><span>${icon('spark')}<b>${7-plannedCount}</b><small>Days to style</small></span></div></section></section>`;
 }
 
 function changePlannerWeek(delta) {
@@ -6011,8 +6074,8 @@ function tripSummary() {
   const lookCount = tripState.looks.length;
   return `${tripDates(draft).length} days · ${tripPackingItems().length} pieces · ${lookCount} ${lookCount === 1 ? 'look' : 'looks'}`;
 }
-// TEMPORARY TRIPS HERO VIDEO — replace with final approved travel video.
-const tripsHeroMedia = { video: "app videos/new-woman1.mp4", poster: "images/trip-packing-cairo.png" };
+// Keep the Trips list hero on the same uninterrupted, full-frame film language as Muse.
+const tripsHeroMedia = { video: "app videos/trips.mp4", poster: "images/trip-packing-cairo.png" };
 function tripDateLabel(draft = tripState.basics || tripDraft) {
   const format = (value) => {
     const date = new Date(`${value}T00:00:00Z`);
@@ -6024,9 +6087,7 @@ function tripEditorialTopbar(backAction = "backScreen()", label = "Trips", showA
   return `<header class="trip-editorial-topbar${showAddTrip ? " has-add-trip" : ""}" aria-label="${label} navigation"><button type="button" aria-label="Back" onclick="${backAction}">${icon("back")}</button><button type="button" class="trip-editorial-wordmark" aria-label="Go to Today" onclick="go('D-02')">StyleIQ</button><div class="trip-editorial-actions">${showAddTrip ? `<button type="button" class="trip-add-action" aria-label="Plan a new trip" onclick="startNewTrip()">${icon("plus")}<span>Trip</span></button>` : ""}<button type="button" aria-label="Ask Muse about ${label}" onclick="openMuse()">${icon("spark")}</button></div></header>`;
 }
 function tripsEditorialHero() {
-  const target = tripState.created ? "J-08" : "J-02";
-  const action = tripState.created ? "Open your trip" : "Plan a trip";
-  return `<section class="trips-hero" aria-labelledby="trips-hero-title">${tripEditorialTopbar("backScreen()", "Trips", tripState.created)}<video class="trips-hero-video" autoplay muted loop playsinline preload="metadata" poster="${tripsHeroMedia.poster}" aria-hidden="true"><source src="${tripsHeroMedia.video}" type="video/mp4"></video><img class="trips-hero-fallback" src="${tripsHeroMedia.poster}" alt="A considered travel wardrobe laid out for packing"><div class="trips-hero-shade"></div><div class="trips-hero-copy"><p>StyleIQ Travel · The wardrobe edit</p><h2 id="trips-hero-title">Trips</h2><span>Where are you going next?</span><small>Looks shaped around your wardrobe, your plans, and the place.</small><button type="button" onclick="go('${target}')"><b>${action}</b><i aria-hidden="true">↗</i></button></div></section>`;
+  return `<section class="trips-hero" aria-labelledby="trips-hero-title">${tripEditorialTopbar("backScreen()", "Trips")}<video class="trips-hero-video" autoplay muted loop playsinline preload="metadata" poster="${tripsHeroMedia.poster}" aria-hidden="true"><source src="${tripsHeroMedia.video}" type="video/mp4"></video><img class="trips-hero-fallback" src="${tripsHeroMedia.poster}" alt="A considered travel wardrobe laid out for packing"><div class="trips-hero-shade"></div><div class="trips-hero-copy"><p>The wardrobe edit</p><h2 id="trips-hero-title">Trips</h2><small>Your destinations, outfits, and packing plans. Together.</small></div></section>`;
 }
 function tripStepNav(step) {
   return `<div class="trip-meaningful-steps" aria-label="Trip progress"><span class="${step >= 1 ? "on" : ""}">1 · Trips</span><span class="${step >= 2 ? "on" : ""}">2 · Setup</span><span class="${step >= 3 ? "on" : ""}">3 · Trip Hub</span></div>`;
@@ -6482,15 +6543,20 @@ function decorateProfileEntries() {
   }
 }
 function tripsList() {
+  const collectionHeader = `<div class="trips-collection-bar"><h3>Your trips</h3><button type="button" class="trips-plan-action" onclick="${tripState.created ? 'startNewTrip()' : "go('J-02')"}">${icon("plus")}<span>Plan a trip</span></button></div>`;
   if (!tripState.created)
     return shell(
       "Trips",
-      `${tripsEditorialHero()}<section class="trips-empty-editorial"><div class="trips-empty-lead"><p class="eyebrow">The StyleIQ travel edit</p><h3>One capsule.<br>Every moment covered.</h3><p>Start with where, when, and what you have planned. Muse turns pieces from your Closet into a focused travel wardrobe.</p></div><ol class="trips-how"><li><span>01</span><div><b>Set the scene</b><small>Destination, dates, and plans.</small></div></li><li><span>02</span><div><b>Edit your capsule</b><small>Looks built from pieces you own.</small></div></li><li><span>03</span><div><b>Pack with clarity</b><small>Day-by-day outfits and checklist.</small></div></li></ol><button class="trips-inline-action" onclick="go('J-02')"><span>Begin your first trip</span><b aria-hidden="true">↗</b></button></section>`,
+      `${tripsEditorialHero()}${collectionHeader}<section class="trips-empty-editorial"><div class="trips-empty-lead"><p class="eyebrow">No trips yet</p><h3>A destination.<br>A wardrobe to match.</h3><p>Choose your destination and dates. Muse brings together outfits from your Closet and a packing checklist for your trip.</p></div></section>`,
       { active: "profile" },
     );
+  const draft = tripState.basics || tripDraft;
+  const destination = escapeMarkup(draft.destination || "Your trip");
+  const today = new Date().toLocaleDateString("en-CA");
+  const status = !draft.startDate || !draft.endDate ? "Saved trip" : draft.endDate < today ? "Past trip" : draft.startDate > today ? "Upcoming trip" : "In progress";
   return shell(
     "Trips",
-    `${tripsEditorialHero()}<section class="trips-upcoming"><div class="trips-section-head"><p>Upcoming trips</p><h3>Your next destination</h3></div><button class="trip-editorial-card" onclick="go('J-08')"><img src="images/onboarding-trip-planning.png" alt="Wardrobe for ${escapeMarkup((tripState.basics || tripDraft).destination)}"><span class="trip-card-shade"></span><span class="trip-card-copy"><small>${tripDateLabel()}</small><b>${escapeMarkup((tripState.basics || tripDraft).destination)}</b><em>${tripSummary()} · ${escapeMarkup((tripState.basics || tripDraft).occasions?.slice(0,2).join(' · ') || 'Travel edit')}</em><strong>${tripPackingItems().length}-piece capsule ready</strong></span></button></section>`,
+    `${tripsEditorialHero()}${collectionHeader}<section class="trips-upcoming" aria-label="Saved trips"><button type="button" class="trips-saved-card" onclick="go('J-08')" aria-label="Open trip to ${destination}"><span class="trips-saved-visual"><img src="images/onboarding-trip-planning.png" alt=""><span>${status}</span></span><span class="trips-saved-copy"><small>${tripDateLabel()}</small><b>${destination}</b><span>${tripSummary()}</span></span></button></section>`,
     { active: "profile" },
   );
 }
@@ -8322,7 +8388,7 @@ function applyTodayAdaptiveContrast() {
     );
 
     const regions = [
-      hero.querySelector('.today-morning-top'),
+      hero.querySelector('.today-morning-foot'),
       hero.querySelector('.today-morning-body > h2'),
     ].filter(Boolean);
 
