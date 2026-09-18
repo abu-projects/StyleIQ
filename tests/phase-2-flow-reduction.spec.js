@@ -245,7 +245,7 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     await expect(app(page).locator('.trip-tabs')).toBeVisible();
   });
 
-  test('Flow 17: Stylist Experience & Make It Mine (Approved Exception 3: H-11 -> H-13 -> F-01 in 3 steps)', async ({ page }) => {
+  test('Flow 17: Stylist Experience & Make It Mine (H-11 -> H-13 -> E-07)', async ({ page }) => {
     // Step 1: H-11 Stylist Discovery
     await page.goto('/index.html#H-11');
     expect(await getCanonical(page)).toBe('H-11');
@@ -254,9 +254,10 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     await app(page).locator('.creator-look-card, .creator-mini-thumb, button:has-text("View Look")').first().click();
     expect(await getCanonical(page)).toBe('H-13');
 
-    // Step 3: "Make It Mine" -> opens directly in Studio canvas F-01
+    // Step 3: "Make It Mine" -> opens the dedicated Closet-aware flow E-07.
     await app(page).getByRole('button', { name: 'Make It Mine' }).first().click();
-    expect(await getCanonical(page)).toBe('F-01');
+    expect(await getCanonical(page)).toBe('E-07');
+    await expect(app(page).getByText('Closet match')).toBeVisible();
   });
 
   test('Flow 18: Inspiration / Community (K-01 -> K-04 in 2 steps)', async ({ page }) => {
