@@ -151,22 +151,22 @@ const screens = [
   {
     "id": "H-11",
     "section": "H",
-    "title": "Creator discovery",
-    "detail": "Browse outfits and style inspiration from Creators.",
+    "title": "Stylist discovery",
+    "detail": "Browse outfits and style inspiration from Stylists.",
     "phase": 2
   },
   {
     "id": "H-12",
     "section": "H",
-    "title": "Creator profile",
-    "detail": "Curated creator profile with style direction and featured looks.",
+    "title": "Stylist profile",
+    "detail": "Curated stylist profile with style direction and featured looks.",
     "phase": 2
   },
   {
     "id": "H-13",
     "section": "H",
-    "title": "Creator look detail",
-    "detail": "Creator outfit breakdown; Make It Mine routes directly to F-01.",
+    "title": "Stylist look detail",
+    "detail": "Stylist outfit breakdown; Make It Mine routes directly to F-01.",
     "phase": 2
   },
   {
@@ -613,6 +613,7 @@ let currentId = location.hash.slice(1) || "S-00",
   overlay = null,
   lightweightPanel = null,
   swipeLookTarget = { type: "today", index: null },
+  swipeLookTab = "muse",
   swipeLookCreateMode = null,
   swipeMuseDraftId = null,
   swipeMuseDraftTargetKey = null,
@@ -2628,7 +2629,8 @@ function plannerEventDetailMarkup(plan, look) {
     : `<div class="planner-detail-media-placeholder" role="img" aria-label="No Look visual added yet"><span>${escapeMarkup(new Date(`${plan?.date || "2026-09-17"}T12:00:00`).getDate())}</span><small>Look visual coming next</small></div>`;
   const controls = media.length > 1 ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === activeIndex ? "active" : ""}" aria-label="Show ${escapeMarkup(item.label || `media ${index + 1}`)}" aria-pressed="${index === activeIndex}" onclick="setPlannerDetailMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous Look media" onclick="setPlannerDetailMedia(${activeIndex - 1})">‹</button><button class="saved-look-media-arrow" aria-label="Next Look media" onclick="setPlannerDetailMedia(${activeIndex + 1})">›</button></div></div>` : "";
   const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === activeIndex ? "active" : ""}" aria-pressed="${index === activeIndex}" aria-label="${escapeMarkup(item.label || `media ${index + 1}`)}" onclick="setPlannerDetailMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${item.type === "video" ? "Video" : "Image"}</small></button>`).join("")}</div>` : "";
-  return `<div class="lightweight-layer planner-detail-layer"><button class="lightweight-scrim" aria-label="Dismiss ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet planner-visual-detail" role="dialog" aria-modal="true" aria-labelledby="planner-detail-title"><div class="planner-detail-media-stage">${mediaSurface}<div class="planner-detail-shade"></div>${active?.type === "video" ? '<span class="planner-detail-motion">Motion</span>' : ""}<button class="planner-detail-close" aria-label="Close ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()">×</button><span class="planner-detail-position">${media.length ? `${activeIndex + 1} / ${media.length}` : "No media"}</span>${controls}<div class="planner-detail-caption"><p>${lookTitle ? "Your Look" : "Plan"}</p><h2 id="planner-detail-title">${escapeMarkup(lookTitle || eventTitle)}</h2><span>${escapeMarkup(plan?.context || plan?.occasion || "Event")} · ${escapeMarkup(plan?.location || "Location not set")}</span></div></div>${mediaRail}<div class="planner-detail-content"><header><p class="eyebrow">${escapeMarkup(when)}</p><h3>${escapeMarkup(eventTitle)}</h3></header><dl class="planner-detail-list"><div><dt>Dress for</dt><dd>${escapeMarkup(plan?.context || plan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(plan?.weather || "Forecast added closer to the day")}</dd></div></dl><div class="planner-detail-actions planner-detail-primary-actions">${lookTitle ? '<button class="btn primary wide" onclick="openPlannerFullLookDetails()">Open full Look details</button>' : ""}<div class="planner-detail-secondary-actions"><button class="btn" onclick="${changeAction}">${lookTitle ? "Try another Look" : "Choose a Look"}</button><button class="btn" onclick="${editAction}">Edit plan</button></div></div><button class="danger-action planner-detail-remove" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove plan</button></div></section></div>`;
+  const piecesRail = look ? lookPiecesRailMarkup({ key: "planner-look-detail", pieces: look.pieces, source: "Closet" }) : "";
+  return `<div class="lightweight-layer planner-detail-layer"><button class="lightweight-scrim" aria-label="Dismiss ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet planner-visual-detail" role="dialog" aria-modal="true" aria-labelledby="planner-detail-title"><div class="planner-detail-media-stage">${mediaSurface}<div class="planner-detail-shade"></div>${active?.type === "video" ? '<span class="planner-detail-motion">Motion</span>' : ""}<button class="planner-detail-close" aria-label="Close ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()">×</button><span class="planner-detail-position">${media.length ? `${activeIndex + 1} / ${media.length}` : "No media"}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>${lookTitle ? "Your Look" : "Plan"}</p><h2 id="planner-detail-title">${escapeMarkup(lookTitle || eventTitle)}</h2><span>${escapeMarkup(plan?.context || plan?.occasion || "Event")} · ${escapeMarkup(plan?.location || "Location not set")}</span></div></div>${mediaRail}<div class="planner-detail-content"><header><p class="eyebrow">${escapeMarkup(when)}</p><h3>${escapeMarkup(eventTitle)}</h3></header><dl class="planner-detail-list"><div><dt>Dress for</dt><dd>${escapeMarkup(plan?.context || plan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(plan?.weather || "Forecast added closer to the day")}</dd></div></dl><button class="planner-looks-swiper-cta" onclick="${changeAction}" aria-label="Open Looks Swiper for ${escapeMarkup(eventTitle)}"><span><small>Explore another direction</small><b>Looks Swiper</b><em>Muse · Style Studio · Saved · Discover</em></span><i aria-hidden="true">→</i></button><div class="planner-detail-actions planner-detail-primary-actions"><div class="planner-detail-secondary-actions">${lookTitle ? '<button class="btn" onclick="openPlannerFullLookDetails()">Full Look details</button>' : ""}<button class="btn" onclick="${editAction}">Edit plan</button></div></div><button class="danger-action planner-detail-remove" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove plan</button></div></section></div>`;
 }
 function approveLightweightPanel(kind) {
   if (kind === "plannerRemoveConfirm") { confirmPlannerEntryRemoval(); return; }
@@ -2802,7 +2804,7 @@ function lightweightPanelMarkup() {
     },
     changeLook: {
       eyebrow: swipeLookTarget.type === "trip" ? "Daily trip edit" : swipeLookTarget.type.startsWith("planner") ? "Planner alternatives" : "Alternatives for today",
-      title: "Choose a Look",
+      title: swipeLookTarget.type.startsWith("planner") ? "Looks Swiper" : "Change Look",
       body: swipeLooksMarkup({
         id: "change-look-panel",
         selectedId: swipeLookSelectedId(),
@@ -2941,7 +2943,8 @@ function lightweightPanelMarkup() {
   const layerClass = lightweightPanel === "instantSave"
     ? "lightweight-layer lightweight-layer--instant-save"
     : "lightweight-layer";
-  return `<div class="${layerClass}"><button class="lightweight-scrim" aria-label="Dismiss ${panel.title}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet" role="dialog" aria-modal="true" aria-labelledby="lightweight-title"><div class="grab" aria-hidden="true"></div><div class="lightweight-head"><span><p class="eyebrow">${panel.eyebrow}</p><h2 id="lightweight-title" class="title">${panel.title}</h2></span><button class="icon-btn" aria-label="Close ${panel.title}" onclick="closeLightweightPanel()">×</button></div>${panel.body}${panel.action ? `<button class="btn ${actionClass} wide" style="margin-top:16px" onclick="approveLightweightPanel('${lightweightPanel}')">${panel.action}</button>` : ""}</section></div>`;
+  const sheetClass = lightweightPanel === "changeLook" ? "lightweight-sheet change-look-sheet" : "lightweight-sheet";
+  return `<div class="${layerClass}"><button class="lightweight-scrim" aria-label="Dismiss ${panel.title}" onclick="closeLightweightPanel()"></button><section class="${sheetClass}" role="dialog" aria-modal="true" aria-labelledby="lightweight-title"><div class="grab" aria-hidden="true"></div><div class="lightweight-head"><span><p class="eyebrow">${panel.eyebrow}</p><h2 id="lightweight-title" class="title">${panel.title}</h2></span><button class="icon-btn" aria-label="Close ${panel.title}" onclick="closeLightweightPanel()">×</button></div>${panel.body}${panel.action ? `<button class="btn ${actionClass} wide" style="margin-top:16px" onclick="approveLightweightPanel('${lightweightPanel}')">${panel.action}</button>` : ""}</section></div>`;
 }
 function decorateSettingsRows() {
   if (currentId !== "L-11") return;
@@ -4123,6 +4126,156 @@ let lookFilter = "All",
     { name: "@lefevrediary", source: "Instagram · prototype reference" },
     { name: "Maya El-Sayed", source: "Pinterest · prototype reference" },
   ];
+let expandedLookPiecesRail = null;
+let maximizedLookPiecesRail = null;
+let selectedLookPieceIndex = 0;
+let lookPieceTransitionDirection = 0;
+let activeLookPieceSheet = null;
+const lookPiecesRegistry = new Map();
+
+function normalizePieceName(value = "") {
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+function linkedClosetPiece(piece) {
+  const available = closetItems();
+  const exactName = available.find((item) => normalizePieceName(item.name) === normalizePieceName(piece.name));
+  if (exactName) return exactName;
+  const imageMatches = available.filter((item) => item.image && item.image === piece.image);
+  return imageMatches.length === 1 ? imageMatches[0] : null;
+}
+function normalizeLookPieces(rawPieces = [], source = "Closet") {
+  return rawPieces.map((raw, index) => {
+    const piece = Array.isArray(raw)
+      ? { role: raw[0], name: raw[1], image: raw[2] }
+      : { ...raw };
+    if (!piece?.name || !piece?.image) return null;
+    const closetPiece = piece.closetId
+      ? closetItems().find((item) => item.id === piece.closetId)
+      : linkedClosetPiece(piece);
+    return {
+      id: piece.id || closetPiece?.id || `linked-piece-${index}`,
+      closetId: piece.closetId || closetPiece?.id || "",
+      role: piece.role || piece.category || closetPiece?.category || "Piece",
+      name: piece.name,
+      image: piece.image,
+      brand: piece.brand || closetPiece?.brand || "Brand not added",
+      source: piece.source || source,
+    };
+  }).filter(Boolean).filter((piece, index, pieces) =>
+    pieces.findIndex((candidate) => candidate.name === piece.name && candidate.image === piece.image) === index,
+  );
+}
+function tripLinkedLookPieces(look) {
+  const formula = look?.lookId ? plannerLook(look.lookId)?.pieces || [] : [];
+  const capsule = tripPackingItems();
+  if (!formula.length) {
+    return normalizeLookPieces(
+      capsule.map((item) => ({ ...item, role: item.role || item.category || "Trip piece", source: "Trip Capsule" })),
+      "Trip Capsule",
+    );
+  }
+  return normalizeLookPieces(formula, "Trip Capsule").map((piece) => {
+    const capsulePiece = capsule.find((item) => item.image === piece.image || normalizePieceName(item.name) === normalizePieceName(piece.name));
+    if (!capsulePiece) return null;
+    const closetPiece = capsulePiece.id ? closetItems().find((item) => item.id === capsulePiece.id) : linkedClosetPiece(capsulePiece);
+    return {
+      ...piece,
+      id: capsulePiece.id || piece.id,
+      closetId: capsulePiece.id || closetPiece?.id || piece.closetId,
+      name: capsulePiece.name || piece.name,
+      image: capsulePiece.image || piece.image,
+      brand: capsulePiece.brand || closetPiece?.brand || piece.brand,
+      source: "Trip Capsule",
+    };
+  }).filter(Boolean);
+}
+function toggleLookPiecesRail(key) {
+  lookPieceTransitionDirection = 0;
+  expandedLookPiecesRail = expandedLookPiecesRail === key ? null : key;
+  if (expandedLookPiecesRail !== key) maximizedLookPiecesRail = null;
+  activeLookPieceSheet = null;
+  render();
+}
+function toggleLookPiecesPanel(key) {
+  lookPieceTransitionDirection = 0;
+  expandedLookPiecesRail = key;
+  maximizedLookPiecesRail = maximizedLookPiecesRail === key ? null : key;
+  selectedLookPieceIndex = 0;
+  activeLookPieceSheet = null;
+  render();
+}
+function selectLookPiece(key, pieceIndex) {
+  lookPieceTransitionDirection = pieceIndex === selectedLookPieceIndex ? 0 : pieceIndex > selectedLookPieceIndex ? 1 : -1;
+  expandedLookPiecesRail = key;
+  maximizedLookPiecesRail = key;
+  selectedLookPieceIndex = pieceIndex;
+  activeLookPieceSheet = null;
+  render();
+}
+function stepLookPiece(key, direction) {
+  const pieces = lookPiecesRegistry.get(key) || [];
+  if (!pieces.length) return;
+  lookPieceTransitionDirection = direction < 0 ? -1 : 1;
+  selectedLookPieceIndex = (selectedLookPieceIndex + direction + pieces.length) % pieces.length;
+  expandedLookPiecesRail = key;
+  maximizedLookPiecesRail = key;
+  activeLookPieceSheet = null;
+  render();
+}
+function closeLookPiecesRail() {
+  lookPieceTransitionDirection = 0;
+  expandedLookPiecesRail = null;
+  maximizedLookPiecesRail = null;
+  activeLookPieceSheet = null;
+  render();
+}
+function openLookPieceSheet(key, pieceIndex = null) {
+  lookPieceTransitionDirection = 0;
+  expandedLookPiecesRail = key;
+  activeLookPieceSheet = { key, pieceIndex, detail: false };
+  render();
+}
+function openLookPieceItem(key, pieceIndex) {
+  const piece = lookPiecesRegistry.get(key)?.[pieceIndex];
+  if (!piece) return;
+  expandedLookPiecesRail = key;
+  activeLookPieceSheet = { key, pieceIndex, detail: true };
+  render();
+}
+function scrollLookPiecesRail(key, direction) {
+  const layer = [...document.querySelectorAll(".look-pieces-layer")]
+    .find((candidate) => candidate.dataset.lookPiecesKey === key);
+  layer?.querySelector(".look-pieces-scroll")?.scrollBy({ top: direction * 78, behavior: "smooth" });
+}
+function lookPiecesRailMarkup({ key, pieces: rawPieces, source = "Closet" }) {
+  const pieces = normalizeLookPieces(rawPieces, source);
+  if (!pieces.length) return "";
+  lookPiecesRegistry.set(key, pieces);
+  const expanded = expandedLookPiecesRail === key;
+  const maximized = expanded && maximizedLookPiecesRail === key;
+  const sheet = activeLookPieceSheet?.key === key ? activeLookPieceSheet : null;
+  const thumbnails = pieces.slice(0, 2).map((piece, index) => `<img src="${piece.image}" alt="${escapeMarkup(piece.name)}" style="--piece-stack:${index}">`).join("");
+  const focusedIndex = Math.min(selectedLookPieceIndex, pieces.length - 1);
+  const focusedPiece = pieces[focusedIndex];
+  const transitionClass = lookPieceTransitionDirection < 0 ? "is-stepping-prev" : lookPieceTransitionDirection > 0 ? "is-stepping-next" : "";
+  const rail = maximized
+    ? `<aside class="look-pieces-focus ${transitionClass}" aria-label="Expanded Look pieces"><button class="look-pieces-focus-collapse" aria-label="Return to compact Look pieces" onclick="event.stopPropagation();toggleLookPiecesPanel('${key}')">›</button><header><span class="look-pieces-focus-title"><b>Look pieces</b><small>${pieces.length} items</small></span><span class="look-pieces-nav" role="group" aria-label="Scroll Look pieces"><button aria-label="Previous Look piece thumbnail" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',-1)">↑</button><button aria-label="Next Look piece thumbnail" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',1)">↓</button></span></header><div class="look-pieces-focus-body"><article class="look-pieces-feature"><button class="look-pieces-feature-image" aria-label="View ${escapeMarkup(focusedPiece.name)} details" onclick="event.stopPropagation();openLookPieceSheet('${key}',${focusedIndex})"><img src="${focusedPiece.image}" alt="${escapeMarkup(focusedPiece.name)}"></button><div class="look-pieces-feature-copy"><small>${escapeMarkup(focusedPiece.role)}</small><b>${escapeMarkup(focusedPiece.name)}</b></div><div class="look-pieces-feature-nav" role="group" aria-label="Choose a Look piece"><button aria-label="Previous piece" onclick="event.stopPropagation();stepLookPiece('${key}',-1)">←</button><span>${focusedIndex + 1} / ${pieces.length}</span><button aria-label="Next piece" onclick="event.stopPropagation();stepLookPiece('${key}',1)">→</button></div></article><div class="look-pieces-scroll look-pieces-focus-thumbs">${pieces.map((piece, index) => `<button class="look-pieces-focus-thumb ${index === focusedIndex ? "is-selected" : ""}" aria-current="${index === focusedIndex ? "true" : "false"}" aria-label="Select ${escapeMarkup(piece.name)}" onclick="event.stopPropagation();selectLookPiece('${key}',${index})"><img src="${piece.image}" alt=""><small>${escapeMarkup(piece.role)}</small></button>`).join("")}</div></div></aside>`
+    : expanded
+    ? `<aside class="look-pieces-rail is-expanded" aria-label="Pieces in this Look"><button class="look-pieces-expand-handle" aria-label="Expand Look pieces" onclick="event.stopPropagation();toggleLookPiecesPanel('${key}')">‹</button><header><button class="look-pieces-title" aria-label="Collapse Look pieces" onclick="event.stopPropagation();toggleLookPiecesRail('${key}')"><span>Look pieces</span><b>${pieces.length} items</b></button><span class="look-pieces-nav" role="group" aria-label="Scroll Look pieces"><button aria-label="Previous Look piece" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',-1)">↑</button><button aria-label="Next Look piece" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',1)">↓</button></span></header><div class="look-pieces-scroll">${pieces.map((piece, index) => `<button class="look-piece-thumb" aria-label="View ${escapeMarkup(piece.name)}" onclick="event.stopPropagation();openLookPieceSheet('${key}',${index})"><img src="${piece.image}" alt=""><small>${escapeMarkup(piece.role)}</small></button>`).join("")}<button class="look-pieces-view-all" onclick="event.stopPropagation();openLookPieceSheet('${key}')" aria-label="View all ${pieces.length} pieces"><span>＋</span><small>View all</small></button></div></aside>`
+    : `<button class="look-pieces-rail-trigger" aria-expanded="false" aria-label="Show ${pieces.length} pieces in this Look" onclick="event.stopPropagation();toggleLookPiecesRail('${key}')"><span class="look-pieces-trigger-head"><small>Look pieces</small><b>${pieces.length} items</b></span><span class="look-pieces-stack">${thumbnails}</span><em>Open</em></button>`;
+  let sheetMarkup = "";
+  if (sheet) {
+    if (Number.isInteger(sheet.pieceIndex) && pieces[sheet.pieceIndex]) {
+      const piece = pieces[sheet.pieceIndex];
+      sheetMarkup = sheet.detail
+        ? `<section class="look-piece-sheet look-piece-sheet--detail" role="dialog" aria-label="${escapeMarkup(piece.name)} item preview" onclick="event.stopPropagation()"><button class="look-piece-sheet-close" aria-label="Close item preview" onclick="activeLookPieceSheet=null;render()">×</button><div class="look-piece-detail-image"><img src="${piece.image}" alt="${escapeMarkup(piece.name)}"></div><div class="look-piece-detail-copy"><small>${escapeMarkup(piece.role)}</small><h3>${escapeMarkup(piece.name)}</h3><p>${escapeMarkup(piece.brand)}</p><em>${escapeMarkup(piece.source)}</em></div><button class="look-piece-open look-piece-back" onclick="openLookPieceSheet('${key}',${sheet.pieceIndex})">← Back to Look</button></section>`
+        : `<section class="look-piece-sheet" role="dialog" aria-label="${escapeMarkup(piece.name)} details" onclick="event.stopPropagation()"><button class="look-piece-sheet-close" aria-label="Close piece details" onclick="activeLookPieceSheet=null;render()">×</button><img src="${piece.image}" alt="${escapeMarkup(piece.name)}"><div><small>${escapeMarkup(piece.role)}</small><h3>${escapeMarkup(piece.name)}</h3><p>${escapeMarkup(piece.brand)}</p><em>${escapeMarkup(piece.source)}</em></div><button class="look-piece-open" onclick="openLookPieceItem('${key}',${sheet.pieceIndex})">View item larger</button></section>`;
+    } else {
+      sheetMarkup = `<section class="look-piece-sheet look-piece-sheet--all" role="dialog" aria-label="All pieces in this Look" onclick="event.stopPropagation()"><button class="look-piece-sheet-close" aria-label="Close all pieces" onclick="activeLookPieceSheet=null;render()">×</button><header><small>Inside the Look</small><h3>${pieces.length} linked pieces</h3></header><div>${pieces.map((piece, index) => `<button onclick="openLookPieceSheet('${key}',${index})"><img src="${piece.image}" alt=""><span><small>${escapeMarkup(piece.role)}</small><b>${escapeMarkup(piece.name)}</b></span></button>`).join("")}</div></section>`;
+    }
+  }
+  return `<div class="look-pieces-layer ${expanded ? "is-open" : ""} ${maximized ? "is-maximized" : ""}" data-look-pieces-key="${escapeMarkup(key)}">${expanded ? `<button class="look-pieces-dismiss" aria-label="Close Look pieces" onclick="event.stopPropagation();closeLookPiecesRail()"></button>` : ""}${rail}${sheetMarkup}</div>`;
+}
 function setLookFilter(value) {
   lookFilter = value;
   render();
@@ -4177,7 +4330,8 @@ function savedLookMediaSurface(record) {
     : `<img class="planner-detail-media saved-look-media" src="${selected.src}" alt="${escapeMarkup(record.title)} · ${escapeMarkup(selected.label)}">`;
   const controls = media.length > 1 ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="Go to ${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous media" onclick="stepSavedLookMedia(-1)">‹</button><button class="saved-look-media-arrow" aria-label="Next media" onclick="stepSavedLookMedia(1)">›</button></div></div>` : "";
   const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${item.type === "video" ? "Video" : "Image"}</small></button>`).join("")}</div>` : "";
-  return `<section class="saved-look-media-block" aria-label="Saved Look media"><div class="planner-detail-media-stage" data-saved-look-media>${activeMedia}<div class="planner-detail-shade"></div><button class="planner-detail-close" aria-label="Close Look details" onclick="backScreen()">×</button><span class="planner-detail-position">${savedLookMediaIndex + 1} / ${media.length}</span>${controls}<div class="planner-detail-caption"><p>Your Look</p><h2>${escapeMarkup(record.title)}</h2><span>${escapeMarkup(record.context)}</span></div></div>${mediaRail}</section>`;
+  const piecesRail = lookPiecesRailMarkup({ key: "saved-look-detail", pieces: record.pieces, source: "Closet" });
+  return `<section class="saved-look-media-block" aria-label="Saved Look media"><div class="planner-detail-media-stage" data-saved-look-media>${activeMedia}<div class="planner-detail-shade"></div><button class="planner-detail-close" aria-label="Close Look details" onclick="backScreen()">×</button><span class="planner-detail-position">${savedLookMediaIndex + 1} / ${media.length}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>Your Look</p><h2>${escapeMarkup(record.title)}</h2><span>${escapeMarkup(record.context)}</span></div></div>${mediaRail}</section>`;
 }
 function markSavedLookWorn() {
   savedLookWorn = true;
@@ -4568,10 +4722,10 @@ function followedCreatorsSection() {
   const creators = creatorDataset.filter((creator) =>
     isCreatorFollowed(creator.id),
   );
-  return `<section class="mirror-section followed-creators-section" aria-label="Creators I follow">
+  return `<section class="mirror-section followed-creators-section" aria-label="Stylists I follow">
     <div class="mirror-section-head">
-      <span><p class="eyebrow">Inspiration</p><h3>Creators I follow</h3></span>
-      <button class="text-action" onclick="go('H-11')">${creators.length ? "View all" : "Find creators"} ${icon("arrow-right")}</button>
+      <span><p class="eyebrow">Inspiration</p><h3>Stylists I follow</h3></span>
+      <button class="text-action" onclick="go('H-11')">${creators.length ? "View all" : "Find stylists"} ${icon("arrow-right")}</button>
     </div>
     ${
       creators.length
@@ -4584,7 +4738,7 @@ function followedCreatorsSection() {
               </button>`,
             )
             .join("")}</div>`
-        : `<div class="followed-creators-empty"><span class="followed-creators-empty-icon">${icon("users")}</span><span><b>Your creator edit starts here</b><small>Follow creators to keep their newest looks close.</small></span></div>`
+        : `<div class="followed-creators-empty"><span class="followed-creators-empty-icon">${icon("users")}</span><span><b>Your stylist edit starts here</b><small>Follow stylists to keep their newest looks close.</small></span></div>`
     }
   </section>`;
 }
@@ -4859,7 +5013,7 @@ function studioStartState() {
     `<div class="studio-start-intro">
       <p class="eyebrow" style="text-align:center;color:var(--gold,#9e733c);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">Creative Workspace</p>
       <h2 class="title" style="margin:2px 0 0;font-size:24px;text-align:center">Start Your Look</h2>
-      <p class="body studio-start-sub">Build outfits from your wardrobe, co-create with Muse, or discover creator looks to make your own.</p>
+      <p class="body studio-start-sub">Build outfits from your wardrobe, co-create with Muse, or discover stylist looks to make your own.</p>
     </div>
     ${
       hasDraft
@@ -4906,8 +5060,8 @@ function studioStartState() {
       <button class="studio-start-card primary-variant" onclick="go('H-11')">
         <span class="studio-start-icon-wrap">${icon("compass")}</span>
         <span class="studio-start-card-text">
-          <b>Explore Creator Looks</b>
-          <small class="body">Browse curated creator outfits and translate them into your wardrobe.</small>
+          <b>Explore Stylist Looks</b>
+          <small class="body">Browse curated stylist outfits and translate them into your wardrobe.</small>
         </span>
         <span class="studio-start-arrow">›</span>
       </button>
@@ -4919,7 +5073,7 @@ function studioStartState() {
 function studioCreatorBanner() {
   if (studioSourceContext !== "creator" || !creatorReferenceContext) return "";
   const ref = creatorReferenceContext;
-  return `<section class="studio-creator-ref-banner card" aria-label="Creator inspiration reference">
+  return `<section class="studio-creator-ref-banner card" aria-label="Stylist inspiration reference">
     <div class="between">
       <div class="creator-ref-info">
         <p class="eyebrow">Inspired by ${escapeMarkup(ref.creatorName)}</p>
@@ -4931,7 +5085,7 @@ function studioCreatorBanner() {
       </div>
     </div>
     <div class="creator-ref-actions">
-      <button class="text-action" onclick="go('H-13')">View Original Creator Look ›</button>
+      <button class="text-action" onclick="go('H-13')">View Original Stylist Look ›</button>
     </div>
   </section>`;
 }
@@ -4948,7 +5102,7 @@ function studioCreatorMatching() {
       </div>
       <span class="match-stat">${ownedCount} / ${total} from Closet</span>
     </div>
-    <p class="body" style="margin:6px 0 12px">StyleIQ matched creator pieces against your owned wardrobe and substituted compatible pieces.</p>
+    <p class="body" style="margin:6px 0 12px">StyleIQ matched stylist pieces against your owned wardrobe and substituted compatible pieces.</p>
     <div class="creator-match-pieces">
       ${canvasState.items
         .map(
@@ -4957,7 +5111,7 @@ function studioCreatorMatching() {
           <div class="match-piece-info">
             <span class="match-role">${p.role === "Outerwear" ? "Layer" : p.role}</span>
             <b>${escapeMarkup(p.name)}</b>
-            ${p.originalCreatorPiece && p.originalCreatorPiece !== p.name ? `<small class="body">Creator piece: ${escapeMarkup(p.originalCreatorPiece)}</small>` : ""}
+            ${p.originalCreatorPiece && p.originalCreatorPiece !== p.name ? `<small class="body">Stylist piece: ${escapeMarkup(p.originalCreatorPiece)}</small>` : ""}
           </div>
           <span class="match-status-badge ${p.matchType === "Owned" ? "owned" : p.matchType === "Similar Owned" ? "similar" : "missing"}">
             ${p.matchType === "Owned" ? "Owned ✓" : p.matchType === "Similar Owned" ? "Similar Owned ✓" : "Missing"}
@@ -5023,7 +5177,7 @@ function creatorDiscoveryScreen() {
   });
   const categoryTabs = AppTabs({
     id: "creator-category-tabs",
-    label: "Creator style categories",
+    label: "Stylist style categories",
     variant: "compact",
     panelId: "creator-category-results",
     items: categories.map((category) => ({
@@ -5034,11 +5188,11 @@ function creatorDiscoveryScreen() {
   });
 
   return shell(
-    "Creator Looks",
+    "Stylist Looks",
     `<header class="creator-discovery-header">
       <div class="creator-search-wrap">
         <span class="search-icon">${icon("search")}</span>
-        <input class="input creator-search-input" placeholder="Search creators, outfits, styles…" value="${escapeMarkup(creatorSearchQuery)}" oninput="setCreatorSearch(this.value)">
+        <input class="input creator-search-input" placeholder="Search stylists, outfits, styles…" value="${escapeMarkup(creatorSearchQuery)}" oninput="setCreatorSearch(this.value)">
       </div>
       ${categoryTabs}
     </header>
@@ -5046,9 +5200,9 @@ function creatorDiscoveryScreen() {
     <div id="creator-category-results" class="app-tab-panel" role="tabpanel" aria-labelledby="creator-category-tabs-tab-${Math.max(0, categories.indexOf(creatorFilter))}" tabindex="0"><section class="mirror-section creator-featured-section">
       <div class="mirror-section-head">
         <span>
-          <h3>Featured Creators</h3>
+          <h3>Featured Stylists</h3>
         </span>
-        <small class="body">${filteredCreators.length} creators</small>
+        <small class="body">${filteredCreators.length} stylists</small>
       </div>
       <div class="creator-cards-rail">
         ${filteredCreators
@@ -5063,7 +5217,7 @@ function creatorDiscoveryScreen() {
               </div>
             </div>
             <div class="creator-card-actions">
-              <button class="btn small-btn grow" onclick="openCreatorProfile('${creator.id}')">View Creator</button>
+              <button class="btn small-btn grow" onclick="openCreatorProfile('${creator.id}')">View Stylist</button>
               <button class="btn small-btn creator-follow-mini${isCreatorFollowed(creator.id) ? " is-following" : ""}" aria-pressed="${isCreatorFollowed(creator.id)}" aria-label="${isCreatorFollowed(creator.id) ? "Unfollow" : "Follow"} ${escapeMarkup(creator.name)}" onclick="toggleCreatorFollow('${creator.id}')">${isCreatorFollowed(creator.id) ? icon("check") : icon("plus")} ${isCreatorFollowed(creator.id) ? "Following" : "Follow"}</button>
             </div>
           </div>
@@ -5099,7 +5253,7 @@ function creatorDiscoveryScreen() {
       </div>`
           : `<div class="card empty-state" style="text-align:center;padding:32px 16px;margin-top:12px">
         <p class="eyebrow" style="color:var(--muted)">No Looks Found</p>
-        <h4 class="title" style="margin:4px 0 8px">No creator looks match "${escapeMarkup(query || creatorFilter)}"</h4>
+        <h4 class="title" style="margin:4px 0 8px">No stylist looks match "${escapeMarkup(query || creatorFilter)}"</h4>
         <p class="body" style="margin-bottom:16px;font-size:13px">Try clearing your search or exploring all categories.</p>
         <div class="row" style="justify-content:center;gap:8px">
           ${query ? `<button class="btn small-btn" onclick="setCreatorSearch('')">Clear Search</button>` : ""}
@@ -5121,7 +5275,7 @@ function creatorProfileScreen() {
         <img src="${creator.avatar}" alt="${escapeMarkup(creator.name)}" class="creator-profile-avatar">
         <h2 class="title creator-profile-name">${escapeMarkup(creator.name)}</h2>
         <p class="creator-profile-meta">${creator.looks.length} looks to explore <span>·</span> Demo profile</p>
-        <button class="btn creator-profile-follow${isCreatorFollowed(creator.id) ? " is-following" : ""}" aria-pressed="${isCreatorFollowed(creator.id)}" onclick="toggleCreatorFollow('${creator.id}')">${isCreatorFollowed(creator.id) ? icon("check") : icon("plus")} ${isCreatorFollowed(creator.id) ? "Following" : "Follow creator"}</button>
+        <button class="btn creator-profile-follow${isCreatorFollowed(creator.id) ? " is-following" : ""}" aria-pressed="${isCreatorFollowed(creator.id)}" onclick="toggleCreatorFollow('${creator.id}')">${isCreatorFollowed(creator.id) ? icon("check") : icon("plus")} ${isCreatorFollowed(creator.id) ? "Following" : "Follow stylist"}</button>
       </div>
     </header>
 
@@ -5158,7 +5312,7 @@ function creatorProfileScreen() {
           .join("")}
       </div>`
           : `<div class="card empty-state" style="text-align:center;padding:24px 16px;margin-top:12px">
-        <p class="body">No looks published yet by this creator.</p>
+        <p class="body">No looks published yet by this stylist.</p>
       </div>`
       }
     </section>`,
@@ -5244,7 +5398,7 @@ function creatorLookDetailScreen() {
         <button class="btn primary wide" onclick="makeCreatorLookMine('${look.id}')">Make It Mine</button>
         <div class="row" style="margin-top:8px">
           <button class="btn grow" onclick="tryOnCreatorLook('${look.id}')">Try On</button>
-          <button class="btn grow" onclick="openCreatorProfile('${look.creator.id}')">View Creator</button>
+          <button class="btn grow" onclick="openCreatorProfile('${look.creator.id}')">View Stylist</button>
         </div>
       </div>
     </section>`,
@@ -6301,7 +6455,8 @@ function tripHub(tab = tripHubTab || "packing") {
   const mediaRail = tripLooks.length > 1
     ? `<div class="saved-look-media-rail trip-look-media-rail" role="group" aria-label="Trip Looks">${tripLooks.map((look, index) => `<button class="saved-look-media-thumb ${index === activeLookIndex ? "active" : ""}" aria-label="Show day ${index + 1}: ${escapeMarkup(look.title || "Travel Look")}" aria-pressed="${index === activeLookIndex}" onclick="setTripDetailMedia(${index})"><img src="${look.image || assets.look}" alt=""><small>Day ${String(index + 1).padStart(2, "0")}</small></button>`).join("")}</div>`
     : "";
-  const header = `<section class="trip-look-showcase" aria-labelledby="trip-look-title"><div class="trip-look-stage"><img src="${activeLook.image || assets.look}" alt="${escapeMarkup(`${activeTitle}, day ${activeLookIndex + 1} of the ${draft.destination || "trip"}`)}"><div class="trip-look-shade"></div><button class="planner-detail-close trip-detail-close" aria-label="Close trip details" onclick="go('J-01')">×</button><span class="trip-look-position">${activeLookIndex + 1} / ${tripLooks.length}</span><button class="trip-look-open" aria-label="Open full details for ${escapeMarkup(activeTitle)}" onclick="openTripLookDetails(${activeLookIndex})"></button>${mediaControls}<div class="trip-look-caption"><p>Your trip Look · ${escapeMarkup(activeDate)}</p><h2 id="trip-look-title">${escapeMarkup(activeTitle)}</h2><span>${escapeMarkup(activeOccasion)} · ${escapeMarkup(draft.destination || "Trip")}</span></div></div>${mediaRail}</section><section class="trip-overview"><div><p class="eyebrow">${escapeMarkup(tripDateLabel(draft))}</p><h3>Your ${escapeMarkup(draft.destination || "trip")} edit</h3><span data-trip-summary>${tripSummary()}</span></div><div class="trip-overview-actions"><button class="btn" onclick="openLightweightPanel('tripReview')">Review</button><button class="btn" onclick="go('J-02')">Edit trip</button></div><ul aria-label="Trip essentials"><li><small>Weather</small><b>Warm · breezy</b></li><li><small>Bag</small><b>${escapeMarkup(draft.luggage || "Carry-on")}</b></li></ul></section>`;
+  const piecesRail = lookPiecesRailMarkup({ key: `trip-look-detail-${activeLookIndex}`, pieces: tripLinkedLookPieces(activeLook), source: "Trip Capsule" });
+  const header = `<section class="trip-look-showcase" aria-labelledby="trip-look-title"><div class="trip-look-stage"><img src="${activeLook.image || assets.look}" alt="${escapeMarkup(`${activeTitle}, day ${activeLookIndex + 1} of the ${draft.destination || "trip"}`)}"><div class="trip-look-shade"></div><button class="planner-detail-close trip-detail-close" aria-label="Close trip details" onclick="go('J-01')">×</button><span class="trip-look-position">${activeLookIndex + 1} / ${tripLooks.length}</span><button class="trip-look-open" aria-label="Open full details for ${escapeMarkup(activeTitle)}" onclick="openTripLookDetails(${activeLookIndex})"></button>${mediaControls}${piecesRail}<div class="trip-look-caption"><p>Your trip Look · ${escapeMarkup(activeDate)}</p><h2 id="trip-look-title">${escapeMarkup(activeTitle)}</h2><span>${escapeMarkup(activeOccasion)} · ${escapeMarkup(draft.destination || "Trip")}</span></div></div>${mediaRail}</section><section class="trip-overview"><div><p class="eyebrow">${escapeMarkup(tripDateLabel(draft))}</p><h3>Your ${escapeMarkup(draft.destination || "trip")} edit</h3><span data-trip-summary>${tripSummary()}</span></div><div class="trip-overview-actions"><button class="btn" onclick="openLightweightPanel('tripReview')">Review</button><button class="btn" onclick="go('J-02')">Edit trip</button></div><ul aria-label="Trip essentials"><li><small>Weather</small><b>Warm · breezy</b></li><li><small>Bag</small><b>${escapeMarkup(draft.luggage || "Carry-on")}</b></li></ul></section>`;
 
   const tabBar = AppTabs({
     id: "trip-hub-tabs",
@@ -6314,7 +6469,7 @@ function tripHub(tab = tripHubTab || "packing") {
   if (packing) {
     tabContent = `<section class="trip-capsule-head"><p class="eyebrow">Packing capsule</p><h3>${tripPackingItems().length} pieces</h3><span>${tripDates(draft).length} days · Tap a piece to mark it packed</span></section><div class="trip-capsule-grid">${tripPackingItems().map(item => `<button class="trip-capsule-piece" aria-pressed="${Boolean(tripState.packed[item.name])}" onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small>From your Closet</small><em>${tripState.packed[item.name] ? '✓ Packed' : 'Tap to pack'}</em></span></button>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openLightweightPanel('tripAddLook')">Add piece</button><button class="btn primary" onclick="toast('Packing list ready')">Packing ready</button></div>`;
   } else {
-    tabContent = `<div class="trip-daily-looks">${tripState.looks.map((look, index) => `<article class="trip-day"><div><p>Day ${String(index + 1).padStart(2,'0')}</p><span>${escapeMarkup(draft.occasions?.[index % Math.max(draft.occasions?.length || 1, 1)] || 'Travel')}</span></div><img src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}"><h3>${escapeMarkup(look.title)}</h3><small>Styled from your travel capsule</small><footer><button onclick="openSwipeLookPanel('trip',${index})">Swipe Looks</button><button onclick="startTryOn('${look.lookId || 'coffee'}', { sourceType: 'trip' })">Try On</button></footer></article>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openSwipeLookPanel('trip',${activeLookIndex})">Change active Look</button><button class="btn primary" onclick="openLightweightPanel('tripMuse')">Ask Muse</button></div>`;
+    tabContent = `<div class="trip-daily-looks">${tripState.looks.map((look, index) => `<article class="trip-day"><div><p>Day ${String(index + 1).padStart(2,'0')}</p><span>${escapeMarkup(draft.occasions?.[index % Math.max(draft.occasions?.length || 1, 1)] || 'Travel')}</span></div><img src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}"><h3>${escapeMarkup(look.title)}</h3><small>Styled from your travel capsule</small><footer><button onclick="openSwipeLookPanel('trip',${index})">Change Look</button><button onclick="startTryOn('${look.lookId || 'coffee'}', { sourceType: 'trip' })">Try On</button></footer></article>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openSwipeLookPanel('trip',${activeLookIndex})">Change Look</button><button class="btn primary" onclick="openLightweightPanel('tripMuse')">Ask Muse</button></div>`;
   }
 
   return shell(
@@ -6634,8 +6789,8 @@ function mirrorDiscover() {
   });
   const stylistLooks = activeFilter === "Stylists" ? creatorPreviews : creatorPreviews.slice(0, 1);
   const stylistSection = `<section class="mirror-section discover-feed-section creator-insp-module" aria-label="Stylist inspiration"><div class="mirror-section-head"><span><p class="eyebrow">Stylist inspiration</p><h3>${activeFilter === "Stylists" ? "Stylists to know" : "Looks worth making your own"}</h3></span><button class="text-action" onclick="go('H-11')">View all ${icon("arrow-right")}</button></div><div class="discover-look-stack">${stylistLooks.map((look) => `<button class="discover-feature-look" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b><em>${escapeMarkup(look.styleDirection || look.occasion)}</em></span></button>`).join("")}</div></section>`;
-  const followingSection = `<section class="mirror-section discover-feed-section creator-insp-module" aria-label="Creators you follow"><div class="mirror-section-head"><span><p class="eyebrow">Following</p><h3>${followedCreators.length ? "From creators you follow" : "Your following feed is ready"}</h3></span><button class="text-action" onclick="go('H-11')">${followedCreators.length ? "Manage" : "Find creators"} ${icon("arrow-right")}</button></div>${followedCreators.length ? `<div class="discover-following-creators">${followedCreators.map((creator) => `<button class="discover-following-creator" onclick="openCreatorProfile('${creator.id}')"><img src="${creator.avatar}" alt=""><span><b>${escapeMarkup(creator.name)}</b><small>${creator.looks.length} looks</small></span></button>`).join("")}</div><div class="discover-look-stack">${followedLooks.map((look) => `<button class="discover-feature-look discover-feature-look--compact" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b><em>${escapeMarkup(look.styleDirection || look.occasion)}</em></span></button>`).join("")}</div>` : `<div class="discover-empty"><span class="discover-empty-icon" aria-hidden="true">${icon("compass")}</span><p class="eyebrow">Following</p><h3>Find your style inspiration</h3><p class="body">Follow a creator to see their newest looks here.</p><button class="btn" onclick="go('H-11')">Browse creators</button></div>`}</section>`;
-  const communitySection = `<section class="mirror-section discover-feed-section" aria-label="${activeFilter} looks"><div class="mirror-section-head"><span><p class="eyebrow">${activeFilter === "Brands" ? "Brand edit" : activeFilter}</p><h3>${visible.length ? (activeFilter === "Following" ? "From people you follow" : "Outfits on your radar") : "Nothing here yet"}</h3></span>${visible.length ? `<button class="text-action" onclick="go('H-11')">View all ${icon("arrow-right")}</button>` : ""}</div>${visible.length ? `<div class="discover-look-stack">${visible.slice(0, 2).map((item, index) => `<button class="discover-feature-look discover-feature-look--compact" onclick="openCommunityLook('${item.id}')"><img src="${assets[["look3", "look2", "look4"][index]]}" alt="${escapeMarkup(item.title)}"><span><small>${escapeMarkup(item.creator)} · ${escapeMarkup(item.brand)}</small><b>${escapeMarkup(item.title)}</b></span></button>`).join("")}</div>` : `<div class="discover-empty"><span class="discover-empty-icon" aria-hidden="true">${icon("compass")}</span><p class="eyebrow">${escapeMarkup(activeFilter)}</p><h3>Find your next inspiration</h3><p class="body">Follow stylists and creators to build this feed.</p><button class="btn" onclick="setDiscoverFilter('For You')">Explore For You</button></div>`}</section>`;
+  const followingSection = `<section class="mirror-section discover-feed-section creator-insp-module" aria-label="Stylists you follow"><div class="mirror-section-head"><span><p class="eyebrow">Following</p><h3>${followedCreators.length ? "From stylists you follow" : "Your following feed is ready"}</h3></span><button class="text-action" onclick="go('H-11')">${followedCreators.length ? "Manage" : "Find stylists"} ${icon("arrow-right")}</button></div>${followedCreators.length ? `<div class="discover-following-creators">${followedCreators.map((creator) => `<button class="discover-following-creator" onclick="openCreatorProfile('${creator.id}')"><img src="${creator.avatar}" alt=""><span><b>${escapeMarkup(creator.name)}</b><small>${creator.looks.length} looks</small></span></button>`).join("")}</div><div class="discover-look-stack">${followedLooks.map((look) => `<button class="discover-feature-look discover-feature-look--compact" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)}</small><b>${escapeMarkup(look.title)}</b><em>${escapeMarkup(look.styleDirection || look.occasion)}</em></span></button>`).join("")}</div>` : `<div class="discover-empty"><span class="discover-empty-icon" aria-hidden="true">${icon("compass")}</span><p class="eyebrow">Following</p><h3>Find your style inspiration</h3><p class="body">Follow a stylist to see their newest looks here.</p><button class="btn" onclick="go('H-11')">Browse stylists</button></div>`}</section>`;
+  const communitySection = `<section class="mirror-section discover-feed-section" aria-label="${activeFilter} looks"><div class="mirror-section-head"><span><p class="eyebrow">${activeFilter === "Brands" ? "Brand edit" : activeFilter}</p><h3>${visible.length ? (activeFilter === "Following" ? "From people you follow" : "Outfits on your radar") : "Nothing here yet"}</h3></span>${visible.length ? `<button class="text-action" onclick="go('H-11')">View all ${icon("arrow-right")}</button>` : ""}</div>${visible.length ? `<div class="discover-look-stack">${visible.slice(0, 2).map((item, index) => `<button class="discover-feature-look discover-feature-look--compact" onclick="openCommunityLook('${item.id}')"><img src="${assets[["look3", "look2", "look4"][index]]}" alt="${escapeMarkup(item.title)}"><span><small>${escapeMarkup(item.creator)} · ${escapeMarkup(item.brand)}</small><b>${escapeMarkup(item.title)}</b></span></button>`).join("")}</div>` : `<div class="discover-empty"><span class="discover-empty-icon" aria-hidden="true">${icon("compass")}</span><p class="eyebrow">${escapeMarkup(activeFilter)}</p><h3>Find your next inspiration</h3><p class="body">Follow stylists to build this feed.</p><button class="btn" onclick="setDiscoverFilter('For You')">Explore For You</button></div>`}</section>`;
   const productSection = `<section class="mirror-section discover-feed-section" aria-label="Trending pieces"><div class="mirror-section-head"><span><p class="eyebrow">Trending pieces</p><h3>Most-loved right now</h3></span><button class="text-action" onclick="openDiscoverSearch()">View all ${icon("arrow-right")}</button></div><div class="wishlist-grid">${[wishlistProduct("leather-loafers"), wishlistProduct("shoulder-bag")].map((item) => wishlistProductCard(item)).join("")}</div></section>`;
   const discoverFeed = activeFilter === "Stylists"
     ? stylistSection
@@ -6866,6 +7021,15 @@ function openSwipeStyleStudio(type = "today", index = null) {
   lightweightPanel = null;
   startStudioFromScratch();
 }
+function selectSwipeLookTab(tab) {
+  if (!["muse", "studio", "saved", "discover"].includes(tab)) return;
+  swipeLookTab = tab;
+  render();
+}
+function openSwipeLookDestination(screen) {
+  lightweightPanel = null;
+  go(screen);
+}
 function cancelSwipeStudio() {
   if (!swipeStudioTarget) { backScreen(); return; }
   const pending = swipeStudioTarget;
@@ -6885,20 +7049,60 @@ function swipeLooksMarkup({ id = "swipe-looks", selectedId = "", actionFor, targ
   const musePick = swipeMuseDraftId && swipeMuseDraftTargetKey === swipeTargetKey(normalizedTarget)
     ? swipeLookRecord(swipeMuseDraftId)
     : swipeMusePick(normalizedTarget, selectedId);
-  const readyLooks = allLooks.filter((look) => look.id !== musePick?.id);
-  const museAction = typeof actionFor === "function" ? actionFor(musePick) : `applySwipeLook('${musePick.id}')`;
   if (swipeLookCreateMode === "muse" && swipeTargetKey(normalizedTarget) === swipeTargetKey()) {
     return `<section class="swipe-looks swipe-muse-create" aria-labelledby="${id}-title"><button class="swipe-create-back" onclick="closeSwipeLookCreator()">${icon("back")} Back to Looks</button><header><p class="eyebrow">Create with Muse · ${escapeMarkup(context.label)}</p><h3 id="${id}-title">What should Muse change?</h3><p>Muse already has the context. Add a direction only if you want one.</p></header><div class="field"><label for="swipe-muse-direction">Optional direction</label><textarea id="swipe-muse-direction" class="textarea" placeholder="More relaxed, add colour, or use my saved inspiration…"></textarea></div><details class="swipe-inspiration-detail"><summary>Add inspiration</summary><p>Saved inspiration will guide the mood, while Muse still builds the Look from your Closet first.</p><button class="btn" onclick="go('K-01')">Choose from Discover</button></details><button class="btn primary wide" onclick="createSwipeMuseLook(${targetArgs})">Create this Look</button></section>`;
   }
-  return `<section class="swipe-looks" aria-labelledby="${id}-title">
-    <article class="swipe-muse-pick"><div class="swipe-muse-pick-media"><img src="${musePick.sheet}" alt="${escapeMarkup(musePick.title)}"><span>${icon("spark")} Muse Pick</span></div><div class="swipe-muse-pick-copy"><p class="eyebrow">Made for ${escapeMarkup(context.detail)}</p><h3 id="${id}-title">${escapeMarkup(musePick.title)}</h3><p>${escapeMarkup(context.reason)}</p><div><button class="btn primary" onclick="${museAction}">${escapeMarkup(context.applyLabel)}</button><button class="btn" onclick="tryAnotherMusePick(${targetArgs})">Try another</button></div></div></article>
-    <header class="swipe-looks-head"><span><p class="eyebrow">Ready now</p><h3>Ready Looks</h3><small>Saved and previously created Looks you can use straight away.</small></span><em>${readyLooks.length} Looks</em></header>
-    <div class="swipe-looks-rail" role="list" aria-label="Ready Looks">${readyLooks.map((look) => {
+  const uniqueByTitle = (items) => items.filter((look, index, list) => list.findIndex((candidate) => candidate.title === look.title) === index);
+  const savedLooks = uniqueByTitle(allLooks.filter((look) => look.id.startsWith("library-")));
+  const activeLooks = allLooks.filter((look) => !look.id.startsWith("library-"));
+  const tabs = {
+    muse: {
+      label: "Muse",
+      note: `Personal picks for ${context.detail}.`,
+      looks: uniqueByTitle([musePick, ...activeLooks.filter((look) => ["muse_assisted", "muse_generated"].includes(look.creationSource))].filter(Boolean)),
+      actionTitle: "Create with Muse",
+      actionNote: "Ask for a fresh suggestion",
+      actionIcon: "spark",
+      action: `openSwipeMuseCreator(${targetArgs})`,
+    },
+    studio: {
+      label: "Style Studio",
+      note: "Looks you built piece by piece.",
+      looks: uniqueByTitle(activeLooks.filter((look) => look.creationSource === "user")),
+      actionTitle: "Create New Look",
+      actionNote: "Build it in Style Studio",
+      actionIcon: "shirt",
+      action: `openSwipeStyleStudio(${targetArgs})`,
+    },
+    saved: {
+      label: "Saved",
+      note: "Looks you kept for later.",
+      looks: savedLooks,
+      actionTitle: "View All Saved",
+      actionNote: "Open your full Looks collection",
+      actionIcon: "bookmark",
+      action: "openSwipeLookDestination('G-01')",
+    },
+    discover: {
+      label: "Discover",
+      note: "Looks recreated from your inspiration.",
+      looks: uniqueByTitle(activeLooks.filter((look) => !["muse_assisted", "muse_generated", "user"].includes(look.creationSource))),
+      actionTitle: "Open Discover",
+      actionNote: "Find a new source of inspiration",
+      actionIcon: "compass",
+      action: "openSwipeLookDestination('K-01')",
+    },
+  };
+  const activeTab = tabs[swipeLookTab] || tabs.muse;
+  const cards = activeTab.looks.map((look) => {
       const selected = look.id === selectedId;
       const action = typeof actionFor === "function" ? actionFor(look) : `applySwipeLook('${look.id}')`;
-      return `<article class="swipe-look-card ${selected ? "selected" : ""}" role="listitem"><div class="swipe-look-media"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}">${selected ? '<span class="swipe-look-current">Current</span>' : ""}</div><div class="swipe-look-copy"><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context || "Ready to style")}</small></span><button class="btn ${selected ? "" : "primary"}" ${selected ? "disabled" : ""} onclick="${action}">${selected ? "Current Look" : escapeMarkup(context.applyLabel)}</button></div></article>`;
-    }).join("")}</div>
-    <section class="swipe-create-options"><header><p class="eyebrow">Need something different?</p><h3>Create a New Look</h3></header><div><button onclick="openSwipeMuseCreator(${targetArgs})"><span class="swipe-create-icon">${icon("spark")}</span><span><b>Create with Muse</b><small>Fast, contextual suggestion</small></span><i>→</i></button><button onclick="openSwipeStyleStudio(${targetArgs})"><span class="swipe-create-icon">${icon("shirt")}</span><span><b>Build in Style Studio</b><small>Choose every piece yourself</small></span><i>→</i></button></div></section>
+      return `<article class="today-shelf-card compact-look-card ${selected ? "selected" : ""}" role="listitem"><button class="today-shelf-card-hit" onclick="${action}" ${selected ? "disabled" : ""} aria-label="${selected ? "Current Look: " : `${context.applyLabel}: `}${escapeMarkup(look.title)}"><span class="today-shelf-card-media"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}">${selected ? '<i>Current</i>' : ""}</span><span class="today-shelf-card-copy"><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context || look.sourceLabel || "Ready to style")}</small><em>${selected ? "Current Look" : context.applyLabel}<span aria-hidden="true">→</span></em></span></button></article>`;
+    }).join("");
+  return `<section class="compact-swipe-looks" aria-labelledby="${id}-title">
+    <div class="compact-look-context"><span><small>${escapeMarkup(context.label)}</small><b id="${id}-title">${escapeMarkup(context.detail)}</b></span><em>${escapeMarkup(context.applyLabel)}</em></div>
+    <div class="compact-look-tabs" role="tablist" aria-label="Look sources">${Object.entries(tabs).map(([key, tab]) => `<button role="tab" aria-selected="${key === swipeLookTab}" class="${key === swipeLookTab ? "active" : ""}" onclick="selectSwipeLookTab('${key}')">${escapeMarkup(tab.label)}</button>`).join("")}</div>
+    <div class="compact-look-panel" role="tabpanel"><header><span><h3>${escapeMarkup(activeTab.label)}</h3><p>${escapeMarkup(activeTab.note)}</p></span><em>${activeTab.looks.length}</em></header><div class="today-shelf-rail compact-look-rail" role="list" aria-label="${escapeMarkup(activeTab.label)} Looks">${cards}<button class="today-look-end-card compact-look-end-card" role="listitem" onclick="${activeTab.action}"><span>${icon(activeTab.actionIcon)}</span><b>${escapeMarkup(activeTab.actionTitle)}</b><small>${escapeMarkup(activeTab.actionNote)}</small><i aria-hidden="true">→</i></button></div></div>
   </section>`;
 }
 function todayLookRailMarkup({ id, title, note, looks, selectedId, actionFor, endTitle, endNote, endIcon, endAction }) {
@@ -6916,13 +7120,16 @@ function todaySwipeLooksMarkup({ id = "today-look-library", selectedId = "", act
   }
   const looks = swipeLookCandidates();
   const uniqueByTitle = (items) => items.filter((look, index, all) => all.findIndex((candidate) => candidate.title === look.title) === index);
-  const museLooks = uniqueByTitle(looks.filter((look) => ["muse_assisted", "muse_generated"].includes(look.creationSource)));
-  const studioLooks = uniqueByTitle(looks.filter((look) => look.creationSource === "user"));
-  const readyLooks = uniqueByTitle(looks.filter((look) => !["muse_assisted", "muse_generated", "user"].includes(look.creationSource)));
+  const savedLooks = uniqueByTitle(looks.filter((look) => look.id.startsWith("library-")));
+  const activeLooks = looks.filter((look) => !look.id.startsWith("library-"));
+  const museLooks = uniqueByTitle(activeLooks.filter((look) => ["muse_assisted", "muse_generated"].includes(look.creationSource)));
+  const studioLooks = uniqueByTitle(activeLooks.filter((look) => look.creationSource === "user"));
+  const readyLooks = uniqueByTitle(activeLooks.filter((look) => !["muse_assisted", "muse_generated", "user"].includes(look.creationSource)));
   return `<div class="today-look-library" aria-label="More Looks for Today">
     ${todayLookRailMarkup({ id: `${id}-muse`, title: "Muse Picks", note: "Fresh options shaped around today.", looks: museLooks, selectedId, actionFor, endTitle: "Create New", endNote: "Ask Muse for a new direction", endIcon: icon("spark"), endAction: "openSwipeMuseCreator('today',null)" })}
     ${todayLookRailMarkup({ id: `${id}-studio`, title: "Style Studio", note: "Looks you built, ready to wear again.", looks: studioLooks, selectedId, actionFor, endTitle: "Create New", endNote: "Build a Look piece by piece", endIcon: icon("shirt"), endAction: "openSwipeStyleStudio('today',null)" })}
     ${todayLookRailMarkup({ id: `${id}-ready`, title: "Ready Looks", note: "Saved inspiration you can use now.", looks: readyLooks, selectedId, actionFor, endTitle: "Discover", endNote: "Find a new source of inspiration", endIcon: icon("compass"), endAction: "go('K-01')" })}
+    ${todayLookRailMarkup({ id: `${id}-saved`, title: "Saved Looks", note: "Looks you saved to come back to.", looks: savedLooks, selectedId, actionFor, endTitle: "View All", endNote: "Open your full Looks collection", endIcon: icon("bookmark"), endAction: "go('G-01')" })}
   </div>`;
 }
 function swipeLookSelectedId(target = swipeLookTarget) {
@@ -6933,6 +7140,7 @@ function swipeLookSelectedId(target = swipeLookTarget) {
 }
 function openSwipeLookPanel(type = "today", index = null) {
   swipeLookTarget = { type, index };
+  swipeLookTab = "muse";
   swipeLookCreateMode = null;
   swipeMuseDraftId = null;
   swipeMuseDraftTargetKey = null;
@@ -8101,7 +8309,7 @@ function openInstantDetails() {
 function instantCreatorReference() {
   if (studioSourceContext !== 'creator' || !creatorReferenceContext) return '';
   const ref = creatorReferenceContext;
-  return `<aside class="instant-creator-reference" aria-label="Creator inspiration reference"><span><small>Inspired by</small><b>${escapeMarkup(ref.creatorName)}</b></span><button onclick="go('H-13')">View original ${icon('chevron-right')}</button></aside>`;
+  return `<aside class="instant-creator-reference" aria-label="Stylist inspiration reference"><span><small>Inspired by</small><b>${escapeMarkup(ref.creatorName)}</b></span><button onclick="go('H-13')">View original ${icon('chevron-right')}</button></aside>`;
 }
 function setStudioHubTab(tab) {
   studioHubTab = tab === 'explore' ? 'explore' : 'mine';
@@ -8185,7 +8393,7 @@ function toggleCreatorInspiration(lookId) {
 }
 function studioExplorePanel() {
   const looks = creatorDataset.flatMap((creator) => creator.looks.map((look) => ({...look, creator})));
-  return `<section class="studio-explore" aria-label="Explore public creator Looks">
+  return `<section class="studio-explore" aria-label="Explore public stylist Looks">
     <div class="studio-explore-intro"><p class="eyebrow">Public community Looks</p><h2>Find a starting point.</h2><p>Save an idea for later, or make a copy and change it with your own Closet.</p></div>
     <div class="studio-feed-grid">${looks.map((look, index) => `<article class="studio-feed-card ${index % 3 === 1 ? 'studio-feed-card--tall' : ''}">
       <button class="studio-feed-media" onclick="openCreatorLook('${look.id}')"><img src="${look.image}" alt="${escapeMarkup(look.title)} by ${escapeMarkup(look.creator.name)}"><span>${escapeMarkup(look.occasion)}</span></button>
@@ -8724,6 +8932,7 @@ function render() {
   disposeMusePlayback?.();
   disposeMusePlayback = null;
   synchronizeStylingData();
+  lookPiecesRegistry.clear();
   const previousScreenId = app.dataset.screen;
   const previousContentScroll = app.querySelector(".content")?.scrollTop || 0;
   const previousNavLens = app
