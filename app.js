@@ -166,7 +166,7 @@ const screens = [
     "id": "H-13",
     "section": "H",
     "title": "Stylist look detail",
-    "detail": "Stylist outfit breakdown; Make It Mine routes directly to F-01.",
+    "detail": "Stylist outfit breakdown with a dedicated Closet-aware Make It Mine handoff.",
     "phase": 2
   },
   {
@@ -270,13 +270,20 @@ const screens = [
 ];
 const canonicalVisualScreenIds = new Set(screens.map((screen) => screen.id));
 // Action-result routes remain addressable without appearing as additional
-// inventory screens. E-06 is the transient Try On result for any source Look.
+// inventory screens. E-06 is Try On; E-07 is the dedicated Make It Mine flow.
 const compatibilityScreens = {
   "E-06": {
     id: "E-06",
     section: "E",
     title: "Try On",
     detail: "Selected Look on the Style Twin with full-body angle controls.",
+    phase: 2,
+  },
+  "E-07": {
+    id: "E-07",
+    section: "E",
+    title: "Make This Look Mine",
+    detail: "Muse compares an inspiration Look with the Closet and builds an honest owned adaptation.",
     phase: 2,
   },
 };
@@ -1465,7 +1472,6 @@ function decorateWishlistSurfaces() {
     const entry = content.querySelector('.profile-utility[onclick*="wishlist"]');
     if (entry) { entry.onclick = () => go("G-08"); entry.querySelector("small").textContent = `${wishlistStats().saved} saved items · ${wishlistStats().ready} ready to buy`; }
   }
-  if (currentId === "D-02") content.insertAdjacentHTML("beforeend", wishlistSnapshot(true));
   if (currentId === "D-02" && lightweightPanel === "changeLook") {
     const suggestion = [...content.querySelectorAll(".closet-piece")].find((piece) => piece.textContent.includes("Suggested"));
     if (suggestion) suggestion.outerHTML = `<div class="wishlist-missing-piece">${wishlistProductCard(wishlistProduct("shoulder-bag"))}</div>`;
@@ -1946,10 +1952,11 @@ const backRoutes = {
   "C-01": "D-02",
   "C-02": "C-01",
   "D-02": "D-02",
+  "E-07": "D-02",
   "F-01": "D-02",
   "G-01": "L-01",
   "G-02": "G-01",
-  "G-08": "K-01",
+  "G-08": "C-01",
   "G-09": "G-08",
   "H-01": "F-01",
   "H-06": "H-01",
@@ -2261,6 +2268,15 @@ function backScreen() {
     leaveTryOn();
     return;
   }
+  if (currentId === "E-07") {
+    if (makeItMineState?.phase === "result") {
+      makeItMineState.phase = "matches";
+      render();
+    } else {
+      exitMakeItMine();
+    }
+    return;
+  }
   if (currentId.startsWith("F-") && studioSourceContext) {
     if (studioSourceContext === "creator") {
       const returnTarget = creatorReferenceContext?.lookId ? "H-13" : "H-11";
@@ -2327,7 +2343,7 @@ function head(title) {
       title: "Closet",
       mastheadImage: "images/splash-curated-wardrobe.jpg",
       museLabel: "Ask Muse about Closet",
-      action: `<button class="root-action app-tab-context-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button>`,
+      action: `<button class="root-action app-tab-context-action" onclick="setClosetTab('wishlist')" aria-label="Open Wishlist">${icon("heart")}</button><button class="root-action app-tab-context-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button>`,
     },
     "I-01": {
       title: "Planner",
@@ -2339,7 +2355,7 @@ function head(title) {
       title: "Discover",
       mastheadImage: "images/alta-look-rust-cream-flatlay.png",
       museLabel: "Ask Muse about Discover",
-      action: `<button class="root-action app-tab-context-action" onclick="setClosetTab('wishlist')" aria-label="Open Wishlist">${icon("bookmark")}</button>`,
+      action: "",
     },
   };
   const primaryTab = primaryTabs[currentId];
@@ -2364,6 +2380,7 @@ function ensureAppNavigation() {
   if (
     ["S", "A"].includes(currentId.split("-")[0]) ||
     currentId === "E-06" ||
+    currentId === "E-07" ||
     currentId === "G-02" ||
     (currentId.startsWith("H-") && app.querySelector(".content.no-nav"))
   ) {
@@ -3920,6 +3937,16 @@ function lensDestination(id) {
   lensOpen = false;
   go(id);
 }
+function lensMakeItMine(profileId = "office") {
+  const sourceImage = lensInputPreview || (profileId === "party" ? assets.look4 : assets.look3);
+  lensOpen = false;
+  openMakeItMine(profileId, {
+    title: profileId === "party" ? "Saved Inspiration" : "Lens Office Look",
+    image: sourceImage,
+    creator: "StyleIQ Lens",
+    originLabel: "From your visual search",
+  });
+}
 function reviewLensBatch() {
   batchSessionCandidates = batchCandidateCatalog.slice(0, 4).map((item) => ({ ...item, id: newClosetItemId() }));
   batchImportActive = true;
@@ -4009,7 +4036,7 @@ function lensResult() {
       image: assets.look3,
       body: "Relaxed blazer + soft shell + straight trouser + low-profile loafer. Three roles have owned equivalents; the bag is optional.",
       extra: lensMatches(),
-      actions: `<button class="btn primary wide" onclick="lensDestination('F-01')">Make it mine</button>`,
+      actions: `<button class="btn primary wide" onclick="lensMakeItMine('office')">Make it mine</button>`,
     },
     improve: {
       eyebrow: "One small improvement",
@@ -4032,7 +4059,7 @@ function lensResult() {
       image: assets.look2,
       body: "Lens extracted a tailored layer, soft neutral top, straight bottom, and leather shoe. Three close matches are already in your Closet.",
       extra: lensMatches(),
-      actions: `<div class="row"><button class="btn grow primary" onclick="lensDestination('F-01')">Make it mine</button><button class="btn grow" onclick="lensDestination('C-01')">View Closet matches</button></div>`,
+      actions: `<div class="row"><button class="btn grow primary" onclick="lensMakeItMine('office')">Make it mine</button><button class="btn grow" onclick="lensDestination('C-01')">View Closet matches</button></div>`,
     },
     similar: {
       eyebrow: "Visual similarity",
@@ -4909,12 +4936,305 @@ function prepareCreatorLookForUser(lookId = activeCreatorLookId) {
 }
 
 function makeCreatorLookMine(lookId = activeCreatorLookId) {
-  prepareCreatorLookForUser(lookId);
-  studioHubTab = "mine";
-  localStorage.setItem("styleiqStudioHubTabV1", studioHubTab);
-  currentId = "F-01";
-  location.hash = "F-01";
+  const look = getCreatorLook(lookId);
+  activeCreatorId = look.creator.id;
+  activeCreatorLookId = look.id;
+  openMakeItMine(inferMakeItMineProfile(look), {
+    title: look.title,
+    image: look.image,
+    creator: look.creator.name,
+    originLabel: `From ${look.creator.name}`,
+  });
+}
+
+let makeItMineState = null;
+
+function makeItMineProfiles() {
+  const menswear = stylingContext === "Menswear";
+  const ids = menswear
+    ? {
+        blazer: "closet-menswear-1", top: "closet-menswear-2", trousers: "closet-menswear-3",
+        loafers: "closet-menswear-4", accent: "closet-menswear-5", jewelry: "closet-menswear-6",
+      }
+    : {
+        blazer: "closet-1", top: "closet-2", rust: "closet-3", trousers: "closet-4",
+        loafers: "closet-5", bag: "closet-6", jewelry: "closet-7", suit: "closet-10", sneaker: "closet-11",
+      };
+  const piece = (id, role, name, image, exactClosetId = null, similarClosetIds = []) => ({
+    id, role, name, image, exactClosetId, similarClosetIds,
+  });
+  return {
+    office: {
+      id: "office", title: "Office", image: assets.look2,
+      direction: "Polished structure with a softer, owned finish.",
+      pieces: menswear
+        ? [
+            piece("office-layer", "Layer", "Brown herringbone blazer", "images/screen_23_item_man.png", ids.blazer),
+            piece("office-top", "Top", "Ivory short-sleeve shirt", "images/alta-ivory-eyelet-shirt.png", ids.top),
+            piece("office-bottom", "Bottom", "Charcoal tailored trousers", "images/alta-black-tailored-trousers.png", null, [ids.trousers]),
+            piece("office-shoes", "Shoes", "Black leather derbies", "images/cat_shoes.png"),
+          ]
+        : [
+            piece("office-layer", "Layer", "Black tailored blazer", assets.blazer, ids.blazer),
+            piece("office-top", "Top", "Ivory silk shell", assets.top, ids.top),
+            piece("office-bottom", "Bottom", "Charcoal wide-leg trousers", assets.bottom, null, [ids.trousers, ids.suit]),
+            piece("office-shoes", "Shoes", "Black leather loafers", "images/cat_shoes.png"),
+          ],
+    },
+    dinner: {
+      id: "dinner", title: "Dinner", image: assets.look2,
+      direction: "Refined evening proportions, rebuilt entirely from your Closet.",
+      pieces: menswear
+        ? [
+            piece("dinner-layer", "Layer", "Brown herringbone blazer", "images/screen_23_item_man.png", ids.blazer),
+            piece("dinner-top", "Top", "Ivory short-sleeve shirt", "images/alta-ivory-eyelet-shirt.png", ids.top),
+            piece("dinner-bottom", "Bottom", "Black tailored trousers", "images/alta-black-tailored-trousers.png", ids.trousers),
+            piece("dinner-shoes", "Shoes", "Tan suede loafers", "images/alta-tan-suede-loafers.png", ids.loafers),
+          ]
+        : [
+            piece("dinner-layer", "Layer", "Black tailored blazer", assets.blazer, ids.blazer),
+            piece("dinner-top", "Top", "Ivory silk shell", assets.top, ids.top),
+            piece("dinner-bottom", "Bottom", "Black straight trousers", assets.bottom, ids.trousers),
+            piece("dinner-shoes", "Shoes", "Tan suede loafers", assets.shoes, ids.loafers),
+          ],
+    },
+    party: {
+      id: "party", title: "Party", image: assets.look4,
+      direction: "Keep the original energy, then anchor it with the one right piece you own.",
+      pieces: menswear
+        ? [
+            piece("party-top", "Top", "Black satin shirt", "images/item_silk_shell.png"),
+            piece("party-bottom", "Bottom", "Fluid evening trousers", "images/alta-black-tailored-trousers.png"),
+            piece("party-shoes", "Shoes", "Polished evening boots", "images/cat_shoes.png"),
+            piece("party-accent", "Accessory", "Steel everyday watch", "images/cat_watches.png", ids.jewelry),
+          ]
+        : [
+            piece("party-top", "Top", "Black satin top", "images/item_silk_shell.png"),
+            piece("party-bottom", "Bottom", "Liquid sequin skirt", "images/alta-black-tailored-trousers.png"),
+            piece("party-shoes", "Shoes", "Strappy evening heels", "images/cat_shoes.png"),
+            piece("party-accent", "Accessory", "Gold everyday hoops", assets.accessory, ids.jewelry),
+          ],
+    },
+    workout: {
+      id: "workout", title: "Workout", image: assets.look,
+      direction: "A clean active formula using the closest practical pieces already available.",
+      pieces: menswear
+        ? [
+            piece("workout-top", "Top", "Performance training tee", "images/alta-ivory-eyelet-shirt.png", null, [ids.top]),
+            piece("workout-bottom", "Bottom", "Tapered training joggers", "images/alta-black-tailored-trousers.png", null, [ids.trousers]),
+            piece("workout-shoes", "Shoes", "Cushioned trainers", "images/cat_shoes.png"),
+            piece("workout-layer", "Layer", "Lightweight zip layer", "images/item_blazer.png"),
+          ]
+        : [
+            piece("workout-top", "Top", "Performance training top", assets.top2, null, [ids.rust]),
+            piece("workout-bottom", "Bottom", "Black training leggings", assets.bottom),
+            piece("workout-shoes", "Shoes", "Minimal leather trainers", assets.shoes, ids.sneaker),
+            piece("workout-bag", "Bag", "Compact sport bag", assets.bag, null, [ids.bag]),
+          ],
+    },
+  };
+}
+
+function inferMakeItMineProfile(look = {}) {
+  const value = `${look.id || ""} ${look.title || ""} ${look.occasion || ""} ${look.context || ""} ${look.styleDirection || ""}`.toLowerCase();
+  if (/workout|active|sport|training/.test(value)) return "workout";
+  if (/dinner|evening|night|bistro|harbor/.test(value)) return "dinner";
+  if (/work|office|review/.test(value)) return "office";
+  return "party";
+}
+
+function availableMakeItMineCloset() {
+  return closetItems().filter((item) => item.lifecycle === "Keep" && item.status === "Available");
+}
+
+function refreshMakeItMineMatches() {
+  if (!makeItMineState?.sourceLook) return;
+  const available = availableMakeItMineCloset();
+  const byId = new Map(available.map((item) => [item.id, item]));
+  const matches = makeItMineState.sourceLook.pieces.map((sourcePiece) => {
+    const exact = sourcePiece.exactClosetId ? byId.get(sourcePiece.exactClosetId) : null;
+    if (exact) return { sourcePiece, status: "Exact / Owned", item: exact, alternatives: [] };
+    const alternatives = [...new Set(sourcePiece.similarClosetIds || [])]
+      .map((id) => byId.get(id))
+      .filter(Boolean);
+    const selectedId = makeItMineState.selections[sourcePiece.id];
+    const item = alternatives.find((candidate) => candidate.id === selectedId) || alternatives[0] || null;
+    if (item) return { sourcePiece, status: "Similar Owned", item, alternatives };
+    return { sourcePiece, status: "Missing", item: null, alternatives: [] };
+  });
+  const owned = matches.filter((match) => match.status === "Exact / Owned");
+  const similar = matches.filter((match) => match.status === "Similar Owned");
+  const missing = matches.filter((match) => match.status === "Missing");
+  const matchedCount = owned.length + similar.length;
+  const total = matches.length;
+  const level = matchedCount === total ? "full" : matchedCount <= 1 ? "low" : "partial";
+  makeItMineState.matches = matches;
+  makeItMineState.matchSummary = { matchedCount, total, exactCount: owned.length, similarCount: similar.length, missingCount: missing.length, level };
+  makeItMineState.matchedItems = owned.map((match) => match.item);
+  makeItMineState.similarOwnedItems = similar.map((match) => match.item);
+  makeItMineState.missingItems = missing.map((match) => ({ ...match.sourcePiece }));
+}
+
+function openMakeItMine(profileId = "office", source = {}) {
+  const profiles = makeItMineProfiles();
+  const profile = profiles[profileId] || profiles.office;
+  const origin = source.returnScreen || currentId;
+  makeItMineState = {
+    sourceLook: {
+      ...profile,
+      title: source.title || `${profile.title} Look`,
+      image: source.image || profile.image,
+      creator: source.creator || "StyleIQ inspiration",
+      occasion: profile.title,
+      profileId: profile.id,
+    },
+    adaptedLook: null,
+    matchSummary: null,
+    matchedItems: [],
+    similarOwnedItems: [],
+    missingItems: [],
+    matches: [],
+    selections: {},
+    phase: "matches",
+    returnScreen: routableScreenIds.has(origin) && origin !== "E-07" ? origin : "D-02",
+    originLabel: source.originLabel || "Original Look",
+  };
+  refreshMakeItMineMatches();
+  go("E-07");
+}
+
+function selectMakeItMineAlternative(pieceId, closetId) {
+  if (!makeItMineState) return;
+  makeItMineState.selections[pieceId] = closetId;
+  refreshMakeItMineMatches();
   render();
+}
+
+function makeItMineMuseCopy(summary) {
+  if (summary.level === "full") return "You already own the full formula. I kept every role intact and made the finish feel like you.";
+  if (summary.level === "partial") return `You have ${summary.matchedCount} of ${summary.total} pieces. I can preserve the silhouette with your closest owned options and keep the gap visible.`;
+  return `Only ${summary.matchedCount} of ${summary.total} pieces is in your Closet, so I’ll borrow the mood—not pretend you own the original.`;
+}
+
+function makeItMinePrimaryLabel(summary) {
+  if (summary.level === "full") return "Wear This Look";
+  if (summary.level === "partial") return "Create With My Closet";
+  return "Create an Inspired Version";
+}
+
+function createMakeItMineAdaptation() {
+  if (!makeItMineState) return;
+  refreshMakeItMineMatches();
+  const usedMatches = makeItMineState.matches.filter((match) => match.item);
+  const source = makeItMineState.sourceLook;
+  makeItMineState.adaptedLook = {
+    id: `made-mine-${source.profileId}-${Date.now()}`,
+    title: `${source.title} · My Closet Edit`,
+    image: source.image,
+    context: makeItMineState.matchSummary.level === "low" ? "Inspired by Original Look" : "Made From Your Closet",
+    creationSource: "inspiration_recreated",
+    sheet: source.image,
+    remote: false,
+    row: 0,
+    reference: false,
+    pieces: usedMatches.map((match) => [match.sourcePiece.role, match.item.name, match.item.image]),
+    usedItems: usedMatches.map((match) => ({ ...match.item, role: match.sourcePiece.role })),
+    missingItems: makeItMineState.missingItems.map((item) => ({ ...item })),
+  };
+  makeItMineState.phase = "result";
+  render();
+}
+
+function ensureMakeItMineSaved() {
+  const adapted = makeItMineState?.adaptedLook;
+  if (!adapted) return null;
+  let record = lookCatalog.find((look) => look.id === adapted.id);
+  if (!record) {
+    record = { id: adapted.id, title: adapted.title, image: adapted.image, creationSource: adapted.creationSource };
+    lookCatalog.unshift(record);
+    let stored = [];
+    try { stored = JSON.parse(localStorage.getItem("styleiqSavedStudioLooksV1")) || []; } catch {}
+    stored = [record, ...stored.filter((look) => look?.id !== record.id && look?.title !== record.title)];
+    localStorage.setItem("styleiqSavedStudioLooksV1", JSON.stringify(stored));
+  }
+  selectedSavedLookId = record.title;
+  localStorage.setItem("styleiqSelectedSavedLookV1", selectedSavedLookId);
+  return record;
+}
+
+function wearMakeItMineLook() {
+  const adapted = makeItMineState?.adaptedLook;
+  if (!adapted) return;
+  swipeGeneratedLooks = [adapted, ...swipeGeneratedLooks.filter((look) => look.id !== adapted.id)];
+  selectedTodayLook = adapted.id;
+  localStorage.setItem("styleiqTodayLookV1", selectedTodayLook);
+  go("D-02");
+  toast("Your Closet edit is ready for today");
+}
+
+function saveMakeItMineLook() {
+  if (!ensureMakeItMineSaved()) return;
+  go("G-02");
+  toast("Look saved");
+}
+
+function planMakeItMineLook() {
+  if (!ensureMakeItMineSaved()) return;
+  plannerLookChoice = "saved";
+  go("I-01");
+  toast("Choose a date for your Closet edit");
+}
+
+function tryOnMakeItMineLook() {
+  const adapted = makeItMineState?.adaptedLook;
+  if (!adapted) return;
+  startTryOn(adapted.id, {
+    lookData: adapted,
+    sourceScreen: "E-07",
+    sourceType: "make-it-mine",
+    returnScreen: "E-07",
+  });
+}
+
+function exitMakeItMine() {
+  const target = makeItMineState?.returnScreen || "D-02";
+  go(target, { record: false });
+}
+
+function makeItMinePieceMarkup(match) {
+  const statusClass = match.status === "Exact / Owned" ? "owned" : match.status === "Similar Owned" ? "similar" : "missing";
+  const destination = match.item
+    ? `<div class="make-mine-piece-side"><small>Your Closet</small><img src="${match.item.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(match.item.name)}"><b>${escapeMarkup(match.item.name)}</b></div>`
+    : `<div class="make-mine-piece-side make-mine-piece-missing"><small>Your Closet</small><span class="make-mine-missing-mark">${icon("plus")}</span><b>Not in Closet</b></div>`;
+  const alternatives = match.alternatives.length > 1
+    ? `<div class="make-mine-alternatives"><small>Choose a similar owned piece</small><div>${match.alternatives.map((item) => `<button aria-pressed="${match.item?.id === item.id}" onclick="selectMakeItMineAlternative('${match.sourcePiece.id}','${item.id}')"><img src="${item.image}" alt=""><span>${escapeMarkup(item.name)}</span></button>`).join("")}</div></div>`
+    : "";
+  return `<article class="make-mine-piece-card"><header><span><small>${escapeMarkup(match.sourcePiece.role)}</small><b>${escapeMarkup(match.sourcePiece.name)}</b></span><em class="make-mine-status ${statusClass}">${match.status}</em></header><div class="make-mine-compare"><div class="make-mine-piece-side"><small>Original</small><img src="${match.sourcePiece.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(match.sourcePiece.name)}"><b>${escapeMarkup(match.sourcePiece.name)}</b></div><span class="make-mine-arrow" aria-hidden="true">→</span>${destination}</div>${alternatives}</article>`;
+}
+
+function makeItMineEmptyScreen() {
+  const source = makeItMineState.sourceLook;
+  return `<section class="make-mine-empty"><img src="${source.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(source.title)}"><p class="eyebrow">Make This Look Mine</p><h2>Your Closet is ready for its first piece.</h2><p class="body">Add a few pieces and Muse can compare this ${escapeMarkup(source.title)} honestly—without inventing matches.</p><div class="stack"><button class="btn primary wide" onclick="go('B-01')">Add to Closet</button><button class="btn wide" onclick="exitMakeItMine()">Back to Look</button></div></section>`;
+}
+
+function makeItMineResultScreen() {
+  const state = makeItMineState;
+  const adapted = state.adaptedLook;
+  const used = adapted.usedItems;
+  const missing = adapted.missingItems;
+  return `<div class="make-mine-result"><div class="make-mine-result-hero"><img src="${adapted.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(adapted.title)}"><span>${escapeMarkup(adapted.context)}</span></div><section class="make-mine-result-copy"><p class="eyebrow">Muse made it yours</p><h2>${escapeMarkup(adapted.title)}</h2><p class="body">${state.matchSummary.level === "full" ? "Every piece comes from your Closet." : "This edit uses only the pieces you own and keeps every remaining gap explicit."}</p></section><section class="make-mine-used"><div class="between"><span><p class="eyebrow">From your Closet</p><h3>${used.length} ${used.length === 1 ? "piece" : "pieces"} used</h3></span><b>${state.matchSummary.matchedCount}/${state.matchSummary.total}</b></div><div class="make-mine-used-rail">${used.map((item) => `<article><img src="${item.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(item.name)}"><small>${escapeMarkup(item.role)}</small><b>${escapeMarkup(item.name)}</b></article>`).join("")}</div></section>${missing.length ? `<section class="make-mine-missing-list"><p class="eyebrow">Still missing</p><h3>${missing.length} original ${missing.length === 1 ? "piece" : "pieces"}</h3>${missing.map((item) => `<div><span>${escapeMarkup(item.role)}</span><b>${escapeMarkup(item.name)}</b></div>`).join("")}</section>` : ""}<div class="make-mine-result-actions"><button class="btn primary wide" onclick="wearMakeItMineLook()">Wear This Look</button><div class="row"><button class="btn grow" onclick="saveMakeItMineLook()">Save Look</button><button class="btn grow" onclick="planMakeItMineLook()">Add to Planner</button></div><button class="text-action make-mine-try" onclick="tryOnMakeItMineLook()">Try On with Style Twin</button></div><button class="make-mine-back-link" onclick="makeItMineState.phase='matches';render()">← Review Closet matches</button></div>`;
+}
+
+function makeItMineScreen() {
+  if (!makeItMineState) openMakeItMine("office", { returnScreen: "D-02" });
+  if (makeItMineState.phase === "result" && makeItMineState.adaptedLook)
+    return shell("Make This Look Mine", makeItMineResultScreen(), { noNav: true, surfaceClass: "make-mine-screen" });
+  refreshMakeItMineMatches();
+  if (!availableMakeItMineCloset().length)
+    return shell("Make This Look Mine", makeItMineEmptyScreen(), { noNav: true, surfaceClass: "make-mine-screen" });
+  const state = makeItMineState;
+  const summary = state.matchSummary;
+  return shell("Make This Look Mine", `<div class="make-mine-source"><img src="${state.sourceLook.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(state.sourceLook.title)}"><div><p class="eyebrow">${escapeMarkup(state.originLabel)}</p><h2>${escapeMarkup(state.sourceLook.title)}</h2><span>${escapeMarkup(state.sourceLook.occasion)} · ${escapeMarkup(state.sourceLook.creator)}</span></div></div><section class="make-mine-summary"><div class="make-mine-score"><strong>${summary.matchedCount}<small>/${summary.total}</small></strong><span>Closet match</span></div><div><p class="eyebrow">Muse closet read</p><h3>${summary.level === "full" ? "You can wear the whole formula." : summary.level === "partial" ? "Most of the structure is already yours." : "Let’s recreate the feeling, honestly."}</h3><p>${makeItMineMuseCopy(summary)}</p></div></section><div class="make-mine-progress" aria-label="${summary.matchedCount} of ${summary.total} pieces matched"><span style="width:${Math.round(summary.matchedCount / summary.total * 100)}%"></span></div><div class="make-mine-legend"><span><i class="owned"></i>${summary.exactCount} exact</span><span><i class="similar"></i>${summary.similarCount} similar</span><span><i class="missing"></i>${summary.missingCount} missing</span></div><section class="make-mine-pieces" aria-label="Closet comparison"><div class="make-mine-section-head"><p class="eyebrow">Piece by piece</p><h3>Original → your Closet</h3></div>${state.matches.map(makeItMinePieceMarkup).join("")}</section><section class="make-mine-sticky"><small>${summary.missingCount ? `${summary.missingCount} ${summary.missingCount === 1 ? "piece stays" : "pieces stay"} marked missing` : "No missing pieces"}</small><button class="btn primary wide" onclick="createMakeItMineAdaptation()">${makeItMinePrimaryLabel(summary)}</button></section></div>`, { noNav: true, surfaceClass: "make-mine-screen" });
 }
 
 function tryOnCreatorLook(lookId = activeCreatorLookId) {
@@ -5434,7 +5754,7 @@ function creatorLookDetail() {
         : "";
   return shell(
     "Stylist inspiration",
-    `<div class="between"><span><p class="eyebrow">@${escapeMarkup(look.creator.replace(/ .*/, "").toLowerCase())} · Stylist Look</p><h2 class="title">${escapeMarkup(look.title)}</h2><small class="body">${escapeMarkup(look.brand)} · Paris, FR</small></span><button class="icon-btn" aria-label="Report this Look" onclick="openCommunityPanel('report')">${icon("more")}</button></div><img class="hero-img" style="height:330px;margin-top:12px" src="${look.image}" alt="${escapeMarkup(look.title)} by ${escapeMarkup(look.creator)}"><div class="row" style="margin-top:12px"><button class="btn ${communityFollowed ? "primary" : ""}" onclick="toggleCommunityFollow()">${communityFollowed ? "Following" : "Follow"}</button><button class="btn ${communityLiked ? "primary" : ""}" aria-pressed="${communityLiked}" onclick="toggleCommunityLike()">${communityLiked ? "Liked" : "Like"}</button><button class="btn" onclick="openCommunityPanel('comments')">Comment${communityComments.length ? ` · ${communityComments.length}` : ""}</button></div><p class="body">Relaxed tailoring, soft neutral layers, and a clean shoe. See how this community Look translates to your wardrobe.</p>${lensMatches()}<div class="row" style="margin-top:14px"><button class="btn primary grow" onclick="startTryOn('${look.id}', { sourceType: 'community-look' })">Try On</button><button class="btn grow" onclick="canvasState.creationSource='creator_recreated';persist();go('F-01')">Make It Mine</button></div>${communityState}`,
+    `<div class="between"><span><p class="eyebrow">@${escapeMarkup(look.creator.replace(/ .*/, "").toLowerCase())} · Stylist Look</p><h2 class="title">${escapeMarkup(look.title)}</h2><small class="body">${escapeMarkup(look.brand)} · Paris, FR</small></span><button class="icon-btn" aria-label="Report this Look" onclick="openCommunityPanel('report')">${icon("more")}</button></div><img class="hero-img" style="height:330px;margin-top:12px" src="${look.image}" alt="${escapeMarkup(look.title)} by ${escapeMarkup(look.creator)}"><div class="row" style="margin-top:12px"><button class="btn ${communityFollowed ? "primary" : ""}" onclick="toggleCommunityFollow()">${communityFollowed ? "Following" : "Follow"}</button><button class="btn ${communityLiked ? "primary" : ""}" aria-pressed="${communityLiked}" onclick="toggleCommunityLike()">${communityLiked ? "Liked" : "Like"}</button><button class="btn" onclick="openCommunityPanel('comments')">Comment${communityComments.length ? ` · ${communityComments.length}` : ""}</button></div><p class="body">Relaxed tailoring, soft neutral layers, and a clean shoe. See how this community Look translates to your wardrobe.</p>${lensMatches()}<div class="row" style="margin-top:14px"><button class="btn primary grow" onclick="startTryOn('${look.id}', { sourceType: 'community-look' })">Try On</button><button class="btn grow" onclick="openMakeItMine('office',{title:selectedCommunityLook.title,image:selectedCommunityLook.image,creator:selectedCommunityLook.creator,originLabel:'From Discover'})">Make It Mine</button></div>${communityState}`,
     { active: "discover" },
   );
 }
@@ -5859,7 +6179,7 @@ function homeScreen(s) {
         )
         .join(
           "",
-        )}</div><div class="closet-progress"><b>3 / 4 from your Closet</b><button onclick="go('C-01')">View pieces</button></div><div class="home-actions"><button class="btn primary" onclick="startTryOn('coffee', { sourceType: 'today' })">${icon("user")} Try on</button><button class="btn" onclick="go('F-01')">${icon("shirt")} Make it mine</button></div>`,
+        )}</div><div class="closet-progress"><b>3 / 4 from your Closet</b><button onclick="go('C-01')">View pieces</button></div><div class="home-actions"><button class="btn primary" onclick="startTryOn('coffee', { sourceType: 'today' })">${icon("user")} Try on</button><button class="btn" onclick="makeTodayLookMine('coffee')">${icon("shirt")} Make it mine</button></div>`,
       { active: "home" },
     );
   if (s.id === "D-03")
@@ -6012,7 +6332,7 @@ function mirrorToday() {
       </header>
       <div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button></div>
       <button class="today-hero-lens" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")}<span>Lens</span></button>
-    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div>${todaySwipeLooksMarkup({ id: "today-swipe-looks", selectedId: look.id, actionFor: (candidate) => `useSwipeLookForToday('${candidate.id}')` })}`,
+    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeTodayLookMine('${look.id}')">${icon("shirt")} Make it mine</button></div>${todaySwipeLooksMarkup({ id: "today-swipe-looks", selectedId: look.id, actionFor: (candidate) => `useSwipeLookForToday('${candidate.id}')` })}`,
     { active: "home", surfaceClass: "image-first-surface" },
   );
 }
@@ -7351,41 +7671,24 @@ function installTryOnGestures() {
     }
   });
 }
-function makeLookMine(look = swipeLookRecord(selectedTodayLook) || tryOnLooks.coffee) {
-  if (tryOnSession?.sourceType === "creator-look") {
-    currentId = "F-01";
-    location.hash = "F-01";
-    render();
-    return;
-  }
-  canvasState.title = look.title;
-  canvasState.creationSource = "inspiration_recreated";
-  canvasState.mode = "flat";
-  canvasState.studioMode = "simple";
-  canvasState.sourceLookId = look.id;
-  canvasState.lookFormula = JSON.parse(JSON.stringify(look));
-  canvasState.items = look.pieces.map(([role, name, image], i) => {
-    const owned = closetItems().find(
-      (item) =>
-        item.name.toLowerCase() === name.toLowerCase() &&
-        item.lifecycle === "Keep" &&
-        item.status === "Available",
-    );
-    return {
-      id: `${look.id}-${i}`,
-      role,
-      name: owned?.name || name,
-      image: owned?.image || image || assets.look2,
-      owned: !!owned,
-      visible: true,
-      index: 0,
-      brand: owned?.brand || "Look reference",
-      matched: !!owned,
-    };
+function makeLookMine(look = swipeLookRecord(selectedTodayLook) || tryOnLooks.coffee, options = {}) {
+  const fromTryOn = currentId === "E-06";
+  const returnScreen = options.returnScreen || (fromTryOn ? tryOnSession?.returnTo || tryOnSession?.origin : currentId) || "D-02";
+  openMakeItMine(inferMakeItMineProfile(look), {
+    title: look.title,
+    image: look.sheet || look.image,
+    creator: options.creator || (fromTryOn && tryOnSession?.sourceType === "creator-look" ? "Stylist inspiration" : "Selected Look"),
+    originLabel: options.originLabel || (fromTryOn ? "From Try On" : "Original Look"),
+    returnScreen,
   });
-  canvasState.history = [];
-  persist();
-  go("F-01");
+}
+function makeTodayLookMine(id = selectedTodayLook) {
+  const look = swipeLookRecord(id) || tryOnLooks[id] || tryOnLooks.coffee;
+  makeLookMine(look, {
+    creator: "Muse",
+    originLabel: "From Today",
+    returnScreen: "D-02",
+  });
 }
 function tryOnResult() {
   // Inventory deep links preview the same renderer without completing or restarting setup.
@@ -8507,6 +8810,7 @@ function mirrorScreen(s) {
   if (s.id === "G-09") return wishlistDetail();
   if (s.id === "D-02") return mirrorToday();
   if (s.id === "E-06") return tryOnResult();
+  if (s.id === "E-07") return makeItMineScreen();
   if (s.id === "C-01") return scalableCloset();
   if (s.id === "C-02") return lifecycleItemDetail();
   if (s.id === "I-01") return mirrorPlanner();
@@ -9247,7 +9551,7 @@ function outfitFamilies(title = "Today", lookId = "coffee") {
   const anchoredItem = closetStyleIntent ? selectedClosetItem() : null;
   return shell(
     title,
-    `<p class="eyebrow">${anchoredItem ? `Styled around ${escapeMarkup(anchoredItem.name)}` : "Styled around your Closet"}</p><h2 class="title">Five ways to wear it</h2><div class="chips">${["Business casual", "Party", "Dressy", "Professional", "Semi-formal"].map((x, i) => `<button class="chip ${i === 0 ? "active" : ""}">${x}</button>`).join("")}</div><div style="margin-top:12px">${outfitPreview()}</div><div class="outfit-meta"><span><p class="eyebrow">Business casual</p><h3 class="title">Quiet structure</h3><p class="body">28° · Office · 3 owned pieces</p></span><button class="text-action" onclick="openLightweightPanel('whyLook')">Why this Look?</button></div><div class="outfit-primary-actions"><button class="btn primary" onclick="go('F-01')">${icon("edit")} Make it mine</button><button class="btn" onclick="startTryOn('${lookId}', { sourceType: 'outfit-family' })">${icon("user")} Try on</button></div><div class="closet-strip" aria-label="Pieces in this Look">${[
+    `<p class="eyebrow">${anchoredItem ? `Styled around ${escapeMarkup(anchoredItem.name)}` : "Styled around your Closet"}</p><h2 class="title">Five ways to wear it</h2><div class="chips">${["Business casual", "Party", "Dressy", "Professional", "Semi-formal"].map((x, i) => `<button class="chip ${i === 0 ? "active" : ""}">${x}</button>`).join("")}</div><div style="margin-top:12px">${outfitPreview()}</div><div class="outfit-meta"><span><p class="eyebrow">Business casual</p><h3 class="title">Quiet structure</h3><p class="body">28° · Office · 3 owned pieces</p></span><button class="text-action" onclick="openLightweightPanel('whyLook')">Why this Look?</button></div><div class="outfit-primary-actions"><button class="btn primary" onclick="makeLookMine(tryOnLooks['${lookId}'])">${icon("edit")} Make it mine</button><button class="btn" onclick="startTryOn('${lookId}', { sourceType: 'outfit-family' })">${icon("user")} Try on</button></div><div class="closet-strip" aria-label="Pieces in this Look">${[
       ["Blazer", assets.blazer, "Owned"],
       ["Ivory top", assets.top, "Owned"],
       ["Trousers", assets.bottom, "Owned"],
