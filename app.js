@@ -612,6 +612,15 @@ applyLiquidGlassTransparency(settingsPreferences.liquidGlass);
 let currentId = location.hash.slice(1) || "S-00",
   overlay = null,
   lightweightPanel = null,
+  swipeLookTarget = { type: "today", index: null },
+  swipeLookCreateMode = null,
+  swipeMuseDraftId = null,
+  swipeMuseDraftTargetKey = null,
+  swipeMusePickOffsets = {},
+  swipeStudioTarget = (() => {
+    try { return JSON.parse(localStorage.getItem("styleiqSwipeStudioTargetV1")); }
+    catch { return null; }
+  })(),
   accountMenuOpen = false,
   notificationsOpen = false,
   navHistory = [],
@@ -909,12 +918,7 @@ function planMyWeek() {
   render();
 }
 function changeProactiveLook(index) {
-  const entry = proactiveWeek[index];
-  if (!entry) return;
-  const looks = Object.values(tryOnLooks), next = looks[(looks.findIndex(look => look.id === entry.lookId)+1)%looks.length];
-  Object.assign(entry, { lookId: next.id, look: next.title, image: next.sheet });
-  localStorage.setItem("styleiqProactiveWeekV1", JSON.stringify(proactiveWeek));
-  render();
+  openSwipeLookPanel("planner", index);
 }
 function editProactiveContext(index) {
   const entry = proactiveWeek[index]; if (!entry) return;
@@ -2163,6 +2167,7 @@ function openScreenPanel(id, panel) {
   go(id, { keepPanel: true });
 }
 function openTodayAlternatives() {
+  swipeLookTarget = { type: "today", index: null };
   openScreenPanel("D-02", "changeLook");
 }
 function openDiscoverSearch() {
@@ -2457,7 +2462,9 @@ function shell(
 ) {
   const resolvedBody = currentId === "I-01" ? `${plannerDynamicHeroHTML}${body}` : body;
   const plannerLayers = currentId === "I-01" ? `${plannerMonthMarkup(plannerSelectedDate || new Date().toISOString().slice(0,10))}${plannerRecapStoryMarkup('weekly')}` : "";
-  return `<section class="screen ${dark ? "studio-screen" : ""} ${surfaceClass}">${head(title)}<div class="content ${noNav ? "no-nav" : ""}">${resolvedBody}</div>${plannerLayers}${noNav ? "" : nav(active)}${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
+  const isPrimaryTab = ["D-02", "C-01", "I-01", "K-01"].includes(currentId);
+  const scrollingContent = `${head(title)}<div class="content ${noNav ? "no-nav" : ""}">${resolvedBody}</div>`;
+  return `<section class="screen ${dark ? "studio-screen" : ""} ${surfaceClass}">${isPrimaryTab ? `<div class="primary-tab-scroll">${scrollingContent}</div>` : scrollingContent}${plannerLayers}${noNav ? "" : nav(active)}${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
 }
 function logoutDialog() {
   if (overlay !== "logout") return "";
@@ -2585,7 +2592,7 @@ function openPlannerFullLookDetails() {
     toast("Choose a Look before opening Look details");
     return;
   }
-  if (tryOnLooks[plan.lookId]) todayDetailsLookId = plan.lookId;
+  if (swipeLookRecord(plan.lookId)) todayDetailsLookId = plan.lookId;
   else todayDetailsLookId = null;
   savedLookTab = "overview";
   savedLookMediaIndex = 0;
@@ -2609,8 +2616,8 @@ function plannerEventDetailMarkup(plan, look) {
   const lookTitle = plan?.look || plan?.lookTitle || look?.title;
   const when = `${plan?.date || "Date not set"} · ${plan?.time || plan?.daypart || "All day"}`;
   const changeAction = Number.isInteger(selectedPlannerEntryIndex)
-    ? `changeProactiveLook(${selectedPlannerEntryIndex})`
-    : "closeLightweightPanel();openTodayAlternatives()";
+    ? `openSwipeLookPanel('planner',${selectedPlannerEntryIndex})`
+    : "openSwipeLookPanel('planner-event')";
   const editAction = Number.isInteger(selectedPlannerEntryIndex)
     ? `closeLightweightPanel();editProactiveContext(${selectedPlannerEntryIndex})`
     : "closeLightweightPanel();go('I-04')";
@@ -2794,9 +2801,13 @@ function lightweightPanelMarkup() {
       action: "Ask Muse for a Look",
     },
     changeLook: {
-      eyebrow: "Alternatives for today",
-      title: "Change Look",
-      body: `<div class="chips" role="group" aria-label="Outfit families">${["Business casual", "Party", "Dressy", "Professional", "Semi-formal"].map((family, idx) => `<button class="chip ${idx === 0 ? "active" : ""}" onclick="toast('Showing ${family} variants')">${family}</button>`).join("")}</div><div class="today-look-rail" style="margin-top:14px">${Object.values(tryOnLooks).map(todayAlternativeCard).join("")}</div>`,
+      eyebrow: swipeLookTarget.type === "trip" ? "Daily trip edit" : swipeLookTarget.type.startsWith("planner") ? "Planner alternatives" : "Alternatives for today",
+      title: "Choose a Look",
+      body: swipeLooksMarkup({
+        id: "change-look-panel",
+        selectedId: swipeLookSelectedId(),
+        actionFor: (look) => `applySwipeLook('${look.id}')`,
+      }),
       action: null,
     },
     plannerEventDetails: {
@@ -2904,8 +2915,8 @@ function lightweightPanelMarkup() {
     instantSave: {
       eyebrow: "Style Studio",
       title: "Name your Look",
-      body: `<div class="field"><label for="instant-save-title">Look name</label><input id="instant-save-title" class="input" value="${escapeMarkup(canvasState.title === "Untitled Look" ? "" : canvasState.title)}" placeholder="e.g. Monday client meeting" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();approveLightweightPanel('instantSave')}"></div><p class="small" style="margin-top:12px">It will be saved to My Looks as ${studioVisibilityLabel(canvasState.visibility).toLowerCase()}.</p>`,
-      action: "Save Look",
+      body: `<div class="field"><label for="instant-save-title">Look name</label><input id="instant-save-title" class="input" value="${escapeMarkup(canvasState.title === "Untitled Look" ? "" : canvasState.title)}" placeholder="e.g. Monday client meeting" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();approveLightweightPanel('instantSave')}"></div><p class="small" style="margin-top:12px">${swipeStudioTarget ? `This Look will be saved, then used for ${escapeMarkup(swipeLookContext(swipeStudioTarget.target).detail)}.` : `It will be saved to My Looks as ${studioVisibilityLabel(canvasState.visibility).toLowerCase()}.`}</p>`,
+      action: swipeStudioTarget ? swipeLookContext(swipeStudioTarget.target).applyLabel : "Save Look",
     },
     wardrobeGap: {
       eyebrow: "Muse · Wardrobe intelligence",
@@ -4137,8 +4148,8 @@ function stepSavedLookMedia(direction) {
   setSavedLookMedia(savedLookMediaIndex + direction);
 }
 function savedLookRecord() {
-  if (todayDetailsLookId && tryOnLooks[todayDetailsLookId]) {
-    const look = tryOnLooks[todayDetailsLookId];
+  if (todayDetailsLookId && swipeLookRecord(todayDetailsLookId)) {
+    const look = swipeLookRecord(todayDetailsLookId);
     return { ...look, media: [{ type: "image", src: look.sheet, label: "Look still" }, ...lookMotionMedia()] };
   }
   const record = lookCatalog.find((look) => look.title === selectedSavedLookId) || lookCatalog[0];
@@ -5743,6 +5754,10 @@ function setMode(mode) {
   render();
 }
 function saveLook() {
+  if (swipeStudioTarget) {
+    commitInstantLook();
+    return;
+  }
   if (canvasState.creatorAttribution || studioSourceContext === "creator") {
     const existingIndex = lookCatalog.findIndex(
       (l) => l.title === canvasState.title,
@@ -5824,7 +5839,7 @@ function mirrorToday() {
   if (todayMode === "loading") return todayLoadingState();
   if (todayMode === "missing-category") return todayMissingCategoryState();
   if (todayMode === "carousel") return todayCarouselState();
-  const look = tryOnLooks[selectedTodayLook];
+  const look = swipeLookRecord(selectedTodayLook) || tryOnLooks.coffee;
   const morningNote = {
     coffee: ["A sharp look. An easy start.", "Tailored layers for your first meeting."],
     tailoring: ["Ease into your day.", "Soft tailoring, ready for the office."],
@@ -5843,15 +5858,7 @@ function mirrorToday() {
       </header>
       <div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button></div>
       <button class="today-hero-lens" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")}<span>Lens</span></button>
-    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div><section class="today-more"><div class="today-more-head"><h3>More for today</h3><button onclick="openTodayAlternatives()">See all</button></div><div class="today-look-rail">${Object.values(
-      tryOnLooks,
-    )
-      .filter((other) => other.id !== look.id)
-      .map(
-        (other) =>
-          `<button class="today-look-card" onclick="openTodayLookDetails('${other.id}')"><span class="tryon-frame-preview ${other.reference ? "reference" : ""} ${other.remote ? "remote-photo" : ""}" role="img" aria-label="${other.title}" style="background-image:url('${other.sheet}');background-position:0 ${other.row * 100}%"></span><span><b>${other.title}</b><small>${other.reference ? "From your reference" : "Office"}</small></span></button>`,
-      )
-      .join("")}</div></section>`,
+    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeLookMine()">${icon("shirt")} Make it mine</button></div>${todaySwipeLooksMarkup({ id: "today-swipe-looks", selectedId: look.id, actionFor: (candidate) => `useSwipeLookForToday('${candidate.id}')` })}`,
     { active: "home", surfaceClass: "image-first-surface" },
   );
 }
@@ -5883,7 +5890,7 @@ function todayMissingCategoryState() {
   return shell("Today", `<div class="empty"><div><p class="eyebrow">One useful gap</p><h2 class="title">This Look needs a complete base.</h2><p class="body">Muse found a strong layer and top, but no available pair of compatible shoes.</p><div class="card" style="margin-top:16px"><b>Continue with the partial Look</b><p class="body">See the direction now, then fill the gap when you’re ready.</p></div><button class="btn primary wide" style="margin-top:14px" onclick="setTodayMode('normal')">Continue with this Look</button><button class="btn wide" style="margin-top:8px" onclick="go('C-01')">Add or review shoes</button></div></div>`, { active: "home" });
 }
 function todayCarouselState() {
-  return shell("Today", `<div class="today-visual-head"><span><p class="eyebrow">Three good directions</p><h2 class="title">Choose today’s Look</h2></span><span class="pill">Carousel</span></div><p class="body">Swipe or select a recommendation; the chosen Look becomes the active Today context.</p><div class="today-look-rail" style="margin-top:16px">${Object.values(tryOnLooks).map((look) => `<button class="today-look-card" onclick="selectTodayLook('${look.id}');setTodayMode('normal')"><span class="tryon-frame-preview" role="img" aria-label="${escapeMarkup(look.title)}" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context)}</small></span></button>`).join("")}</div>`, { active: "home" });
+  return shell("Today", `<div class="today-visual-head"><span><p class="eyebrow">Prepared directions</p><h2 class="title">Choose today’s Look</h2></span></div>${todaySwipeLooksMarkup({ id: "today-choice", selectedId: selectedTodayLook, actionFor: (look) => `useSwipeLookForToday('${look.id}');setTodayMode('normal')` })}`, { active: "home" });
 }
 function plannerMonthMarkup(anchorDate) {
   if (!plannerCalendarOpen) return "";
@@ -5971,7 +5978,7 @@ function mirrorPlanner() {
   const daySurface = renderedMoments.length
     ? `<div class="planner-day-carousel" aria-label="${renderedMoments.length} moments for ${plannerDateLabel(selectedDate)}">${renderedMoments.map((moment,index)=>plannerDayHeroMoment(moment,index,renderedMoments.length)).join('')}</div>`
     : `<div class="planner-day-empty" aria-label="No plans for ${plannerDateLabel(selectedDate)}"><span class="planner-day-empty-art" aria-hidden="true"><small>Open day</small><b>${Number(selectedDate.slice(8))}</b></span><span class="planner-day-empty-copy"><span><small>${plannerDateLabel(selectedDate)}</small><b>A clear day.</b><em>Your day is open.</em></span><button onclick="beginPlannerAdd('${selectedDate}')"><span>Add a plan</span><b aria-hidden="true">+</b></button></span></div>`;
-  const dynamicHero = `<section class="planner-dynamic-hero" aria-label="Selected day">${daySurface}${renderedMoments.length>1?`<div class="planner-day-pagination" aria-hidden="true">${renderedMoments.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`:''}<div class="planner-dynamic-calendar"><span><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button><button class="planner-full-calendar-action" aria-label="Open full calendar" onclick="openPlannerCalendar()">${icon('calendar')}</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip,date])=>`<button class="${date===selectedDate?'active':''}" aria-label="${d} ${n}${trip?', trip':''}${hasPlan?', planned look':''}" onclick="selectPlannerDate('${date}')"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section>`;
+  const dynamicHero = `<section class="planner-dynamic-hero" aria-label="Selected day">${daySurface}${renderedMoments.length>1?`<div class="planner-day-pagination" aria-hidden="true">${renderedMoments.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>`:''}<div class="planner-dynamic-calendar"><span><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button><button class="planner-full-calendar-action" aria-label="Open full calendar recap" onclick="openPlannerCalendar()">${icon('calendar')}<span>Recap</span></button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip,date])=>`<button class="${date===selectedDate?'active':''}" aria-label="${d} ${n}${trip?', trip':''}${hasPlan?', planned look':''}" onclick="selectPlannerDate('${date}')"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section>`;
 
   const recapVisuals = days.map((day) => plannerDateVisual(day[6])).filter((entry) => entry?.image);
   const recapWorn = recapVisuals.filter((entry) => entry.worn).length;
@@ -5982,7 +5989,7 @@ function mirrorPlanner() {
   plannerDynamicHeroHTML = dynamicHero;
   return shell(
     "Planner",
-    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}<span>Muse</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>Upcoming trip</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="Upcoming ${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></section><section class="planner-selected-day"><header><span class="planner-day-heading"><small>Day agenda</small><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2></span><span>${selectedEntries.length + (tripIsSelected ? 1 : 0) ? `${selectedEntries.length + (tripIsSelected ? 1 : 0)} ${selectedEntries.length + (tripIsSelected ? 1 : 0) === 1 ? 'plan' : 'plans'}` : 'No plans'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : emptyAgenda}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section>${recapTeaser}<footer class="planner-utility-actions"><button onclick="openLightweightPanel('shareCalendar')">Share Calendar</button><button onclick="openRecurringPlanner()">Repeating plans</button></footer></section>`,
+    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}<span>Muse</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>Upcoming trip</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><div class="planner-trip-carousel" aria-label="Upcoming trips"><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="Upcoming ${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></div><button class="planner-view-all-trips" onclick="go('J-01')"><span>View All Trips</span>${icon("arrow-right")}</button></section><section class="planner-selected-day"><header><span class="planner-day-heading"><small>Day agenda</small><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2></span><span>${selectedEntries.length + (tripIsSelected ? 1 : 0) ? `${selectedEntries.length + (tripIsSelected ? 1 : 0)} ${selectedEntries.length + (tripIsSelected ? 1 : 0) === 1 ? 'plan' : 'plans'}` : 'No plans'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : emptyAgenda}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section>${recapTeaser}<footer class="planner-utility-actions"><button onclick="openLightweightPanel('shareCalendar')">Share Calendar</button><button onclick="openRecurringPlanner()">Repeating plans</button></footer></section>`,
     { active: "planner" },
   );
 }
@@ -6255,10 +6262,10 @@ function setTripDetailMedia(index) {
 }
 function openTripLookDetails(index = tripDetailMediaIndex) {
   const look = tripState.looks?.[index] || { lookId: "tailoring" };
-  const lookId = look.lookId && tryOnLooks[look.lookId]
+  const lookId = look.lookId && swipeLookRecord(look.lookId)
     ? look.lookId
-    : Object.values(tryOnLooks).find((candidate) => candidate.sheet === look.image)?.id || "tailoring";
-  if (!tryOnLooks[lookId]) {
+    : swipeLookCandidates().find((candidate) => candidate.sheet === look.image)?.id || "tailoring";
+  if (!swipeLookRecord(lookId)) {
     toast("This Look is still being prepared");
     return;
   }
@@ -6307,7 +6314,7 @@ function tripHub(tab = tripHubTab || "packing") {
   if (packing) {
     tabContent = `<section class="trip-capsule-head"><p class="eyebrow">Packing capsule</p><h3>${tripPackingItems().length} pieces</h3><span>${tripDates(draft).length} days · Tap a piece to mark it packed</span></section><div class="trip-capsule-grid">${tripPackingItems().map(item => `<button class="trip-capsule-piece" aria-pressed="${Boolean(tripState.packed[item.name])}" onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small>From your Closet</small><em>${tripState.packed[item.name] ? '✓ Packed' : 'Tap to pack'}</em></span></button>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openLightweightPanel('tripAddLook')">Add piece</button><button class="btn primary" onclick="toast('Packing list ready')">Packing ready</button></div>`;
   } else {
-    tabContent = `<div class="trip-daily-looks">${tripState.looks.map((look, index) => `<article class="trip-day"><div><p>Day ${String(index + 1).padStart(2,'0')}</p><span>${escapeMarkup(draft.occasions?.[index % Math.max(draft.occasions?.length || 1, 1)] || 'Travel')}</span></div><img src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}"><h3>${escapeMarkup(look.title)}</h3><small>Styled from your travel capsule</small><footer><button onclick="openLightweightPanel('tripAddLook')">Change look</button><button onclick="startTryOn('${look.lookId || 'coffee'}', { sourceType: 'trip' })">Try On</button></footer></article>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openLightweightPanel('tripAddLook')">Add Look</button><button class="btn primary" onclick="openLightweightPanel('tripMuse')">Ask Muse</button></div>`;
+    tabContent = `<div class="trip-daily-looks">${tripState.looks.map((look, index) => `<article class="trip-day"><div><p>Day ${String(index + 1).padStart(2,'0')}</p><span>${escapeMarkup(draft.occasions?.[index % Math.max(draft.occasions?.length || 1, 1)] || 'Travel')}</span></div><img src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}"><h3>${escapeMarkup(look.title)}</h3><small>Styled from your travel capsule</small><footer><button onclick="openSwipeLookPanel('trip',${index})">Swipe Looks</button><button onclick="startTryOn('${look.lookId || 'coffee'}', { sourceType: 'trip' })">Try On</button></footer></article>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openSwipeLookPanel('trip',${activeLookIndex})">Change active Look</button><button class="btn primary" onclick="openLightweightPanel('tripMuse')">Ask Muse</button></div>`;
   }
 
   return shell(
@@ -6418,7 +6425,7 @@ function plannerDateLabel(value) {
 }
 function plannerLook(id = plannerLookChoice) {
   if (id === "saved" && typeof savedLookRecord === "function") return savedLookRecord();
-  return tryOnLooks[id] || tryOnLooks.coffee;
+  return tryOnLooks[id] || swipeLookRecord(id) || tryOnLooks.coffee;
 }
 function submitPlannerEvent(event) {
   event.preventDefault();
@@ -6516,10 +6523,10 @@ function plannerValidationScreen() {
   );
 }
 function plannerLookChooser() {
-  const choices = [...Object.values(tryOnLooks), ...(plannerLookChoice === "saved" ? [plannerLook("saved")] : [])], selected = plannerLook();
+  const selected = plannerLook();
   return shell(
     "Choose a Look",
-    `<p class="eyebrow">Planner · ${plannerDateLabel(plannerEventDraft.date)}</p><h2 class="title">Which Look should we plan?</h2><p class="body">Choose a prepared Look for ${escapeMarkup(plannerEventDraft.title || plannerEventDraft.occasion)}.</p><div class="item-grid" style="margin-top:16px">${choices.map((look) => `<button class="item-card ${look.id === selected.id ? "selected" : ""}" aria-pressed="${look.id === selected.id}" onclick="choosePlannerLook('${look.id}')"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}"><span class="copy"><b>${escapeMarkup(look.title)}</b><small class="body">${escapeMarkup(look.context)}</small></span></button>`).join("")}</div><button class="btn primary wide" style="margin-top:16px" onclick="savePlannerEvent()">Save to Planner</button>`,
+    `<p class="eyebrow">Planner · ${plannerDateLabel(plannerEventDraft.date)}</p><h2 class="title">Which Look should we plan?</h2><p class="body">Choose a prepared Look for ${escapeMarkup(plannerEventDraft.title || plannerEventDraft.occasion)}.</p>${swipeLooksMarkup({ id: "planner-swipe-looks", selectedId: selected.id, target: { type: "planner-event", index: null }, actionFor: (look) => `choosePlannerLook('${look.id}')` })}<button class="btn primary wide" style="margin-top:16px" onclick="savePlannerEvent()">Save to Planner</button>`,
     { active: "planner" },
   );
 }
@@ -6725,11 +6732,254 @@ const tryOnLooks = {
     ],
   },
 };
+const swipeLookOrigins = {
+  coffee: ["muse_assisted", "Muse"],
+  tailoring: ["user", "Style Studio"],
+  evening: ["inspiration_recreated", "Inspiration"],
+};
+let swipeGeneratedLooks = [];
+function swipeLookCandidates() {
+  const prepared = Object.values(tryOnLooks).map((look) => ({
+    ...look,
+    creationSource: swipeLookOrigins[look.id]?.[0] || "muse_assisted",
+    sourceLabel: swipeLookOrigins[look.id]?.[1] || "Muse",
+  }));
+  const saved = lookCatalog.slice(0, 5).map((record, index) => {
+    const template = record.title === "Dinner Classic"
+      ? tryOnLooks.evening
+      : record.title === "Gallery Tailoring"
+        ? tryOnLooks.tailoring
+        : tryOnLooks.coffee;
+    return {
+      ...template,
+      id: `library-${index}`,
+      title: record.title,
+      context: lookSourceLabel(record.creationSource),
+      sheet: record.image,
+      row: 0,
+      remote: false,
+      creationSource: record.creationSource,
+      sourceLabel: lookSourceLabel(record.creationSource),
+    };
+  });
+  return [...swipeGeneratedLooks, ...prepared, ...saved].filter((look, index, all) =>
+    all.findIndex((candidate) => candidate.title === look.title && candidate.sheet === look.sheet) === index,
+  );
+}
+function swipeLookRecord(id) {
+  return swipeLookCandidates().find((look) => look.id === id) || null;
+}
+function swipeLookContext(target = swipeLookTarget) {
+  if (target.type === "trip" && Number.isInteger(target.index)) {
+    const entry = tripState.looks?.[target.index] || {};
+    const occasion = String(entry.title || "Travel").split(" · ")[0];
+    return {
+      label: `Trip · Day ${target.index + 1}`,
+      applyLabel: `Use for Day ${target.index + 1}`,
+      detail: `${occasion}${tripState.basics?.destination ? ` in ${tripState.basics.destination}` : ""}`,
+      reason: `Muse balanced ${occasion.toLowerCase()}, destination weather, and the pieces already in your trip capsule.`,
+    };
+  }
+  if (target.type === "planner" && Number.isInteger(target.index)) {
+    const entry = proactiveWeek[target.index] || {};
+    return {
+      label: "Planner",
+      applyLabel: "Use for this plan",
+      detail: entry.title || entry.context || "your planned day",
+      reason: `Muse considered ${String(entry.title || entry.context || "the plan").toLowerCase()}, its timing, and your usual styling preferences.`,
+    };
+  }
+  if (target.type === "planner-event") {
+    const entry = plannerEvent || plannerEventDraft || {};
+    return {
+      label: "Planner",
+      applyLabel: "Use for this event",
+      detail: entry.title || entry.occasion || "your event",
+      reason: `Muse considered ${String(entry.title || entry.occasion || "the event").toLowerCase()}, the time, and the pieces available in your Closet.`,
+    };
+  }
+  return {
+    label: "Today",
+    applyLabel: "Use for Today",
+    detail: "today’s schedule",
+    reason: "Muse considered today’s weather, your schedule, and the pieces available in your Closet.",
+  };
+}
+function swipeTargetKey(target = swipeLookTarget) {
+  return `${target.type}:${Number.isInteger(target.index) ? target.index : "current"}`;
+}
+function swipeMusePick(target, selectedId) {
+  const choices = Object.values(tryOnLooks).filter((look) => look.id !== selectedId);
+  const offset = swipeMusePickOffsets[swipeTargetKey(target)] || 0;
+  return choices[offset % choices.length] || Object.values(tryOnLooks)[0];
+}
+function setSwipeTarget(target) {
+  swipeLookTarget = { type: target?.type || "today", index: Number.isInteger(target?.index) ? target.index : null };
+}
+function tryAnotherMusePick(type = "today", index = null) {
+  setSwipeTarget({ type, index });
+  const key = swipeTargetKey();
+  swipeMusePickOffsets[key] = (swipeMusePickOffsets[key] || 0) + 1;
+  swipeMuseDraftId = null;
+  swipeMuseDraftTargetKey = null;
+  swipeLookCreateMode = null;
+  render();
+}
+function openSwipeMuseCreator(type = "today", index = null) {
+  setSwipeTarget({ type, index });
+  swipeLookCreateMode = "muse";
+  swipeMuseDraftId = null;
+  swipeMuseDraftTargetKey = null;
+  render();
+  requestAnimationFrame(() => document.querySelector("#swipe-muse-direction")?.focus({ preventScroll: true }));
+}
+function closeSwipeLookCreator() {
+  swipeLookCreateMode = null;
+  swipeMuseDraftId = null;
+  swipeMuseDraftTargetKey = null;
+  render();
+}
+function createSwipeMuseLook(type = "today", index = null) {
+  setSwipeTarget({ type, index });
+  const note = document.querySelector("#swipe-muse-direction")?.value.trim();
+  const base = swipeMusePick(swipeLookTarget, swipeLookSelectedId());
+  const context = swipeLookContext();
+  const generated = {
+    ...base,
+    id: `muse-${Date.now()}`,
+    title: note ? `Muse · ${note.slice(0, 34)}` : `Muse’s ${context.detail} edit`,
+    context: note || context.detail,
+    creationSource: "muse_generated",
+    sourceLabel: "Muse",
+  };
+  swipeGeneratedLooks.unshift(generated);
+  swipeMuseDraftId = generated.id;
+  swipeMuseDraftTargetKey = swipeTargetKey();
+  swipeLookCreateMode = null;
+  render();
+  toast("Muse created a Look for this moment");
+}
+function openSwipeStyleStudio(type = "today", index = null) {
+  setSwipeTarget({ type, index });
+  swipeStudioTarget = { target: { ...swipeLookTarget }, returnScreen: currentId };
+  localStorage.setItem("styleiqSwipeStudioTargetV1", JSON.stringify(swipeStudioTarget));
+  lightweightPanel = null;
+  startStudioFromScratch();
+}
+function cancelSwipeStudio() {
+  if (!swipeStudioTarget) { backScreen(); return; }
+  const pending = swipeStudioTarget;
+  swipeStudioTarget = null;
+  localStorage.removeItem("styleiqSwipeStudioTargetV1");
+  swipeLookTarget = pending.target;
+  currentId = pending.returnScreen || "D-02";
+  location.hash = currentId;
+  lightweightPanel = "changeLook";
+  render();
+}
+function swipeLooksMarkup({ id = "swipe-looks", selectedId = "", actionFor, target = swipeLookTarget } = {}) {
+  const normalizedTarget = { type: target?.type || "today", index: Number.isInteger(target?.index) ? target.index : null };
+  const context = swipeLookContext(normalizedTarget);
+  const targetArgs = `'${normalizedTarget.type}',${Number.isInteger(normalizedTarget.index) ? normalizedTarget.index : "null"}`;
+  const allLooks = swipeLookCandidates();
+  const musePick = swipeMuseDraftId && swipeMuseDraftTargetKey === swipeTargetKey(normalizedTarget)
+    ? swipeLookRecord(swipeMuseDraftId)
+    : swipeMusePick(normalizedTarget, selectedId);
+  const readyLooks = allLooks.filter((look) => look.id !== musePick?.id);
+  const museAction = typeof actionFor === "function" ? actionFor(musePick) : `applySwipeLook('${musePick.id}')`;
+  if (swipeLookCreateMode === "muse" && swipeTargetKey(normalizedTarget) === swipeTargetKey()) {
+    return `<section class="swipe-looks swipe-muse-create" aria-labelledby="${id}-title"><button class="swipe-create-back" onclick="closeSwipeLookCreator()">${icon("back")} Back to Looks</button><header><p class="eyebrow">Create with Muse · ${escapeMarkup(context.label)}</p><h3 id="${id}-title">What should Muse change?</h3><p>Muse already has the context. Add a direction only if you want one.</p></header><div class="field"><label for="swipe-muse-direction">Optional direction</label><textarea id="swipe-muse-direction" class="textarea" placeholder="More relaxed, add colour, or use my saved inspiration…"></textarea></div><details class="swipe-inspiration-detail"><summary>Add inspiration</summary><p>Saved inspiration will guide the mood, while Muse still builds the Look from your Closet first.</p><button class="btn" onclick="go('K-01')">Choose from Discover</button></details><button class="btn primary wide" onclick="createSwipeMuseLook(${targetArgs})">Create this Look</button></section>`;
+  }
+  return `<section class="swipe-looks" aria-labelledby="${id}-title">
+    <article class="swipe-muse-pick"><div class="swipe-muse-pick-media"><img src="${musePick.sheet}" alt="${escapeMarkup(musePick.title)}"><span>${icon("spark")} Muse Pick</span></div><div class="swipe-muse-pick-copy"><p class="eyebrow">Made for ${escapeMarkup(context.detail)}</p><h3 id="${id}-title">${escapeMarkup(musePick.title)}</h3><p>${escapeMarkup(context.reason)}</p><div><button class="btn primary" onclick="${museAction}">${escapeMarkup(context.applyLabel)}</button><button class="btn" onclick="tryAnotherMusePick(${targetArgs})">Try another</button></div></div></article>
+    <header class="swipe-looks-head"><span><p class="eyebrow">Ready now</p><h3>Ready Looks</h3><small>Saved and previously created Looks you can use straight away.</small></span><em>${readyLooks.length} Looks</em></header>
+    <div class="swipe-looks-rail" role="list" aria-label="Ready Looks">${readyLooks.map((look) => {
+      const selected = look.id === selectedId;
+      const action = typeof actionFor === "function" ? actionFor(look) : `applySwipeLook('${look.id}')`;
+      return `<article class="swipe-look-card ${selected ? "selected" : ""}" role="listitem"><div class="swipe-look-media"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}">${selected ? '<span class="swipe-look-current">Current</span>' : ""}</div><div class="swipe-look-copy"><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context || "Ready to style")}</small></span><button class="btn ${selected ? "" : "primary"}" ${selected ? "disabled" : ""} onclick="${action}">${selected ? "Current Look" : escapeMarkup(context.applyLabel)}</button></div></article>`;
+    }).join("")}</div>
+    <section class="swipe-create-options"><header><p class="eyebrow">Need something different?</p><h3>Create a New Look</h3></header><div><button onclick="openSwipeMuseCreator(${targetArgs})"><span class="swipe-create-icon">${icon("spark")}</span><span><b>Create with Muse</b><small>Fast, contextual suggestion</small></span><i>→</i></button><button onclick="openSwipeStyleStudio(${targetArgs})"><span class="swipe-create-icon">${icon("shirt")}</span><span><b>Build in Style Studio</b><small>Choose every piece yourself</small></span><i>→</i></button></div></section>
+  </section>`;
+}
+function todayLookRailMarkup({ id, title, note, looks, selectedId, actionFor, endTitle, endNote, endIcon, endAction }) {
+  const cards = looks.map((look) => {
+    const selected = look.id === selectedId;
+    const action = typeof actionFor === "function" ? actionFor(look) : `applySwipeLook('${look.id}')`;
+    return `<article class="today-shelf-card ${selected ? "selected" : ""}" role="listitem"><button class="today-shelf-card-hit" onclick="${action}" ${selected ? "disabled" : ""} aria-label="${selected ? "Current Look: " : "Use for Today: "}${escapeMarkup(look.title)}"><span class="today-shelf-card-media"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}">${selected ? '<i>Current</i>' : ""}</span><span class="today-shelf-card-copy"><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context || "Ready for today")}</small><em>${selected ? "Wearing today" : "Use this Look"} <span aria-hidden="true">→</span></em></span></button></article>`;
+  }).join("");
+  return `<section class="today-look-shelf" aria-labelledby="${id}-title"><header><span><h3 id="${id}-title">${escapeMarkup(title)}</h3><p>${escapeMarkup(note)}</p></span><em>${looks.length}</em></header><div class="today-shelf-rail" role="list" aria-label="${escapeMarkup(title)}">${cards}<button class="today-look-end-card" role="listitem" onclick="${endAction}"><span>${endIcon}</span><b>${escapeMarkup(endTitle)}</b><small>${escapeMarkup(endNote)}</small><i aria-hidden="true">→</i></button></div></section>`;
+}
+function todaySwipeLooksMarkup({ id = "today-look-library", selectedId = "", actionFor } = {}) {
+  const target = { type: "today", index: null };
+  if (swipeLookCreateMode === "muse" && swipeTargetKey(target) === swipeTargetKey()) {
+    return `<div class="today-look-library today-look-library--creator">${swipeLooksMarkup({ id, selectedId, actionFor, target })}</div>`;
+  }
+  const looks = swipeLookCandidates();
+  const uniqueByTitle = (items) => items.filter((look, index, all) => all.findIndex((candidate) => candidate.title === look.title) === index);
+  const museLooks = uniqueByTitle(looks.filter((look) => ["muse_assisted", "muse_generated"].includes(look.creationSource)));
+  const studioLooks = uniqueByTitle(looks.filter((look) => look.creationSource === "user"));
+  const readyLooks = uniqueByTitle(looks.filter((look) => !["muse_assisted", "muse_generated", "user"].includes(look.creationSource)));
+  return `<div class="today-look-library" aria-label="More Looks for Today">
+    ${todayLookRailMarkup({ id: `${id}-muse`, title: "Muse Picks", note: "Fresh options shaped around today.", looks: museLooks, selectedId, actionFor, endTitle: "Create New", endNote: "Ask Muse for a new direction", endIcon: icon("spark"), endAction: "openSwipeMuseCreator('today',null)" })}
+    ${todayLookRailMarkup({ id: `${id}-studio`, title: "Style Studio", note: "Looks you built, ready to wear again.", looks: studioLooks, selectedId, actionFor, endTitle: "Create New", endNote: "Build a Look piece by piece", endIcon: icon("shirt"), endAction: "openSwipeStyleStudio('today',null)" })}
+    ${todayLookRailMarkup({ id: `${id}-ready`, title: "Ready Looks", note: "Saved inspiration you can use now.", looks: readyLooks, selectedId, actionFor, endTitle: "Discover", endNote: "Find a new source of inspiration", endIcon: icon("compass"), endAction: "go('K-01')" })}
+  </div>`;
+}
+function swipeLookSelectedId(target = swipeLookTarget) {
+  if (target.type === "planner" && Number.isInteger(target.index)) return proactiveWeek[target.index]?.lookId || "";
+  if (target.type === "planner-event") return plannerEvent?.lookId || plannerLookChoice;
+  if (target.type === "trip" && Number.isInteger(target.index)) return tripState.looks?.[target.index]?.lookId || "";
+  return selectedTodayLook;
+}
+function openSwipeLookPanel(type = "today", index = null) {
+  swipeLookTarget = { type, index };
+  swipeLookCreateMode = null;
+  swipeMuseDraftId = null;
+  swipeMuseDraftTargetKey = null;
+  lightweightPanel = "changeLook";
+  render();
+}
+function applySwipeLook(id) {
+  const look = swipeLookRecord(id);
+  if (!look) return;
+  if (swipeLookTarget.type === "planner" && Number.isInteger(swipeLookTarget.index)) {
+    const entry = proactiveWeek[swipeLookTarget.index];
+    if (!entry) return;
+    Object.assign(entry, { lookId: look.id, look: look.title, image: look.sheet });
+    localStorage.setItem("styleiqProactiveWeekV1", JSON.stringify(proactiveWeek));
+    lightweightPanel = "plannerEventDetails";
+  } else if (swipeLookTarget.type === "planner-event") {
+    if (plannerEvent) {
+      Object.assign(plannerEvent, { lookId: look.id, lookTitle: look.title, lookImage: look.sheet });
+      localStorage.setItem("styleiqPlannerEventV2", JSON.stringify(plannerEvent));
+    }
+    plannerLookChoice = look.id;
+    lightweightPanel = "plannerEventDetails";
+  } else if (swipeLookTarget.type === "trip" && Number.isInteger(swipeLookTarget.index)) {
+    const entry = tripState.looks?.[swipeLookTarget.index];
+    if (!entry) return;
+    const occasion = String(entry.title || "").includes(" · ") ? String(entry.title).split(" · ")[0] : "Travel";
+    Object.assign(entry, { title: `${occasion} · ${look.title}`, image: look.sheet, lookId: look.id });
+    persistTrip();
+    lightweightPanel = null;
+  } else {
+    selectedTodayLook = look.id;
+    localStorage.setItem("styleiqTodayLookV1", look.id);
+    todayDetailsLookId = null;
+    lightweightPanel = null;
+  }
+  render();
+  toast(`${look.title} selected`);
+}
+function useSwipeLookForToday(id) {
+  swipeLookTarget = { type: "today", index: null };
+  applySwipeLook(id);
+}
 function tryOnLookFor(id) {
   if (id === "saved") {
     return typeof savedLookRecord === "function" ? savedLookRecord() : tryOnLooks.tailoring;
   }
-  return tryOnLooks[id];
+  return tryOnLooks[id] || swipeLookRecord(id);
 }
 function readTryOnState(key) {
   try {
@@ -6739,7 +6989,7 @@ function readTryOnState(key) {
   }
 }
 let selectedTodayLook = localStorage.getItem("styleiqTodayLookV1") || "coffee";
-if (!tryOnLooks[selectedTodayLook]) selectedTodayLook = "coffee";
+if (!swipeLookRecord(selectedTodayLook)) selectedTodayLook = "coffee";
 let pendingTryOn = readTryOnState("styleiqPendingTryOnV1"),
   tryOnSession = readTryOnState("styleiqTryOnResultV1");
 if (pendingTryOn?.intent !== "tryOn" || !(pendingTryOn?.selectedLook?.pieces || tryOnLookFor(pendingTryOn?.lookId)))
@@ -6753,21 +7003,21 @@ function todayAlternativeCard(look) {
   return `<div class="today-alternative"><button class="today-look-card" aria-label="View details for ${escapeMarkup(look.title)}" onclick="openTodayLookDetails('${look.id}')"><span class="tryon-frame-preview ${look.reference ? "reference" : ""} ${look.remote ? "remote-photo" : ""}" role="img" aria-label="${escapeMarkup(look.title)}" style="background-image:url('${look.sheet}');background-position:0 ${look.row * 100}%"></span><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context)}</small></span></button><button class="btn primary wide" aria-label="Use ${escapeMarkup(look.title)} for today" onclick="useLookForToday('${look.id}')">Use for today</button></div>`;
 }
 function openTodayLookDetails(id = selectedTodayLook) {
-  if (!tryOnLooks[id]) return;
+  if (!swipeLookRecord(id)) return;
   todayDetailsLookId = id;
   savedLookTab = "overview";
   savedLookMediaIndex = 0;
   go("G-02");
 }
 function useLookForToday(id) {
-  if (!tryOnLooks[id]) return;
+  if (!swipeLookRecord(id)) return;
   selectedTodayLook = id;
   localStorage.setItem("styleiqTodayLookV1", id);
   todayDetailsLookId = null;
   go("D-02");
 }
 function selectTodayLook(id) {
-  if (!tryOnLooks[id]) return;
+  if (!swipeLookRecord(id)) return;
   selectedTodayLook = id;
   localStorage.setItem("styleiqTodayLookV1", id);
   render();
@@ -6893,7 +7143,7 @@ function installTryOnGestures() {
     }
   });
 }
-function makeLookMine(look = tryOnLooks[selectedTodayLook]) {
+function makeLookMine(look = swipeLookRecord(selectedTodayLook) || tryOnLooks.coffee) {
   if (tryOnSession?.sourceType === "creator-look") {
     currentId = "F-01";
     location.hash = "F-01";
@@ -6932,7 +7182,7 @@ function makeLookMine(look = tryOnLooks[selectedTodayLook]) {
 function tryOnResult() {
   // Inventory deep links preview the same renderer without completing or restarting setup.
   if (!tryOnSession) {
-    const look = tryOnLooks[selectedTodayLook];
+    const look = swipeLookRecord(selectedTodayLook) || tryOnLooks.coffee;
     tryOnSession = {
       intent: "tryOn",
       lookId: look.id,
@@ -7803,6 +8053,31 @@ function commitInstantLook() {
   selectedSavedLookId = savedLook.title;
   lookFilter = 'All';
   localStorage.setItem('styleiqSelectedSavedLookV1', savedLook.title);
+  if (swipeStudioTarget) {
+    const pending = swipeStudioTarget;
+    const template = Object.values(tryOnLooks)[Math.abs(savedLook.title.length) % Object.values(tryOnLooks).length];
+    const studioLook = {
+      ...template,
+      id: `studio-${Date.now()}`,
+      title: savedLook.title,
+      sheet: savedLook.image,
+      row: 0,
+      remote: false,
+      context: "Built in Style Studio",
+      creationSource: "user",
+      sourceLabel: "Style Studio",
+      pieces: canvasState.items?.length ? canvasState.items.map((piece) => [piece.role, piece.name, piece.image || null]) : template.pieces,
+    };
+    swipeGeneratedLooks.unshift(studioLook);
+    swipeStudioTarget = null;
+    localStorage.removeItem("styleiqSwipeStudioTargetV1");
+    swipeLookTarget = pending.target;
+    currentId = pending.returnScreen || "D-02";
+    location.hash = currentId;
+    lightweightPanel = null;
+    applySwipeLook(studioLook.id);
+    return;
+  }
   go('G-01');
   toast(`Saved to My Looks · ${studioVisibilityLabel(canvasState.visibility)}`);
 }
@@ -7942,7 +8217,7 @@ function instantStudio() {
     ${Object.entries(instantWardrobe).map(([role,names]) => instantWardrobeRow(role,names)).join('')}
     </section><div class="instant-footer"><span>Interactive outfit preview</span><button onclick="openInstantDetails()">Edit Look details ${icon('chevron-right')}</button></div>${studioLibrarySections()}</div>`;
   return `<section class="screen studio-instant studio-canvas">
-    <header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon('back')}</button><div class="screen-head-title"><span class="screen-head-brand">STYLE STUDIO</span><h1>${escapeMarkup(canvasState.title)}</h1></div><button class="head-action" aria-label="Save draft" onclick="saveInstantLook()">Save</button></header>
+    <header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="${swipeStudioTarget ? "cancelSwipeStudio()" : "backScreen()"}">${icon('back')}</button><div class="screen-head-title"><span class="screen-head-brand">STYLE STUDIO</span><h1>${escapeMarkup(canvasState.title)}</h1></div><button class="head-action" aria-label="${swipeStudioTarget ? "Use this Look" : "Save draft"}" onclick="saveInstantLook()">${swipeStudioTarget ? "Use Look" : "Save"}</button></header>
     <div class="content no-nav instant-content">
     ${studioHubTabs()}
     ${AppTabPanel("studio-hub-tabs", activeStudioTab, studioContent, studioHubTab === "explore" ? "Explore" : "My Studio")}
@@ -7980,7 +8255,7 @@ function canonicalStudio() {
     ["Add layer", "Outerwear"],
     ["Add accessory", "Accessory"],
   ];
-  return `<section class="screen studio-canonical studio-canvas"><header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><h1>${escapeMarkup(canvasState.title || "Style Studio")}</h1></div><button class="btn small-btn primary studio-header-save studio-save" onclick="saveLook()">Save</button></header><div class="content no-nav"><div class="between studio-draft-row"><span class="small">Current draft</span><button class="text-action" onclick="newStudioLook()">New Look</button></div>${modeTabs}<div class="studio-view-row">${previewTabs}<button class="studio-avatar-action" onclick="go('H-01')">${icon(twinSetup.complete ? "user" : "user-round-plus")}<span>${twinSetup.complete ? "My Twin" : "Create Avatar"}</span></button></div><div id="studio-workspace-panel" class="app-tab-panel" role="tabpanel" aria-labelledby="studio-mode-tabs-tab-${create ? 1 : 0} studio-preview-tabs-tab-${twin ? 0 : 1}" tabindex="0">${studioRoutePanel()}${studioCreatorBanner()}${studioCreatorMatching()}${studioPreview()}${canvasState.items.length || ["F-06", "F-07", "F-08", "F-09", "F-10"].includes(currentId) ? studioPicker() : ""}${
+  return `<section class="screen studio-canonical studio-canvas"><header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="${swipeStudioTarget ? "cancelSwipeStudio()" : "backScreen()"}">${icon("back")}</button><div class="screen-head-title"><h1>${escapeMarkup(canvasState.title || "Style Studio")}</h1></div><button class="btn small-btn primary studio-header-save studio-save" onclick="saveLook()">${swipeStudioTarget ? "Use Look" : "Save"}</button></header><div class="content no-nav"><div class="between studio-draft-row"><span class="small">Current draft</span><button class="text-action" onclick="newStudioLook()">New Look</button></div>${modeTabs}<div class="studio-view-row">${previewTabs}<button class="studio-avatar-action" onclick="go('H-01')">${icon(twinSetup.complete ? "user" : "user-round-plus")}<span>${twinSetup.complete ? "My Twin" : "Create Avatar"}</span></button></div><div id="studio-workspace-panel" class="app-tab-panel" role="tabpanel" aria-labelledby="studio-mode-tabs-tab-${create ? 1 : 0} studio-preview-tabs-tab-${twin ? 0 : 1}" tabindex="0">${studioRoutePanel()}${studioCreatorBanner()}${studioCreatorMatching()}${studioPreview()}${canvasState.items.length || ["F-06", "F-07", "F-08", "F-09", "F-10"].includes(currentId) ? studioPicker() : ""}${
     create
       ? `<section class="studio-create-panel" aria-label="Advanced Look layers"><div class="between"><span><p class="eyebrow">Create mode</p><h3 class="title">Look layers</h3></span><button class="btn" onclick="openStudioSources()">Add piece ${icon("plus")}</button></div>${canvasState.items.map((piece, index) => `<details class="studio-layer-row"><summary><span class="studio-layer-thumbnail">${studioPieceArt(piece)}</span><span class="grow"><b>${index + 1}. ${piece.role === "Bottom" ? "Bottoms" : piece.role}</b><small>${escapeMarkup(piece.name)} · ${piece.visible === false ? "Hidden" : piece.owned ? "Owned" : "Suggested"}</small></span>${icon("chevron-right")}</summary><div class="studio-layer-controls"><button aria-label="Replace ${piece.role}" onclick="selectStudioRole('${piece.role}');app.querySelector('.studio-picker').scrollIntoView({block:'nearest'})">${icon("edit")}</button><button aria-label="Move ${piece.role} up" onclick="moveStudioPiece(${index},-1)">↑</button><button aria-label="Move ${piece.role} down" onclick="moveStudioPiece(${index},1)">↓</button><button aria-label="${piece.visible !== false ? "Hide" : "Show"} ${piece.role}" onclick="toggleLayer('${piece.id}')">${icon(piece.visible !== false ? "eye-off" : "eye")}</button><button aria-label="Remove ${piece.role}" onclick="removeStudioPiece('${piece.id}')">${icon("trash-2")}</button></div></details>`).join("")}</section>`
       : canvasState.items.length
