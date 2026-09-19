@@ -675,24 +675,37 @@ function lookMotionMedia() {
 const canonicalLookKeys = ["party", "workout", "office", "dinner"];
 const canonicalClosetByProfile = {
   women: [
-    { id: "closet-women-black-blazer", name: "Black tailored blazer", brand: "Balmain", image: assets.blazer, category: "Outerwear", status: "Available", wears: 3, favorite: true },
-    { id: "closet-women-ivory-shell", name: "Ivory silk shell", brand: "Aritzia", image: assets.top, category: "Tops", status: "Available", wears: 8 },
-    { id: "closet-women-black-trousers", name: "Black straight trousers", brand: "Theory", image: assets.bottom, category: "Bottoms", status: "Available", wears: 11 },
-    { id: "closet-women-tan-loafers", name: "Tan suede loafers", brand: "Vagabond", image: assets.shoes, category: "Shoes", status: "Available", wears: 7 },
-    { id: "closet-women-gold-hoops", name: "Gold everyday hoops", brand: "Mejuri", image: assets.accessory, category: "Accessories", status: "Available", wears: 14, favorite: true },
+    { id: "closet-women-black-blazer", name: "Black tailored blazer", brand: "Balmain", image: "images/closet-black-tailored-blazer.png", category: "Outerwear", status: "Available", wears: 3, favorite: true },
+    { id: "closet-women-ivory-shell", name: "Ivory silk camisole", brand: "Aritzia", image: "images/closet-ivory-silk-camisole.png", category: "Tops", status: "Available", wears: 8 },
+    { id: "closet-women-ivory-ribbed-tank", name: "Ivory ribbed tank", brand: "StyleIQ Atelier", image: "images/closet-ivory-ribbed-tank.png", category: "Tops", status: "Available", wears: 5 },
+    { id: "closet-women-black-trousers", name: "Black straight trousers", brand: "Theory", image: "images/closet-black-straight-trousers.png", category: "Bottoms", status: "Available", wears: 11 },
+    { id: "closet-women-tan-loafers", name: "Tan suede loafers", brand: "Vagabond", image: "images/alta-tan-suede-loafers.png", category: "Shoes", status: "Available", wears: 7 },
+    { id: "closet-women-gold-hoops", name: "Gold everyday hoops", brand: "Mejuri", image: "images/closet-gold-hoops.png", category: "Accessories", status: "Available", wears: 14, favorite: true },
     { id: "closet-women-tan-blazer", name: "Tan relaxed blazer", brand: "StyleIQ Atelier", image: assets.blazer, category: "Outerwear", status: "Available", wears: 5 },
-    { id: "closet-women-minimal-trainers", name: "Minimal leather trainers", brand: "Veja", image: assets.shoes, category: "Shoes", status: "Available", wears: 12 },
+    { id: "closet-women-minimal-trainers", name: "Off-white athletic trainers", brand: "Veja", image: "images/closet-offwhite-trainers.png", category: "Shoes", status: "Available", wears: 12 },
     { id: "closet-women-oxblood-bag", name: "Oxblood crescent bag", brand: "Cuyana", image: assets.bag, category: "Bags", status: "Available", wears: 4 },
+    { id: "closet-women-black-ruched-dress", name: "Black ruched mini dress", brand: "StyleIQ Atelier", image: "images/closet-black-ruched-dress.png", category: "Dresses & Suits", status: "Available", wears: 2 },
+    { id: "closet-women-black-knee-boots", name: "Knee-high leather boots", brand: "StyleIQ Atelier", image: "images/closet-black-knee-boots.png", category: "Shoes", status: "Available", wears: 3 },
+    { id: "closet-women-black-evening-clutch", name: "Black evening clutch", brand: "StyleIQ Atelier", image: "images/closet-black-evening-clutch.png", category: "Bags", status: "Available", wears: 2 },
+    { id: "closet-women-training-top", name: "Charcoal training top", brand: "StyleIQ Atelier", image: "images/closet-charcoal-training-top.png", category: "Tops", status: "Available", wears: 6 },
+    { id: "closet-women-training-leggings", name: "Black training leggings", brand: "StyleIQ Atelier", image: "images/closet-black-training-leggings.png", category: "Bottoms", status: "Available", wears: 6 },
+    { id: "closet-women-sport-duffel", name: "Black sport duffel", brand: "StyleIQ Atelier", image: "images/closet-black-sport-duffel.png", category: "Bags", status: "Available", wears: 5 },
+    { id: "closet-women-cream-trousers", name: "Cream wide-leg trousers", brand: "StyleIQ Atelier", image: "images/closet-cream-wideleg-trousers.png", category: "Bottoms", status: "Available", wears: 4 },
+    { id: "closet-women-tan-pumps", name: "Tan pointed pumps", brand: "StyleIQ Atelier", image: "images/closet-tan-pointed-pumps.png", category: "Shoes", status: "Available", wears: 4 },
+    { id: "closet-women-cognac-tote", name: "Cognac leather tote", brand: "StyleIQ Atelier", image: "images/closet-cognac-tote.png", category: "Bags", status: "Available", wears: 7 },
   ],
   men: [
     { id: "closet-men-herringbone-blazer", name: "Brown herringbone blazer", brand: "StyleIQ Atelier", image: "images/screen_23_item_man.png", category: "Outerwear", status: "Available", wears: 3, favorite: true },
-    { id: "closet-men-ivory-shirt", name: "Ivory short-sleeve shirt", brand: "StyleIQ Atelier", image: "images/alta-ivory-eyelet-shirt.png", category: "Tops", status: "Available", wears: 8 },
+    { id: "closet-men-ivory-shirt", name: "Ivory short-sleeve shirt", brand: "StyleIQ Atelier", image: "images/closet-men-ivory-shirt.png", category: "Tops", status: "Available", wears: 8 },
     { id: "closet-men-black-trousers", name: "Black tailored trousers", brand: "StyleIQ Atelier", image: "images/alta-black-tailored-trousers.png", category: "Bottoms", status: "Available", wears: 11 },
     { id: "closet-men-tan-loafers", name: "Tan suede loafers", brand: "StyleIQ Atelier", image: "images/alta-tan-suede-loafers.png", category: "Shoes", status: "Available", wears: 7 },
-    { id: "closet-men-steel-watch", name: "Steel everyday watch", brand: "StyleIQ Atelier", image: "images/cat_watches.png", category: "Accessories", status: "Available", wears: 14, favorite: true },
-    { id: "closet-men-training-tee", name: "Performance training tee", brand: "StyleIQ Atelier", image: "images/alta-ivory-eyelet-shirt.png", category: "Tops", status: "Available", wears: 6 },
-    { id: "closet-men-trainers", name: "Cushioned trainers", brand: "StyleIQ Atelier", image: "images/cat_shoes.png", category: "Shoes", status: "Available", wears: 9 },
-    { id: "closet-men-sport-bag", name: "Compact sport bag", brand: "StyleIQ Atelier", image: "images/cat_bags.png", category: "Bags", status: "Available", wears: 4 },
+    { id: "closet-men-steel-watch", name: "Steel everyday watch", brand: "StyleIQ Atelier", image: "images/closet-men-steel-watch.png", category: "Accessories", status: "Available", wears: 14, favorite: true },
+    { id: "closet-men-training-tee", name: "Charcoal performance training tee", brand: "StyleIQ Atelier", image: "images/closet-men-charcoal-tee.png", category: "Tops", status: "Available", wears: 6 },
+    { id: "closet-men-joggers", name: "Black tapered training joggers", brand: "StyleIQ Atelier", image: "images/closet-men-black-joggers.png", category: "Bottoms", status: "Available", wears: 6 },
+    { id: "closet-men-trainers", name: "Off-white cushioned trainers", brand: "StyleIQ Atelier", image: "images/closet-men-offwhite-trainers.png", category: "Shoes", status: "Available", wears: 9 },
+    { id: "closet-men-sport-bag", name: "Black compact sport duffel", brand: "StyleIQ Atelier", image: "images/closet-men-sport-duffel.png", category: "Bags", status: "Available", wears: 4 },
+    { id: "closet-men-satin-shirt", name: "Black satin shirt", brand: "StyleIQ Atelier", image: "images/closet-men-black-satin-shirt.png", category: "Tops", status: "Available", wears: 3 },
+    { id: "closet-men-black-boots", name: "Polished black leather boots", brand: "StyleIQ Atelier", image: "images/closet-men-black-boots.png", category: "Shoes", status: "Available", wears: 3 },
   ],
 };
 function canonicalProfileKey() {
@@ -703,8 +716,20 @@ function activeCanonicalClosetSeed() {
     ? [...canonicalClosetByProfile.women, ...canonicalClosetByProfile.men]
     : canonicalClosetByProfile[canonicalProfileKey()];
 }
+const canonicalWomenLookVideos = {
+  party: "app%20videos/Woman_posing_in_black_dress_20260919163125.mp4",
+  workout: "app%20videos/Model_pivoting_in_gym_outfit_20260919163703.mp4",
+  office: "app%20videos/Model_pivots_in_office_lobby_20260919163843.mp4",
+  dinner: "app%20videos/Woman_turning_in_place_20260919184658.mp4",
+};
+const canonicalMenLookVideos = {
+  party: "app%20videos/Man_turning_in_black_outfit_20260919185234.mp4",
+  workout: "app%20videos/Man_turning_in_active_outfit_20260919184906.mp4",
+  office: "app%20videos/Man_turning_in_office_outfit_20260919185113.mp4",
+  dinner: "app%20videos/Man_turns_in_dinner_outfit_20260919185154.mp4",
+};
 function buildCanonicalLook({ profile, key, title, occasion, context, image, direction, source, featured = false, pieces }) {
-  const video = profile === "men" ? museMotionMedia[1] : museMotionMedia[0];
+  const videoSrc = profile === "men" ? canonicalMenLookVideos[key] : canonicalWomenLookVideos[key];
   return {
     id: `look-${key}-${profile}`,
     key,
@@ -724,61 +749,63 @@ function buildCanonicalLook({ profile, key, title, occasion, context, image, dir
     media: [
       { type: "image", kind: "avatar", src: image, label: "Avatar" },
       { type: "image", kind: "details", src: image, label: "Avatar + Details" },
-      { type: "video", kind: "video", src: video.src, label: "Outfit Video" },
+      ...(videoSrc ? [{ type: "video", kind: "video", src: videoSrc, label: "Outfit Video" }] : []),
     ],
   };
 }
 const canonicalLooksByProfile = {
   women: {
     party: buildCanonicalLook({ profile: "women", key: "party", title: "Party Look", occasion: "Party", context: "Evening · Statement dressing", image: "images/look-evening-cairo.png", direction: "High-energy evening contrast anchored by one familiar accessory.", source: "muse_generated", pieces: [
-      { id: "party-women-dress", role: "Dress", name: "Black ruched mini dress", image: assets.top },
-      { id: "party-women-boots", role: "Shoes", name: "Knee-high leather boots", image: assets.shoes },
-      { id: "party-women-bag", role: "Bag", name: "Black evening clutch", image: assets.bag },
-      { id: "party-women-accent", role: "Accessory", name: "Gold everyday hoops", image: assets.accessory, exactClosetId: "closet-women-gold-hoops" },
+      { id: "party-women-dress", role: "Dress", name: "Black ruched mini dress", image: "images/closet-black-ruched-dress.png", exactClosetId: "closet-women-black-ruched-dress" },
+      { id: "party-women-boots", role: "Shoes", name: "Knee-high leather boots", image: "images/closet-black-knee-boots.png", exactClosetId: "closet-women-black-knee-boots" },
+      { id: "party-women-bag", role: "Bag", name: "Black evening clutch", image: "images/closet-black-evening-clutch.png", exactClosetId: "closet-women-black-evening-clutch" },
+      { id: "party-women-accent", role: "Accessory", name: "Gold everyday hoops", image: "images/closet-gold-hoops.png", exactClosetId: "closet-women-gold-hoops" },
     ] }),
-    workout: buildCanonicalLook({ profile: "women", key: "workout", title: "Workout Look", occasion: "Workout", context: "Morning · Training", image: "images/style_smart_casual.png", direction: "A clean active formula using practical pieces already available.", source: "user", pieces: [
-      { id: "workout-women-top", role: "Top", name: "Performance training top", image: assets.top2 },
-      { id: "workout-women-bottom", role: "Bottom", name: "Black training leggings", image: assets.bottom },
-      { id: "workout-women-shoes", role: "Shoes", name: "Minimal leather trainers", image: assets.shoes, exactClosetId: "closet-women-minimal-trainers" },
-      { id: "workout-women-bag", role: "Bag", name: "Compact sport bag", image: assets.bag, similarClosetIds: ["closet-women-oxblood-bag"] },
+    workout: buildCanonicalLook({ profile: "women", key: "workout", title: "Workout Look", occasion: "Workout", context: "Morning · Training", image: "images/look-workout-cairo.png", direction: "A clean active formula using practical pieces already available.", source: "user", pieces: [
+      { id: "workout-women-top", role: "Top", name: "Charcoal training top", image: "images/closet-charcoal-training-top.png", exactClosetId: "closet-women-training-top" },
+      { id: "workout-women-bottom", role: "Bottom", name: "Black training leggings", image: "images/closet-black-training-leggings.png", exactClosetId: "closet-women-training-leggings" },
+      { id: "workout-women-shoes", role: "Shoes", name: "Off-white athletic trainers", image: "images/closet-offwhite-trainers.png", exactClosetId: "closet-women-minimal-trainers" },
+      { id: "workout-women-bag", role: "Bag", name: "Black sport duffel", image: "images/closet-black-sport-duffel.png", exactClosetId: "closet-women-sport-duffel" },
     ] }),
     office: buildCanonicalLook({ profile: "women", key: "office", title: "Office Look", occasion: "Office", context: "18°C · Office · Rain later", image: "images/look-soft-tailoring-cairo.png", direction: "Polished structure with a softer owned finish.", source: "muse_assisted", pieces: [
       { id: "office-women-layer", role: "Layer", name: "Tan relaxed blazer", image: assets.blazer, exactClosetId: "closet-women-tan-blazer" },
-      { id: "office-women-top", role: "Top", name: "Ivory silk shell", image: assets.top, exactClosetId: "closet-women-ivory-shell" },
-      { id: "office-women-bottom", role: "Bottom", name: "Cream wide-leg trousers", image: assets.bottom, similarClosetIds: ["closet-women-black-trousers"] },
-      { id: "office-women-shoes", role: "Shoes", name: "Tan pointed pumps", image: assets.shoes },
+      { id: "office-women-top", role: "Top", name: "Ivory ribbed tank", image: "images/closet-ivory-ribbed-tank.png", exactClosetId: "closet-women-ivory-ribbed-tank" },
+      { id: "office-women-bottom", role: "Bottom", name: "Cream wide-leg trousers", image: "images/closet-cream-wideleg-trousers.png", exactClosetId: "closet-women-cream-trousers" },
+      { id: "office-women-shoes", role: "Shoes", name: "Tan pointed pumps", image: "images/closet-tan-pointed-pumps.png", exactClosetId: "closet-women-tan-pumps" },
+      { id: "office-women-bag", role: "Bag", name: "Cognac leather tote", image: "images/closet-cognac-tote.png", exactClosetId: "closet-women-cognac-tote" },
     ] }),
     dinner: buildCanonicalLook({ profile: "women", key: "dinner", title: "Dinner Look", occasion: "Dinner", context: "Evening · Dinner reservation", image: "images/look-coffee-meeting-cairo.png", direction: "Refined evening proportions rebuilt entirely from your Closet.", source: "inspiration_recreated", featured: true, pieces: [
-      { id: "dinner-women-layer", role: "Layer", name: "Black tailored blazer", image: assets.blazer, exactClosetId: "closet-women-black-blazer" },
-      { id: "dinner-women-top", role: "Top", name: "Ivory silk shell", image: assets.top, exactClosetId: "closet-women-ivory-shell" },
-      { id: "dinner-women-bottom", role: "Bottom", name: "Black straight trousers", image: assets.bottom, exactClosetId: "closet-women-black-trousers" },
-      { id: "dinner-women-shoes", role: "Shoes", name: "Tan suede loafers", image: assets.shoes, exactClosetId: "closet-women-tan-loafers" },
+      { id: "dinner-women-layer", role: "Layer", name: "Black tailored blazer", image: "images/closet-black-tailored-blazer.png", exactClosetId: "closet-women-black-blazer" },
+      { id: "dinner-women-top", role: "Top", name: "Ivory silk camisole", image: "images/closet-ivory-silk-camisole.png", exactClosetId: "closet-women-ivory-shell" },
+      { id: "dinner-women-bottom", role: "Bottom", name: "Black straight trousers", image: "images/closet-black-straight-trousers.png", exactClosetId: "closet-women-black-trousers" },
+      { id: "dinner-women-shoes", role: "Shoes", name: "Tan suede loafers", image: "images/alta-tan-suede-loafers.png", exactClosetId: "closet-women-tan-loafers" },
+      { id: "dinner-women-bag", role: "Bag", name: "Cognac leather tote", image: "images/closet-cognac-tote.png", exactClosetId: "closet-women-cognac-tote" },
     ] }),
   },
   men: {},
 };
 canonicalLooksByProfile.men = {
-  party: buildCanonicalLook({ profile: "men", key: "party", title: "Party Look", occasion: "Party", context: "Evening · Statement dressing", image: "images/style_creative_man.png", direction: "High-energy evening contrast anchored by one familiar accessory.", source: "muse_generated", pieces: [
-    { id: "party-men-top", role: "Top", name: "Black satin shirt", image: "images/alta-ivory-eyelet-shirt.png" },
-    { id: "party-men-bottom", role: "Bottom", name: "Fluid evening trousers", image: "images/alta-black-tailored-trousers.png" },
-    { id: "party-men-shoes", role: "Shoes", name: "Polished evening boots", image: "images/cat_shoes.png" },
-    { id: "party-men-accent", role: "Accessory", name: "Steel everyday watch", image: "images/cat_watches.png", exactClosetId: "closet-men-steel-watch" },
+  party: buildCanonicalLook({ profile: "men", key: "party", title: "Party Look", occasion: "Party", context: "Evening · Statement dressing", image: "images/look-party-man.png", direction: "High-energy evening contrast anchored by one familiar accessory.", source: "muse_generated", pieces: [
+    { id: "party-men-top", role: "Top", name: "Black satin shirt", image: "images/closet-men-black-satin-shirt.png", exactClosetId: "closet-men-satin-shirt" },
+    { id: "party-men-bottom", role: "Bottom", name: "Black tailored trousers", image: "images/alta-black-tailored-trousers.png", exactClosetId: "closet-men-black-trousers" },
+    { id: "party-men-shoes", role: "Shoes", name: "Polished black leather boots", image: "images/closet-men-black-boots.png", exactClosetId: "closet-men-black-boots" },
+    { id: "party-men-accent", role: "Accessory", name: "Steel everyday watch", image: "images/closet-men-steel-watch.png", exactClosetId: "closet-men-steel-watch" },
   ] }),
-  workout: buildCanonicalLook({ profile: "men", key: "workout", title: "Workout Look", occasion: "Workout", context: "Morning · Training", image: "images/style_elevated_everyday_man.png", direction: "A clean active formula using practical pieces already available.", source: "user", pieces: [
-    { id: "workout-men-top", role: "Top", name: "Performance training tee", image: "images/alta-ivory-eyelet-shirt.png", exactClosetId: "closet-men-training-tee" },
-    { id: "workout-men-bottom", role: "Bottom", name: "Tapered training joggers", image: "images/alta-black-tailored-trousers.png", similarClosetIds: ["closet-men-black-trousers"] },
-    { id: "workout-men-shoes", role: "Shoes", name: "Cushioned trainers", image: "images/cat_shoes.png", exactClosetId: "closet-men-trainers" },
-    { id: "workout-men-bag", role: "Bag", name: "Compact sport bag", image: "images/cat_bags.png", exactClosetId: "closet-men-sport-bag" },
+  workout: buildCanonicalLook({ profile: "men", key: "workout", title: "Workout Look", occasion: "Workout", context: "Morning · Training", image: "images/look-workout-man.png", direction: "A clean active formula using practical pieces already available.", source: "user", pieces: [
+    { id: "workout-men-top", role: "Top", name: "Charcoal performance training tee", image: "images/closet-men-charcoal-tee.png", exactClosetId: "closet-men-training-tee" },
+    { id: "workout-men-bottom", role: "Bottom", name: "Black tapered training joggers", image: "images/closet-men-black-joggers.png", exactClosetId: "closet-men-joggers" },
+    { id: "workout-men-shoes", role: "Shoes", name: "Off-white cushioned trainers", image: "images/closet-men-offwhite-trainers.png", exactClosetId: "closet-men-trainers" },
+    { id: "workout-men-bag", role: "Bag", name: "Black compact sport duffel", image: "images/closet-men-sport-duffel.png", exactClosetId: "closet-men-sport-bag" },
   ] }),
-  office: buildCanonicalLook({ profile: "men", key: "office", title: "Office Look", occasion: "Office", context: "18°C · Office · Rain later", image: "images/style_modern_prof_man.png", direction: "Polished structure with a softer owned finish.", source: "muse_assisted", pieces: [
+  office: buildCanonicalLook({ profile: "men", key: "office", title: "Office Look", occasion: "Office", context: "18°C · Office · Rain later", image: "images/look-office-man.png", direction: "Polished structure with a softer owned finish.", source: "muse_assisted", pieces: [
     { id: "office-men-layer", role: "Layer", name: "Brown herringbone blazer", image: "images/screen_23_item_man.png", exactClosetId: "closet-men-herringbone-blazer" },
-    { id: "office-men-top", role: "Top", name: "Ivory short-sleeve shirt", image: "images/alta-ivory-eyelet-shirt.png", exactClosetId: "closet-men-ivory-shirt" },
-    { id: "office-men-bottom", role: "Bottom", name: "Charcoal tailored trousers", image: "images/alta-black-tailored-trousers.png", similarClosetIds: ["closet-men-black-trousers"] },
-    { id: "office-men-shoes", role: "Shoes", name: "Black leather derbies", image: "images/cat_shoes.png" },
+    { id: "office-men-top", role: "Top", name: "Ivory short-sleeve shirt", image: "images/closet-men-ivory-shirt.png", exactClosetId: "closet-men-ivory-shirt" },
+    { id: "office-men-bottom", role: "Bottom", name: "Black tailored trousers", image: "images/alta-black-tailored-trousers.png", exactClosetId: "closet-men-black-trousers" },
+    { id: "office-men-shoes", role: "Shoes", name: "Tan suede loafers", image: "images/alta-tan-suede-loafers.png", exactClosetId: "closet-men-tan-loafers" },
   ] }),
-  dinner: buildCanonicalLook({ profile: "men", key: "dinner", title: "Dinner Look", occasion: "Dinner", context: "Evening · Dinner reservation", image: "images/style_classic_man.png", direction: "Refined evening proportions rebuilt entirely from your Closet.", source: "inspiration_recreated", featured: true, pieces: [
+  dinner: buildCanonicalLook({ profile: "men", key: "dinner", title: "Dinner Look", occasion: "Dinner", context: "Evening · Dinner reservation", image: "images/look-dinner-man.png", direction: "Refined evening proportions rebuilt entirely from your Closet.", source: "inspiration_recreated", featured: true, pieces: [
     { id: "dinner-men-layer", role: "Layer", name: "Brown herringbone blazer", image: "images/screen_23_item_man.png", exactClosetId: "closet-men-herringbone-blazer" },
-    { id: "dinner-men-top", role: "Top", name: "Ivory short-sleeve shirt", image: "images/alta-ivory-eyelet-shirt.png", exactClosetId: "closet-men-ivory-shirt" },
+    { id: "dinner-men-top", role: "Top", name: "Ivory short-sleeve shirt", image: "images/closet-men-ivory-shirt.png", exactClosetId: "closet-men-ivory-shirt" },
     { id: "dinner-men-bottom", role: "Bottom", name: "Black tailored trousers", image: "images/alta-black-tailored-trousers.png", exactClosetId: "closet-men-black-trousers" },
     { id: "dinner-men-shoes", role: "Shoes", name: "Tan suede loafers", image: "images/alta-tan-suede-loafers.png", exactClosetId: "closet-men-tan-loafers" },
   ] }),
@@ -802,7 +829,7 @@ function synchronizeCanonicalTrip() {
   });
 }
 synchronizeCanonicalTrip();
-const CANONICAL_DEMO_VERSION = "2026-09-19-v2";
+const CANONICAL_DEMO_VERSION = "2026-09-19-v5";
 const canonicalDemoVersionKey = "styleiqCanonicalDemoVersionV1";
 function migrateCanonicalDemoData() {
   if (localStorage.getItem(canonicalDemoVersionKey) === CANONICAL_DEMO_VERSION) return;
@@ -4212,15 +4239,16 @@ function normalizeLookPieces(rawPieces = [], source = "Closet") {
       ? { role: raw[0], name: raw[1], image: raw[2] }
       : { ...raw };
     if (!piece?.name || !piece?.image) return null;
-    const closetPiece = piece.closetId
-      ? closetItems().find((item) => item.id === piece.closetId)
+    const explicitClosetId = piece.closetId || piece.exactClosetId;
+    const closetPiece = explicitClosetId
+      ? closetItems().find((item) => item.id === explicitClosetId)
       : linkedClosetPiece(piece);
     return {
       id: piece.id || closetPiece?.id || `linked-piece-${index}`,
-      closetId: piece.closetId || closetPiece?.id || "",
+      closetId: closetPiece?.id || "",
       role: piece.role || piece.category || closetPiece?.category || "Piece",
-      name: piece.name,
-      image: piece.image,
+      name: closetPiece?.name || piece.name,
+      image: closetPiece?.image || piece.image,
       brand: piece.brand || closetPiece?.brand || "Brand not added",
       source: piece.source || source,
     };
@@ -4341,7 +4369,7 @@ function lookPiecesRailMarkup({ key, pieces: rawPieces, source = "Closet", defau
       const piece = pieces[sheet.pieceIndex];
       sheetMarkup = sheet.detail
         ? `<section class="look-piece-sheet look-piece-sheet--detail" role="dialog" aria-label="${escapeMarkup(piece.name)} item preview" onclick="event.stopPropagation()"><button class="look-piece-sheet-close" aria-label="Close item preview" onclick="activeLookPieceSheet=null;render()">×</button><div class="look-piece-detail-image"><img src="${piece.image}" alt="${escapeMarkup(piece.name)}"></div><div class="look-piece-detail-copy"><small>${escapeMarkup(piece.role)}</small><h3>${escapeMarkup(piece.name)}</h3><p>${escapeMarkup(piece.brand)}</p><em>${escapeMarkup(piece.source)}</em></div><button class="look-piece-open look-piece-back" onclick="openLookPieceSheet('${key}',${sheet.pieceIndex})">← Back to Look</button></section>`
-        : `<section class="look-piece-sheet" role="dialog" aria-label="${escapeMarkup(piece.name)} details" onclick="event.stopPropagation()"><button class="look-piece-sheet-close" aria-label="Close piece details" onclick="activeLookPieceSheet=null;render()">×</button><img src="${piece.image}" alt="${escapeMarkup(piece.name)}"><div><small>${escapeMarkup(piece.role)}</small><h3>${escapeMarkup(piece.name)}</h3><p>${escapeMarkup(piece.brand)}</p><em>${escapeMarkup(piece.source)}</em></div><button class="look-piece-open" onclick="openLookPieceItem('${key}',${sheet.pieceIndex})">View item larger</button></section>`;
+        : `<section class="look-piece-sheet" role="dialog" aria-label="${escapeMarkup(piece.name)} details" onclick="event.stopPropagation()"><button class="look-piece-sheet-close" aria-label="Close piece details" onclick="activeLookPieceSheet=null;render()">×</button><img src="${piece.image}" alt="${escapeMarkup(piece.name)}"><div><small>${escapeMarkup(piece.role)}</small><h3>${escapeMarkup(piece.name)}</h3><p>${escapeMarkup(piece.brand)}</p><em>${escapeMarkup(piece.source)}</em></div><button class="look-piece-open" onclick="${piece.closetId ? `openClosetItem('${piece.closetId}')` : `openLookPieceItem('${key}',${sheet.pieceIndex})`}">${piece.closetId ? "Open in Closet" : "View item larger"}</button></section>`;
     } else {
       sheetMarkup = `<section class="look-piece-sheet look-piece-sheet--all" role="dialog" aria-label="All pieces in this Look" onclick="event.stopPropagation()"><button class="look-piece-sheet-close" aria-label="Close all pieces" onclick="activeLookPieceSheet=null;render()">×</button><header><small>Inside the Look</small><h3>${pieces.length} linked pieces</h3></header><div>${pieces.map((piece, index) => `<button onclick="openLookPieceSheet('${key}',${index})"><img src="${piece.image}" alt=""><span><small>${escapeMarkup(piece.role)}</small><b>${escapeMarkup(piece.name)}</b></span></button>`).join("")}</div></section>`;
     }
@@ -7196,7 +7224,7 @@ function validateCanonicalDemoData() {
   for (const profile of ["women", "men"]) {
     const closetIdList = canonicalClosetByProfile[profile].map((item) => item.id);
     const closetIds = new Set(closetIdList);
-    if (closetIdList.length !== 8) issues.push(`${profile}: expected 8 canonical Closet items`);
+    if (closetIdList.length !== (profile === "women" ? 18 : 11)) issues.push(`${profile}: unexpected canonical Closet item count`);
     if (closetIds.size !== closetIdList.length) issues.push(`${profile}: duplicate Closet ID`);
     if (canonicalClosetByProfile[profile].some((item) => !item.image)) issues.push(`${profile}: Closet media reference missing`);
     const looks = canonicalLooksByProfile[profile];
@@ -7205,17 +7233,25 @@ function validateCanonicalDemoData() {
       const look = looks[key];
       allLookIds.push(look.id);
       if (look.id !== `look-${key}-${profile}`) issues.push(`${profile}/${key}: invalid Look ID`);
-      if (look.media.length !== 3 || look.media.map((item) => item.kind).join(",") !== "avatar,details,video") issues.push(`${profile}/${key}: invalid media sequence`);
+      const expectedMediaKinds = (profile === "men" ? canonicalMenLookVideos[key] : canonicalWomenLookVideos[key]) ? "avatar,details,video" : "avatar,details";
+      if (look.media.map((item) => item.kind).join(",") !== expectedMediaKinds) issues.push(`${profile}/${key}: invalid media sequence`);
       if (look.media.some((item) => !item.src) || !look.image) issues.push(`${profile}/${key}: media reference missing`);
       if (new Set(look.pieces.map((piece) => piece.id)).size !== look.pieces.length) issues.push(`${profile}/${key}: duplicate Look item ID`);
       for (const piece of look.pieces) {
         const linked = [piece.exactClosetId, ...(piece.similarClosetIds || [])].filter(Boolean);
         if (linked.some((id) => !closetIds.has(id))) issues.push(`${profile}/${key}: unknown Closet ID`);
+        if (piece.exactClosetId) {
+          const owned = canonicalClosetByProfile[profile].find((item) => item.id === piece.exactClosetId);
+          if (owned && (owned.name !== piece.name || owned.image !== piece.image))
+            issues.push(`${profile}/${key}: ${piece.id} differs from its Closet item`);
+        }
       }
       const matched = look.pieces.filter((piece) => piece.exactClosetId || piece.similarClosetIds?.length).length;
-      const expected = { dinner: 4, office: 3, party: 1 }[key];
-      if (expected !== undefined && matched !== expected) issues.push(`${profile}/${key}: expected ${expected}/4 match`);
-      if (key === "workout" && matched < 2) issues.push(`${profile}/workout: match must be partial or full`);
+      const expected = profile === "women"
+        ? { party: 4, workout: 4, office: 5, dinner: 5 }[key]
+        : { party: 4, workout: 4, office: 4, dinner: 4 }[key];
+      if (expected !== undefined && matched !== expected) issues.push(`${profile}/${key}: expected ${expected}/${look.pieces.length} match`);
+      if (look.pieces.some((piece) => !piece.exactClosetId)) issues.push(`${profile}/${key}: every piece must link to Closet`);
     }
   }
   if (new Set(allLookIds).size !== allLookIds.length) issues.push("canonical Looks: duplicate ID");
