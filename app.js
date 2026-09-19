@@ -2735,7 +2735,8 @@ function plannerEventDetailMarkup(plan, look) {
   const controls = media.length > 1 ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === activeIndex ? "active" : ""}" aria-label="Show ${escapeMarkup(item.label || `media ${index + 1}`)}" aria-pressed="${index === activeIndex}" onclick="setPlannerDetailMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous Look media" onclick="setPlannerDetailMedia(${activeIndex - 1})">‹</button><button class="saved-look-media-arrow" aria-label="Next Look media" onclick="setPlannerDetailMedia(${activeIndex + 1})">›</button></div></div>` : "";
   const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === activeIndex ? "active" : ""}" aria-pressed="${index === activeIndex}" aria-label="${escapeMarkup(item.label || `media ${index + 1}`)}" onclick="setPlannerDetailMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${escapeMarkup(item.label || `Media ${index + 1}`)}</small></button>`).join("")}</div>` : "";
   const piecesRail = look ? lookPiecesRailMarkup({ key: "planner-look-detail", pieces: look.pieces, source: "Closet", defaultOpen: true }) : "";
-  return `<div class="lightweight-layer planner-detail-layer"><button class="lightweight-scrim" aria-label="Dismiss ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet planner-visual-detail" role="dialog" aria-modal="true" aria-labelledby="planner-detail-title"><div class="planner-detail-media-stage">${mediaSurface}<div class="planner-detail-shade"></div>${active?.type === "video" ? '<span class="planner-detail-motion">Motion</span>' : ""}<button class="planner-detail-close" aria-label="Close ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()">×</button><span class="planner-detail-position">${media.length ? `${activeIndex + 1} / ${media.length}` : "No media"}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>${lookTitle ? "Your Look" : "Plan"}</p><h2 id="planner-detail-title">${escapeMarkup(lookTitle || eventTitle)}</h2><span>${escapeMarkup(plan?.context || plan?.occasion || "Event")} · ${escapeMarkup(plan?.location || "Location not set")}</span></div></div>${mediaRail}<div class="planner-detail-content"><header><p class="eyebrow">${escapeMarkup(when)}</p><h3>${escapeMarkup(eventTitle)}</h3></header><dl class="planner-detail-list"><div><dt>Dress for</dt><dd>${escapeMarkup(plan?.context || plan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(plan?.weather || "Forecast added closer to the day")}</dd></div></dl><button class="planner-looks-swiper-cta" onclick="${changeAction}" aria-label="Open Looks Swiper for ${escapeMarkup(eventTitle)}"><span><small>Explore another direction</small><b>Looks Swiper</b><em>Muse · Style Studio · Saved · Discover</em></span><i aria-hidden="true">→</i></button><div class="planner-detail-actions planner-detail-primary-actions"><div class="planner-detail-secondary-actions">${lookTitle ? '<button class="btn" onclick="openPlannerFullLookDetails()">Full Look details</button>' : ""}<button class="btn" onclick="${editAction}">Edit plan</button></div></div><button class="danger-action planner-detail-remove" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove plan</button></div></section></div>`;
+  const wearAction = look?.id ? `<button class="btn primary wide" onclick="openPlannerWearFlow('${escapeMarkup(look.id)}')">${wearRecordFor(look.id) ? '✓ Worn · Review' : 'Did you wear this look?'}</button>` : "";
+  return `<div class="lightweight-layer planner-detail-layer"><button class="lightweight-scrim" aria-label="Dismiss ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet planner-visual-detail" role="dialog" aria-modal="true" aria-labelledby="planner-detail-title"><div class="planner-detail-media-stage">${mediaSurface}<div class="planner-detail-shade"></div>${active?.type === "video" ? '<span class="planner-detail-motion">Motion</span>' : ""}<button class="planner-detail-close" aria-label="Close ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()">×</button><span class="planner-detail-position">${media.length ? `${activeIndex + 1} / ${media.length}` : "No media"}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>${lookTitle ? "Your Look" : "Plan"}</p><h2 id="planner-detail-title">${escapeMarkup(lookTitle || eventTitle)}</h2><span>${escapeMarkup(plan?.context || plan?.occasion || "Event")} · ${escapeMarkup(plan?.location || "Location not set")}</span></div></div>${mediaRail}<div class="planner-detail-content"><header><p class="eyebrow">${escapeMarkup(when)}</p><h3>${escapeMarkup(eventTitle)}</h3></header><dl class="planner-detail-list"><div><dt>Dress for</dt><dd>${escapeMarkup(plan?.context || plan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(plan?.weather || "Forecast added closer to the day")}</dd></div></dl><button class="planner-looks-swiper-cta" onclick="${changeAction}" aria-label="Open Looks Swiper for ${escapeMarkup(eventTitle)}"><span><small>Explore another direction</small><b>Looks Swiper</b><em>Muse · Style Studio · Saved · Discover</em></span><i aria-hidden="true">→</i></button><div class="planner-detail-actions planner-detail-primary-actions">${wearAction}<div class="planner-detail-secondary-actions">${lookTitle ? '<button class="btn" onclick="openPlannerFullLookDetails()">Full Look details</button>' : ""}<button class="btn" onclick="${editAction}">Edit plan</button></div></div><button class="danger-action planner-detail-remove" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove plan</button></div></section></div>`;
 }
 function approveLightweightPanel(kind) {
   if (kind === "plannerRemoveConfirm") { confirmPlannerEntryRemoval(); return; }
@@ -4194,6 +4195,11 @@ const lookSourceLabels = {
   planner_generated: "Planner Generated",
 };
 const lookCatalog = Object.values(canonicalLooks()).map((look) => ({ ...look }));
+let wearLookOverrides = (() => { try { return JSON.parse(localStorage.getItem('styleiqWearLookOverridesV1')) || {}; } catch { return {}; } })();
+try {
+  const storedLooks = JSON.parse(localStorage.getItem('styleiqSavedStudioLooksV1') || '[]');
+  if (Array.isArray(storedLooks)) lookCatalog.push(...storedLooks.filter(look => look?.id && !lookCatalog.some(existing => existing.id === look.id)));
+} catch {}
 function lookSourceLabel(source) {
   return lookSourceLabels[source] || "Created by Me";
 }
@@ -4405,13 +4411,14 @@ function savedLookRecord() {
     const look = swipeLookRecord(todayDetailsLookId);
     return { ...look, media: look.media };
   }
-  const record = lookCatalog.find((look) => look.id === selectedSavedLookId || look.title === selectedSavedLookId) || lookCatalog[0];
+  const selected = lookCatalog.find((look) => look.id === selectedSavedLookId || look.title === selectedSavedLookId) || lookCatalog[0];
+  const record = { ...selected, ...(wearLookOverrides[selected.id] || {}) };
   if (record.media?.length === 3) return { ...record, context: `${lookSourceLabel(record.creationSource)} · ${record.context}` };
   const template = canonicalLook(inferMakeItMineProfile(record));
   return {
     ...template,
     ...record,
-    pieces: record.state?.items || template.pieces,
+    pieces: record.pieces || record.state?.items || template.pieces,
     context: `${lookSourceLabel(record.creationSource)} · ${record.context || "Completed in Style Studio"}`,
     media: template.media.map((media) => media.type === "image" ? { ...media, src: record.image || template.sheet } : media),
   };
@@ -4431,10 +4438,7 @@ function savedLookMediaSurface(record) {
   return `<section class="saved-look-media-block" aria-label="Saved Look media"><div class="planner-detail-media-stage" data-saved-look-media>${activeMedia}<div class="planner-detail-shade"></div><button class="planner-detail-close" aria-label="Close Look details" onclick="backScreen()">×</button><span class="planner-detail-position">${savedLookMediaIndex + 1} / ${media.length}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>Your Look</p><h2>${escapeMarkup(record.title)}</h2><span>${escapeMarkup(record.context)}</span></div></div>${mediaRail}</section>`;
 }
 function markSavedLookWorn() {
-  savedLookWorn = true;
-  localStorage.setItem("styleiqSavedLookWornV1", "true");
-  render();
-  toast("Saved Look marked worn");
+  selectLookForWear(savedLookRecord());
 }
 function planSavedLook() {
   plannerLookChoice = "saved";
@@ -5165,6 +5169,8 @@ function wearMakeItMineLook() {
   swipeGeneratedLooks = [adapted, ...swipeGeneratedLooks.filter((look) => look.id !== adapted.id)];
   selectedTodayLook = adapted.id;
   localStorage.setItem("styleiqTodayLookV1", selectedTodayLook);
+  wearSelection = { lookId: adapted.id, date: wearTodayKey(), selectedAt: new Date().toISOString() };
+  persistWear();
   go("D-02");
   toast("Your Closet edit is ready for today");
 }
@@ -6348,7 +6354,7 @@ function mirrorToday() {
       </header>
       <div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button></div>
       <button class="today-hero-lens" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")}<span>Lens</span></button>
-    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeTodayLookMine('${look.id}')">${icon("shirt")} Make it mine</button></div>${todaySwipeLooksMarkup({ id: "today-swipe-looks", selectedId: look.id, actionFor: (candidate) => `useSwipeLookForToday('${candidate.id}')` })}`,
+    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="selectLookForWear(wearLook('${look.id}'))">${wearActionLabel(look.id)}</button><button class="btn" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeTodayLookMine('${look.id}')">${icon("shirt")} Make it mine</button></div>${todayWearHistoryMarkup()}${todaySwipeLooksMarkup({ id: "today-swipe-looks", selectedId: look.id, actionFor: (candidate) => `useSwipeLookForToday('${candidate.id}')` })}`,
     { active: "home", surfaceClass: "image-first-surface" },
   );
 }
@@ -7194,6 +7200,7 @@ let swipeGeneratedLooks = [];
 function swipeLookCandidates() {
   const prepared = Object.values(tryOnLooks).map((look) => ({
     ...look,
+    ...(wearLookOverrides[look.id] || {}),
     creationSource: swipeLookOrigins[look.key]?.[0] || look.creationSource,
     sourceLabel: swipeLookOrigins[look.key]?.[1] || "Muse",
   }));
@@ -7201,6 +7208,8 @@ function swipeLookCandidates() {
     const template = canonicalLook(record.id);
     return {
       ...template,
+      ...record,
+      ...(wearLookOverrides[record.id] || {}),
       id: record.id,
       title: record.title,
       context: lookSourceLabel(record.creationSource),
@@ -7548,6 +7557,8 @@ function applySwipeLook(id) {
   } else {
     selectedTodayLook = look.id;
     localStorage.setItem("styleiqTodayLookV1", look.id);
+    wearSelection = { lookId: look.id, date: wearTodayKey(), selectedAt: new Date().toISOString() };
+    persistWear();
     todayDetailsLookId = currentId === "G-02" ? look.id : null;
     lightweightPanel = null;
   }
@@ -7596,6 +7607,8 @@ function useLookForToday(id) {
   if (!swipeLookRecord(id)) return;
   selectedTodayLook = id;
   localStorage.setItem("styleiqTodayLookV1", id);
+  wearSelection = { lookId: id, date: wearTodayKey(), selectedAt: new Date().toISOString() };
+  persistWear();
   todayDetailsLookId = null;
   go("D-02");
 }
@@ -7603,6 +7616,8 @@ function selectTodayLook(id) {
   if (!swipeLookRecord(id)) return;
   selectedTodayLook = id;
   localStorage.setItem("styleiqTodayLookV1", id);
+  wearSelection = { lookId: id, date: wearTodayKey(), selectedAt: new Date().toISOString() };
+  persistWear();
   render();
   app
     .querySelector(".today-hero")
@@ -7956,15 +7971,198 @@ function twinRefine() {
     { active: "profile" },
   );
 }
+// A selection is an intention; only a confirmed record contributes to wear totals.
+const wearTodayKey = () => new Date().toLocaleDateString('en-CA');
+const readWearStore = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; } };
+let wearSelection = readWearStore('styleiqWearSelectionV1', null);
+let wearRecords = readWearStore('styleiqWearRecordsV1', []);
+let wearFlow = null;
+let wearReturnFocus = null;
+let wearLogPicker = false;
+const persistWear = () => {
+  localStorage.setItem('styleiqWearSelectionV1', JSON.stringify(wearSelection));
+  localStorage.setItem('styleiqWearRecordsV1', JSON.stringify(wearRecords));
+  localStorage.setItem('styleiqWearLookOverridesV1', JSON.stringify(wearLookOverrides));
+};
+function wearLook(id) {
+  const base = swipeLookRecord(id) || lookCatalog.find(look => look.id === id || look.title === id);
+  return base ? { ...base, ...wearLookOverrides[id] } : null;
+}
+function wearRecordFor(id) {
+  return wearRecords.find(record => record.lookId === id && record.date === wearTodayKey());
+}
+function wearActionLabel(id) {
+  if (wearRecordFor(id)) return '✓ Worn · Review';
+  return wearSelection?.date === wearTodayKey() && wearSelection.lookId === id
+    ? '✓ Selected for today · Confirm wear' : 'Wear this today';
+}
+function todayWearHistoryMarkup() {
+  const records = wearRecords.filter(record => record.date === wearTodayKey());
+  return `<section class="today-wear-history" aria-label="Looks worn today"><div class="between"><span><p class="eyebrow">Today’s wear history</p><h3>${records.length ? `${records.length} ${records.length === 1 ? 'Look' : 'Looks'} worn` : 'Nothing confirmed yet'}</h3></span><button class="text-action" onclick="wearLogPicker=!wearLogPicker;render()">+ Log another look</button></div>${records.map(record => { const look = wearLook(record.lookId); return `<button class="today-wear-entry" onclick="openWearFlow('${escapeMarkup(record.lookId)}','${escapeMarkup(record.id)}')"><span>✓ Worn</span><b>${escapeMarkup(look?.title || 'Look')}</b><small>${escapeMarkup(record.context || new Date(record.timestamp).toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }))}</small></button>`; }).join('')}${wearLogPicker ? `<div class="wear-log-options"><button onclick="go('G-01')">Choose a Saved Look</button><button onclick="openWearFlow('${escapeMarkup(selectedTodayLook)}')">Use current Look</button><button onclick="go('F-01')">Build from My Closet</button></div>` : ''}</section>`;
+}
+function selectLookForWear(look, forceConfirm = false) {
+  if (!look) return;
+  const existing = wearRecordFor(look.id);
+  if (existing) return openWearFlow(look.id, existing.id);
+  if (forceConfirm || (wearSelection?.lookId === look.id && wearSelection?.date === wearTodayKey()))
+    return openWearFlow(look.id);
+  wearSelection = { lookId: look.id, date: wearTodayKey(), selectedAt: new Date().toISOString() };
+  selectedTodayLook = look.id;
+  localStorage.setItem('styleiqTodayLookV1', look.id);
+  persistWear();
+  render();
+  toast('Selected for today · tap again to confirm wear');
+}
+function initialActualItems(look) {
+  return normalizeLookPieces(look.pieces || look.state?.items || []).map((piece, index) => ({
+    originalLookItemId: piece.id || String(index), role: piece.role, originalName: piece.name,
+    closetItemId: piece.closetId || null, name: piece.name, image: piece.image, worn: true,
+  }));
+}
+function openWearFlow(lookId, recordId = null) {
+  const look = wearLook(lookId);
+  if (!look) return;
+  const record = wearRecords.find(item => item.id === recordId);
+  wearReturnFocus = document.activeElement;
+  wearFlow = { lookId, recordId, step: record ? 'review' : 'confirm',
+    items: record ? structuredClone(record.actualItems) : initialActualItems(look),
+    context: record?.context || null, feedback: record?.feedback || null,
+    changed: false, pickerIndex: null };
+  mountWearSheet();
+}
+function openPlannerWearFlow(lookId) {
+  const plan = Number.isInteger(selectedPlannerEntryIndex) ? proactiveWeek[selectedPlannerEntryIndex] : plannerEvent;
+  const record = wearRecordFor(lookId);
+  openWearFlow(lookId, record?.id || null);
+  if (wearFlow && plan) {
+    wearFlow.plannerContext = { id: plan.id || null, title: plan.title || plan.context || null };
+    mountWearSheet();
+  }
+}
+function closeWearFlow() {
+  document.querySelector('.wear-overlay')?.remove();
+  wearFlow = null;
+  if (wearReturnFocus?.isConnected) wearReturnFocus.focus();
+  wearReturnFocus = null;
+}
+function wearContextOptions(look) {
+  const event = wearFlow?.plannerContext || (plannerEvent?.lookId === look.id ? plannerEvent : null);
+  const words = `${look.occasion || ''} ${look.title || ''} ${look.context || ''}`.toLowerCase();
+  const options = /gym|sport|workout|train|run/.test(words) ? ['Gym', 'Running', 'Workout / Training', 'Outdoor activity']
+    : /office|work|business|meeting/.test(words) ? ['Regular workday', 'Meeting', 'Presentation']
+    : /dinner|party|date|wedding/.test(words) ? ['Dinner', 'Date night', 'Party', 'Event']
+    : /travel|trip|airport/.test(words) ? ['Airport / Flight', 'Travel day', 'Sightseeing']
+    : ['Work', 'Casual', 'Dinner', 'Activity', 'Travel'];
+  if (event?.title) options.unshift(event.title);
+  return [...new Set(options)];
+}
+function chooseWearContext(index) { saveWearContext(wearContextOptions(wearLook(wearFlow.lookId))[index]); }
+function wearSheetContent() {
+  const flow = wearFlow, look = wearLook(flow.lookId), record = wearRecords.find(item => item.id === flow.recordId);
+  const heading = { confirm: 'Did you wear this look?', edit: 'What did you change?', picker: 'Choose a Closet piece', context: 'What did you wear it for?', feedback: 'How did it feel?', save: 'Keep this change?', review: 'Wear record', done: '✓ Worn' }[flow.step];
+  const image = look.image || look.sheet || assets.look;
+  const intro = `<div class="wear-look"><img src="${escapeMarkup(image)}" alt=""><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(flow.context || wearTodayKey())}</small></span></div>`;
+  if (flow.step === 'confirm') return `${intro}<div class="wear-actions"><button class="btn primary wide" onclick="confirmWear(false)">Yes, as styled</button><button class="btn wide" onclick="wearFlow.step='edit';mountWearSheet()">Yes, but I changed something</button><button class="text-action" onclick="declineWear()">No, I didn't wear it</button></div>`;
+  if (flow.step === 'edit') return `${intro}<div class="wear-item-list">${flow.items.map((item, index) => `<div class="wear-item"><img src="${escapeMarkup(item.image)}" alt=""><span><b>${escapeMarkup(item.name)}</b><small>${escapeMarkup(item.role)}</small></span><button aria-pressed="${item.worn}" onclick="toggleWearItem(${index})">${item.worn ? '✓ Wore' : 'Didn’t wear'}</button><button onclick="wearFlow.pickerIndex=${index};wearFlow.step='picker';mountWearSheet()">Replace</button></div>`).join('')}</div><button class="btn primary wide" onclick="confirmWear(true)">Confirm actual items</button>`;
+  if (flow.step === 'picker') {
+    const current = flow.items[flow.pickerIndex];
+    const candidates = closetItems().filter(item => item.id !== current.closetItemId && item.status === 'Available');
+    return `<p class="body">Replacing ${escapeMarkup(current.originalName)}</p><div class="wear-picker">${candidates.map(item => `<button onclick="replaceWearItem('${escapeMarkup(item.id)}')"><img src="${escapeMarkup(item.image)}" alt=""><span>${escapeMarkup(item.name)}</span></button>`).join('')}</div><button class="btn wide" onclick="wearFlow.step='edit';mountWearSheet()">Back to items</button>`;
+  }
+  if (flow.step === 'context') return `${intro}<div class="wear-chips">${wearContextOptions(look).map((value, index) => `<button class="chip" onclick="chooseWearContext(${index})">${escapeMarkup(value)}</button>`).join('')}<button class="chip" onclick="wearFlow.context='other';mountWearSheet()">Something else</button></div>${flow.context === 'other' ? `<label class="field">What did you wear it for?<input id="wear-other-context" class="input" maxlength="80"></label><button class="btn wide" onclick="saveWearContext(document.getElementById('wear-other-context').value.trim())">Save context</button>` : ''}<button class="text-action" onclick="saveWearContext(null)">Skip</button>`;
+  if (flow.step === 'feedback') return `<p class="body">Optional · help Muse understand this wear.</p><div class="wear-chips">${['Loved it', 'Comfortable', 'Would wear again', 'Too warm', 'Too cold', 'Too formal', 'Too casual'].map(value => `<button class="chip" onclick="saveWearFeedback('${value}')">${value}</button>`).join('')}</div><button class="text-action" onclick="saveWearFeedback(null)">Skip</button>`;
+  if (flow.step === 'save') return `${intro}<p class="body">You wore an edited version. How should StyleIQ keep the Look?</p><div class="wear-actions"><button class="btn primary wide" onclick="resolveWearLook('new')">Save it as a new Look</button><button class="btn wide" onclick="resolveWearLook('keep')">Keep this wear only</button><button class="btn wide" onclick="resolveWearLook('original')">Change original Look</button></div>`;
+  if (flow.step === 'review') return `${intro}<p class="body">${flow.items.filter(item => item.worn).length} pieces recorded${record?.context ? ` · ${escapeMarkup(record.context)}` : ''}</p><div class="wear-actions"><button class="btn primary wide" onclick="wearFlow.step='edit';mountWearSheet()">Edit actual items</button><button class="btn wide" onclick="wearFlow.step='context';mountWearSheet()">Edit context</button><button class="btn wide" onclick="wearFlow.step='feedback';mountWearSheet()">Edit feedback</button><button class="text-action" onclick="startAnotherWear()">Log another wear</button></div>`;
+  return `${intro}<p class="body">${flow.items.filter(item => item.worn).length} pieces added to your wear history.</p><button class="btn primary wide" onclick="closeWearFlow()">Done</button>`;
+}
+function mountWearSheet() {
+  document.querySelector('.wear-overlay')?.remove();
+  if (!wearFlow) return;
+  const layer = document.createElement('div');
+  layer.className = 'wear-overlay';
+  layer.innerHTML = `<div class="wear-backdrop" onclick="closeWearFlow()"></div><section class="wear-sheet" role="dialog" aria-modal="true" aria-labelledby="wear-title"><header><h2 id="wear-title">${{ confirm:'Did you wear this look?', edit:'What did you change?', picker:'Choose a Closet piece', context:'What did you wear it for?', feedback:'How did it feel?', save:'Keep this change?', review:'Wear record', done:'✓ Worn' }[wearFlow.step]}</h2><button aria-label="Close" onclick="closeWearFlow()">×</button></header>${wearSheetContent()}</section>`;
+  document.querySelector('.phone').append(layer);
+  layer.querySelector('.wear-sheet button')?.focus();
+}
+function toggleWearItem(index) { wearFlow.items[index].worn = !wearFlow.items[index].worn; wearFlow.changed = true; mountWearSheet(); }
+function replaceWearItem(id) {
+  const item = closetItems().find(piece => piece.id === id);
+  if (!item) return;
+  Object.assign(wearFlow.items[wearFlow.pickerIndex], { closetItemId: item.id, name: item.name, image: item.image, worn: true });
+  wearFlow.changed = true; wearFlow.step = 'edit'; mountWearSheet();
+}
+function updateWearItemCounts(before = [], after = []) {
+  const tally = items => items.filter(item => item.worn && item.closetItemId).reduce((map, item) => map.set(item.closetItemId, (map.get(item.closetItemId) || 0) + 1), new Map());
+  const old = tally(before), next = tally(after);
+  for (const id of new Set([...old.keys(), ...next.keys()])) {
+    const delta = (next.get(id) || 0) - (old.get(id) || 0);
+    if (delta) { const item = closetItems().find(piece => piece.id === id); if (item) updateClosetItem(id, { wears: Math.max(0, (item.wears || 0) + delta) }); }
+  }
+}
+function confirmWear(changed) {
+  const flow = wearFlow;
+  if (!flow.items.some(item => item.worn)) { toast('Choose at least one piece you wore'); return; }
+  const existing = wearRecords.find(item => item.id === flow.recordId);
+  const before = existing?.actualItems || [];
+  const record = existing || { id: `wear-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, lookId: flow.lookId, date: wearTodayKey(), timestamp: new Date().toISOString(), source: wearLook(flow.lookId)?.creationSource || 'look' };
+  record.actualItems = structuredClone(flow.items);
+  record.modifications = flow.items.filter(item => !item.worn || item.name !== item.originalName).map(item => ({ originalLookItemId: item.originalLookItemId, actualClosetItemId: item.worn ? item.closetItemId : null }));
+  if (!existing) wearRecords.push(record);
+  updateWearItemCounts(before, record.actualItems);
+  flow.recordId = record.id;
+  flow.changed = record.modifications.length > 0 && (!existing || JSON.stringify(before) !== JSON.stringify(record.actualItems));
+  persistWear(); flow.step = 'context'; mountWearSheet();
+}
+function saveWearContext(value) {
+  const record = wearRecords.find(item => item.id === wearFlow.recordId);
+  const event = wearFlow.plannerContext || (plannerEvent?.lookId === record?.lookId ? plannerEvent : null);
+  if (record) { record.context = value || null; record.plannerEventId = value && value === event?.title ? event.id || null : null; persistWear(); }
+  wearFlow.context = value || null; wearFlow.step = 'feedback'; mountWearSheet();
+}
+function saveWearFeedback(value) {
+  const record = wearRecords.find(item => item.id === wearFlow.recordId);
+  if (record) { record.feedback = value || null; persistWear(); }
+  wearFlow.step = wearFlow.changed ? 'save' : 'done'; mountWearSheet(); render();
+}
+function resolveWearLook(choice) {
+  const flow = wearFlow, original = wearLook(flow.lookId), record = wearRecords.find(item => item.id === flow.recordId);
+  if (record) record.lookSaveChoice = choice;
+  if (choice !== 'keep') {
+    const pieces = flow.items.filter(item => item.worn).map((item, index) => ({ id: item.closetItemId || `wear-piece-${index}`, exactClosetId: item.closetItemId, role: item.role, name: item.name, image: item.image }));
+    if (choice === 'new') {
+      const created = { ...original, id: `studio-wear-${Date.now()}`, title: `${original.title} · My Edit`, pieces, creationSource: 'user', state: { items: pieces } };
+      lookCatalog.unshift(created);
+      const saved = readWearStore('styleiqSavedStudioLooksV1', []);
+      localStorage.setItem('styleiqSavedStudioLooksV1', JSON.stringify([created, ...saved]));
+      if (record) record.savedLookId = created.id;
+    } else {
+      wearLookOverrides[flow.lookId] = { pieces };
+      const catalogEntry = lookCatalog.find(item => item.id === flow.lookId);
+      if (catalogEntry) catalogEntry.pieces = pieces;
+    }
+  }
+  persistWear(); flow.step = 'done'; mountWearSheet(); render();
+}
+function declineWear() { wearSelection = null; persistWear(); closeWearFlow(); render(); }
+function startAnotherWear() { wearFlow.recordId = null; wearFlow.items = initialActualItems(wearLook(wearFlow.lookId)); wearFlow.step = 'confirm'; mountWearSheet(); }
+document.addEventListener('keydown', event => {
+  if (!wearFlow) return;
+  if (event.key === 'Escape') { closeWearFlow(); return; }
+  if (event.key !== 'Tab') return;
+  const buttons = [...document.querySelectorAll('.wear-sheet button, .wear-sheet input')].filter(element => !element.disabled);
+  if (!buttons.length) return;
+  const first = buttons[0], last = buttons[buttons.length - 1];
+  if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
+
 function leanSavedLook() {
   const fromToday = Boolean(todayDetailsLookId);
   const record = savedLookRecord();
-  const primaryAction = fromToday
-    ? `<button class="btn primary wide" onclick="useLookForToday('${record.id}')">Yes, use for today</button>`
-    : `<button class="btn primary wide" onclick="markSavedLookWorn()">${savedLookWorn ? "Using this Look" : "Yes, wear this Look"}</button>`;
+  const primaryAction = `<button class="btn primary wide" onclick="selectLookForWear(savedLookRecord())">${wearActionLabel(record.id)}</button>`;
   const secondaryAction = fromToday ? "openSwipeLookPanel('today')" : "go('G-01')";
-  const decision = `<section class="look-detail-decision" aria-labelledby="look-detail-decision-title"><p class="eyebrow">Your choice</p><h3 id="look-detail-decision-title">${fromToday ? "Use this Look today?" : "Is this the Look you want?"}</h3><p>${fromToday ? "Choose it now, or see another direction for today." : "Wear it now, or return to your Saved Looks for another option."}</p><div>${primaryAction}<button class="btn wide" onclick="${secondaryAction}">No, show me another</button></div></section>`;
-  return `<section class="screen look-detail-screen"><div class="lightweight-layer planner-detail-layer look-detail-route-layer"><section class="lightweight-sheet planner-visual-detail" aria-label="Look details">${savedLookMediaSurface(record)}${decision}</section></div>${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
+  const decision = `<section class="look-detail-decision" aria-label="Look wear actions">${primaryAction}<button class="btn wide" onclick="${secondaryAction}">Change look</button></section>`;
+  return `<section class="screen look-detail-screen"><div class="lightweight-layer planner-detail-layer look-detail-route-layer"><section class="lightweight-sheet planner-visual-detail" aria-label="Look details">${savedLookMediaSurface(record)}</section>${decision}</div>${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
 }
 function setStudioMode(mode) {
   canvasState.studioMode = mode;
