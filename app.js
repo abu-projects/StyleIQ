@@ -4325,7 +4325,12 @@ const lookCatalog = Object.values(canonicalLooks()).map((look) => ({ ...look }))
 let wearLookOverrides = (() => { try { return JSON.parse(localStorage.getItem('styleiqWearLookOverridesV1')) || {}; } catch { return {}; } })();
 try {
   const storedLooks = JSON.parse(localStorage.getItem('styleiqSavedStudioLooksV1') || '[]');
-  if (Array.isArray(storedLooks)) lookCatalog.push(...storedLooks.filter(look => look?.id && !lookCatalog.some(existing => existing.id === look.id)));
+  if (Array.isArray(storedLooks)) storedLooks.forEach((look) => {
+    if (!look?.id) return;
+    const existing = lookCatalog.findIndex((candidate) => candidate.id === look.id);
+    if (existing >= 0) lookCatalog[existing] = { ...lookCatalog[existing], ...look };
+    else lookCatalog.push(look);
+  });
 } catch {}
 function lookSourceLabel(source) {
   return lookSourceLabels[source] || "Created by Me";
@@ -4338,6 +4343,7 @@ function lookMatchesFilter(look, filter) {
   return lookSourceLabel(look.creationSource) === filter;
 }
 let lookFilter = "All",
+  savedLooksOwnershipTab = localStorage.getItem("styleiqSavedLooksOwnershipTabV1") === "inspiration" ? "inspiration" : "my",
   selectedSavedLookId = canonicalLook(localStorage.getItem("styleiqSelectedSavedLookV1") || "office").id,
   todayDetailsLookId = null,
   savedLookTab = "overview",
@@ -4521,6 +4527,25 @@ function selectSavedLook(id) {
   localStorage.setItem("styleiqSelectedSavedLookV1", id);
   go("G-02");
 }
+function setSavedLooksOwnershipTab(tab) {
+  savedLooksOwnershipTab = tab === "inspiration" ? "inspiration" : "my";
+  localStorage.setItem("styleiqSavedLooksOwnershipTabV1", savedLooksOwnershipTab);
+  render();
+}
+function selectInspirationLook(id) {
+  todayDetailsLookId = null;
+  selectedSavedLookId = `inspiration:${id}`;
+  savedLookMediaIndex = 0;
+  localStorage.setItem("styleiqSelectedSavedLookV1", selectedSavedLookId);
+  go("G-02");
+}
+function isInspirationSelection() { return String(selectedSavedLookId).startsWith("inspiration:"); }
+function selectedInspirationRecord() {
+  const id = String(selectedSavedLookId).replace(/^inspiration:/, "");
+  const look = getCreatorLook(id);
+  return { ...look, ownership: "inspiration", creationSource: "creator", context: `${look.creator.name} · ${look.styleDirection}`, sheet: look.image,
+    media: [{ id: `${look.id}-original`, type: "image", mediaType: "look", kind: "original", src: look.image, label: "Look" }] };
+}
 function setSavedLookTab(tab) {
   savedLookTab = tab;
   render();
@@ -4534,20 +4559,22 @@ function stepSavedLookMedia(direction) {
   setSavedLookMedia(savedLookMediaIndex + direction);
 }
 function savedLookRecord() {
+  if (isInspirationSelection()) return selectedInspirationRecord();
   if (todayDetailsLookId && swipeLookRecord(todayDetailsLookId)) {
     const look = swipeLookRecord(todayDetailsLookId);
     return { ...look, media: look.media };
   }
   const selected = lookCatalog.find((look) => look.id === selectedSavedLookId || look.title === selectedSavedLookId) || lookCatalog[0];
   const record = { ...selected, ...(wearLookOverrides[selected.id] || {}) };
-  if (record.media?.length === 3) return { ...record, context: `${lookSourceLabel(record.creationSource)} · ${record.context}` };
+  if (record.media?.length) return { ...record, ownership: "my-look", context: `${lookSourceLabel(record.creationSource)} · ${record.context || "Completed in Style Studio"}` };
   const template = canonicalLook(inferMakeItMineProfile(record));
   return {
     ...template,
     ...record,
     pieces: record.pieces || record.state?.items || template.pieces,
     context: `${lookSourceLabel(record.creationSource)} · ${record.context || "Completed in Style Studio"}`,
-    media: template.media.map((media) => media.type === "image" ? { ...media, src: record.image || template.sheet } : media),
+    ownership: "my-look",
+    media: template.media.map((media, index) => ({ ...media, id: media.id || `${record.id}-look-${index}`, mediaType: media.mediaType || (media.type === "video" ? "muse" : "look"), src: media.type === "image" ? record.image || template.sheet : media.src })),
   };
 }
 function savedLookMediaSurface(record) {
@@ -4557,13 +4584,69 @@ function savedLookMediaSurface(record) {
     ? `<div class="look-media-details" aria-label="Look details">${record.pieces.map((piece) => `<span><small>${escapeMarkup(piece.role || piece[0])}</small><b>${escapeMarkup(piece.name || piece[1])}</b></span>`).join("")}</div>`
     : "";
   const activeMedia = selected.type === "video"
-    ? `<video class="planner-detail-media saved-look-media" src="${selected.src}" autoplay muted loop playsinline aria-label="${escapeMarkup(selected.label)}"></video>`
+    ? `<video class="planner-detail-media saved-look-media" src="${selected.src}" controls playsinline aria-label="${escapeMarkup(selected.label)}"></video>`
     : `<img class="planner-detail-media saved-look-media" src="${selected.src}" alt="${escapeMarkup(record.title)} · ${escapeMarkup(selected.label)}">${detailsOverlay}`;
   const controls = media.length > 1 ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="Go to ${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous media" onclick="stepSavedLookMedia(-1)">‹</button><button class="saved-look-media-arrow" aria-label="Next media" onclick="stepSavedLookMedia(1)">›</button></div></div>` : "";
-  const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${escapeMarkup(item.label)}</small></button>`).join("")}</div>` : "";
+  const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === savedLookMediaIndex ? "active" : ""}" aria-pressed="${index === savedLookMediaIndex}" aria-label="${escapeMarkup(item.label)}" onclick="setSavedLookMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${escapeMarkup(item.label)}${item.primary ? " · Primary" : ""}</small></button>`).join("")}</div>` : "";
   const piecesRail = lookPiecesRailMarkup({ key: "saved-look-detail", pieces: record.pieces, source: "Closet", defaultOpen: true });
   return `<section class="saved-look-media-block" aria-label="Saved Look media"><div class="planner-detail-media-stage" data-saved-look-media>${activeMedia}<div class="planner-detail-shade"></div><button class="planner-detail-close" aria-label="Close Look details" onclick="backScreen()">×</button><span class="planner-detail-position">${savedLookMediaIndex + 1} / ${media.length}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>Your Look</p><h2>${escapeMarkup(record.title)}</h2><span>${escapeMarkup(record.context)}</span></div></div>${mediaRail}</section>`;
 }
+
+let lookMediaSheetOpen = false;
+let lookMediaDeleteId = null;
+let museGeneration = { lookId: null, state: "idle", error: "" };
+function persistOwnedLooks() {
+  const personal = lookCatalog.filter((look) => look.state || look.id?.startsWith("made-mine-") || look.id?.startsWith("studio-") || look.media?.some((media) => ["wear", "muse"].includes(media.mediaType)));
+  const serializable = personal.map((look) => ({ ...look, media: (look.media || []).filter((media) => !String(media.src).startsWith("blob:")) }));
+  localStorage.setItem("styleiqSavedStudioLooksV1", JSON.stringify(serializable));
+}
+function mutableSavedLook() { const record = savedLookRecord(); return lookCatalog.find((look) => look.id === record.id || look.title === record.title); }
+function openLookMediaSheet() { lookMediaSheetOpen = true; render(); }
+function closeLookMediaSheet() { lookMediaSheetOpen = false; render(); }
+function chooseLookMedia(kind) {
+  lookMediaSheetOpen = false;
+  render();
+  document.getElementById(kind === "video" ? "look-video-upload" : kind === "camera" ? "look-camera-upload" : "look-photo-upload")?.click();
+}
+function addLookMedia(input, type) {
+  const file = input.files?.[0], look = mutableSavedLook();
+  if (!file || !look) return;
+  const isVideo = type === "video" || file.type.startsWith("video/");
+  look.media = savedLookRecord().media.map((media) => ({ ...media }));
+  look.media.push({ id: `wear-${Date.now()}`, type: isVideo ? "video" : "image", mediaType: "wear", kind: "wear", src: URL.createObjectURL(file), label: isVideo ? "My Wear · Video" : "My Wear", fileName: file.name, wearRecordId: wearRecordFor(look.id)?.id || null });
+  savedLookMediaIndex = look.media.length - 1; input.value = "";
+  persistOwnedLooks(); render(); toast(isVideo ? "Wear video added" : "Wear photo added");
+}
+function setPrimaryLookMedia(mediaId) {
+  const look = mutableSavedLook(); if (!look) return;
+  look.media = savedLookRecord().media.map((media) => ({ ...media, primary: media.id === mediaId }));
+  const chosen = look.media.find((media) => media.id === mediaId && media.type === "image");
+  if (chosen) { look.image = chosen.src; look.sheet = chosen.src; }
+  persistOwnedLooks(); render(); toast("Primary image updated");
+}
+function requestRemoveLookMedia(mediaId) { lookMediaDeleteId = mediaId; render(); }
+function cancelRemoveLookMedia() { lookMediaDeleteId = null; render(); }
+function confirmRemoveLookMedia() {
+  const look = mutableSavedLook(); if (!look || !lookMediaDeleteId) return;
+  const current = savedLookRecord().media, removed = current.find((media) => media.id === lookMediaDeleteId);
+  look.media = current.filter((media) => media.id !== lookMediaDeleteId);
+  if (removed?.primary) { const fallback = look.media.find((media) => media.type === "image"); if (fallback) { fallback.primary = true; look.image = fallback.src; look.sheet = fallback.src; } }
+  savedLookMediaIndex = Math.max(0, Math.min(savedLookMediaIndex, look.media.length - 1));
+  lookMediaDeleteId = null; persistOwnedLooks(); render(); toast("Media removed");
+}
+function generateMuseVideoForLook(lookId = savedLookRecord().id, fail = false) {
+  museGeneration = { lookId, state: "generating", error: "" }; render();
+  setTimeout(() => {
+    const look = lookCatalog.find((item) => item.id === lookId || item.title === lookId); if (!look) return;
+    if (fail) { museGeneration = { lookId, state: "failed", error: "Muse couldn’t finish this video." }; render(); return; }
+    const current = (look.media?.length ? look.media : savedLookRecord().media).map((media) => ({ ...media }));
+    const next = { id: `muse-${Date.now()}`, type: "video", mediaType: "muse", kind: "muse", src: "videos/generated-look-motion.mp4", label: "Muse Video", generated: true };
+    const oldIndex = current.findIndex((media) => media.mediaType === "muse");
+    if (oldIndex >= 0) current.splice(oldIndex, 1, next); else current.push(next);
+    look.media = current; museGeneration = { lookId, state: "success", error: "" }; persistOwnedLooks(); render(); toast("Muse video is ready");
+  }, 900);
+}
+function removeMuseVideo() { const muse = savedLookRecord().media.find((media) => media.mediaType === "muse"); if (muse) requestRemoveLookMedia(muse.id); }
 function markSavedLookWorn() {
   selectLookForWear(savedLookRecord());
 }
@@ -4578,20 +4661,21 @@ function removeSavedLook() {
 }
 function myLooksGrid() {
   todayDetailsLookId = null;
-  const filters = ["All", "Created by Me", "With Muse"];
-  const visible = lookCatalog.filter((look) =>
-    lookMatchesFilter(look, lookFilter) && (!savedLookRemoved || (look.id || look.title) !== selectedSavedLookId),
-  );
+  const myLooks = lookCatalog.filter((look) => !savedLookRemoved || (look.id || look.title) !== selectedSavedLookId);
+  const inspirations = savedCreatorInspirations.map((id) => getCreatorLook(id));
   const tabs = AppTabs({
-    id: "my-looks-source-tabs",
-    label: "Look creation source",
-    variant: "compact",
-    items: filters.map((value) => ({ label: value, selected: lookFilter === value, onSelect: `setLookFilter('${value}')` })),
+    id: "saved-looks-ownership-tabs", label: "Saved Looks", variant: "primary",
+    items: [
+      { label: "My Looks", selected: savedLooksOwnershipTab === "my", onSelect: "setSavedLooksOwnershipTab('my')" },
+      { label: "Inspiration", selected: savedLooksOwnershipTab === "inspiration", onSelect: "setSavedLooksOwnershipTab('inspiration')" },
+    ],
   });
-  const results = `<div class="item-grid" style="margin-top:12px">${visible.map((look) => `<button class="item-card" onclick="selectSavedLook('${escapeMarkup(look.id || look.title)}')"><span class="item-card-media"><img src="${look.image}" alt="${escapeMarkup(look.title)}">${look.popularity ? `<em class="look-popularity">${escapeMarkup(look.popularity.label)}</em>` : ""}</span><span class="copy"><b>${escapeMarkup(look.title)}</b><small class="body" style="display:block">${lookSourceLabel(look.creationSource)}</small></span></button>`).join("")}</div>`;
+  const myResults = myLooks.length ? `<div class="item-grid saved-ownership-grid">${myLooks.map((look) => `<button class="item-card" onclick="selectSavedLook('${escapeMarkup(look.id || look.title)}')"><span class="item-card-media"><img src="${look.image}" alt="${escapeMarkup(look.title)}"><em class="look-owner-badge">My Look</em></span><span class="copy"><b>${escapeMarkup(look.title)}</b><small>${lookSourceLabel(look.creationSource)}</small></span></button>`).join("")}</div>` : `<section class="saved-empty"><h3>Your looks will live here.</h3><button class="btn primary" onclick="newStudioLook()">Create a Look</button></section>`;
+  const inspirationResults = inspirations.length ? `<div class="item-grid saved-ownership-grid">${inspirations.map((look) => `<button class="item-card" onclick="selectInspirationLook('${look.id}')"><span class="item-card-media"><img src="${look.image}" alt="${escapeMarkup(look.title)}"></span><span class="copy"><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.creator.name)}</small></span></button>`).join("")}</div>` : `<section class="saved-empty"><h3>Save looks that inspire you.</h3><button class="btn primary" onclick="go('H-11')">Explore Looks</button></section>`;
+  const activeContent = savedLooksOwnershipTab === "my" ? myResults : inspirationResults;
   return shell(
-    "My Looks",
-    `<div class="between looks-library-head"><span><p class="eyebrow">${visible.length} ${visible.length === 1 ? 'look' : 'looks'} in your wardrobe</p><h2 class="title">My Looks</h2></span><button class="text-action" onclick="newStudioLook()">Create Look</button></div>${tabs}${AppTabPanel("my-looks-source-tabs", Math.max(0, filters.indexOf(lookFilter)), results, "Filtered Looks")}`,
+    "Saved Looks",
+    `<div class="between looks-library-head"><span><p class="eyebrow">Your saved wardrobe</p><h2 class="title">Saved Looks</h2></span>${savedLooksOwnershipTab === "my" ? `<button class="text-action" onclick="newStudioLook()">Create Look</button>` : ""}</div>${tabs}${AppTabPanel("saved-looks-ownership-tabs", savedLooksOwnershipTab === "my" ? 0 : 1, activeContent, savedLooksOwnershipTab === "my" ? "My Looks" : "Inspiration")}`,
     { active: "profile" },
   );
 }
@@ -5145,6 +5229,7 @@ function makeCreatorLookMine(lookId = activeCreatorLookId) {
     image: look.image,
     creator: look.creator.name,
     originLabel: `From ${look.creator.name}`,
+    sourceLookId: look.id,
   });
 }
 
@@ -5209,6 +5294,7 @@ function openMakeItMine(profileId = "office", source = {}) {
       title: source.title || profile.title,
       image: source.image || profile.image,
       creator: source.creator || "StyleIQ inspiration",
+      sourceLookId: source.sourceLookId || null,
       occasion: profile.title,
       profileId: profile.id,
       media: profile.media.map((media) => media.type === "image" ? { ...media, src: source.image || profile.image } : media),
@@ -5259,6 +5345,9 @@ function createMakeItMineAdaptation() {
     image: source.image,
     context: makeItMineState.matchSummary.level === "low" ? "Inspired by Original Look" : "Made From Your Closet",
     creationSource: "inspiration_recreated",
+    ownership: "my-look",
+    sourceLookId: source.sourceLookId || null,
+    sourceRelationship: source.sourceLookId ? { type: "made-from", lookId: source.sourceLookId } : null,
     sheet: source.image,
     remote: false,
     row: 0,
@@ -8372,10 +8461,17 @@ document.addEventListener('keydown', event => {
 function leanSavedLook() {
   const fromToday = Boolean(todayDetailsLookId);
   const record = savedLookRecord();
-  const primaryAction = `<button class="btn primary wide" onclick="selectLookForWear(savedLookRecord())">${wearActionLabel(record.id)}</button>`;
-  const secondaryAction = fromToday ? "openSwipeLookPanel('today')" : "go('G-01')";
-  const decision = `<section class="look-detail-decision" aria-label="Look wear actions">${primaryAction}<button class="btn wide" onclick="${secondaryAction}">Change look</button></section>`;
-  return `<section class="screen look-detail-screen"><div class="lightweight-layer planner-detail-layer look-detail-route-layer"><section class="lightweight-sheet planner-visual-detail" aria-label="Look details">${savedLookMediaSurface(record)}</section>${decision}</div>${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
+  const inspiration = record.ownership === "inspiration";
+  const active = record.media?.[savedLookMediaIndex] || record.media?.[0];
+  const generating = museGeneration.lookId === record.id && museGeneration.state === "generating";
+  const failed = museGeneration.lookId === record.id && museGeneration.state === "failed";
+  const mediaTools = !inspiration && active ? `<div class="look-media-tools">${active.type === "image" && active.mediaType === "wear" && !active.primary ? `<button onclick="setPrimaryLookMedia('${active.id}')">Set as primary image</button>` : ""}${active.mediaType !== "look" ? `<button class="danger-action" onclick="requestRemoveLookMedia('${active.id}')">Delete ${active.type === "video" ? "video" : "image"}</button>` : ""}</div>` : "";
+  const decision = inspiration
+    ? `<section class="look-detail-decision inspiration-decision"><button class="btn primary wide" onclick="makeCreatorLookMine('${record.id}')">Make It Mine</button><button class="btn" onclick="toggleCreatorInspiration('${record.id}');go('G-01')">Unsave</button></section>`
+    : `<section class="look-detail-decision look-owner-actions" aria-label="My Look actions"><button class="btn primary" onclick="selectLookForWear(savedLookRecord())">${wearActionLabel(record.id)}</button><button class="btn" onclick="openLookMediaSheet()">Add My Media</button><button class="btn" onclick="generateMuseVideoForLook('${record.id}')" ${generating ? "disabled" : ""}>${generating ? "Muse is creating…" : record.media?.some((media) => media.mediaType === "muse") ? "Regenerate Muse Video" : "Generate Video with Muse"}</button><button class="btn" onclick="editSavedLookInStudio('${escapeMarkup(record.title)}');go('F-01')">Edit Look</button><button class="btn" onclick="planSavedLook()">Add to Planner</button>${failed ? `<p class="muse-generation-error" role="alert">${escapeMarkup(museGeneration.error)} <button onclick="generateMuseVideoForLook('${record.id}')">Retry</button></p>` : ""}</section>`;
+  const mediaSheet = lookMediaSheetOpen ? `<div class="look-media-action-layer"><button class="look-media-scrim" aria-label="Close Add My Media" onclick="closeLookMediaSheet()"></button><section class="look-media-action-sheet" role="dialog" aria-modal="true" aria-label="Add My Media"><span></span><h3>Add My Media</h3><button onclick="chooseLookMedia('camera')">${icon("camera")} Take Photo</button><button onclick="chooseLookMedia('photo')">${icon("image-plus")} Upload Photo</button><button onclick="chooseLookMedia('video')">${icon("video")} Upload Video</button><button onclick="closeLookMediaSheet()">Cancel</button></section></div>` : "";
+  const deleteConfirm = lookMediaDeleteId ? `<div class="look-media-action-layer"><button class="look-media-scrim" aria-label="Cancel media removal" onclick="cancelRemoveLookMedia()"></button><section class="look-media-action-sheet media-delete-confirm" role="alertdialog" aria-modal="true" aria-label="Remove media?"><h3>Remove this media?</h3><p>The Look and its other media will stay.</p><button class="danger-action" onclick="confirmRemoveLookMedia()">Remove media</button><button onclick="cancelRemoveLookMedia()">Cancel</button></section></div>` : "";
+  return `<section class="screen look-detail-screen"><input id="look-camera-upload" class="sr-only" type="file" accept="image/*" capture="environment" onchange="addLookMedia(this,'photo')"><input id="look-photo-upload" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onchange="addLookMedia(this,'photo')"><input id="look-video-upload" class="sr-only" type="file" accept="video/*" onchange="addLookMedia(this,'video')"><div class="lightweight-layer planner-detail-layer look-detail-route-layer"><section class="lightweight-sheet planner-visual-detail" aria-label="${inspiration ? "Inspiration Look details" : "My Look details"}">${savedLookMediaSurface(record)}${mediaTools}</section>${decision}</div>${mediaSheet}${deleteConfirm}${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
 }
 function setStudioMode(mode) {
   canvasState.studioMode = mode;
@@ -9017,12 +9113,14 @@ function commitInstantLook() {
   ensureInstantLookPieces();
   persist();
   const savedLook = {
+    id: canvasState.savedLookId || `studio-${Date.now()}`,
     title: canvasState.title || 'Untitled Look',
     image: canvasState.lookFormula?.image || canvasState.items?.[0]?.image || assets.look,
     creationSource: canvasState.creationSource || 'user',
     visibility: canvasState.visibility || 'private',
     state: JSON.parse(JSON.stringify(canvasState)),
   };
+  canvasState.savedLookId = savedLook.id;
   const existing = lookCatalog.findIndex((look) => look.title === savedLook.title);
   if (existing >= 0) lookCatalog.splice(existing, 1, {...lookCatalog[existing], ...savedLook});
   else lookCatalog.unshift(savedLook);
@@ -9057,6 +9155,29 @@ function commitInstantLook() {
   }
   go('G-01');
   toast(`Saved to My Looks · ${studioVisibilityLabel(canvasState.visibility)}`);
+}
+function ensureStudioLookForMedia() {
+  let look = lookCatalog.find((item) => item.id === canvasState.savedLookId || item.title === canvasState.title);
+  if (!look) {
+    look = { id: canvasState.savedLookId || `studio-${Date.now()}`, title: canvasState.title || "Untitled Look", image: canvasState.lookFormula?.image || canvasState.items?.[0]?.image || assets.look, sheet: canvasState.lookFormula?.image || canvasState.items?.[0]?.image || assets.look, ownership: "my-look", creationSource: canvasState.creationSource || "user", context: "Built in Style Studio", state: JSON.parse(JSON.stringify(canvasState)), pieces: canvasState.items || [] };
+    canvasState.savedLookId = look.id; lookCatalog.unshift(look);
+  } else {
+    look.state = JSON.parse(JSON.stringify(canvasState)); look.pieces = canvasState.items || look.pieces;
+  }
+  persist(); persistOwnedLooks(); return look;
+}
+function generateStudioMuseVideo() { const look = ensureStudioLookForMedia(); generateMuseVideoForLook(look.id); }
+function removeStudioMuseVideo() {
+  const look = ensureStudioLookForMedia(), muse = look.media?.find((media) => media.mediaType === "muse");
+  if (!muse || !confirm("Remove this Muse video? The Look will stay.")) return;
+  look.media = look.media.filter((media) => media.id !== muse.id); persistOwnedLooks(); render(); toast("Muse video removed");
+}
+function studioMuseVideoMarkup() {
+  const look = lookCatalog.find((item) => item.id === canvasState.savedLookId || item.title === canvasState.title);
+  const muse = look?.media?.find((media) => media.mediaType === "muse");
+  const generating = museGeneration.lookId === look?.id && museGeneration.state === "generating";
+  const failed = museGeneration.lookId === look?.id && museGeneration.state === "failed";
+  return `<section class="studio-muse-video" aria-label="Muse video"><div><span>${icon("spark")}</span><p><b>Muse Video</b><small>AI visualization saved with this Look</small></p></div>${muse ? `<video src="${muse.src}" controls playsinline aria-label="Muse generated Look video"></video>` : ""}${generating ? `<div class="muse-video-progress" role="status"><i></i><span>Muse is creating your video…</span></div>` : ""}${failed ? `<p class="muse-generation-error" role="alert">${escapeMarkup(museGeneration.error)}</p>` : ""}<div class="studio-muse-actions"><button class="btn" onclick="generateStudioMuseVideo()" ${generating ? "disabled" : ""}>${generating ? "Generating…" : muse ? "Regenerate" : failed ? "Retry" : "Generate Video with Muse"}</button>${muse ? `<button class="text-action" onclick="removeStudioMuseVideo()">Remove</button>` : ""}</div></section>`;
 }
 function saveInstantLook() {
   lightweightPanel = 'instantSave';
@@ -9134,12 +9255,13 @@ function editSavedLookInStudio(title) {
     canvasState.title = look?.title || title;
     canvasState.lookFormula = look ? {title: look.title, image: look.image} : null;
   }
-  canvasState.draftId = `draft-${Date.now()}`;
+  canvasState.savedLookId = look?.id || canvasState.savedLookId || null;
+  canvasState.draftId = canvasState.draftId || `draft-${Date.now()}`;
   studioSourceContext = 'saved';
   creatorReferenceContext = null;
   persist();
   render();
-  toast('Saved Look opened as a new draft');
+  toast('My Look opened for editing');
 }
 function studioLibrarySections() {
   const recents = studioRecentDrafts.slice(0, 4);
@@ -9189,6 +9311,7 @@ function instantStudio() {
     <div class="instant-pose-controls" role="group" aria-label="Model views">${instantPoseControls()}</div>
     <p class="instant-hint">Swipe sideways to try on · Scroll down for more</p>
     ${studioVisibilityControls()}
+    ${studioMuseVideoMarkup()}
     <section class="instant-wardrobe" aria-label="Choose your outfit">
     <div class="instant-dress-context" ${instantWardrobeIndex('Dress') < 0 ? 'hidden' : ''}><span>One-piece Look · Dress + shoes</span><button onclick="chooseInstantPiece('Dress',-1)">Wear separates</button></div>
     ${Object.entries(instantWardrobe).map(([role,names]) => instantWardrobeRow(role,names)).join('')}
@@ -9580,12 +9703,13 @@ function menswearPiece(role) {
 }
 function synchronizeStylingData() {
   tryOnLooks = canonicalLooks();
+  const currentById = new Map(lookCatalog.map((look) => [look.id, look]));
   const personalLooks = lookCatalog.filter((look) => look.state || /^(studio-|made-mine-)/.test(String(look.id || "")));
-  lookCatalog.splice(0, lookCatalog.length, ...Object.values(tryOnLooks).map((look) => ({ ...look })), ...personalLooks);
+  lookCatalog.splice(0, lookCatalog.length, ...Object.values(tryOnLooks).map((look) => ({ ...look, ...(currentById.get(look.id) || {}) })), ...personalLooks);
   synchronizeCanonicalTrip();
   if (!swipeGeneratedLooks.some((look) => look.id === selectedTodayLook)) selectedTodayLook = canonicalLook(selectedTodayLook).id;
   if (plannerLookChoice !== "saved") plannerLookChoice = canonicalLook(plannerLookChoice).id;
-  if (!lookCatalog.some((look) => look.id === selectedSavedLookId || look.title === selectedSavedLookId)) selectedSavedLookId = canonicalLook(selectedSavedLookId).id;
+  if (!isInspirationSelection() && !lookCatalog.some((look) => look.id === selectedSavedLookId || look.title === selectedSavedLookId)) selectedSavedLookId = canonicalLook(selectedSavedLookId).id;
   // Project demo products from their original metadata; saved context and uploads survive.
   for (const [index, original] of stylingProductDefaults.entries()) {
     const male = stylingContext === "Menswear" || (stylingContext === "Both" && index % 2 === 1);
