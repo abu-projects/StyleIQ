@@ -696,6 +696,7 @@ const canonicalClosetByProfile = {
   ],
   men: [
     { id: "closet-men-herringbone-blazer", name: "Brown herringbone blazer", brand: "StyleIQ Atelier", image: "images/screen_23_item_man.png", category: "Outerwear", status: "Available", wears: 3, favorite: true },
+    { id: "closet-men-camel-blazer", name: "Camel wool blazer", brand: "StyleIQ Atelier", image: "images/item_blazer.png", category: "Outerwear", subcategory: "Blazer", color: "Camel", status: "Available", wears: 2 },
     { id: "closet-men-ivory-shirt", name: "Ivory short-sleeve shirt", brand: "StyleIQ Atelier", image: "images/closet-men-ivory-shirt.png", category: "Tops", status: "Available", wears: 8 },
     { id: "closet-men-black-trousers", name: "Black tailored trousers", brand: "StyleIQ Atelier", image: "images/alta-black-tailored-trousers.png", category: "Bottoms", status: "Available", wears: 11 },
     { id: "closet-men-tan-loafers", name: "Tan suede loafers", brand: "StyleIQ Atelier", image: "images/alta-tan-suede-loafers.png", category: "Shoes", status: "Available", wears: 7 },
@@ -3944,23 +3945,34 @@ let lensOpen = false,
   lensStage = "capture",
   lensSource = "camera",
   lensIntent = "",
-  lensInputPreview = "";
+  lensInputPreview = "",
+  lensWornStep = "match",
+  lensWornItems = [],
+  lensWornPickerIndex = null,
+  lensWornPickerShowAll = false,
+  lensAnalysisTimer = null,
+  lensWearDraftLook = null,
+  lensImageError = "";
 const lensRootIds = ["D-02", "C-01", "I-01", "K-01", "L-01"];
 function openLens() {
+  clearTimeout(lensAnalysisTimer);
   lensOpen = true;
   lensStage = "capture";
   lensIntent = "";
   lensInputPreview = "";
+  lensImageError = "";
   lightweightPanel = null;
   accountMenuOpen = false;
   render();
 }
 function openVisualSearch(source = "library") {
+  clearTimeout(lensAnalysisTimer);
   lensOpen = true;
   lensSource = source;
   lensStage = "capture";
   lensIntent = "";
   lensInputPreview = "";
+  lensImageError = "";
   lightweightPanel = null;
   accountMenuOpen = false;
   render();
@@ -3987,6 +3999,7 @@ function startClosetImageSearch(input) {
   reader.readAsDataURL(file);
 }
 function closeLens() {
+  clearTimeout(lensAnalysisTimer);
   lensOpen = false;
   render();
 }
@@ -3998,28 +4011,62 @@ function startLensInput(input, source) {
   const file = input.files?.[0];
   if (!file) return;
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-    toast("Choose a JPG, PNG, or WebP image.");
+    lensImageError = "We couldn't load that image.";
+    lensStage = "image-error";
     input.value = "";
+    render();
     return;
   }
+  clearTimeout(lensAnalysisTimer);
+  lensSource = source;
+  lensIntent = "";
+  lensWornStep = "match";
+  lensWornItems = [];
+  lensWornPickerIndex = null;
+  lensInputPreview = "";
+  lensImageError = "";
+  lensStage = "preparing";
+  render();
   const reader = new FileReader();
   reader.onload = () => {
+    if (typeof reader.result !== "string" || !reader.result.startsWith("data:image/")) return showLensImageError();
     lensInputPreview = reader.result;
     lensSource = source;
+    lensImageError = "";
     lensStage = "intent";
     render();
   };
+  reader.onerror = showLensImageError;
+  reader.onabort = showLensImageError;
   reader.readAsDataURL(file);
 }
+function showLensImageError() {
+  lensInputPreview = "";
+  lensIntent = "";
+  lensImageError = "We couldn't load that image.";
+  lensStage = "image-error";
+  render();
+}
 function resetLensInput() {
+  clearTimeout(lensAnalysisTimer);
   lensStage = "capture";
   lensIntent = "";
   lensInputPreview = "";
+  lensImageError = "";
   render();
 }
 function chooseLensIntent(intent) {
   lensIntent = intent;
-  lensStage = "result";
+  if (intent === "worn") {
+    lensWornStep = "analyzing";
+    lensStage = "result";
+    clearTimeout(lensAnalysisTimer);
+    lensAnalysisTimer = setTimeout(() => {
+      if (!lensOpen || lensIntent !== "worn" || lensWornStep !== "analyzing") return;
+      lensWornStep = "match";
+      render();
+    }, 650);
+  } else lensStage = "result";
   render();
 }
 function lensDestination(id) {
@@ -4069,6 +4116,12 @@ function lensSourceInputs() {
 function lensCaptureMarkup() {
   return `<div class="lens-empty-state"><div class="lens-empty-illustration" aria-hidden="true"><span class="lens-illustration-frame">${icon("image")}</span><span class="lens-illustration-camera">${icon("camera")}</span><span class="lens-illustration-scan">${icon("scan")}</span></div><h3>Show Lens what you see.</h3><p>Take a photo or choose an image to get started.</p></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('camera')">${icon("camera")}Camera</button><button class="lens-source" onclick="lensCapture('library')">${icon("image")}Photo library</button></div>${lensSourceInputs()}`;
 }
+function lensImagePreparingMarkup() {
+  return `<div class="lens-analysis lens-image-preparing" role="status"><span></span><h2 class="title">Preparing image…</h2><p class="body">Getting your photo ready for Lens.</p></div>${lensSourceInputs()}`;
+}
+function lensImageErrorMarkup() {
+  return `<div class="lens-empty-state"><div class="lens-empty-illustration" aria-hidden="true"><span class="lens-illustration-frame">${icon("image")}</span></div><h3>${escapeMarkup(lensImageError || "We couldn't load that image.")}</h3><p>Try the same source again or choose another image.</p></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('${lensSource}')">Try again</button><button class="lens-source" onclick="lensCapture('library')">Choose another image</button></div>${lensSourceInputs()}`;
+}
 function lensInputPreviewMarkup() {
   const sourceIcon = lensSource === "camera" ? "camera" : lensSource === "library" ? "image" : "scan";
   return `<div class="lens-input-preview"><img src="${lensInputPreview}" alt="Selected Lens input"><div class="lens-input-meta"><span>${icon(sourceIcon)}${lensSourceLabel()}</span><div><button class="text-action" onclick="lensCapture('${lensSource}')">Change</button><button class="text-action" onclick="resetLensInput()">Remove</button></div></div></div>${lensSourceInputs()}`;
@@ -4077,6 +4130,7 @@ function lensIntentPicker() {
   const likely = lensLikelyIntent(),
     intents = [
       ["add", "Add Closet items", "Find one or many garments"],
+      ["worn", "Worn This Today", "Log what you actually wore"],
       ["buy", "Should I buy this?", "Check usefulness and duplicates"],
       [
         "recreate",
@@ -4089,6 +4143,77 @@ function lensIntentPicker() {
       ["similar", "Find owned alternatives", "Compare visual similarity"],
     ];
   return `${lensInputPreviewMarkup()}<p class="eyebrow lens-intent-eyebrow">Likely intent from this context</p><h2 class="title">What should Lens do?</h2><p class="body">Choose what you want Lens to do with this image. It stays on this device in this prototype.</p><div class="lens-intents" role="group" aria-label="Lens intent">${intents.map(([id, title, note]) => `<button class="lens-intent ${id === likely ? "recommended" : ""}" onclick="chooseLensIntent('${id}')"><b>${title}${id === likely ? " · Suggested" : ""}</b><small>${note}</small></button>`).join("")}</div>`;
+}
+
+function lensWornCandidate() { return canonicalLook("office"); }
+function lensClosetMatchItems() {
+  const closet = closetItems();
+  const preferred = canonicalProfileKey() === "men"
+    ? ["closet-men-satin-shirt", "closet-men-black-trousers", null, "closet-men-herringbone-blazer"]
+    : ["closet-women-ivory-ribbed-tank", "closet-women-black-trousers", null, "closet-women-black-blazer"];
+  const roles = ["Top", "Bottom", "Shoes", "Outerwear"];
+  return preferred.map((id, index) => {
+    const item = id ? closet.find(piece => piece.id === id) : null;
+    return item ? { role: roles[index], closetItemId: item.id, name: item.name, image: item.image, status: "matched" }
+      : { role: roles[index], closetItemId: null, name: index === 2 ? "Shoes" : "Black jacket", image: lensInputPreview || assets.look, status: "missing" };
+  });
+}
+function startLensClosetReconstruction() { lensWornItems = lensClosetMatchItems(); lensWornStep = "closet"; render(); }
+function openLensWornPicker(index) { lensWornPickerIndex = index; lensWornPickerShowAll = false; lensWornStep = "picker"; render(); }
+function chooseLensWornItem(id) {
+  const item = closetItems().find(piece => piece.id === id);
+  if (!item || lensWornPickerIndex === null) return;
+  const current = lensWornItems[lensWornPickerIndex];
+  if (wearItemCategory(item) !== wearItemCategory(current)) {
+    toast(`Choose another ${current.role.toLowerCase()} item`);
+    return;
+  }
+  Object.assign(current, { closetItemId: item.id, name: item.name, image: item.image, status: "adjusted" });
+  lensWornPickerIndex = null; lensWornPickerShowAll = false; lensWornStep = "closet"; render();
+}
+function removeLensWornItem(index) { Object.assign(lensWornItems[index], { closetItemId: null, status: "skipped" }); render(); }
+function addLensDetectedItem(index) {
+  const detected = lensWornItems[index];
+  const item = { id: newClosetItemId(), name: detected.name === "Shoes" ? "Photo-matched shoes" : detected.name,
+    brand: "Added with Lens", category: detected.role === "Bottom" ? "Bottoms" : detected.role === "Outerwear" ? "Outerwear" : detected.role === "Shoes" ? "Shoes" : "Tops",
+    image: lensInputPreview || assets.shoes, status: "Available", wears: 0 };
+  purchasedClosetItems.push(item); persistClosetItems();
+  Object.assign(detected, { closetItemId: item.id, name: item.name, image: item.image, status: "added" });
+  if (lensWornStep === "picker") { lensWornStep = "closet"; lensWornPickerIndex = null; lensWornPickerShowAll = false; }
+  render(); toast("Item added to your Closet");
+}
+function confirmLensReconstruction() {
+  if (!lensWornItems.some(item => item.status !== "skipped" && item.closetItemId)) return toast("Choose at least one Closet item");
+  lensWornStep = "confirm"; render();
+}
+function handoffLensWear(useExistingLook = false) {
+  let look = lensWornCandidate();
+  if (!useExistingLook) {
+    const pieces = lensWornItems.filter(item => item.status !== "skipped" && item.closetItemId).map((item, index) => ({ id: `lens-piece-${index}`, exactClosetId: item.closetItemId, closetId: item.closetItemId, role: item.role, name: item.name, image: item.image }));
+    look = { id: `lens-wear-${Date.now()}`, title: "Outfit from Lens", occasion: "Today", context: "Matched from your photo", image: lensInputPreview || assets.look, sheet: lensInputPreview || assets.look, pieces, creationSource: "lens" };
+    lensWearDraftLook = look;
+  }
+  lensOpen = false;
+  openWearFlow(look.id, null, { entrySource: "lens", look });
+}
+function lensWornItemsMarkup() {
+  return `<div class="lens-worn-items" aria-label="Proposed Closet outfit">${lensWornItems.map((item, index) => `<article class="lens-worn-item ${item.status === "missing" || item.status === "skipped" ? "is-missing" : ""}"><img src="${escapeMarkup(item.image)}" alt=""><span><b>${escapeMarkup(item.name)}</b><small>${escapeMarkup(item.role)} · ${item.status === "matched" ? "Closet match" : item.status === "adjusted" ? "Adjusted" : item.status === "added" ? "Added to Closet" : item.status === "skipped" ? "Skipped" : "Not matched yet"}</small></span><button class="text-action" onclick="openLensWornPicker(${index})">${item.closetItemId ? "Replace" : "Choose from Closet"}</button>${item.status === "missing" ? `<button class="text-action" onclick="addLensDetectedItem(${index})">Add this item</button>` : ""}<button class="text-action" onclick="removeLensWornItem(${index})">${item.closetItemId ? "Remove" : "Skip this piece"}</button></article>`).join("")}</div>`;
+}
+function lensWornResult() {
+  const photo = `<img class="lens-result-hero" src="${lensInputPreview || assets.look3}" alt="Lens visual input">`;
+  if (lensWornStep === "analyzing") return `${photo}<div class="lens-analysis" role="status"><span></span><p class="eyebrow">Understanding your outfit…</p><h2 class="title">Checking your Looks…</h2><p class="body">Matching your Closet…</p></div>`;
+  if (lensWornStep === "match") {
+    const look = lensWornCandidate();
+    return `${photo}<p class="eyebrow" style="margin-top:14px">Likely Look · suggestion</p><h2 class="title">Is this the Look you wore?</h2><article class="lens-look-candidate"><img src="${escapeMarkup(look.image || look.sheet)}" alt="Soft Workday"><span><b>Soft Workday</b><small>${escapeMarkup(look.context || look.occasion)}</small></span></article><div class="row lens-worn-actions"><button class="btn grow primary" onclick="handoffLensWear(true)">Yes</button><button class="btn grow" onclick="startLensClosetReconstruction()">Something else</button></div>`;
+  }
+  if (lensWornStep === "picker") {
+    const current = lensWornItems[lensWornPickerIndex];
+    const candidates = wearPickerCandidates(current, lensWornPickerShowAll);
+    const choices = candidates.length ? `<div class="lens-closet-picker">${candidates.map(item => `<button onclick="chooseLensWornItem('${escapeMarkup(item.id)}')"><img src="${escapeMarkup(item.image)}" alt=""><span><b>${escapeMarkup(item.name)}</b><small>${escapeMarkup([item.subcategory || item.category, item.color || item.brand].filter(Boolean).join(" · "))}</small></span></button>`).join("")}</div>` : `<div class="wear-picker-empty"><b>No similar Closet pieces found</b><small>Try all Closet items, add this piece, or skip it.</small></div>`;
+    return `${photo}<p class="eyebrow" style="margin-top:14px">Adjust ${escapeMarkup(current.role)}</p><h2 class="title">Choose from Closet</h2>${choices}<div class="wear-actions">${lensWornPickerShowAll ? "" : `<button class="btn wide" onclick="lensWornPickerShowAll=true;render()">View all matching Closet items</button>`}<button class="btn wide" onclick="lensWornPickerShowAll=true;render()">Choose another ${escapeMarkup(current.role.toLowerCase())} item</button><button class="btn wide" onclick="addLensDetectedItem(${lensWornPickerIndex})">Add this item</button><button class="text-action" onclick="removeLensWornItem(${lensWornPickerIndex});lensWornStep='closet';render()">Skip this piece</button><button class="text-action" onclick="lensWornStep='closet';render()">Back to items</button></div>`;
+  }
+  if (lensWornStep === "confirm") return `${photo}<p class="eyebrow" style="margin-top:14px">Final outfit</p><h2 class="title">Is this what you wore?</h2>${lensWornItemsMarkup()}<button class="btn primary wide lens-worn-confirm" onclick="handoffLensWear(false)">Yes, I wore this</button><button class="btn wide" onclick="lensWornStep='closet';render()">Adjust</button>`;
+  return `${photo}<p class="eyebrow" style="margin-top:14px">Closet matches · suggestions</p><h2 class="title">I found most of your outfit</h2><p class="body">Review every match. You decide which pieces count toward today’s wear.</p>${lensWornItemsMarkup()}<button class="btn primary wide lens-worn-confirm" onclick="confirmLensReconstruction()">Confirm outfit</button>`;
 }
 function lensMatches() {
   return `<div class="lens-match-grid" role="region" aria-label="Owned visual matches">${[
@@ -4103,6 +4228,7 @@ function lensMatches() {
     .join("")}</div>`;
 }
 function lensResult() {
+  if (lensIntent === "worn") return lensWornResult();
   const results = {
     add: {
       eyebrow: "4 garments detected",
@@ -4164,7 +4290,8 @@ function lensResult() {
 }
 function lensLayerMarkup() {
   if (!lensOpen) return "";
-  return `<div class="lens-layer"><div class="lens-scrim" aria-hidden="true"></div><section class="lens-sheet" role="dialog" aria-modal="true" aria-label="StyleIQ Lens"><header class="lens-head"><span><p class="eyebrow">StyleIQ</p><h2 class="title" style="font-size:20px">Lens</h2></span><button class="icon-btn" aria-label="Close StyleIQ Lens" onclick="closeLens()">×</button></header>${lensStage === "capture" ? lensCaptureMarkup() : lensStage === "intent" ? lensIntentPicker() : lensResult()}</section></div>`;
+  const content = lensStage === "capture" ? lensCaptureMarkup() : lensStage === "preparing" ? lensImagePreparingMarkup() : lensStage === "image-error" ? lensImageErrorMarkup() : lensStage === "intent" ? lensIntentPicker() : lensResult();
+  return `<div class="lens-layer"><div class="lens-scrim" aria-hidden="true"></div><section class="lens-sheet" role="dialog" aria-modal="true" aria-label="StyleIQ Lens"><header class="lens-head"><span><p class="eyebrow">StyleIQ</p><h2 class="title" style="font-size:20px">Lens</h2></span><button class="icon-btn" aria-label="Close StyleIQ Lens" onclick="closeLens()">×</button></header>${content}</section></div>`;
 }
 function decorateVisualSearchEntries() {
   const content = app.querySelector(".content");
@@ -7986,7 +8113,9 @@ const persistWear = () => {
 };
 function wearLook(id) {
   const base = swipeLookRecord(id) || lookCatalog.find(look => look.id === id || look.title === id);
-  return base ? { ...base, ...wearLookOverrides[id] } : null;
+  const lensSnapshot = lensWearDraftLook?.id === id ? lensWearDraftLook : wearRecords.find(record => record.lookId === id)?.lookSnapshot;
+  const resolved = base || lensSnapshot;
+  return resolved ? { ...resolved, ...wearLookOverrides[id] } : null;
 }
 function wearRecordFor(id) {
   return wearRecords.find(record => record.lookId === id && record.date === wearTodayKey());
@@ -8016,18 +8145,51 @@ function selectLookForWear(look, forceConfirm = false) {
 function initialActualItems(look) {
   return normalizeLookPieces(look.pieces || look.state?.items || []).map((piece, index) => ({
     originalLookItemId: piece.id || String(index), role: piece.role, originalName: piece.name,
-    closetItemId: piece.closetId || null, name: piece.name, image: piece.image, worn: true,
+    closetItemId: piece.closetId || piece.exactClosetId || null, name: piece.name, image: piece.image, worn: true,
   }));
 }
-function openWearFlow(lookId, recordId = null) {
-  const look = wearLook(lookId);
+function normalizedWearCategory(value = "") {
+  const words = String(value).toLowerCase();
+  if (/blazer|jacket|coat|outerwear|cardigan|layer/.test(words)) return "outerwear";
+  if (/trouser|pants|jeans|bottom|skirt|shorts/.test(words)) return "bottoms";
+  if (/sneaker|trainer|loafer|heel|pump|boot|shoe|flat|sandal/.test(words)) return "shoes";
+  if (/shirt|top|tee|tank|shell|blouse|knit|polo/.test(words)) return "tops";
+  if (/dress|suit|jumpsuit/.test(words)) return "dresses";
+  if (/bag|tote|clutch|duffel/.test(words)) return "bags";
+  if (/accessor|jewel|earring|watch|belt|scarf/.test(words)) return "accessories";
+  return words.trim().replace(/s$/, "");
+}
+function wearItemCategory(item = {}) {
+  return normalizedWearCategory(`${item.category || ""} ${item.subcategory || ""} ${item.role || ""} ${item.name || item.originalName || ""}`);
+}
+function wearPickerCandidates(current, includeAll = false) {
+  const target = wearItemCategory(current);
+  const exactTarget = normalizedWearCategory(current.subcategory || current.category || current.role || "");
+  const available = closetItems().filter(item => item.id !== current.closetItemId && item.status === "Available");
+  return available
+    .map(item => {
+      const exactItem = normalizedWearCategory(item.subcategory || item.category || "");
+      const priority = exactTarget && exactItem === exactTarget ? 1 : wearItemCategory(item) === target ? 2 : 99;
+      return { item, priority };
+    })
+    .filter(entry => entry.priority < 99)
+    .sort((a, b) => a.priority - b.priority || a.item.name.localeCompare(b.item.name))
+    .map(entry => entry.item);
+}
+function wearPickerCard(item) {
+  const detail = [item.subcategory || item.category || "Closet", item.color || item.brand].filter(Boolean).join(" · ");
+  return `<button onclick="replaceWearItem('${escapeMarkup(item.id)}')"><img src="${escapeMarkup(item.image)}" alt=""><span><b>${escapeMarkup(item.name)}</b><small>${escapeMarkup(detail)}</small></span></button>`;
+}
+function openWearFlow(lookId, recordId = null, options = {}) {
+  const look = options.look || wearLook(lookId);
   if (!look) return;
   const record = wearRecords.find(item => item.id === recordId);
   wearReturnFocus = document.activeElement;
   wearFlow = { lookId, recordId, step: record ? 'review' : 'confirm',
     items: record ? structuredClone(record.actualItems) : initialActualItems(look),
     context: record?.context || null, feedback: record?.feedback || null,
-    changed: false, pickerIndex: null };
+    changed: false, pickerIndex: null, pickerShowAll: false, entrySource: options.entrySource || record?.source || null,
+    lookSnapshot: options.look || record?.lookSnapshot || null, originalRecord: record ? structuredClone(record) : null };
   mountWearSheet();
 }
 function openPlannerWearFlow(lookId) {
@@ -8059,16 +8221,18 @@ function wearContextOptions(look) {
 function chooseWearContext(index) { saveWearContext(wearContextOptions(wearLook(wearFlow.lookId))[index]); }
 function wearSheetContent() {
   const flow = wearFlow, look = wearLook(flow.lookId), record = wearRecords.find(item => item.id === flow.recordId);
-  const heading = { confirm: 'Did you wear this look?', edit: 'What did you change?', picker: 'Choose a Closet piece', context: 'What did you wear it for?', feedback: 'How did it feel?', save: 'Keep this change?', review: 'Wear record', done: '✓ Worn' }[flow.step];
+  const heading = { confirm: 'Did you wear this look?', edit: 'What did you change?', picker: 'Choose a Closet piece', 'edit-save': 'Save changes?', context: 'What did you wear it for?', feedback: 'How did it feel?', save: 'Keep this change?', review: 'Wear record', done: '✓ Worn' }[flow.step];
   const image = look.image || look.sheet || assets.look;
   const intro = `<div class="wear-look"><img src="${escapeMarkup(image)}" alt=""><span><b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(flow.context || wearTodayKey())}</small></span></div>`;
   if (flow.step === 'confirm') return `${intro}<div class="wear-actions"><button class="btn primary wide" onclick="confirmWear(false)">Yes, as styled</button><button class="btn wide" onclick="wearFlow.step='edit';mountWearSheet()">Yes, but I changed something</button><button class="text-action" onclick="declineWear()">No, I didn't wear it</button></div>`;
   if (flow.step === 'edit') return `${intro}<div class="wear-item-list">${flow.items.map((item, index) => `<div class="wear-item"><img src="${escapeMarkup(item.image)}" alt=""><span><b>${escapeMarkup(item.name)}</b><small>${escapeMarkup(item.role)}</small></span><button aria-pressed="${item.worn}" onclick="toggleWearItem(${index})">${item.worn ? '✓ Wore' : 'Didn’t wear'}</button><button onclick="wearFlow.pickerIndex=${index};wearFlow.step='picker';mountWearSheet()">Replace</button></div>`).join('')}</div><button class="btn primary wide" onclick="confirmWear(true)">Confirm actual items</button>`;
   if (flow.step === 'picker') {
     const current = flow.items[flow.pickerIndex];
-    const candidates = closetItems().filter(item => item.id !== current.closetItemId && item.status === 'Available');
-    return `<p class="body">Replacing ${escapeMarkup(current.originalName)}</p><div class="wear-picker">${candidates.map(item => `<button onclick="replaceWearItem('${escapeMarkup(item.id)}')"><img src="${escapeMarkup(item.image)}" alt=""><span>${escapeMarkup(item.name)}</span></button>`).join('')}</div><button class="btn wide" onclick="wearFlow.step='edit';mountWearSheet()">Back to items</button>`;
+    const candidates = wearPickerCandidates(current, flow.pickerShowAll);
+    const cards = candidates.length ? `<div class="wear-picker">${candidates.map(wearPickerCard).join('')}</div>` : `<div class="wear-picker-empty"><b>No similar Closet pieces found</b><small>Try the full Closet, add this detected piece, or leave it out.</small></div>`;
+    return `<p class="body">Replacing ${escapeMarkup(current.originalName || current.name)}</p>${cards}<div class="wear-actions">${flow.pickerShowAll ? '' : `<button class="btn wide" onclick="wearFlow.pickerShowAll=true;mountWearSheet()">View all matching Closet items</button>`}<button class="btn wide" onclick="wearFlow.pickerShowAll=true;mountWearSheet()">Choose another ${escapeMarkup(current.role.toLowerCase())} item</button><button class="btn wide" onclick="addWearDetectedItem()">Add this item</button><button class="text-action" onclick="skipWearPickerItem()">Skip this piece</button><button class="text-action" onclick="wearFlow.step='edit';wearFlow.pickerShowAll=false;mountWearSheet()">Back to items</button></div>`;
   }
+  if (flow.step === 'edit-save') return `${intro}<p class="body">Choose whether this correction updates the saved wear or represents another occasion.</p><div class="wear-actions"><button class="btn primary wide" onclick="resolveWearRecordEdit('update')">Update Current</button><button class="btn wide" onclick="resolveWearRecordEdit('new')">Save as New</button><button class="text-action" onclick="resolveWearRecordEdit('discard')">Discard Changes</button></div>`;
   if (flow.step === 'context') return `${intro}<div class="wear-chips">${wearContextOptions(look).map((value, index) => `<button class="chip" onclick="chooseWearContext(${index})">${escapeMarkup(value)}</button>`).join('')}<button class="chip" onclick="wearFlow.context='other';mountWearSheet()">Something else</button></div>${flow.context === 'other' ? `<label class="field">What did you wear it for?<input id="wear-other-context" class="input" maxlength="80"></label><button class="btn wide" onclick="saveWearContext(document.getElementById('wear-other-context').value.trim())">Save context</button>` : ''}<button class="text-action" onclick="saveWearContext(null)">Skip</button>`;
   if (flow.step === 'feedback') return `<p class="body">Optional · help Muse understand this wear.</p><div class="wear-chips">${['Loved it', 'Comfortable', 'Would wear again', 'Too warm', 'Too cold', 'Too formal', 'Too casual'].map(value => `<button class="chip" onclick="saveWearFeedback('${value}')">${value}</button>`).join('')}</div><button class="text-action" onclick="saveWearFeedback(null)">Skip</button>`;
   if (flow.step === 'save') return `${intro}<p class="body">You wore an edited version. How should StyleIQ keep the Look?</p><div class="wear-actions"><button class="btn primary wide" onclick="resolveWearLook('new')">Save it as a new Look</button><button class="btn wide" onclick="resolveWearLook('keep')">Keep this wear only</button><button class="btn wide" onclick="resolveWearLook('original')">Change original Look</button></div>`;
@@ -8080,7 +8244,7 @@ function mountWearSheet() {
   if (!wearFlow) return;
   const layer = document.createElement('div');
   layer.className = 'wear-overlay';
-  layer.innerHTML = `<div class="wear-backdrop" onclick="closeWearFlow()"></div><section class="wear-sheet" role="dialog" aria-modal="true" aria-labelledby="wear-title"><header><h2 id="wear-title">${{ confirm:'Did you wear this look?', edit:'What did you change?', picker:'Choose a Closet piece', context:'What did you wear it for?', feedback:'How did it feel?', save:'Keep this change?', review:'Wear record', done:'✓ Worn' }[wearFlow.step]}</h2><button aria-label="Close" onclick="closeWearFlow()">×</button></header>${wearSheetContent()}</section>`;
+  layer.innerHTML = `<div class="wear-backdrop" onclick="closeWearFlow()"></div><section class="wear-sheet" role="dialog" aria-modal="true" aria-labelledby="wear-title"><header><h2 id="wear-title">${{ confirm:'Did you wear this look?', edit:'What did you change?', picker:'Choose a Closet piece', 'edit-save':'Save changes?', context:'What did you wear it for?', feedback:'How did it feel?', save:'Keep this change?', review:'Wear record', done:'✓ Worn' }[wearFlow.step]}</h2><button aria-label="Close" onclick="closeWearFlow()">×</button></header>${wearSheetContent()}</section>`;
   document.querySelector('.phone').append(layer);
   layer.querySelector('.wear-sheet button')?.focus();
 }
@@ -8088,8 +8252,23 @@ function toggleWearItem(index) { wearFlow.items[index].worn = !wearFlow.items[in
 function replaceWearItem(id) {
   const item = closetItems().find(piece => piece.id === id);
   if (!item) return;
-  Object.assign(wearFlow.items[wearFlow.pickerIndex], { closetItemId: item.id, name: item.name, image: item.image, worn: true });
-  wearFlow.changed = true; wearFlow.step = 'edit'; mountWearSheet();
+  const current = wearFlow.items[wearFlow.pickerIndex];
+  if (wearItemCategory(item) !== wearItemCategory(current)) {
+    toast(`Choose another ${current.role.toLowerCase()} item`);
+    return;
+  }
+  Object.assign(current, { closetItemId: item.id, name: item.name, image: item.image, worn: true });
+  wearFlow.changed = true; wearFlow.pickerShowAll = false; wearFlow.step = 'edit'; mountWearSheet();
+}
+function addWearDetectedItem() {
+  const current = wearFlow.items[wearFlow.pickerIndex];
+  const category = ({ outerwear: 'Outerwear', bottoms: 'Bottoms', shoes: 'Shoes', tops: 'Tops', dresses: 'Dresses & Suits', bags: 'Bags', accessories: 'Accessories' })[wearItemCategory(current)] || 'Other';
+  const item = { id: newClosetItemId(), name: current.name || current.originalName || 'Detected item', brand: 'Added with Lens', category, image: current.image || lensInputPreview || assets.look, status: 'Available', wears: 0 };
+  purchasedClosetItems.push(item); persistClosetItems(); replaceWearItem(item.id); toast('Item added to your Closet');
+}
+function skipWearPickerItem() {
+  const current = wearFlow.items[wearFlow.pickerIndex];
+  current.worn = false; wearFlow.changed = true; wearFlow.pickerShowAll = false; wearFlow.step = 'edit'; mountWearSheet();
 }
 function updateWearItemCounts(before = [], after = []) {
   const tally = items => items.filter(item => item.worn && item.closetItemId).reduce((map, item) => map.set(item.closetItemId, (map.get(item.closetItemId) || 0) + 1), new Map());
@@ -8103,8 +8282,15 @@ function confirmWear(changed) {
   const flow = wearFlow;
   if (!flow.items.some(item => item.worn)) { toast('Choose at least one piece you wore'); return; }
   const existing = wearRecords.find(item => item.id === flow.recordId);
+  if (existing && JSON.stringify(existing.actualItems) !== JSON.stringify(flow.items)) {
+    flow.changed = true;
+    flow.step = 'edit-save';
+    mountWearSheet();
+    return;
+  }
   const before = existing?.actualItems || [];
-  const record = existing || { id: `wear-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, lookId: flow.lookId, date: wearTodayKey(), timestamp: new Date().toISOString(), source: wearLook(flow.lookId)?.creationSource || 'look' };
+  const record = existing || { id: `wear-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, lookId: flow.lookId, date: wearTodayKey(), timestamp: new Date().toISOString(), source: flow.entrySource || wearLook(flow.lookId)?.creationSource || 'look' };
+  if (flow.lookSnapshot) record.lookSnapshot = structuredClone(flow.lookSnapshot);
   record.actualItems = structuredClone(flow.items);
   record.modifications = flow.items.filter(item => !item.worn || item.name !== item.originalName).map(item => ({ originalLookItemId: item.originalLookItemId, actualClosetItemId: item.worn ? item.closetItemId : null }));
   if (!existing) wearRecords.push(record);
@@ -8112,6 +8298,33 @@ function confirmWear(changed) {
   flow.recordId = record.id;
   flow.changed = record.modifications.length > 0 && (!existing || JSON.stringify(before) !== JSON.stringify(record.actualItems));
   persistWear(); flow.step = 'context'; mountWearSheet();
+}
+function wearRecordModifications(items) {
+  return items.filter(item => !item.worn || item.name !== item.originalName).map(item => ({ originalLookItemId: item.originalLookItemId, actualClosetItemId: item.worn ? item.closetItemId : null }));
+}
+function resolveWearRecordEdit(choice) {
+  const flow = wearFlow;
+  const existing = wearRecords.find(item => item.id === flow.recordId);
+  if (!existing || !flow.originalRecord) return;
+  if (choice === 'discard') {
+    flow.items = structuredClone(flow.originalRecord.actualItems);
+    flow.changed = false; flow.step = 'review'; mountWearSheet();
+    return;
+  }
+  if (choice === 'update') {
+    const before = structuredClone(existing.actualItems);
+    existing.actualItems = structuredClone(flow.items);
+    existing.modifications = wearRecordModifications(existing.actualItems);
+    updateWearItemCounts(before, existing.actualItems);
+    flow.originalRecord = structuredClone(existing);
+    persistWear(); flow.changed = false; flow.step = 'review'; mountWearSheet(); render();
+    return;
+  }
+  const created = { ...structuredClone(flow.originalRecord), id: `wear-${Date.now()}-${Math.random().toString(36).slice(2,7)}`, timestamp: new Date().toISOString(), actualItems: structuredClone(flow.items), modifications: wearRecordModifications(flow.items) };
+  wearRecords.push(created);
+  updateWearItemCounts([], created.actualItems);
+  persistWear();
+  flow.recordId = created.id; flow.originalRecord = structuredClone(created); flow.changed = false; flow.step = 'review'; mountWearSheet(); render();
 }
 function saveWearContext(value) {
   const record = wearRecords.find(item => item.id === wearFlow.recordId);
