@@ -18065,6 +18065,37 @@ summary:focus-visible {
 .discover-product-detail-meta span { padding: 5px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: 10px; }
 .discover-product-detail-actions { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 10px; }
 .discover-product-detail-actions .btn { min-width: 0; min-height: 48px; }
+.discover-product-recommendation { display: grid; gap: 7px; margin-top: 14px; }
+.discover-product-recommendation > small { color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.discover-product-recommendation .app-tabs { max-width: 360px; padding: 3px; border: 1px solid color-mix(in srgb,var(--line) 75%,transparent); background: transparent; }
+.discover-product-recommendation .app-tab { min-height: 34px; font-size: 11px; }
+.discover-all-products-context { margin: 15px 2px 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.discover-product-context,.discover-style-learning { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.discover-product-context { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.discover-product-context span,.discover-complete-look span { display: grid; gap: 3px; min-width: 0; }
+.discover-product-context small,.discover-complete-look small,.discover-style-learning small { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; }
+.discover-product-context button { border: 0; background: none; font-size: 20px; }
+.discover-complete-section { margin-top: 18px; }
+.discover-complete-section > h3,.discover-style-learning h3 { margin: 0 0 10px; font-size: 17px; }
+.discover-complete-look { display: grid; grid-template-columns: 74px minmax(0,1fr); gap: 12px; align-items: start; padding: 14px 0; border-top: 1px solid var(--line); }
+.discover-complete-look img { width: 74px; height: 88px; border-radius: 12px; object-fit: cover; }
+.discover-complete-look em { color: var(--muted); font-size: 11px; font-style: normal; }
+.discover-complete-look .text-action { justify-self: start; padding: 5px 0; }
+.discover-complete-intro p,.discover-completion-empty p { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.discover-missing-needs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.discover-missing-needs .chip { min-height: 30px; padding: 5px 9px; font-size: 10px; }
+.discover-completion-products { grid-column: 1 / -1; min-width: 0; }
+.discover-completion-products > p { margin: 2px 0 8px; color: var(--muted); font-size: 11px; }
+.discover-completion-products > p b { color: var(--ink); }
+.discover-completion-empty { margin-top: 18px; padding: 20px 16px; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+.discover-completion-empty h3 { margin: 0; font-size: 18px; }
+.discover-completion-empty .btn { margin-top: 14px; }
+.discover-product-reason { display: block; margin-top: 6px; color: var(--muted); font-size: 10px; font-style: normal; line-height: 1.35; }
+.discover-style-learning p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.discover-similar-card > div { display: grid; grid-template-columns: 72px minmax(0,1fr); gap: 12px; align-items: center; margin-top: 10px; }
+.discover-similar-card img { width: 72px; height: 84px; border-radius: 12px; object-fit: cover; }
+.discover-similar-card span { display: grid; gap: 4px; }
+.discover-similar-card small { color: var(--muted); }
 .discover-detail-save { gap: 7px; }
 .discover-detail-save .icon { width: 17px; height: 17px; }
 .discover-detail-closet { min-height: 44px; margin-top: 12px; }
@@ -21763,6 +21794,8 @@ summary:focus-visible {
 .make-mine-alternatives button[aria-pressed="true"] { border-color: var(--mine-warm); background: #fff; }
 .make-mine-alternatives img { width: 32px; height: 38px; border-radius: 7px; object-fit: cover; }
 .make-mine-alternatives span { font-size: 9px; line-height: 1.2; }
+.make-mine-piece-actions { display: flex; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1px solid rgba(32,28,25,.07); }
+.make-mine-piece-actions .text-action { min-height: 30px; font-size: 10px; }
 .make-mine-sticky {
   position: sticky;
   z-index: 3;

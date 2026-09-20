@@ -1434,15 +1434,17 @@ function wishlistDetail() {
   const saved = wishlistItems.some((entry) => entry.id === item.id), status = saved ? wishlistStatus(item) : item.availability;
   const sourceId = String(item.product_id || item.id.replace(/^discover-/, ""));
   const owned = Boolean(item.owned) || discoverOwnedProductIds.has(sourceId) || purchasedClosetItems.some((entry) => entry.wishlistId === item.id || String(entry.product_id || "") === sourceId);
+  const closetMatch = discoverProductClosetMatch(item);
+  const similarityCard = closetMatch.type === "similar" && closetMatch.item ? `<section class="card discover-similar-card" aria-label="Similar Closet item"><p class="eyebrow">You may already own something similar</p><div><img src="${closetMatch.item.image}" alt="${escapeMarkup(closetMatch.item.name)}"><span><b>${escapeMarkup(closetMatch.item.name)}</b><small>${escapeMarkup(closetMatch.item.brand || "Your Closet")}</small><button class="text-action" onclick="openClosetItem('${closetMatch.item.id}')">View Closet Item</button></span></div></section>` : "";
   if (!saved) {
     const details = [item.category ? `<span>${escapeMarkup(item.category)}</span>` : "", item.merchant && item.merchant !== item.brand ? `<span>${escapeMarkup(item.merchant)}</span>` : ""].filter(Boolean).join("");
     const buyEnabled = Boolean(discoverExternalUrl(item.productUrl));
-    return shell("Product Details", `<div class="wishlist-detail-media discover-product-detail-media"><img src="${escapeMarkup(item.image || wishlistProductImage(item))}" alt="${escapeMarkup(item.name)}">${owned ? '<span class="discover-owned-badge">In your Closet</span>' : ''}</div><div class="wishlist-detail-heading"><p class="eyebrow">${escapeMarkup(item.brand || item.merchant || "Online find")}</p><h2 class="title">${escapeMarkup(item.name)}</h2><div class="wishlist-price"><b>${wishlistMoney(item.price)}</b></div>${details ? `<div class="discover-product-detail-meta">${details}</div>` : ""}<p class="small">Not yet saved to Wishlist</p></div><div class="discover-product-detail-actions"><button class="btn discover-detail-save" onclick="discoverSaveProduct('${item.id}')">${icon("heart")} Save to Wishlist</button><button class="btn primary" onclick="discoverBuy('${item.id}')" ${buyEnabled ? "" : "disabled"}>Buy</button></div>${owned ? '<div class="discover-detail-owned">In your Closet</div>' : discoverApiBase && !item.prototype ? `<button class="text-action discover-detail-closet" onclick="discoverAddToCloset('${item.id}')">Add to Closet</button>` : ""}`, { surfaceClass: "wishlist-screen discover-product-detail" });
+    return shell("Product Details", `<div class="wishlist-detail-media discover-product-detail-media"><img src="${escapeMarkup(item.image || wishlistProductImage(item))}" alt="${escapeMarkup(item.name)}">${owned ? '<span class="discover-owned-badge">In your Closet</span>' : ''}</div><div class="wishlist-detail-heading"><p class="eyebrow">${escapeMarkup(item.brand || item.merchant || "Online find")}</p><h2 class="title">${escapeMarkup(item.name)}</h2><div class="wishlist-price"><b>${wishlistMoney(item.price)}</b></div>${details ? `<div class="discover-product-detail-meta">${details}</div>` : ""}<p class="small">Not yet saved to Wishlist</p></div>${similarityCard}<div class="discover-product-detail-actions"><button class="btn discover-detail-save" onclick="discoverSaveProduct('${item.id}')">${icon("heart")} Save to Wishlist</button><button class="btn primary" onclick="discoverBuy('${item.id}')" ${buyEnabled ? "" : "disabled"}>Buy</button></div>${owned ? '<div class="discover-detail-owned">In your Closet</div>' : discoverApiBase && !item.prototype ? `<button class="text-action discover-detail-closet" onclick="discoverAddToCloset('${item.id}')">Add to Closet</button>` : ""}`, { surfaceClass: "wishlist-screen discover-product-detail" });
   }
   const unavailable = item.availability === "Unavailable", purchased = item.status === "Purchased";
   const similar = closetItems().find((entry) => entry.id === item.similarClosetId);
   const discoverClosetAction = item.id.startsWith("discover-") ? (owned ? '<div class="discover-detail-owned">In your Closet</div>' : discoverApiBase && !item.prototype ? `<button class="text-action discover-detail-closet" onclick="discoverAddToCloset('${item.id}')">Add to Closet</button>` : "") : "";
-  return shell("Before You Buy", `<div class="wishlist-detail-media"><img src="${item.image}" alt="${escapeMarkup(item.name)}">${wishlistHeart(item)}</div><div class="wishlist-detail-heading"><p class="eyebrow">${escapeMarkup(item.brand)} · ${escapeMarkup(item.retailer || "Retailer not provided")}</p><h2 class="title">${escapeMarkup(item.name)}</h2><div class="wishlist-price"><b>${wishlistMoney(item.price)}</b>${item.previousPrice > item.price && Number.isFinite(item.price) ? `<del>${wishlistMoney(item.previousPrice)}</del><span class="small">Down ${wishlistMoney(item.previousPrice - item.price)}</span>` : ""}</div><div class="wishlist-detail-meta"><span class="pill">${status}</span><span>${escapeMarkup(item.collection)} · ${escapeMarkup(item.availability)}</span></div><p class="small">${saved ? `Saved ${wishlistDisplayDate(item.dateSaved)}` : "Not yet saved to Wishlist"}</p></div>
+  return shell("Before You Buy", `<div class="wishlist-detail-media"><img src="${item.image}" alt="${escapeMarkup(item.name)}">${wishlistHeart(item)}</div><div class="wishlist-detail-heading"><p class="eyebrow">${escapeMarkup(item.brand)} · ${escapeMarkup(item.retailer || "Retailer not provided")}</p><h2 class="title">${escapeMarkup(item.name)}</h2><div class="wishlist-price"><b>${wishlistMoney(item.price)}</b>${item.previousPrice > item.price && Number.isFinite(item.price) ? `<del>${wishlistMoney(item.previousPrice)}</del><span class="small">Down ${wishlistMoney(item.previousPrice - item.price)}</span>` : ""}</div><div class="wishlist-detail-meta"><span class="pill">${status}</span><span>${escapeMarkup(item.collection)} · ${escapeMarkup(item.availability)}</span></div><p class="small">${saved ? `Saved ${wishlistDisplayDate(item.dateSaved)}` : "Not yet saved to Wishlist"}</p></div>${similarityCard}
     ${unavailable && !purchased ? '<div class="card"><b>Currently unavailable</b><p class="body">Keep the piece for a later review. Purchase and budget actions will return when it is available.</p></div>' : purchased ? `<div class="card"><b>Purchased ${wishlistDisplayDate(item.purchaseDate)}</b><p class="body">${item.closetId ? "This product is now part of your Closet." : "Your purchase is recorded. Review its details when you’re ready to add it to Closet."}</p><button class="btn primary wide" onclick="${item.closetId ? `openClosetItem('${item.closetId}')` : `prepareWishlistPurchase('${item.id}')`}">${item.closetId ? "View Closet Item" : "Prepare for Closet"}</button></div>` : `<div class="wishlist-retailer">${wishlistRetailerLink(item)}<button class="text-action" onclick="openWishlistDialog('context','${item.id}')">${saved ? "Edit saved context" : "Save for Later"}</button>${discoverClosetAction}</div>`}
     <section class="wishlist-evaluation"><h3 class="title">Does it earn its place?</h3><div class="wishlist-evaluation-row"><span>${icon("shirt")}</span><div><b>Closet compatibility${item.compatibility != null ? ` · ${item.compatibility}%` : ""}</b><p class="body">${item.outfitCount ? `Works with ${item.outfitCount} possible outfits from your Closet.` : "Explore a combination with your current Closet."}</p><button class="text-action" onclick="openWishlistDialog('outfits','${item.id}')">Explore Outfit Ideas</button></div></div><div class="wishlist-evaluation-row"><span>${icon("spark")}</span><div><b>Style alignment</b><p class="body">${escapeMarkup(item.style || "Review the color and silhouette against the pieces you wear most.")}</p></div></div><div class="wishlist-evaluation-row"><span>${icon("copy")}</span><div><b>Duplicate risk · ${escapeMarkup(item.duplicateRisk || "Not assessed")}</b><p class="body">${similar ? `Compare with your ${escapeMarkup(similar.name)}.` : "No similar Closet reference is available for this product."}</p>${similar ? `<button class="text-action" onclick="openWishlistDialog('compare','${item.id}')">Compare Similar</button>` : ""}</div></div><div class="wishlist-evaluation-row"><span>${icon("check")}</span><div><b>${escapeMarkup(item.gapValue || "Unassessed")} Gap Value${item.gap ? ` · ${escapeMarkup(item.gap)}` : ""}</b><p class="body">${item.gapValue === "High" ? "Adds a useful role to the pieces you already own." : "Consider whether your owned pieces already meet this need."}</p></div></div></section>
     <section class="card wishlist-muse"><p class="eyebrow">Muse’s perspective</p><p class="body">${escapeMarkup(item.recommendation || "Try an outfit with owned pieces first. Check for a similar item before deciding to buy.")}</p>${item.note ? `<p class="small">Your reason: “${escapeMarkup(item.note)}”</p>` : ""}</section>
@@ -5139,8 +5141,10 @@ function matchCreatorPieceToCloset(piece) {
     Accessory: ["Accessories", "Bags", "Jewelry"],
   };
   const categories = roleCategoryMap[piece.role] || [piece.role];
+  const meaningful = (value) => String(value).toLowerCase().split(/[^a-z0-9]+/).filter(token => token.length > 3 && !['with','your','open','black','white','ivory','camel','cream','charcoal','brown'].includes(token));
+  const pieceTokens = meaningful(`${piece.name} ${piece.original || ''}`);
   const similar = closet.find(
-    (item) => categories.includes(item.category) || item.role === piece.role,
+    (item) => (categories.includes(item.category) || item.role === piece.role) && meaningful(item.name).some(token => pieceTokens.includes(token)),
   );
   if (similar) {
     return {
@@ -5164,6 +5168,39 @@ function matchCreatorPieceToCloset(piece) {
     },
     originalCreatorPiece: piece.name,
   };
+}
+
+// Prototype adapter for the future Look compatibility API. Look Detail and
+// Make It Mine deliberately consume this same result so the UI cannot disagree.
+function lookCompatibility(look) {
+  const pieces = look?.pieces || [];
+  const available = availableMakeItMineCloset();
+  const byId = new Map(available.map(item => [item.id, item]));
+  const matches = pieces.map((sourcePiece, index) => {
+    const exact = sourcePiece.exactClosetId && byId.get(sourcePiece.exactClosetId);
+    if (exact) return { sourcePiece: { ...sourcePiece, id: sourcePiece.id || `${look.id || "look"}-piece-${index}` }, status:"Owned", item:exact, alternatives:[] };
+    const declaredAlternatives = (sourcePiece.similarClosetIds || []).map(id => byId.get(id)).filter(Boolean);
+    if (declaredAlternatives.length) return { sourcePiece: { ...sourcePiece, id: sourcePiece.id || `${look.id || "look"}-piece-${index}` }, status:"Similar Owned", item:declaredAlternatives[0], alternatives:declaredAlternatives };
+    const match = matchCreatorPieceToCloset(sourcePiece);
+    return { sourcePiece: { ...sourcePiece, id: sourcePiece.id || `${look.id || "look"}-piece-${index}` }, status: match.matchType, item: match.matchType === "Missing" ? null : match.item, alternatives: match.matchType === "Similar Owned" ? [match.item] : [] };
+  });
+  const exactCount = matches.filter((match) => match.status === "Owned").length;
+  const similarCount = matches.filter((match) => match.status === "Similar Owned").length;
+  const missingCount = matches.filter((match) => match.status === "Missing").length;
+  return { matches, exactCount, similarCount, missingCount, matchedCount: exactCount + similarCount, total: matches.length };
+}
+
+function findProductsForLookPiece(piece, look = {}) {
+  discoverMode = "Products";
+  discoverProductRecommendationMode = "Complete Saved Looks";
+  discoverProductQuery = piece.name || piece.role || "";
+  const category = ({ Shoes: "shoes", Top: "top", Bottom: "pants", Outerwear: "outerwear" })[piece.role] || "";
+  discoverCategory = category;
+  discoverBrand = "";
+  discoverOnlineProducts = [];
+  discoverProductContext = { lookId: look.id || look.sourceLookId || "", lookTitle: look.title || "this Look", pieceName: piece.name || piece.role || "piece" };
+  go("K-01");
+  if (discoverApiBase) discoverSearchLocal(discoverProductQuery);
 }
 
 function prepareCreatorLookForUser(lookId = activeCreatorLookId) {
@@ -5259,6 +5296,8 @@ function makeCreatorLookMine(lookId = activeCreatorLookId) {
     creator: look.creator.name,
     originLabel: `From ${look.creator.name}`,
     sourceLookId: look.id,
+    pieces: look.pieces,
+    useSourcePieces: true,
   });
 }
 
@@ -5289,7 +5328,13 @@ function refreshMakeItMineMatches() {
   if (!makeItMineState?.sourceLook) return;
   const available = availableMakeItMineCloset();
   const byId = new Map(available.map((item) => [item.id, item]));
-  const matches = makeItMineState.sourceLook.pieces.map((sourcePiece) => {
+  const canonicalCompatibility = makeItMineState.sourceLook.compatibility;
+  const matches = canonicalCompatibility ? canonicalCompatibility.matches.map((canonicalMatch) => {
+    const sourcePiece = canonicalMatch.sourcePiece;
+    const selectedId = makeItMineState.selections[sourcePiece.id];
+    const item = canonicalMatch.alternatives.find((candidate) => candidate.id === selectedId) || canonicalMatch.item;
+    return { ...canonicalMatch, item };
+  }) : makeItMineState.sourceLook.pieces.map((sourcePiece) => {
     const exact = sourcePiece.exactClosetId ? byId.get(sourcePiece.exactClosetId) : null;
     if (exact) return { sourcePiece, status: "Exact / Owned", item: exact, alternatives: [] };
     const alternatives = [...new Set(sourcePiece.similarClosetIds || [])]
@@ -5300,7 +5345,7 @@ function refreshMakeItMineMatches() {
     if (item) return { sourcePiece, status: "Similar Owned", item, alternatives };
     return { sourcePiece, status: "Missing", item: null, alternatives: [] };
   });
-  const owned = matches.filter((match) => match.status === "Exact / Owned");
+  const owned = matches.filter((match) => ["Exact / Owned", "Owned"].includes(match.status));
   const similar = matches.filter((match) => match.status === "Similar Owned");
   const missing = matches.filter((match) => match.status === "Missing");
   const matchedCount = owned.length + similar.length;
@@ -5317,8 +5362,7 @@ function openMakeItMine(profileId = "office", source = {}) {
   const profiles = makeItMineProfiles();
   const profile = profiles[profileId] || profiles.office;
   const origin = source.returnScreen || currentId;
-  makeItMineState = {
-    sourceLook: {
+  const sourceLook = {
       ...profile,
       title: source.title || profile.title,
       image: source.image || profile.image,
@@ -5327,7 +5371,11 @@ function openMakeItMine(profileId = "office", source = {}) {
       occasion: profile.title,
       profileId: profile.id,
       media: profile.media.map((media) => media.type === "image" ? { ...media, src: source.image || profile.image } : media),
-    },
+      pieces: source.useSourcePieces ? source.pieces : profile.pieces,
+    };
+  sourceLook.compatibility = lookCompatibility(sourceLook);
+  makeItMineState = {
+    sourceLook,
     adaptedLook: null,
     matchSummary: null,
     matchedItems: [],
@@ -5468,14 +5516,18 @@ function makeItMineMediaSurface(look) {
 }
 
 function makeItMinePieceMarkup(match) {
-  const statusClass = match.status === "Exact / Owned" ? "owned" : match.status === "Similar Owned" ? "similar" : "missing";
+  const statusClass = ["Exact / Owned", "Owned"].includes(match.status) ? "owned" : match.status === "Similar Owned" ? "similar" : "missing";
+  const statusLabel = ["Exact / Owned", "Owned"].includes(match.status) ? "In your Closet" : match.status === "Similar Owned" ? "Similar in your Closet" : "Missing";
   const destination = match.item
     ? `<div class="make-mine-piece-side"><small>Your Closet</small><img src="${match.item.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(match.item.name)}"><b>${escapeMarkup(match.item.name)}</b></div>`
     : `<div class="make-mine-piece-side make-mine-piece-missing"><small>Your Closet</small><span class="make-mine-missing-mark">${icon("plus")}</span><b>Not in Closet</b></div>`;
   const alternatives = match.alternatives.length > 1
     ? `<div class="make-mine-alternatives"><small>Choose a similar owned piece</small><div>${match.alternatives.map((item) => `<button aria-pressed="${match.item?.id === item.id}" onclick="selectMakeItMineAlternative('${match.sourcePiece.id}','${item.id}')"><img src="${item.image}" alt=""><span>${escapeMarkup(item.name)}</span></button>`).join("")}</div></div>`
     : "";
-  return `<article class="make-mine-piece-card"><header><span><small>${escapeMarkup(match.sourcePiece.role)}</small><b>${escapeMarkup(match.sourcePiece.name)}</b></span><em class="make-mine-status ${statusClass}">${match.status}</em></header><div class="make-mine-compare"><div class="make-mine-piece-side"><small>Original</small><img src="${match.sourcePiece.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(match.sourcePiece.name)}"><b>${escapeMarkup(match.sourcePiece.name)}</b></div><span class="make-mine-arrow" aria-hidden="true">→</span>${destination}</div>${alternatives}</article>`;
+  const action = match.item
+    ? `<div class="make-mine-piece-actions"><button class="text-action" onclick="openClosetItem('${match.item.id}')">View Closet Item</button>${statusClass === "similar" ? `<button class="text-action" onclick="selectMakeItMineAlternative('${match.sourcePiece.id}','${match.item.id}')">Use This Item</button>` : ""}</div>`
+    : `<div class="make-mine-piece-actions"><button class="text-action" onclick='findProductsForLookPiece(${JSON.stringify(match.sourcePiece)},${JSON.stringify(makeItMineState.sourceLook)})'>Find Products</button></div>`;
+  return `<article class="make-mine-piece-card"><header><span><small>${escapeMarkup(match.sourcePiece.role)}</small><b>${escapeMarkup(match.sourcePiece.name)}</b></span><em class="make-mine-status ${statusClass}">${statusLabel}</em></header><div class="make-mine-compare"><div class="make-mine-piece-side"><small>Original</small><img src="${match.sourcePiece.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(match.sourcePiece.name)}"><b>${escapeMarkup(match.sourcePiece.name)}</b></div><span class="make-mine-arrow" aria-hidden="true">→</span>${destination}</div>${alternatives}${action}</article>`;
 }
 
 function makeItMineEmptyScreen() {
@@ -5908,10 +5960,11 @@ function creatorProfileScreen() {
 
 function creatorLookDetailScreen() {
   const look = getCreatorLook(activeCreatorLookId);
-  const matchedPieces = look.pieces.map((p) => matchCreatorPieceToCloset(p));
-  const ownedCount = matchedPieces.filter((m) => m.matchType === "Owned").length;
-  const similarCount = matchedPieces.filter((m) => m.matchType === "Similar Owned").length;
-  const totalCount = matchedPieces.length;
+  const compatibility = lookCompatibility(look);
+  const matchedPieces = compatibility.matches;
+  const ownedCount = compatibility.exactCount;
+  const similarCount = compatibility.similarCount;
+  const totalCount = compatibility.total;
 
   return shell(
     look.title,
@@ -5944,14 +5997,15 @@ function creatorLookDetailScreen() {
           .map(
             (m) => `
           <div class="creator-piece-row">
-            <img src="${m.item.image || m.originalCreatorPiece}" class="creator-piece-thumb" alt="${escapeMarkup(m.originalCreatorPiece)}">
+            <img src="${m.sourcePiece.image || m.item?.image || assets.look2}" class="creator-piece-thumb" alt="${escapeMarkup(m.sourcePiece.name)}">
             <div class="creator-piece-meta">
-              <span class="creator-piece-role">${m.item.role === "Outerwear" ? "Layer" : m.item.role}</span>
-              <b>${escapeMarkup(m.originalCreatorPiece)}</b>
-              <small class="body">${m.matchType === "Owned" ? `Owned in Closet (${escapeMarkup(m.item.name)})` : m.matchType === "Similar Owned" ? `Similar in Closet: ${escapeMarkup(m.item.name)}` : "Not in your Closet"}</small>
+              <span class="creator-piece-role">${m.sourcePiece.role === "Outerwear" ? "Layer" : m.sourcePiece.role}</span>
+              <b>${escapeMarkup(m.sourcePiece.name)}</b>
+              <small class="body">${m.status === "Owned" ? "In your Closet" : m.status === "Similar Owned" ? "Similar in your Closet" : "Missing"}</small>
+              ${m.item ? `<button class="text-action" onclick="openClosetItem('${m.item.id}')">View ${m.status === "Similar Owned" ? "Similar " : ""}Closet Item</button>` : `<button class="text-action" onclick='findProductsForLookPiece(${JSON.stringify(m.sourcePiece)},${JSON.stringify({ id: look.id, title: look.title })})'>Find This Piece</button>`}
             </div>
-            <span class="match-status-badge ${m.matchType === "Owned" ? "owned" : m.matchType === "Similar Owned" ? "similar" : "missing"}">
-              ${m.matchType === "Owned" ? "Owned ✓" : m.matchType === "Similar Owned" ? "Similar ✓" : "Missing"}
+            <span class="match-status-badge ${m.status === "Owned" ? "owned" : m.status === "Similar Owned" ? "similar" : "missing"}">
+              ${m.status === "Owned" ? "✓ Owned" : m.status === "Similar Owned" ? "≈ Similar" : "○ Missing"}
             </span>
           </div>
         `,
@@ -5975,9 +6029,9 @@ function creatorLookDetailScreen() {
       <div class="between">
         <div>
           <p class="eyebrow">Closet Compatibility</p>
-          <h4 class="title" style="margin:2px 0 0;font-size:15px">Ready to Make It Yours</h4>
+          <h4 class="title" style="margin:2px 0 0;font-size:15px">${compatibility.missingCount === 1 ? "1 piece missing" : compatibility.missingCount ? `${compatibility.missingCount} pieces missing` : "The full Look is ready"}</h4>
         </div>
-        <span class="closet-match-count">${ownedCount + similarCount} / ${totalCount} pieces</span>
+        <span class="closet-match-count">${ownedCount + similarCount} of ${totalCount} pieces ready</span>
       </div>
       <p class="body" style="margin:6px 0 12px">StyleIQ will substitute your owned pieces into this structure, letting you personalize and preview before wearing.</p>
       <div class="creator-detail-ctas">
@@ -7356,6 +7410,8 @@ const discoverApi = async (path, options = {}) => {
   return response.json();
 };
 let discoverMode = 'Looks', discoverFeedMode = 'For You', discoverStyle = 'All';
+let discoverProductRecommendationMode = 'All Products', discoverProductContext = null;
+let discoverCompletionSelections = {};
 let discoverCategory = '', discoverBrand = '', discoverProductQuery = '';
 let discoverProducts = [], discoverOnlineProducts = [], discoverMuseLooks = [], discoverLoading = false, discoverError = '';
 let discoverSelectedMuse = null, discoverSearchTimer = null, discoverLoaded = false, discoverSearchVersion = 0;
@@ -7363,7 +7419,7 @@ let discoverVisibleBrands = [];
 const discoverOwnedProductIds = new Set();
 const discoverCategories = [ ['All',''], ['Tops','top'], ['Blazers','blazer'], ['Pants','pants'], ['Dresses','dress'], ['Shoes','shoes'], ['Outerwear','outerwear'] ];
 const discoverStyles = ['All','Minimal','Classic','Smart Casual','Business','Evening','Casual','Work','Vacation','Quiet Luxury'];
-const discoverPrototypeCandidates = () => shoppingProducts.filter(item => !item.id.startsWith('discover-')).map(item => ({ id:item.id, product_id:item.id, title:item.name, merchant:item.brand, thumbnail:item.image, price:item.price, currency:'USD', category:item.category, url:item.productUrl, prototype:true }));
+const discoverPrototypeCandidates = () => shoppingProducts.filter(item => !item.id.startsWith('discover-')).map(item => ({ ...item, id:item.id, product_id:item.id, title:item.name, merchant:item.brand, thumbnail:item.image, price:item.price, currency:'USD', category:item.category, url:item.productUrl, prototype:true }));
 const discoverCandidates = () => discoverApiBase && (discoverProductQuery.trim() || discoverCategory || discoverBrand) ? discoverProducts : discoverPrototypeCandidates();
 const discoverList = value => Array.isArray(value) ? value : (value?.results || value?.items || value?.styles || value?.candidates || value?.closet_items || value?.data?.items || []);
 function discoverNormalizeCandidate(raw) {
@@ -7427,6 +7483,7 @@ async function discoverSearchOnline() {
   discoverLoading = false; if (currentId === 'K-01') render();
 }
 function discoverSetMode(mode) { discoverMode = mode; render(); if (mode === 'Looks') discoverLoadMuse(); }
+function discoverSetProductRecommendationMode(mode) { discoverProductRecommendationMode = mode; render(); }
 function discoverSetFeed(mode) { discoverFeedMode = mode; render(); }
 function discoverSetStyle(style) { discoverStyle = style; render(); }
 function discoverSetCategory(category) {
@@ -7461,6 +7518,56 @@ async function discoverAddToCloset(id) {
 function discoverProductOwned(product) {
   const sourceId = String(product.product_id || product.id.replace(/^discover-/, ''));
   return Boolean(product.owned) || discoverOwnedProductIds.has(sourceId) || purchasedClosetItems.some(item => item.wishlistId === product.id || String(item.product_id || '') === sourceId);
+}
+function discoverProductClosetMatch(product) {
+  if (discoverProductOwned(product)) {
+    const sourceId = String(product.product_id || product.id.replace(/^discover-/, ''));
+    return { type:'owned', item:purchasedClosetItems.find(item => item.wishlistId === product.id || String(item.product_id || '') === sourceId) || closetItems().find(item => item.id === product.similarClosetId) || null };
+  }
+  const item = product.similarClosetId && closetItems().find(entry => entry.id === product.similarClosetId);
+  return item ? { type:'similar', item } : { type:'none', item:null };
+}
+function discoverStyleProfile() {
+  const looks = savedCreatorInspirations.map(id => getCreatorLook(id));
+  const tags = looks.flatMap(look => String(look.styleDirection || look.occasion || '').split(/[·,]/).map(tag => tag.trim()).filter(Boolean));
+  const counts = tags.reduce((result, tag) => ({ ...result, [tag]:(result[tag] || 0) + 1 }), {});
+  return { signalCount:looks.length, tags:Object.keys(counts).sort((a,b) => counts[b] - counts[a]) };
+}
+// Prototype ranking adapter for the future product recommendations API. It
+// only reorders external catalog candidates; Closet records never become cards.
+function discoverRankAllProducts(products) {
+  const profile = discoverStyleProfile();
+  const interests = profile.tags.join(' ').toLowerCase();
+  return products.map((product, index) => {
+    const text = `${product.name || product.title || ''} ${product.category || ''}`.toLowerCase();
+    let score = 0, reason = '';
+    if (/sport|relaxed|casual/.test(interests) && /sneaker|trainer|trouser|tee|jacket/.test(text)) { score += 3; reason = 'Matches styles you save'; }
+    if (/work|business|classic|minimal/.test(interests) && /blazer|loafer|trouser|shell|shirt/.test(text)) { score += 3; reason = 'Fits your recent style interests'; }
+    if (product.outfitCount) { score += Math.min(2, product.outfitCount / 8); if (!reason) reason = 'Works with pieces in your Closet'; }
+    return { ...product, recommendationReason:reason, _rank:score, _index:index };
+  }).sort((a,b) => b._rank - a._rank || a._index - b._index);
+}
+function discoverSavedLookCompletions() {
+  const creatorLooks = savedCreatorInspirations.map(id => getCreatorLook(id));
+  let stored = [];
+  try { stored = JSON.parse(localStorage.getItem('styleiqSavedStudioLooksV1') || '[]'); } catch {}
+  const storedIds = new Set(Array.isArray(stored) ? stored.map(look => look.id) : []);
+  const locallySaved = lookCatalog.filter(look => storedIds.has(look.id));
+  const unique = [...creatorLooks, ...locallySaved].filter((look,index,list) => look?.pieces?.length && list.findIndex(candidate => candidate.id === look.id) === index);
+  return unique.map(look => ({ look, compatibility:lookCompatibility(look) }));
+}
+function discoverSelectMissingPiece(lookId, pieceId) {
+  discoverCompletionSelections[lookId] = pieceId;
+  render();
+}
+function discoverProductsForPiece(products, piece) {
+  const query = `${piece?.name || ''} ${piece?.role || ''}`.toLowerCase();
+  const tokens = query.split(/\s+/).filter(token => token.length > 2);
+  return products.map((product,index) => {
+    const text = `${product.name || product.title || ''} ${product.category || ''}`.toLowerCase();
+    const score = tokens.reduce((total,token) => total + (text.includes(token) ? 2 : 0), 0) + (piece?.role === 'Shoes' && /shoe|loafer|sneaker/.test(text) ? 3 : 0) + (piece?.role === 'Outerwear' && /blazer|jacket|outerwear/.test(text) ? 3 : 0);
+    return { ...product, recommendationReason:`For ${piece?.name || 'this saved Look'}`, _rank:score, _index:index };
+  }).sort((a,b) => b._rank - a._rank || a._index - b._index).slice(0,3);
 }
 function discoverMuseCard(look) {
   const images = look.items.slice(0,4).map(item => `<img src="${escapeMarkup(item.photo_url || item.image_url || item.image || '')}" alt="${escapeMarkup(item.name || item.title || 'Closet piece')}">`).join('');
@@ -7510,13 +7617,29 @@ function discoverWearMuse(id) {
 function discoverProductCard(raw) {
   const product = discoverNormalizeCandidate(raw), saved = wishlistItems.some(item => item.id === product.id);
   const url = discoverExternalUrl(product.productUrl);
-  const owned = discoverProductOwned(product);
+  const closetMatch = discoverProductClosetMatch(product), owned = closetMatch.type === 'owned';
   let price = 'Price unavailable';
   if (Number.isFinite(product.price)) { try { price = new Intl.NumberFormat('en-US',{style:'currency',currency:product.currency || 'USD'}).format(product.price); } catch { price = `${product.price} ${product.currency || ''}`.trim(); } }
-  return `<article class="discover-product-card" role="link" tabindex="0" aria-label="View ${escapeMarkup(product.name)} details" onclick="openWishlistProduct('${product.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openWishlistProduct('${product.id}')}"><div class="discover-product-media"><img src="${escapeMarkup(product.image || wishlistProductImage(product))}" alt="${escapeMarkup(product.name)}" loading="lazy">${owned ? '<span class="discover-owned-badge">In your Closet</span>' : ''}</div><button class="discover-product-heart${saved ? ' is-saved' : ''}" aria-label="${saved ? 'Remove from Wishlist:' : 'Save to Wishlist:'} ${escapeMarkup(product.name)}" aria-pressed="${saved}" onclick="event.stopPropagation();discoverSaveProduct('${product.id}')">${icon('heart')}</button><div class="discover-product-copy"><small>${escapeMarkup(product.brand || 'Online find')}</small><h4>${escapeMarkup(product.name)}</h4><b>${escapeMarkup(price)}</b><button class="btn primary discover-buy" onclick="event.stopPropagation();discoverBuy('${product.id}')" ${url ? '' : 'disabled'}>Buy</button>${!owned && discoverApiBase && !product.prototype ? `<details class="discover-product-more" onclick="event.stopPropagation()"><summary>More options</summary><button class="text-action" onclick="event.stopPropagation();discoverAddToCloset('${product.id}')">Add to Closet</button></details>` : ''}</div></article>`;
+  const badge = owned ? 'In your Closet' : closetMatch.type === 'similar' ? 'Similar in Closet' : '';
+  return `<article class="discover-product-card" role="link" tabindex="0" aria-label="View ${escapeMarkup(product.name)} details" onclick="openWishlistProduct('${product.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openWishlistProduct('${product.id}')}"><div class="discover-product-media"><img src="${escapeMarkup(product.image || wishlistProductImage(product))}" alt="${escapeMarkup(product.name)}" loading="lazy">${badge ? `<span class="discover-owned-badge">${badge}</span>` : ''}</div><button class="discover-product-heart${saved ? ' is-saved' : ''}" aria-label="${saved ? 'Remove from Wishlist:' : 'Save to Wishlist:'} ${escapeMarkup(product.name)}" aria-pressed="${saved}" onclick="event.stopPropagation();discoverSaveProduct('${product.id}')">${icon('heart')}</button><div class="discover-product-copy"><small>${escapeMarkup(product.brand || 'Online find')}</small><h4>${escapeMarkup(product.name)}</h4><b>${escapeMarkup(price)}</b>${product.recommendationReason ? `<em class="discover-product-reason">${escapeMarkup(product.recommendationReason)}</em>` : ''}<button class="btn primary discover-buy" onclick="event.stopPropagation();discoverBuy('${product.id}')" ${url ? '' : 'disabled'}>Buy</button>${!owned && discoverApiBase && !product.prototype ? `<details class="discover-product-more" onclick="event.stopPropagation()"><summary>More options</summary><button class="text-action" onclick="event.stopPropagation();discoverAddToCloset('${product.id}')">Add to Closet</button></details>` : ''}</div></article>`;
+}
+function discoverCompleteSavedLooks(products) {
+  const completions = discoverSavedLookCompletions();
+  if (!completions.length) return `<section class="discover-completion-empty"><h3>No saved Looks yet</h3><p>Save Looks you love and StyleIQ will help you find the pieces needed to complete them.</p><button class="btn" onclick="discoverSetMode('Looks')">Explore Looks</button></section>`;
+  const incomplete = completions.filter(entry => entry.compatibility.missingCount);
+  if (!incomplete.length) return `<section class="discover-completion-empty"><h3>Your saved Looks are ready</h3><p>You already have what you need for your saved Looks.</p><button class="btn" onclick="discoverSetMode('Looks')">Explore More Looks</button></section>`;
+  return `<section class="discover-complete-section" aria-label="Complete Saved Looks"><div class="discover-complete-intro"><h3>Complete Saved Looks</h3><p>These are the pieces you need to finish Looks you already love.</p></div>${incomplete.map(({look,compatibility}) => {
+    const missing = compatibility.matches.filter(match => match.status === 'Missing').map(match => match.sourcePiece);
+    const contextualPiece = discoverProductContext?.lookId === look.id && missing.find(piece => piece.name === discoverProductContext.pieceName);
+    const selectedId = contextualPiece?.id || discoverCompletionSelections[look.id] || missing[0].id;
+    const selected = missing.find(piece => piece.id === selectedId) || missing[0];
+    const candidates = discoverProductsForPiece(products, selected);
+    return `<article class="discover-complete-look"><img src="${look.image || look.sheet || assets.look}" alt=""><div><small>Saved Look</small><b>${escapeMarkup(look.title)}</b><em>${compatibility.matchedCount} of ${compatibility.total} pieces ready</em><div class="discover-missing-needs" role="group" aria-label="Missing pieces for ${escapeMarkup(look.title)}">${missing.map(piece => `<button class="chip ${piece.id === selected.id ? 'active' : ''}" aria-pressed="${piece.id === selected.id}" onclick="discoverSelectMissingPiece('${look.id}','${piece.id}')">${escapeMarkup(piece.name)}</button>`).join('')}</div></div><div class="discover-completion-products"><p>Missing: <b>${escapeMarkup(selected.name)}</b></p><div class="discover-product-grid">${candidates.map(discoverProductCard).join('')}</div></div></article>`;
+  }).join('')}</section>`;
 }
 function discoverProductsScreen() {
-  const source = discoverCandidates();
+  const catalog = discoverCandidates();
+  const source = discoverProductRecommendationMode === 'All Products' ? discoverRankAllProducts(catalog) : catalog;
   const term = discoverProductQuery.trim().toLowerCase();
   const filtered = source.filter(item => (!discoverCategory || `${item.category || ''} ${item.subcategory || ''}`.toLowerCase().includes(discoverCategory)) && (!discoverBrand || String(item.merchant || item.brand || '').toLowerCase().includes(discoverBrand.toLowerCase())) && (!term || !item.prototype || `${item.title || item.name} ${item.merchant || item.brand} ${item.category}`.toLowerCase().includes(term)));
   const brands = [...new Set(source.map(item => item.merchant || item.brand).filter(Boolean))].slice(0,8);
@@ -7525,7 +7648,12 @@ function discoverProductsScreen() {
   const canSearchOnline = Boolean(discoverApiBase && term.length >= 2 && !discoverLoading && discoverOnlineProducts.length === 0 && filtered.length <= 4);
   const brandSection = brandList.length ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><h3>Shop by Brand</h3></div><div class="discover-style-chips" role="group" aria-label="Brands"><button class="chip ${!discoverBrand ? 'active' : ''}" aria-pressed="${!discoverBrand}" onclick="discoverSetBrand(-1)">All</button>${brandList.map((brand,index) => `<button class="chip ${discoverBrand === brand ? 'active' : ''}" aria-pressed="${discoverBrand === brand}" onclick="discoverSetBrand(${index})">${escapeMarkup(brand)}</button>`).join('')}</div></section>` : '';
   const resultsSection = filtered.length || discoverLoading || discoverError ? `<section class="mirror-section discover-feed-section" aria-label="Product results"><div class="mirror-section-head"><span><p class="eyebrow">${discoverApiBase && (term || discoverCategory || discoverBrand) ? 'Catalog results' : 'Curated edit'}</p><h3>${term || discoverCategory || discoverBrand ? 'Pieces to explore' : 'Recommended for You'}</h3></span></div>${discoverLoading ? '<p role="status">Searching...</p>' : discoverError ? `<p role="status">${escapeMarkup(discoverError)}</p>` : ''}<div class="discover-product-grid">${filtered.map(discoverProductCard).join('')}</div>${canSearchOnline ? `<button class="discover-online-action" onclick="discoverSearchOnline()">${filtered.length ? 'See more online' : 'Search the web for more'} ${icon('arrow-right')}</button>` : ''}</section>` : (canSearchOnline ? `<section class="discover-no-results"><p>No catalog matches yet.</p><button class="discover-online-action" onclick="discoverSearchOnline()">Search the web for more ${icon('arrow-right')}</button></section>` : '');
-  return `<section class="discover-product-search"><label for="discover-product-query">Search pieces, brands, styles...</label><div><span class="discover-search-icon">${icon('search')}</span><input id="discover-product-query" class="input" type="search" placeholder="Search pieces, brands, styles..." value="${escapeMarkup(discoverProductQuery)}" oninput="discoverQueryChanged(this.value)" onkeydown="if(event.key==='Enter'&&this.value.trim().length>=2){event.preventDefault();clearTimeout(discoverSearchTimer);discoverSearchLocal(this.value)}"></div></section>${discoverWishlistShortcut()}<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><h3>Shop by Category</h3></div><div class="discover-style-chips" role="group" aria-label="Product categories">${discoverCategories.map(([label,key]) => `<button class="chip ${discoverCategory === key ? 'active' : ''}" aria-pressed="${discoverCategory === key}" onclick="discoverSetCategory('${key}')">${label}</button>`).join('')}</div></section>${brandSection}${resultsSection}${discoverOnlineProducts.length ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><span><p class="eyebrow">From your web search</p><h3>Online Finds</h3></span></div><div class="discover-product-grid">${discoverOnlineProducts.map(discoverProductCard).join('')}</div></section>` : ''}`;
+  const styleProfile = discoverStyleProfile();
+  const allProductsContext = `<p class="discover-all-products-context">${styleProfile.signalCount ? 'Products ranked around the styles and Looks you interact with.' : 'Recommendations improve as you save Looks.'}</p>`;
+  const modeSelector = `<div class="discover-product-recommendation"><small>Browse products</small>${AppTabs({id:'discover-product-recommendation-tabs',label:'Product recommendations',variant:'compact',items:['All Products','Complete Saved Looks'].map(mode => ({label:mode,selected:discoverProductRecommendationMode === mode,onSelect:`discoverSetProductRecommendationMode('${mode}')`}))})}</div>`;
+  const context = discoverProductContext ? `<div class="discover-product-context"><span><small>Complete ${escapeMarkup(discoverProductContext.lookTitle)}</small><b>Find ${escapeMarkup(discoverProductContext.pieceName)} for this Look</b></span><button aria-label="Clear Look context" onclick="discoverProductContext=null;render()">×</button></div>` : '';
+  const modeContent = discoverProductRecommendationMode === 'All Products' ? `${allProductsContext}${resultsSection}` : discoverCompleteSavedLooks(filtered);
+  return `${modeSelector}<section class="discover-product-search"><label for="discover-product-query">Search pieces, brands, styles...</label><div><span class="discover-search-icon">${icon('search')}</span><input id="discover-product-query" class="input" type="search" placeholder="Search pieces, brands, styles..." value="${escapeMarkup(discoverProductQuery)}" oninput="discoverQueryChanged(this.value)" onkeydown="if(event.key==='Enter'&&this.value.trim().length>=2){event.preventDefault();clearTimeout(discoverSearchTimer);discoverSearchLocal(this.value)}"></div></section>${context}${discoverWishlistShortcut()}<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><h3>Shop by Category</h3></div><div class="discover-style-chips" role="group" aria-label="Product categories">${discoverCategories.map(([label,key]) => `<button class="chip ${discoverCategory === key ? 'active' : ''}" aria-pressed="${discoverCategory === key}" onclick="discoverSetCategory('${key}')">${label}</button>`).join('')}</div></section>${brandSection}${modeContent}${discoverOnlineProducts.length ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><span><p class="eyebrow">From your web search</p><h3>Online Finds</h3></span></div><div class="discover-product-grid">${discoverOnlineProducts.map(discoverProductCard).join('')}</div></section>` : ''}`;
 }
 function mirrorDiscover() {
   if (discoverApiBase && !discoverLoaded && !discoverLoading) queueMicrotask(discoverLoadMuse);
