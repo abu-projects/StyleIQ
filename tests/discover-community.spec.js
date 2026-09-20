@@ -17,6 +17,8 @@ test("Discover opens on stylist Looks and switches to Products", async ({ page }
   await expect(page.locator(".discover-feature-look", { hasText: "Soft Workday" })).toBeVisible();
   await modes.getByRole("tab", { name: "Products" }).click();
   await expect(page.getByRole("heading", { name: "Shop by Category" })).toBeVisible();
+  await expect(page.getByRole("group", { name: "Product categories" }).getByRole("button", { name: "All", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "View Wishlist" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Shop by Brand" })).toBeVisible();
   await modes.getByRole("tab", { name: "Looks" }).click();
   await expect(page.getByRole("heading", { name: "Featured Stylists" })).toBeVisible();
