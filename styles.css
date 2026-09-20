@@ -18001,6 +18001,48 @@ summary:focus-visible {
 }
 
 /* K-01 Discover: separate saved items from a calm, vertically scrolling feed. */
+.discover-canonical .discover-modes { position: sticky; top: -1px; z-index: 12; padding: 4px 0 8px; background: var(--siq-canvas, #faf9f6); }
+.discover-canonical .discover-style-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 10px 0; }
+.discover-canonical .discover-style-chips .chip { flex: 0 0 auto; }
+.discover-canonical .discover-feed-section { margin-top: 24px; }
+.discover-canonical .discover-look-stack { display: grid; gap: 12px; }
+.discover-canonical .discover-stylist-card { position: relative; }
+.discover-canonical .discover-look-save { position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #fff; color: #171717; display: grid; place-items: center; cursor: pointer; }
+.discover-canonical .discover-look-save[aria-pressed="true"] { color: #a25b55; }
+.discover-canonical .discover-creator-open { display: flex; align-items: center; gap: 12px; width: 100%; padding: 0; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.discover-canonical .discover-creator-open span { display: grid; gap: 4px; }
+.discover-canonical .discover-creator-open small { color: var(--muted); }
+.discover-canonical .creator-card { gap: 14px; }
+.discover-canonical .discover-muse-stack { display: grid; gap: 14px; }
+.discover-canonical .discover-muse-card { overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 18px; }
+.discover-canonical .discover-muse-media { display: block; width: 100%; height: 220px; padding: 0; border: 0; background: #f3f1ee; cursor: pointer; }
+.discover-canonical .discover-muse-collage { display: grid; grid-template-columns: repeat(2,1fr); grid-template-rows: repeat(2,1fr); gap: 2px; width: 100%; height: 100%; }
+.discover-canonical .discover-muse-collage img { width: 100%; height: 100%; object-fit: contain; }
+.discover-canonical .discover-muse-card > div { padding: 16px; }
+.discover-canonical .discover-muse-card small,.discover-canonical .discover-product-card small { color: var(--muted); font-size: 11px; }
+.discover-canonical .discover-muse-card h4,.discover-canonical .discover-product-card h4 { margin: 5px 0; font-size: 18px; }
+.discover-canonical .discover-muse-card p { margin: 5px 0 10px; color: var(--muted); font-size: 13px; }
+.discover-canonical .discover-product-search { display: grid; gap: 8px; margin-top: 16px; }
+.discover-canonical .discover-product-search label { font-size: 12px; font-weight: 600; }
+.discover-canonical .discover-product-search > div { display: flex; gap: 8px; }
+.discover-canonical .discover-product-search input { min-width: 0; flex: 1; }
+.discover-canonical .discover-product-search > .text-action { justify-self: end; }
+.discover-canonical .discover-product-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 12px; }
+.discover-canonical .discover-product-card { overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 16px; }
+.discover-canonical .discover-product-card > img { width: 100%; aspect-ratio: 4/5; object-fit: contain; background: #f5f4f1; }
+.discover-canonical .discover-product-card > div { padding: 10px; }
+.discover-canonical .discover-product-card h4 { min-height: 42px; font-size: 13px; line-height: 1.35; }
+.discover-canonical .discover-product-card b { font-size: 13px; }
+.discover-canonical .discover-product-actions { display: flex; align-items: center; gap: 5px; margin-top: 10px; }
+.discover-canonical .discover-product-actions > button:first-child { flex: 1; min-height: 34px; border: 1px solid var(--line); border-radius: 9px; background: #fff; cursor: pointer; }
+.discover-canonical .discover-product-card .text-action { margin-top: 8px; font-size: 10px; text-align: left; }
+.discover-look-overlay { position: fixed; inset: 0; z-index: 120; display: grid; align-items: end; }
+.discover-look-scrim { position: absolute; inset: 0; border: 0; background: rgb(0 0 0 / .5); }
+.discover-look-sheet { position: relative; max-height: 85vh; overflow: auto; padding: 20px; border-radius: 24px 24px 0 0; background: #fff; }
+.discover-look-sheet > .icon-btn { float: right; }
+.discover-muse-items { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin: 18px 0; }
+.discover-muse-items div { display: grid; gap: 5px; font-size: 12px; }
+.discover-muse-items img { width: 100%; height: 110px; object-fit: contain; background: #f4f3f0; }
 .app[data-screen="K-01"] .root-head + .content { padding-inline: 16px; }
 .app[data-screen="K-01"] .mirror-search {
   width: 100%;

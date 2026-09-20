@@ -245,13 +245,13 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     await expect(app(page).locator('.trip-tabs')).toBeVisible();
   });
 
-  test('Flow 17: Stylist Experience & Make It Mine (H-11 -> H-13 -> E-07)', async ({ page }) => {
-    // Step 1: H-11 Stylist Discovery
+  test('Flow 17: Stylist Experience & Make It Mine (K-01 -> H-13 -> E-07)', async ({ page }) => {
+    // Legacy H-11 deep links open canonical Discover.
     await page.goto('/index.html#H-11');
-    expect(await getCanonical(page)).toBe('H-11');
+    expect(await getCanonical(page)).toBe('K-01');
 
     // Step 2: Open look directly from feed -> H-13
-    await app(page).locator('.creator-look-card, .creator-mini-thumb, button:has-text("View Look")').first().click();
+    await app(page).locator('.discover-stylist-card .discover-feature-look').first().click();
     expect(await getCanonical(page)).toBe('H-13');
 
     // Step 3: "Make It Mine" -> opens the dedicated Closet-aware flow E-07.
@@ -265,7 +265,7 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     expect(await getCanonical(page)).toBe('K-01');
 
     // Open community look -> K-04
-    await app(page).locator('.mirror-section:not(.creator-insp-module) .mirror-outfit-card').first().click();
+    await app(page).getByRole('button', { name: /Tailored ease/ }).click();
     expect(await getCanonical(page)).toBe('K-04');
   });
 

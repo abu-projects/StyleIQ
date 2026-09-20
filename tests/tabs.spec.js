@@ -13,9 +13,8 @@ const tabSurfaces = [
   ['G-01', 'Look creation source'],
   ['G-02', 'Saved Look sections'],
   ['G-08', 'Wishlist status'],
-  ['H-11', 'Creator style categories'],
   ['J-08', 'Trip sections'],
-  ['K-01', 'Discover filters'],
+  ['K-01', 'Discover modes'],
   ['L-03', 'My content sections'],
 ];
 
