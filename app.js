@@ -1163,6 +1163,22 @@ let closetState = {
   selectedClosetItemId = localStorage.getItem("styleiqSelectedClosetItemV1") || activeCanonicalClosetSeed()[0].id,
   closetDetailTab = "overview",
   closetStyleIntent = false;
+// Older demos could persist a one-piece Closet before the complete Look
+// wardrobes were added. Restore the full seed once without touching user items.
+const canonicalClosetVersionKey = "styleiqCanonicalClosetVersionV1";
+function syncCanonicalClosetProfile() {
+  if (!isExistingCustomer()) return;
+  closetState.size = activeCanonicalClosetSeed().length;
+  localStorage.setItem("styleiqClosetSizeV1", String(closetState.size));
+  if (!activeCanonicalClosetSeed().some((item) => item.id === selectedClosetItemId)) {
+    selectedClosetItemId = activeCanonicalClosetSeed()[0].id;
+    localStorage.setItem("styleiqSelectedClosetItemV1", selectedClosetItemId);
+  }
+}
+if (isExistingCustomer() && localStorage.getItem(canonicalClosetVersionKey) !== "2026-09-20-v1") {
+  syncCanonicalClosetProfile();
+  localStorage.setItem(canonicalClosetVersionKey, "2026-09-20-v1");
+}
 let closetLifecycle = (() => {
   try {
     return JSON.parse(localStorage.getItem("styleiqClosetLifecycleV1")) || {};
@@ -3503,8 +3519,7 @@ function completeSignIn(destination = "D-02") {
   customerScenario = "existing";
   syncCustomerScenarioUrl();
   if (closetItemCount() === 0) {
-    closetState.size = 12;
-    localStorage.setItem("styleiqClosetSizeV1", String(closetState.size));
+    syncCanonicalClosetProfile();
   }
   completeOnboarding(destination);
 }
@@ -3589,8 +3604,10 @@ function confirmLogout() {
   toast("You are signed out");
 }
 function chooseStylingContext(value, destination) {
+  const previousContext = stylingContext;
   stylingContext = value;
   localStorage.setItem("styleiqStylingContextV1", value);
+  if (value !== previousContext) syncCanonicalClosetProfile();
   go(destination);
 }
 function stylingContextSurface(editing = false) {
@@ -3694,8 +3711,10 @@ function setupIllustrationDetails(context = stylingContext) {
 function selectSetupOption(kind, value, button) {
   const group = button?.closest('[role="radiogroup"]');
   if (kind === "wardrobe") {
+    const previousContext = stylingContext;
     stylingContext = value;
     localStorage.setItem("styleiqStylingContextV1", value);
+    if (value !== previousContext) syncCanonicalClosetProfile();
     applyStylingVisuals();
   } else {
     onboardingGoal = value;
@@ -4500,7 +4519,7 @@ function lookPiecesRailMarkup({ key, pieces: rawPieces, source = "Closet", defau
   const rail = maximized
     ? `<aside class="look-pieces-focus ${transitionClass}" aria-label="Expanded Look pieces"><button class="look-pieces-focus-collapse" aria-label="Return to compact Look pieces" onclick="event.stopPropagation();toggleLookPiecesPanel('${key}')">›</button><header><span class="look-pieces-focus-title"><b>Look pieces</b><small>${pieces.length} items</small></span><span class="look-pieces-nav" role="group" aria-label="Scroll Look pieces"><button aria-label="Previous Look piece thumbnail" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',-1)">↑</button><button aria-label="Next Look piece thumbnail" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',1)">↓</button></span></header><div class="look-pieces-focus-body"><article class="look-pieces-feature"><button class="look-pieces-feature-image" aria-label="View ${escapeMarkup(focusedPiece.name)} details" onclick="event.stopPropagation();openLookPieceSheet('${key}',${focusedIndex})"><img src="${focusedPiece.image}" alt="${escapeMarkup(focusedPiece.name)}"></button><div class="look-pieces-feature-copy"><small>${escapeMarkup(focusedPiece.role)}</small><b>${escapeMarkup(focusedPiece.name)}</b></div><div class="look-pieces-feature-nav" role="group" aria-label="Choose a Look piece"><button aria-label="Previous piece" onclick="event.stopPropagation();stepLookPiece('${key}',-1)">←</button><span>${focusedIndex + 1} / ${pieces.length}</span><button aria-label="Next piece" onclick="event.stopPropagation();stepLookPiece('${key}',1)">→</button></div></article><div class="look-pieces-scroll look-pieces-focus-thumbs">${pieces.map((piece, index) => `<button class="look-pieces-focus-thumb ${index === focusedIndex ? "is-selected" : ""}" aria-current="${index === focusedIndex ? "true" : "false"}" aria-label="Select ${escapeMarkup(piece.name)}" onclick="event.stopPropagation();selectLookPiece('${key}',${index})"><img src="${piece.image}" alt=""><small>${escapeMarkup(piece.role)}</small></button>`).join("")}</div></div></aside>`
     : expanded
-    ? `<aside class="look-pieces-rail is-expanded" aria-label="Pieces in this Look"><button class="look-pieces-expand-handle" aria-label="Expand Look pieces" onclick="event.stopPropagation();toggleLookPiecesPanel('${key}')">‹</button><header><button class="look-pieces-title" aria-label="Collapse Look pieces" onclick="event.stopPropagation();toggleLookPiecesRail('${key}',${defaultOpen})"><span>Look pieces</span><b>${pieces.length} items</b></button><span class="look-pieces-nav" role="group" aria-label="Scroll Look pieces"><button aria-label="Previous Look piece" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',-1)">↑</button><button aria-label="Next Look piece" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',1)">↓</button></span></header><div class="look-pieces-scroll">${pieces.map((piece, index) => `<button class="look-piece-thumb" aria-label="View ${escapeMarkup(piece.name)}" onclick="event.stopPropagation();openLookPieceSheet('${key}',${index})"><img src="${piece.image}" alt=""><small>${escapeMarkup(piece.role)}</small></button>`).join("")}<button class="look-pieces-view-all" onclick="event.stopPropagation();openLookPieceSheet('${key}')" aria-label="View all ${pieces.length} pieces"><span>＋</span><small>View all</small></button></div></aside>`
+    ? `<aside class="look-pieces-rail is-expanded" tabindex="0" aria-label="Pieces in this Look. Tap card to close" onclick="toggleLookPiecesRail('${key}',${defaultOpen})" onkeydown="if(event.target===this && (event.key==='Enter' || event.key===' ')){event.preventDefault();toggleLookPiecesRail('${key}',${defaultOpen})}"><button class="look-pieces-expand-handle" aria-label="Expand Look pieces" onclick="event.stopPropagation();toggleLookPiecesPanel('${key}')">‹</button><header><button class="look-pieces-title" aria-label="Collapse Look pieces" onclick="event.stopPropagation();toggleLookPiecesRail('${key}',${defaultOpen})"><span>Look pieces</span><b>${pieces.length} items</b><small class="look-pieces-collapse-hint">Tap card to close</small></button><span class="look-pieces-nav" role="group" aria-label="Scroll Look pieces"><button aria-label="Previous Look piece" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',-1)">↑</button><button aria-label="Next Look piece" onclick="event.stopPropagation();scrollLookPiecesRail('${key}',1)">↓</button></span></header><div class="look-pieces-scroll">${pieces.map((piece, index) => `<button class="look-piece-thumb" aria-label="View ${escapeMarkup(piece.name)}" onclick="event.stopPropagation();openLookPieceSheet('${key}',${index})"><img src="${piece.image}" alt=""><small>${escapeMarkup(piece.role)}</small></button>`).join("")}<button class="look-pieces-view-all" onclick="event.stopPropagation();openLookPieceSheet('${key}')" aria-label="View all ${pieces.length} pieces"><span>＋</span><small>View all</small></button></div></aside>`
     : `<button class="look-pieces-rail-trigger" aria-expanded="false" aria-label="Show ${pieces.length} pieces in this Look" onclick="event.stopPropagation();toggleLookPiecesRail('${key}',${defaultOpen})"><span class="look-pieces-trigger-head"><small>Look pieces</small><b>${pieces.length} items</b></span><span class="look-pieces-stack">${thumbnails}</span><em>Open</em></button>`;
   let sheetMarkup = "";
   if (sheet) {
@@ -8026,7 +8045,8 @@ function setCustomerScenario(scenario) {
   if (!["new", "existing"].includes(scenario)) return;
   customerScenario = scenario;
   syncCustomerScenarioUrl();
-  closetState.size = scenario === "existing" ? 12 : 0;
+  if (scenario === "existing") syncCanonicalClosetProfile();
+  else closetState.size = 0;
   if (scenario === "new")
     twinSetup = { method: "photo", step: 1, complete: false };
   else twinSetup = { id: "demo-existing-twin", method: "photo", step: 4, complete: true };
