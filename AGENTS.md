@@ -20,6 +20,10 @@
 - Run `git diff --check`, the narrowest relevant test, and one visual browser check for each changed route or viewport. Expand verification only when the change affects shared behavior.
 - Stop after the requested change and summarize the files changed and verification performed.
 
+### Discovery header reference (user instruction, 2026-09-21)
+
+Before changing Discovery (K-01), review [the user's screenshot](docs/discovery-header-reference-2026-09-21.png) and the actual rendered header: a regular side-screen header with Back on the left, centered Discover title, and Muse on the right. The Looks/Items controls must begin below the header without overlap. Check that the header uses the shared Liquid Glass styling and transparency setting. Do not claim visual or Liquid Glass verification from code inspection alone; report any browser check that could not be completed.
+
 ## Next-phase product and visual direction
 
 The durable next-phase North Star is [STYLEIQ_NEXT_DIRECTION.md](../StyleIQ%20app/styleiq-mobile/docs/STYLEIQ_NEXT_DIRECTION.md). Read it before future Muse, Calendar/Recap, Travel, Style Twin, or created-look work. This brief records direction only; do not implement it or replace current screens/assets/flows without a dedicated user task. Refine one area at a time.

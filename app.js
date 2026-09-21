@@ -684,7 +684,7 @@ const canonicalClosetByProfile = {
     { id: "closet-women-gold-hoops", name: "Gold everyday hoops", brand: "Mejuri", image: "images/closet-gold-hoops.png", category: "Accessories", status: "Available", wears: 14, favorite: true },
     { id: "closet-women-tan-blazer", name: "Tan relaxed blazer", brand: "StyleIQ Atelier", image: assets.blazer, category: "Outerwear", status: "Available", wears: 5 },
     { id: "closet-women-minimal-trainers", name: "Off-white athletic trainers", brand: "Veja", image: "images/closet-offwhite-trainers.png", category: "Shoes", status: "Available", wears: 12 },
-    { id: "closet-women-oxblood-bag", name: "Oxblood crescent bag", brand: "Cuyana", image: assets.bag, category: "Bags", status: "Available", wears: 4 },
+    { id: "closet-women-oxblood-bag", name: "Oxblood crescent bag", brand: "Cuyana", image: "images/alta-oxblood-crescent-bag.png", category: "Bags", status: "Available", wears: 4 },
     { id: "closet-women-black-ruched-dress", name: "Black ruched mini dress", brand: "StyleIQ Atelier", image: "images/closet-black-ruched-dress.png", category: "Dresses & Suits", status: "Available", wears: 2 },
     { id: "closet-women-black-knee-boots", name: "Knee-high leather boots", brand: "StyleIQ Atelier", image: "images/closet-black-knee-boots.png", category: "Shoes", status: "Available", wears: 3 },
     { id: "closet-women-black-evening-clutch", name: "Black evening clutch", brand: "StyleIQ Atelier", image: "images/closet-black-evening-clutch.png", category: "Bags", status: "Available", wears: 2 },
@@ -1163,7 +1163,9 @@ let closetState = {
   },
   selectedClosetItemId = localStorage.getItem("styleiqSelectedClosetItemV1") || activeCanonicalClosetSeed()[0].id,
   closetDetailTab = "overview",
-  closetStyleIntent = false;
+  closetStyleIntent = false,
+  closetDetailDialog = null,
+  closetInsightsOpen = false;
 // Older demos could persist a one-piece Closet before the complete Look
 // wardrobes were added. Restore the full seed once without touching user items.
 const canonicalClosetVersionKey = "styleiqCanonicalClosetVersionV1";
@@ -1238,11 +1240,17 @@ let wishlistItems = readWishlistData(wishlistStorageKey, shoppingProducts.slice(
 // This is the canonical persisted collection for user-owned items. Keep the
 // legacy purchases key in sync so existing Wishlist purchase links continue to
 // resolve to the same Closet entities.
-let purchasedClosetItems = readWishlistData(
-  "styleiqClosetItemsV1",
-  readWishlistData("styleiqClosetPurchasesV1", []),
-);
+function readScenarioClosetItems() {
+  return isExistingCustomer()
+    ? readWishlistData("styleiqClosetItemsV1", readWishlistData("styleiqClosetPurchasesV1", []))
+    : readWishlistData("styleiqNewCustomerClosetItemsV1", []);
+}
+let purchasedClosetItems = readScenarioClosetItems();
 function persistClosetItems() {
+  if (!isExistingCustomer()) {
+    localStorage.setItem("styleiqNewCustomerClosetItemsV1", JSON.stringify(purchasedClosetItems));
+    return;
+  }
   localStorage.setItem("styleiqClosetItemsV1", JSON.stringify(purchasedClosetItems));
   localStorage.setItem("styleiqClosetPurchasesV1", JSON.stringify(purchasedClosetItems));
 }
@@ -1726,6 +1734,7 @@ function newClosetItemId() {
 function openClosetItem(id) {
   selectedClosetItemId = id;
   closetDetailTab = "overview";
+  closetDetailDialog = null;
   closetStyleIntent = false;
   localStorage.setItem("styleiqSelectedClosetItemV1", id);
   go("C-02");
@@ -1794,6 +1803,25 @@ function setItemLifecycle(value) {
   );
   render();
   toast(`Item marked ${value}`);
+}
+function openClosetDetailDialog(kind) {
+  closetDetailDialog = kind;
+  render();
+}
+function closeClosetDetailDialog() {
+  closetDetailDialog = null;
+  render();
+}
+function removeSelectedClosetItem() {
+  setItemLifecycle("Archive");
+  closetDetailDialog = null;
+  go("C-01");
+  toast("Item removed from your active Closet");
+}
+function markSelectedItemForSale() {
+  setItemLifecycle("Sell");
+  closetDetailDialog = "sell";
+  render();
 }
 function markSelectedItemWorn() {
   const item = selectedClosetItem();
@@ -1878,19 +1906,24 @@ function saveItemPurchase(event) {
 }
 function lifecycleItemDetail() {
   const item = selectedClosetItem(), intelligence = itemIntelligence(item),
-    states = ["Keep", "Won’t wear", "Sell", "Donate", "Rent", "Archive"];
+    states = ["Keep", "Won’t wear", "Sell", "Donate", "Rent"];
   const tabs = [["overview", "Overview"], ["details", "Details"], ["purchase", "Purchase Info"], ["photo", "Photos"], ["activity", "Wear History"]];
   const tabBar = AppTabs({ id: "closet-detail-tabs", label: "Closet item detail sections", variant: "secondary", items: tabs.map(([id, label]) => ({ label, selected: closetDetailTab === id, onSelect: `setClosetDetailTab('${id}')` })) });
-  const overview = `<div>${approvalCard("Ready to style", "Category and color are high confidence. Optional details stay collapsed until you need them.")}<details class="card progressive-card" open style="margin-top:12px"><summary><b>Item status</b><span class="small">${item.lifecycle} · one status at a time</span></summary><p class="body" style="margin-top:10px">Choose what you intend to do with this piece. Wear history and details stay intact.</p><div class="chips" role="group" aria-label="Item lifecycle status">${states.map((value) => `<button class="chip ${item.lifecycle === value ? "active" : ""}" aria-pressed="${item.lifecycle === value}" onclick="setItemLifecycle(&quot;${value}&quot;)">${value}</button>`).join("")}</div></details><button class="btn primary wide" style="margin-top:14px" onclick="styleSelectedClosetItem()">Style this item</button></div>`;
+  const overview = `<div>${approvalCard("Ready to style", "Category and color are high confidence. Optional details stay collapsed until you need them.")}<details class="card progressive-card" open style="margin-top:12px"><summary><b>Item status</b><span class="small">${item.lifecycle} · one status at a time</span></summary><p class="body" style="margin-top:10px">Choose what you intend to do with this piece. Wear history and details stay intact.</p><div class="chips" role="group" aria-label="Item lifecycle status">${states.map((value) => `<button class="chip ${item.lifecycle === value ? "active" : ""}" aria-pressed="${item.lifecycle === value}" onclick="${value === "Sell" ? "markSelectedItemForSale()" : `setItemLifecycle(&quot;${value}&quot;)`}">${value}</button>`).join("")}</div></details><button class="btn primary wide" style="margin-top:14px" onclick="styleSelectedClosetItem()">Style this item</button></div>`;
   const details = `<form onsubmit="saveItemDetails(event)"><div class="inline-edit-grid" style="margin-top:14px">${inlineEditRow("Name", item.name, 'required')}${inlineEditRow("Brand", item.brand)}${inlineEditRow("Category", item.category, 'required')}</div><button class="btn primary wide" type="submit">Save item details</button></form>${storageLocationForm(item)}`;
   const purchase = `<section class="card" style="margin-top:14px;margin-bottom:36px"><p class="eyebrow">Purchase Info</p><h3 class="title">Ownership details</h3><form onsubmit="saveItemPurchase(event)">${inlineEditRow("Purchase price", item.purchasePrice ?? '', 'type="number" min="0" step="0.01"')}${inlineEditRow("Purchase date", item.purchaseDate || '', 'type="date"')}${inlineEditRow("Retailer", item.retailer || '')}<button class="btn primary wide" type="submit" style="margin-bottom:12px">Save purchase details</button></form></section>`;
   const photo = `<section class="card" style="margin-top:14px"><p class="eyebrow">Photo tools</p><h3 class="title">Keep the item presentation current.</h3><p class="body">Replace, crop, clean the background, or return to the original. Changes are previewed before saving.</p><button class="btn primary wide" style="margin-top:12px" onclick="openLightweightPanel('image')">Edit item photo</button><button class="btn wide" style="margin-top:8px" onclick="setClosetDetailTab('overview')">Cancel</button></section>`;
   const activity = `<section class="card" style="margin-top:14px"><p class="eyebrow">Wear activity</p><h3 class="title">Useful facts about this piece</h3><div class="item-metrics"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${Number.isFinite(item.purchasePrice) && item.wears ? wishlistMoney(item.purchasePrice / item.wears) : "Not available"}</b><small>Cost / wear</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Compatible Looks</small></span></div><p class="body" style="margin-top:12px">Wear history stays intact when you update the item or its lifecycle.</p><button class="btn wide" style="margin-top:10px" onclick="setItemLifecycle('Keep')">Mark available</button></section>`;
   const body = { overview, details, purchase, photo, activity }[closetDetailTab] || overview;
+  const dialog = closetDetailDialog === "remove"
+    ? `<div class="closet-detail-dialog"><button class="closet-detail-scrim" aria-label="Cancel removal" onclick="closeClosetDetailDialog()"></button><section role="alertdialog" aria-modal="true" aria-labelledby="closet-remove-title"><h3 id="closet-remove-title">Remove from your Closet?</h3><p>${escapeMarkup(item.name)} will leave your active Closet. Its details and wear history stay saved as archived.</p><button class="btn danger wide" onclick="removeSelectedClosetItem()">Remove from Closet</button><button class="btn wide" onclick="closeClosetDetailDialog()">Keep item</button></section></div>`
+    : closetDetailDialog === "sell"
+      ? `<div class="closet-detail-dialog"><button class="closet-detail-scrim" aria-label="Close selling options" onclick="closeClosetDetailDialog()"></button><section role="dialog" aria-modal="true" aria-labelledby="closet-sell-title"><h3 id="closet-sell-title">Where would you like to sell?</h3><p>${escapeMarkup(item.name)} is marked for sale in your Closet. Choose a platform to create a listing there; StyleIQ won’t post it automatically.</p><a href="https://www.depop.com/sell/" target="_blank" rel="noopener noreferrer">Depop <span>Fashion resale ↗</span></a><a href="https://www.vestiairecollective.com/journal/start-selling/" target="_blank" rel="noopener noreferrer">Vestiaire Collective <span>Designer pieces ↗</span></a><a href="https://sell.ebay.com/" target="_blank" rel="noopener noreferrer">eBay <span>General resale ↗</span></a><button class="btn wide" onclick="closeClosetDetailDialog()">Done</button></section></div>`
+      : "";
   return shell(
     "Item detail",
-    `<img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${escapeMarkup(item.name)}</h2></span><button class="icon-btn" aria-label="Edit item" onclick="setClosetDetailTab('details')">${icon("edit")}</button></div><div class="row" style="margin-top:12px"><button class="btn primary grow" onclick="styleSelectedClosetItem()">Style It</button><button class="btn grow" onclick="tryOnSelectedClosetItem()">Try On</button></div><div class="item-metrics" style="margin-top:14px"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${intelligence.matches}</b><small>Closet matches</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Looks ready</small></span></div><p class="small">${intelligence.looks.length ? "Known Looks: " + intelligence.looks.map(look => escapeMarkup(look.title)).join(" · ") : "Style this piece to explore new combinations."}</p><div class="chips"><button class="chip" onclick="markSelectedItemWorn()">Mark Worn</button><button class="chip" onclick="setItemLifecycle('Sell')">Sell</button><button class="chip" onclick="setItemLifecycle('Archive')">Archive</button></div>${tabBar}${AppTabPanel("closet-detail-tabs", Math.max(0, tabs.findIndex(([id]) => id === closetDetailTab)), body)}`,
-    { active: "closet" },
+    `<img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${escapeMarkup(item.name)}</h2></span><button class="icon-btn" aria-label="Edit item" onclick="setClosetDetailTab('details')">${icon("edit")}</button></div><div class="row" style="margin-top:12px"><button class="btn primary grow" onclick="styleSelectedClosetItem()">Style It</button><button class="btn grow" onclick="tryOnSelectedClosetItem()">Try On</button></div><div class="item-metrics" style="margin-top:14px"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${intelligence.matches}</b><small>Closet matches</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Looks ready</small></span></div><p class="small">${intelligence.looks.length ? "Known Looks: " + intelligence.looks.map(look => escapeMarkup(look.title)).join(" · ") : "Style this piece to explore new combinations."}</p><div class="closet-item-owner-actions"><button class="btn" onclick="markSelectedItemWorn()">Mark Worn</button><button class="btn" onclick="markSelectedItemForSale()">Sell item</button><button class="btn" onclick="openClosetDetailDialog('remove')">Remove from Closet</button></div>${tabBar}${AppTabPanel("closet-detail-tabs", Math.max(0, tabs.findIndex(([id]) => id === closetDetailTab)), body)}`,
+    { active: "closet", layer: dialog },
   );
 }
 function decorateConsolidatedItemDetail() {
@@ -1909,8 +1942,21 @@ function updateClosetQuery(value) {
   });
 }
 function setClosetCategory(value) {
+  const tabsScroll = app.querySelector(".closet-editorial-tabs")?.scrollLeft || 0;
+  const pageScroll = app.querySelector(".primary-tab-scroll")?.scrollTop || 0;
   closetState.category = value;
   render();
+  const tabs = app.querySelector(".closet-editorial-tabs");
+  const page = app.querySelector(".primary-tab-scroll");
+  if (tabs) tabs.scrollLeft = tabsScroll;
+  if (page) page.scrollTop = pageScroll;
+}
+function toggleClosetInsights() {
+  const pageScroll = app.querySelector(".primary-tab-scroll")?.scrollTop || 0;
+  closetInsightsOpen = !closetInsightsOpen;
+  render();
+  const page = app.querySelector(".primary-tab-scroll");
+  if (page) page.scrollTop = pageScroll;
 }
 function setClosetCollection(value) {
   closetState.collection = value;
@@ -1953,8 +1999,16 @@ function closetNoResultsIllustration() {
     ${icon("shirt")}
   </div>`;
 }
+function closetGridImage(item) {
+  const seeded = activeCanonicalClosetSeed().find((piece) => piece.id === item.id);
+  if (!seeded || seeded.image !== item.image) return item.image;
+  const filename = item.image.replace(/^images\//, "");
+  if (filename.startsWith("closet-") || ["screen_23_item_man.png", "item_blazer.png"].includes(filename))
+    return `images/closet-cutouts/${filename}`;
+  return item.image;
+}
 function scalableCloset() {
-  const all = closetItems(),
+  const all = closetItems().filter((item) => item.lifecycle !== "Archive"),
     q = closetState.query.trim().toLowerCase();
   const collectionTests = {
     "All pieces": () => true,
@@ -1990,39 +2044,23 @@ function scalableCloset() {
   if (!all.length)
     return shell(
       "Closet",
-      `<div class="mirror-page-head"><span><p class="eyebrow">Wardrobe · 0 pieces</p><h2 class="mirror-title">Closet</h2></span></div><section class="closet-empty"><div><div class="closet-empty-art"><img src="${assets.blazer}" alt="A tailored piece ready to photograph"></div><h2>Start with one piece.</h2><p class="body">A single photo is enough. StyleIQ will organize it and start building outfits around what you own.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item</button><button class="btn wide" style="margin-top:8px" onclick="b01Mode='receipt';go('B-01')">Import purchases</button><button class="text-action" style="margin-top:8px" onclick="setClosetTab('wishlist')">Open Wishlist</button></div></section>`,
+      `<div class="mirror-page-head"><span><p class="eyebrow">Wardrobe · 0 pieces</p><h2 class="mirror-title">Closet</h2></span></div><section class="closet-empty"><div><div class="closet-empty-art" aria-hidden="true">${icon("plus")}</div><h2>Your clothes will appear here.</h2><p class="body">Add your first piece to start building your Closet and Looks around what you own.</p><button class="btn primary wide" onclick="go('B-01')">Add your first piece</button></div></section>`,
       { active: "closet" },
     );
-  const collections = [
-    "All pieces",
-    "Favorites",
-    "Underused",
-    "Ready to wear",
-    "Most worn",
-    "Needs attention",
-    "Needs location",
-    "Won’t wear",
-    "Sell",
-    "Donate",
-    "Rent",
-    "Archived",
-  ].map((name) => [name, all.filter(collectionTests[name]).length]);
-  const categories = [
-    "All",
-    "Tops",
-    "Bottoms",
-    "Dresses & Suits",
-    "Outerwear",
-    "Shoes",
-    "Bags",
-    "Accessories",
-  ];
-  const collectionTabs = AppTabs({ id: "closet-collection-tabs", label: "Smart collections", variant: "primary", items: collections.map(([name, count]) => ({ label: name, count, selected: closetState.collection === name, onSelect: `setClosetCollection('${name}')` })) });
-  const categoryTabs = AppTabs({ id: "closet-category-tabs", label: "Closet categories", variant: "compact", items: categories.map((name) => ({ label: name, selected: closetState.category === name, onSelect: `setClosetCategory('${name}')` })) });
-  const closetResults = `<div class="closet-results-head"><span><p class="eyebrow">${closetState.collection}</p><h3>${visible.length} ${visible.length === 1 ? "piece" : "pieces"}</h3></span><small>${closetState.sort}</small></div><div class="closet-grid">${visible.length ? visible.map((item) => `<article class="closet-item"><button class="closet-item-open" onclick="openClosetItem('${item.id}')"><span class="closet-item-media"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><em>${item.status}</em></span><span class="closet-item-copy"><b>${escapeMarkup(item.name)}</b><small>${escapeMarkup(item.brand)} · worn ${item.wears}×</small></span></button><button class="closet-favorite ${item.favorite ? "is-favorite" : ""}" data-closet-favorite="${item.id}" aria-label="${item.favorite ? "Remove from" : "Add to"} Favorites" aria-pressed="${item.favorite === true}" onclick="toggleClosetFavorite('${item.id}', event)">${icon("heart")}</button></article>`).join("") : `<section class="closet-no-results" aria-label="No matching Closet pieces">${closetNoResultsIllustration()}<b>No matching pieces</b><small>Try another category, collection, or search.</small><button class="btn small-btn" onclick="resetClosetFilters()">Clear filters</button></section>`}</div>`;
+  const categories = ["All", ...new Set(all.map((item) => item.category).filter(Boolean))];
+  const mostWorn = [...all].sort((a, b) => b.wears - a.wears)[0];
+  const underused = all.filter((item) => item.wears <= 2);
+  const noticed = (underused.length ? underused : [mostWorn]).slice(0, 3);
+  const noticedCopy = underused.length
+    ? `${underused.length} ${underused.length === 1 ? "piece hasn't" : "pieces haven't"} been worn much lately.`
+    : `${escapeMarkup(mostWorn.name)} is getting plenty of wear.`;
+  const noticedAction = underused.length ? "Style them with Muse" : "Style it with Muse";
+  const insights = closetInsightsOpen ? `<div class="closet-insights" id="closet-insights"><p><b>${mostWorn.wears} wears</b> · ${escapeMarkup(mostWorn.name)} is your most worn piece.</p><p><b>${underused.length} underused</b> · Pieces worn twice or less.</p><div>${noticed.map((item) => `<button type="button" onclick="openClosetItem('${item.id}')"><img src="${closetGridImage(item)}" alt=""><span>${escapeMarkup(item.name)}</span></button>`).join("")}</div></div>` : "";
+  const categoryTabs = `<div class="closet-editorial-tabs" role="tablist" aria-label="Closet categories">${categories.map((name) => `<button type="button" role="tab" aria-selected="${closetState.category === name}" class="closet-editorial-tab${closetState.category === name ? " active" : ""}" onclick="setClosetCategory('${name.replace(/'/g, "\\'")}')">${escapeMarkup(name)}</button>`).join("")}</div>`;
+  const closetResults = `<div class="closet-editorial-grid" aria-label="${visible.length} Closet items">${visible.length ? visible.map((item) => `<button type="button" class="closet-editorial-item" onclick="openClosetItem('${item.id}')" aria-label="View ${escapeMarkup(item.name)} details"><img src="${closetGridImage(item)}" alt="" loading="lazy"></button>`).join("") : `<section class="closet-no-results" aria-label="No matching Closet pieces">${closetNoResultsIllustration()}<b>No matching pieces</b><small>Try another category or clear your filters.</small><button class="btn small-btn" onclick="resetClosetFilters()">Clear filters</button></section>`}</div>`;
   return shell(
     "Closet",
-    `<div class="mirror-page-head"><span><p class="eyebrow">Wardrobe · ${all.length} ${all.length === 1 ? "piece" : "pieces"}</p><h2 class="mirror-title">Closet</h2></span><button class="mirror-circle-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button></div><div class="closet-toolbar"><div class="closet-search">${icon("search")}<label class="sr-only" for="closet-search-input">Search your Closet</label><input id="closet-search-input" aria-label="Search Closet" type="search" autocomplete="off" value="${closetState.query.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" placeholder="Search your Closet" oninput="updateClosetQuery(this.value)"></div><label class="closet-sort-control"><span class="sr-only">Sort Closet</span><select aria-label="Sort Closet" onchange="setClosetSort(this.value)">${["Recently added", "Most worn", "A–Z"].map((sort) => `<option value="${sort}" ${closetState.sort === sort ? "selected" : ""}>${sort}</option>`).join("")}</select></label></div>${collectionTabs}${AppTabPanel("closet-collection-tabs", Math.max(0, collections.findIndex(([name]) => name === closetState.collection)), `${categoryTabs}${AppTabPanel("closet-category-tabs", Math.max(0, categories.indexOf(closetState.category)), closetResults)}`)}`,
+    `<div class="closet-editorial"><section class="closet-summary" aria-label="Wardrobe summary"><div class="closet-summary-count"><strong>${all.length}</strong><span>Items</span></div><div class="closet-summary-feature"><img src="${mostWorn.image}" alt=""><span><small>Most worn</small><b>${escapeMarkup(mostWorn.name)}</b><em>${mostWorn.wears} wears</em></span></div><div class="closet-summary-count"><strong>${underused.length}</strong><span>Underused</span></div><button type="button" class="closet-summary-link" aria-expanded="${closetInsightsOpen}" aria-controls="closet-insights" onclick="toggleClosetInsights()">Wardrobe insights ${icon("arrow-right")}</button></section>${insights}${categoryTabs}${closetResults}<section class="closet-noticed" aria-label="Muse noticed"><h3>Muse noticed</h3><div class="closet-noticed-body"><div class="closet-noticed-images">${noticed.map((item) => `<span class="closet-noticed-image"><img src="${closetGridImage(item)}" alt="${escapeMarkup(item.name)}" loading="lazy"></span>`).join("")}</div><button type="button" onclick="openMuse({ label: 'Closet styling insight', prompt: 'Suggest a Look using pieces in my Closet.' })"><span>${noticedCopy}<br>${noticedAction}&nbsp; →</span></button></div></section><section class="closet-build" aria-label="Build from your closet"><img src="${assets.look3}" alt="Editorial outfit inspiration" loading="lazy"><div class="closet-build-copy"><h3>Build from your closet</h3><p>Create a new look using pieces you own.</p><div><button type="button" onclick="go('F-01')">Start Styling</button><button type="button" onclick="openMuse({ label: 'Build from your closet', prompt: 'Help me create a new Look from the pieces in my Closet.' })">Ask Muse</button></div></div></section></div>`,
     { active: "closet" },
   );
 }
@@ -2444,9 +2482,9 @@ function head(title) {
   if (currentId.startsWith("A-") || currentId === "S-01") {
     return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><span class="brand-lockup micro"><span class="brand-lockup-name">StyleIQ</span></span></div><span class="head-action-placeholder" style="width:40px" aria-hidden="true"></span></header>`;
   }
-  if (!root)
+  if (!root || currentId === "K-01")
     return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><h1>${title}</h1></div><button class="head-muse" aria-label="Ask Muse about this screen" onclick="openMuse()">${icon("spark")}</button></header>`;
-  const todayUsesMediaHeader = currentId === "D-02" && isExistingCustomer() && closetItemCount() > 0 && todayMode === "normal";
+  const todayUsesMediaHeader = currentId === "D-02" && (closetItemCount() === 0 || !isExistingCustomer() || todayMode === "normal");
   const primaryTabs = {
     "D-02": {
       title: "Today",
@@ -2466,12 +2504,6 @@ function head(title) {
       media: true,
       museLabel: "Ask Muse about Planner",
       action: `<button class="root-action app-tab-context-action" onclick="beginPlannerAdd('${plannerSelectedDate || new Date().toISOString().slice(0,10)}')" aria-label="Add Event">${icon("plus")}</button>`,
-    },
-    "K-01": {
-      title: "Discover",
-      mastheadImage: "images/alta-look-rust-cream-flatlay.png",
-      museLabel: "Ask Muse about Discover",
-      action: "",
     },
   };
   const primaryTab = primaryTabs[currentId];
@@ -2526,14 +2558,19 @@ function installLiquidNav(previous) {
         button === selected ? "page" : "false",
       ),
     );
+  if (selected.classList.contains("nav-lens")) return;
+  const selectedIcon = selected.querySelector(".icon");
   const lens = document.createElement("span");
   lens.className = "nav-liquid-indicator";
   lens.setAttribute("aria-hidden", "true");
   bar.append(lens);
-  lens.style.left = selected.offsetLeft + "px";
-  lens.style.top = selected.offsetTop + "px";
-  lens.style.width = selected.offsetWidth + "px";
-  lens.style.height = selected.offsetHeight + "px";
+  const indicatorSize = 38;
+  const iconBounds = (selectedIcon || selected).getBoundingClientRect();
+  const barBounds = bar.getBoundingClientRect();
+  lens.style.left = iconBounds.left - barBounds.left + (iconBounds.width - indicatorSize) / 2 + "px";
+  lens.style.top = iconBounds.top - barBounds.top + (iconBounds.height - indicatorSize) / 2 + "px";
+  lens.style.width = indicatorSize + "px";
+  lens.style.height = indicatorSize + "px";
   const destination = lens.getBoundingClientRect();
   if (!previous || matchMedia("(prefers-reduced-motion: reduce)").matches)
     return;
@@ -2561,18 +2598,24 @@ function installLiquidNav(previous) {
   );
 }
 function nav(active = "home") {
-  const resolved = accountMenuOpen
+  const resolved = lensOpen
+    ? "lens"
+    : accountMenuOpen
     ? "profile"
     : currentId.startsWith("C-")
     ? "closet"
     : currentId.startsWith("I-")
       ? "planner"
       : currentId.startsWith("K-")
-        ? "discover"
+        ? "profile"
         : currentId.startsWith("D-")
           ? "home"
           : "profile";
-  return `<nav class="bottom-nav" aria-label="Primary navigation"><button class="nav-btn ${resolved === "home" ? "active" : ""}" onclick="go('D-02')">${icon("home")}Today</button><button class="nav-btn ${resolved === "closet" ? "active" : ""}" onclick="go('C-01')">${icon("shirt")}Closet</button><button class="nav-btn ${resolved === "planner" ? "active" : ""}" onclick="go('I-01')">${icon("calendar")}Planner</button><button class="nav-btn ${resolved === "discover" ? "active" : ""}" onclick="go('K-01')">${icon("compass")}Discover</button><button class="nav-btn more ${resolved === "profile" ? "active" : ""}" aria-label="Open More menu" aria-expanded="${accountMenuOpen}" onclick="toggleAccountMenu()">${icon("more")}More</button></nav>`;
+  return `<nav class="bottom-nav" aria-label="Primary navigation"><button class="nav-btn ${resolved === "home" ? "active" : ""}" onclick="selectPrimaryTab('D-02')">${icon("home")}<span>Today</span></button><button class="nav-btn ${resolved === "closet" ? "active" : ""}" onclick="selectPrimaryTab('C-01')">${icon("shirt")}<span>Closet</span></button><button class="nav-btn nav-lens ${resolved === "lens" ? "active" : ""}" aria-label="Open StyleIQ Lens" aria-expanded="${lensOpen}" onclick="openLens()">${icon("camera")}<span>Lens</span></button><button class="nav-btn ${resolved === "planner" ? "active" : ""}" onclick="selectPrimaryTab('I-01')">${icon("calendar")}<span>Planner</span></button><button class="nav-btn more ${resolved === "profile" ? "active" : ""}" aria-label="Open More menu" aria-expanded="${accountMenuOpen}" onclick="toggleAccountMenu()">${icon("more")}<span>More</span></button></nav>`;
+}
+function selectPrimaryTab(id) {
+  lensOpen = false;
+  go(id);
 }
 function notificationsPanel() {
   if (!notificationsOpen) return "";
@@ -2599,7 +2642,7 @@ function shell(
   const plannerLayers = currentId === "I-01" ? `${plannerMonthMarkup(plannerSelectedDate || new Date().toISOString().slice(0,10))}${plannerRecapStoryMarkup('weekly')}` : "";
   const isPrimaryTab = ["D-02", "C-01", "I-01", "K-01"].includes(currentId);
   const scrollingContent = `${head(title)}<div class="content ${noNav ? "no-nav" : ""}">${resolvedBody}</div>`;
-  return `<section class="screen ${dark ? "studio-screen" : ""} ${surfaceClass}">${isPrimaryTab ? `<div class="primary-tab-scroll">${scrollingContent}</div>` : scrollingContent}${plannerLayers}${noNav ? "" : nav(active)}${lensEntry()}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}${layer}</section>`;
+  return `<section class="screen ${dark ? "studio-screen" : ""} ${surfaceClass}">${isPrimaryTab ? `<div class="primary-tab-scroll">${scrollingContent}</div>` : scrollingContent}${plannerLayers}${noNav ? "" : nav(active)}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}${layer}</section>`;
 }
 function logoutDialog() {
   if (overlay !== "logout") return "";
@@ -3530,6 +3573,7 @@ function completeOnboarding(destination = "D-02") {
 }
 function completeSignIn(destination = "D-02") {
   customerScenario = "existing";
+  purchasedClosetItems = readScenarioClosetItems();
   syncCustomerScenarioUrl();
   if (closetItemCount() === 0) {
     syncCanonicalClosetProfile();
@@ -3538,6 +3582,7 @@ function completeSignIn(destination = "D-02") {
 }
 function startNewUserOnboarding(destination = "A-02") {
   customerScenario = "new";
+  purchasedClosetItems = readScenarioClosetItems();
   syncCustomerScenarioUrl();
   onboardingGoal = "";
   closetState.size = 0;
@@ -3568,6 +3613,7 @@ function openStyleIQ() {
 }
 function exploreAsGuest() {
   customerScenario = "new";
+  purchasedClosetItems = readScenarioClosetItems();
   syncCustomerScenarioUrl();
   closetState.size = 0;
   localStorage.setItem("styleiqGuestModeV1", "true");
@@ -3889,6 +3935,7 @@ function verifyOtp() {
     otpAttempts = 0; otpState = 'valid'; persistOtp();
     authInlineState = 'form';
     customerScenario = 'new';
+    purchasedClosetItems = readScenarioClosetItems();
     go("A-02");
     return;
   }
@@ -3985,7 +4032,6 @@ let lensOpen = false,
   lensAnalysisTimer = null,
   lensWearDraftLook = null,
   lensImageError = "";
-const lensRootIds = ["D-02", "C-01", "I-01", "K-01", "L-01"];
 function openLens() {
   clearTimeout(lensAnalysisTimer);
   lensOpen = true;
@@ -4134,19 +4180,14 @@ function lensLikelyIntent() {
           ? "recreate"
           : "improve";
 }
-function lensEntry() {
-  return lensRootIds.includes(currentId) && !["C-01", "D-02"].includes(currentId) && !lensOpen
-    ? `<button class="lens-fab" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")} Lens</button>`
-    : "";
-}
 function lensSourceLabel(source = lensSource) {
   return source === "camera" ? "Camera" : source === "library" ? "Photo library" : "Screenshot";
 }
 function lensSourceInputs() {
-  return `<input id="lens-camera-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" aria-label="Take a photo" onchange="startLensInput(this,'camera')"><input id="lens-library-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose from Photo library" onchange="startLensInput(this,'library')">`;
+  return `<input id="lens-camera-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" aria-label="Take a photo" onchange="startLensInput(this,'camera')"><input id="lens-library-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose from Photo library" onchange="startLensInput(this,'library')"><input id="lens-screenshot-input" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose a screenshot" onchange="startLensInput(this,'screenshot')">`;
 }
 function lensCaptureMarkup() {
-  return `<div class="lens-empty-state"><div class="lens-empty-illustration" aria-hidden="true"><span class="lens-illustration-frame">${icon("image")}</span><span class="lens-illustration-camera">${icon("camera")}</span><span class="lens-illustration-scan">${icon("scan")}</span></div><h3>Show Lens what you see.</h3><p>Take a photo or choose an image to get started.</p></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('camera')">${icon("camera")}Camera</button><button class="lens-source" onclick="lensCapture('library')">${icon("image")}Photo library</button></div>${lensSourceInputs()}`;
+  return `<div class="lens-empty-state"><h3>Show Lens what you see.</h3><p>Choose a camera photo or one from your library.</p></div><div class="lens-source-grid"><button class="lens-source" onclick="lensCapture('camera')">${icon("camera")}<span>Camera</span></button><button class="lens-source" onclick="lensCapture('library')">${icon("image")}<span>Photo library</span></button></div>${lensSourceInputs()}`;
 }
 function lensImagePreparingMarkup() {
   return `<div class="lens-analysis lens-image-preparing" role="status"><span></span><h2 class="title">Preparing image…</h2><p class="body">Getting your photo ready for Lens.</p></div>${lensSourceInputs()}`;
@@ -4323,7 +4364,7 @@ function lensResult() {
 function lensLayerMarkup() {
   if (!lensOpen) return "";
   const content = lensStage === "capture" ? lensCaptureMarkup() : lensStage === "preparing" ? lensImagePreparingMarkup() : lensStage === "image-error" ? lensImageErrorMarkup() : lensStage === "intent" ? lensIntentPicker() : lensResult();
-  return `<div class="lens-layer"><div class="lens-scrim" aria-hidden="true"></div><section class="lens-sheet" role="dialog" aria-modal="true" aria-label="StyleIQ Lens"><header class="lens-head"><span><p class="eyebrow">StyleIQ</p><h2 class="title" style="font-size:20px">Lens</h2></span><button class="icon-btn" aria-label="Close StyleIQ Lens" onclick="closeLens()">×</button></header>${content}</section></div>`;
+  return `<div class="lens-layer"><div class="lens-scrim" aria-hidden="true" onclick="closeLens()"></div><section class="lens-sheet ${lensStage === "capture" ? "lens-sheet--capture" : ""}" role="dialog" aria-modal="false" aria-label="StyleIQ Lens"><header class="lens-head"><span><p class="eyebrow">StyleIQ</p><h2 class="title" style="font-size:20px">Lens</h2></span><button class="icon-btn" aria-label="Close StyleIQ Lens" onclick="closeLens()">×</button></header>${content}</section></div>`;
 }
 function decorateVisualSearchEntries() {
   const content = app.querySelector(".content");
@@ -6528,6 +6569,7 @@ function closeOverlay() {
   render();
 }
 function toggleAccountMenu() {
+  lensOpen = false;
   accountMenuOpen = !accountMenuOpen;
   notificationsOpen = false;
   render();
@@ -6668,20 +6710,46 @@ function setTodayMode(mode) {
   localStorage.setItem("styleiqTodayModeV1", mode);
   if (currentId === "D-02") render();
 }
+function styleIqSetupTasks() {
+  const createdLook = lookCatalog.some((look) => look.creationSource === "user" && !Object.values(canonicalLooks()).some((seed) => seed.id === look.id));
+  return [
+    { done: closetItemCount() > 0, weight: 40, title: "Add a Closet piece", detail: "Start with something you already own.", label: "Add an item", action: "go('B-01')" },
+    { done: createdLook, weight: 35, title: "Create your first Look", detail: "Style your first outfit in minutes.", label: "Create a Look", action: "go('F-01')" },
+    { done: Boolean(plannerEvent || proactiveWeek.length), weight: 25, title: "Plan a day", detail: "Give your Look a place on the calendar.", label: "Open Planner", action: "go('I-01')" },
+  ];
+}
+function styleIqSetupMarkup(tasks = styleIqSetupTasks()) {
+  const earned = tasks.reduce((total, task) => total + (task.done ? task.weight : 0), 0);
+  const completed = tasks.filter((task) => task.done).length;
+  return `<section class="styleiq-setup" aria-labelledby="styleiq-setup-title">
+    <p class="eyebrow">Make Today yours</p>
+    <div class="styleiq-setup-heading"><div><h3 id="styleiq-setup-title">Build your StyleIQ</h3><p>The more you add, the better your recommendations.</p></div><strong>${completed} of ${tasks.length} complete</strong></div>
+    <div class="styleiq-setup-progress"><progress value="${earned}" max="100" aria-label="StyleIQ setup completion">${earned}%</progress><small>${earned}% complete</small></div>
+    <div class="styleiq-setup-list">${tasks.map((task, index) => `<button type="button" class="styleiq-setup-step${task.done ? " is-done" : ""}" onclick="${task.action}"><span class="styleiq-setup-step-index" aria-hidden="true">${task.done ? icon("check") : index + 1}</span><span class="styleiq-setup-step-copy">${task.done ? '<span class="sr-only">Completed: </span>' : ""}<b>${task.title}</b><small>${task.detail}</small></span>${icon("chevron-right")}</button>`).join("")}</div>
+  </section>`;
+}
 function todayBeforeClosetState() {
   const firstName = escapeMarkup(profileFirstName());
+  const hasCloset = closetItemCount() > 0;
+  const tasks = styleIqSetupTasks();
+  const createdLook = tasks[1].done;
+  const next = tasks.find((task) => !task.done);
   return shell(
     "Today",
-    `<div class="today-first-use">
-      <header class="today-first-head"><span><p class="eyebrow">Welcome to your Today</p><h2>Let’s style your first Look, ${firstName}.</h2></span><button class="today-muse-pill" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started before I add Closet items.', origin: 'D-02' })"><img src="${assets.muse}" alt="Muse"><span>Ask Muse</span></button></header>
-      <section class="today-first-hero" aria-labelledby="today-first-title">
-        <div class="today-first-art"><img src="images/illustrations/illustration-today-first-look-transparent.png" alt="A woman choosing versatile pieces from her wardrobe"></div>
-        <div class="today-first-copy"><span class="today-first-badge">${icon("spark")} Your first step</span><h3 id="today-first-title">Start with one piece you already love.</h3><p>Add it to your Closet and Muse will build outfit ideas around what you actually own.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item ${icon("arrow-right")}</button></div>
-      </section>
-      <section class="today-unlocks" aria-label="What adding an item unlocks"><p class="eyebrow">Then Today becomes yours</p><div><span>${icon("shirt")}<b>Daily Looks</b><small>Built from your Closet</small></span><span>${icon("calendar")}<b>Plan ahead</b><small>Dress for real plans</small></span><span>${icon("user")}<b>Try it on</b><small>Preview privately</small></span></div></section>
-      <button class="today-explore-link" onclick="go('K-01')">Explore inspiration while I set up ${icon("arrow-right")}</button>
-    </div>`,
-    { active: "home", surfaceClass: "starter-look-surface" }
+    `<section class="today-hero today-hero--empty" aria-label="Today’s Look is not ready yet">
+      <div class="today-empty-image" aria-hidden="true"></div><div class="today-hero-scrim" aria-hidden="true"></div>
+      <header class="today-morning"><div class="today-morning-body"><h2 aria-label="Good morning, ${firstName}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${firstName}</span></h2></div>
+        <aside class="today-muse-note"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">Your style starts with what you own.</p></aside>
+        <div class="today-morning-foot"><div class="today-morning-meta"><span>${icon("calendar")}Today</span><i aria-hidden="true">·</i><span>${icon("map-pin")}Cairo</span></div></div>
+      </header>
+      <div class="today-hero-panel"><span>Today’s Look</span><h3>Ready when you are.</h3></div>
+      <button class="today-hero-lens" aria-label="Open StyleIQ Lens" onclick="openLens()">${icon("camera")}<span>Lens</span></button>
+    </section>
+    <div class="today-closet-line"><b>${hasCloset ? `${closetItemCount()} ${closetItemCount() === 1 ? "piece" : "pieces"} in your Closet` : "Your Closet is empty"}</b><button onclick="go('C-01')">View Closet</button></div>
+    <div class="today-actions"><button class="btn primary" onclick="${next?.action || "go('G-01')"}">${next?.label || "View your Looks"} ${icon("arrow-right")}</button><button class="btn" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started with Looks from my Closet.', origin: 'D-02' })">${icon("spark")} Ask Muse</button></div>
+    ${styleIqSetupMarkup(tasks)}
+    <section class="today-empty-looks" aria-labelledby="today-empty-looks-title"><header><span><p class="eyebrow">More Looks for Today</p><h3 id="today-empty-looks-title">${createdLook ? "Your Looks are taking shape." : "Your Looks will live here."}</h3></span></header><p>${createdLook ? "Find the Look you created and keep building from your Closet." : "Once you create or save a Look, you’ll find it here alongside new styling ideas."}</p><button class="text-action" onclick="go('${createdLook ? "G-01" : "F-01"}')">${createdLook ? "View your Looks" : "Explore Style Studio"} ${icon("arrow-right")}</button></section>`,
+    { active: "home", surfaceClass: "image-first-surface" }
   );
 }
 function todayLoadingState() {
@@ -7415,6 +7483,7 @@ const discoverApi = async (path, options = {}) => {
   return response.json();
 };
 let discoverMode = 'Looks', discoverFeedMode = 'For You', discoverStyle = 'All';
+let discoverLayout = 'grid';
 let discoverLooksQuery = '', discoverFiltersOpen = false, discoverFilterDraft = null;
 let discoverProductRecommendationMode = 'All Products', discoverProductContext = null;
 let discoverCompletionSelections = {};
@@ -7530,6 +7599,9 @@ function discoverFilterButton() {
   const count = discoverFilterCount();
   return `<button class="discover-filter-button" type="button" onclick="discoverOpenFilters()" aria-label="Filters${count ? `, ${count} active` : ''}">${icon('sliders')}<span>Filter${count ? ` · ${count}` : ''}</span></button>`;
 }
+function discoverLayoutSwitch() {
+  return `<div class="discover-layout-switch" role="group" aria-label="Display layout"><button type="button" aria-label="Grid view" title="Grid view" aria-pressed="${discoverLayout === 'grid'}" onclick="discoverLayout='grid';render()">${icon('layout-grid')}</button><button type="button" aria-label="List view" title="List view" aria-pressed="${discoverLayout === 'list'}" onclick="discoverLayout='list';render()">${icon('list')}</button></div>`;
+}
 function discoverFilterSheet() {
   if (!discoverFiltersOpen || !discoverFilterDraft) return '';
   const option = (key, value, label) => `<button type="button" class="discover-filter-option ${discoverFilterDraft[key] === value ? 'selected' : ''}" aria-pressed="${discoverFilterDraft[key] === value}" onclick="discoverDraftFilter('${key}',decodeURIComponent('${encodeURIComponent(value).replace(/'/g, '%27')}'))">${escapeMarkup(label)}<span aria-hidden="true">${discoverFilterDraft[key] === value ? '✓' : ''}</span></button>`;
@@ -7631,8 +7703,15 @@ function discoverMuseCard(look) {
   const images = look.items.slice(0,4).map(item => `<img src="${escapeMarkup(item.photo_url || item.image_url || item.image || '')}" alt="${escapeMarkup(item.name || item.title || 'Closet piece')}">`).join('');
   return `<article class="discover-muse-card"><button class="discover-muse-media" onclick="discoverSelectedMuse='${escapeMarkup(look.id)}';render()" aria-label="View ${escapeMarkup(look.title)}"><span class="discover-muse-collage">${images}</span></button><div><small>Muse · From your Closet</small><h4>${escapeMarkup(look.title)}</h4><p>${escapeMarkup(look.rationale)}</p><div class="discover-muse-actions"><button class="text-action" onclick="discoverSelectedMuse='${escapeMarkup(look.id)}';render()">View Look ${icon('arrow-right')}</button><button class="text-action" onclick="discoverSaveMuse('${escapeMarkup(look.id)}')">Save</button></div></div></article>`;
 }
+const discoverLookImages = Object.fromEntries([
+  'maya-work', 'maya-weekend', 'maya-dinner', 'maya-travel',
+  'marcus-studio', 'marcus-casual', 'marcus-evening',
+  'camille-ease', 'camille-coffee', 'camille-night',
+  'noor-dinner', 'noor-fluid', 'noor-minimal',
+  'elena-coastal', 'elena-sunset', 'elena-walk'
+].map(id => [id, `images/discover-looks/${id}.png`]));
 function discoverStylistCard(look) {
-  return `<article class="discover-stylist-card"><button class="discover-feature-look discover-feature-look--compact" onclick="openCreatorLook('${look.id}')"><img src="${escapeMarkup(look.image)}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)} · Stylist</small><b>${escapeMarkup(look.title)}</b><em>${escapeMarkup(look.styleDirection || look.occasion)}</em></span></button><button class="discover-look-save" aria-label="${savedCreatorInspirations.includes(look.id) ? 'Remove' : 'Save'} ${escapeMarkup(look.title)}" aria-pressed="${savedCreatorInspirations.includes(look.id)}" onclick="toggleCreatorInspiration('${look.id}')">${icon('heart')}</button></article>`;
+  return `<article class="discover-stylist-card"><button class="discover-feature-look discover-feature-look--compact" onclick="openCreatorLook('${look.id}')"><img src="${escapeMarkup(discoverLookImages[look.id] || look.image)}" alt="${escapeMarkup(look.title)}"><span><small>${escapeMarkup(look.creator.name)} · Stylist</small><b>${escapeMarkup(look.title)}</b></span></button><button class="discover-look-save" aria-label="${savedCreatorInspirations.includes(look.id) ? 'Remove' : 'Save'} ${escapeMarkup(look.title)}" aria-pressed="${savedCreatorInspirations.includes(look.id)}" onclick="toggleCreatorInspiration('${look.id}')">${icon('heart')}</button></article>`;
 }
 function discoverLooks() {
   const looks = creatorDataset.flatMap(creator => creator.looks.map(look => ({...look, creator})));
@@ -7651,7 +7730,7 @@ function discoverLooks() {
   const main = feed.length || (discoverFeedMode === 'For You' && museCards) ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><span><p class="eyebrow">${discoverFeedMode === 'For You' ? 'Picked for your style' : discoverFeedMode === 'Following' ? 'Stylist Looks' : 'What is inspiring now'}</p><h3>${intro}</h3></span></div>${discoverFeedMode === 'For You' ? museCards : ''}${feed.length ? `<div class="discover-look-stack">${feed.slice(0,discoverFeedMode === 'For You' ? 3 : undefined).map(discoverStylistCard).join('')}</div>` : ''}</section>` : '';
   const following = discoverFeedMode === 'For You' && followed.length ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><span><h3>From Stylists You Follow</h3></span></div><div class="discover-look-stack">${followed.slice(0,2).map(discoverStylistCard).join('')}</div></section>` : '';
   const empty = !main && !stylists && !following && !editorial ? `<section class="discover-no-results"><h3>No Looks match these filters</h3><button class="text-action" onclick="discoverOpenFilters()">Change filters</button></section>` : '';
-  return `<div class="discover-search-row"><div class="discover-search-field"><span class="discover-search-icon">${icon('search')}</span><input class="input" type="search" aria-label="Search looks and stylists" placeholder="Search looks, stylists..." value="${escapeMarkup(discoverLooksQuery)}" oninput="discoverLooksQuery=this.value;discoverRenderSearch()"></div>${discoverFilterButton()}</div>${main}${stylists}${following}${editorial}${empty}${discoverError ? `<p role="status" class="body">${escapeMarkup(discoverError)}</p>` : ''}${discoverMuseDetail()}`;
+  return `<div class="discover-search-row"><div class="discover-search-field"><span class="discover-search-icon">${icon('search')}</span><input class="input" type="search" aria-label="Search looks and stylists" placeholder="Search Looks" value="${escapeMarkup(discoverLooksQuery)}" oninput="discoverLooksQuery=this.value;discoverRenderSearch()">${discoverFilterButton()}</div></div>${main}${stylists}${following}${editorial}${empty}${discoverError ? `<p role="status" class="body">${escapeMarkup(discoverError)}</p>` : ''}${discoverMuseDetail()}`;
 }
 function discoverMuseDetail() {
   const look = discoverMuseLooks.find(item => item.id === discoverSelectedMuse);
@@ -7715,37 +7794,33 @@ function discoverProductsScreen() {
   const allProductsContext = `<p class="discover-all-products-context">${styleProfile.signalCount ? 'Products ranked around the styles and Looks you interact with.' : 'Recommendations improve as you save Looks.'}</p>`;
   const context = discoverProductContext ? `<div class="discover-product-context"><span><small>Complete ${escapeMarkup(discoverProductContext.lookTitle)}</small><b>Find ${escapeMarkup(discoverProductContext.pieceName)} for this Look</b></span><button aria-label="Clear Look context" onclick="discoverProductContext=null;render()">×</button></div>` : '';
   const modeContent = discoverProductRecommendationMode === 'All Products' ? `${allProductsContext}${resultsSection}` : discoverCompleteSavedLooks(filtered);
-  return `<div class="discover-search-row"><div class="discover-search-field"><span class="discover-search-icon">${icon('search')}</span><input id="discover-product-query" class="input" type="search" aria-label="Search pieces and brands" placeholder="Search pieces, brands..." value="${escapeMarkup(discoverProductQuery)}" oninput="discoverQueryChanged(this.value)" onkeydown="if(event.key==='Enter'&&this.value.trim().length>=2){event.preventDefault();clearTimeout(discoverSearchTimer);discoverSearchLocal(this.value)}"></div>${discoverFilterButton()}</div>${context}${discoverWishlistShortcut()}${modeContent}${!filtered.length && !discoverLoading && !discoverError && discoverProductRecommendationMode === 'All Products' && !canSearchOnline ? `<section class="discover-no-results"><h3>No Products match these filters</h3><button class="text-action" onclick="discoverOpenFilters()">Change filters</button></section>` : ''}${discoverOnlineProducts.length ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><span><p class="eyebrow">From your web search</p><h3>Online Finds</h3></span></div><div class="discover-product-grid">${discoverOnlineProducts.map(discoverProductCard).join('')}</div></section>` : ''}`;
+  return `<div class="discover-search-row"><div class="discover-search-field"><span class="discover-search-icon">${icon('search')}</span><input id="discover-product-query" class="input" type="search" aria-label="Search pieces and brands" placeholder="Search Items" value="${escapeMarkup(discoverProductQuery)}" oninput="discoverQueryChanged(this.value)" onkeydown="if(event.key==='Enter'&&this.value.trim().length>=2){event.preventDefault();clearTimeout(discoverSearchTimer);discoverSearchLocal(this.value)}">${discoverFilterButton()}</div></div>${context}${discoverWishlistShortcut()}${modeContent}${!filtered.length && !discoverLoading && !discoverError && discoverProductRecommendationMode === 'All Products' && !canSearchOnline ? `<section class="discover-no-results"><h3>No Products match these filters</h3><button class="text-action" onclick="discoverOpenFilters()">Change filters</button></section>` : ''}${discoverOnlineProducts.length ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><span><p class="eyebrow">From your web search</p><h3>Online Finds</h3></span></div><div class="discover-product-grid">${discoverOnlineProducts.map(discoverProductCard).join('')}</div></section>` : ''}`;
 }
 function mirrorDiscover() {
   if (discoverApiBase && !discoverLoaded && !discoverLoading) queueMicrotask(discoverLoadMuse);
-  const modes = AppTabs({id:'discover-mode-tabs',label:'Discover modes',variant:'primary',items:['Looks','Products'].map(mode => ({label:mode,selected:discoverMode === mode,onSelect:`discoverSetMode('${mode}')`}))});
-  return shell('Discover', `<div class="discover-modes">${modes}</div>${AppTabPanel('discover-mode-tabs',discoverMode === 'Looks' ? 0 : 1,discoverMode === 'Looks' ? discoverLooks() : discoverProductsScreen())}`, {active:'discover',surfaceClass:'discover-canonical',layer:discoverFilterSheet()});
+  const modes = AppTabs({id:'discover-mode-tabs',label:'Discover modes',variant:'primary',items:['Looks','Products'].map(mode => ({label:mode === 'Products' ? 'Items' : mode,selected:discoverMode === mode,onSelect:`discoverSetMode('${mode}')`}))});
+  return shell('Discover', `<div class="discover-modes">${modes}${discoverLayoutSwitch()}</div>${AppTabPanel('discover-mode-tabs',discoverMode === 'Looks' ? 0 : 1,discoverMode === 'Looks' ? discoverLooks() : discoverProductsScreen())}`, {active:'discover',surfaceClass:`discover-canonical discover-view-${discoverLayout}`,layer:discoverFilterSheet()});
 }
 function openProfileTwin() {
-  if (twinSetup.complete) { clearPendingTryOn(); go('H-01'); }
-  else startTryOn('saved', { sourceType: 'profile' });
-}
-function newCustomerProfile() {
-  const firstName = escapeMarkup(profileFirstName());
-  return shell(
-    "My Atelier",
-    `<header class="mirror-profile-head profile-identity profile-identity--new"><img src="${assets.profile}" alt="${firstName}'s profile"><span><p class="eyebrow">My Style Profile</p><h2>${firstName}</h2><small class="body">A fresh Atelier, ready to learn your style.</small></span><span class="profile-status-pill">Just started</span></header>
-    <section class="profile-start-card" aria-labelledby="profile-start-title"><div class="profile-start-copy"><p class="eyebrow">Your first step</p><h2 id="profile-start-title">Build from one piece you already love.</h2><p class="body">Add it to your Closet and StyleIQ can start creating Looks around your real wardrobe.</p><button class="btn primary wide" onclick="go('B-01')">Add your first item ${icon("arrow-right")}</button></div><img src="${assets.blazer}" alt="Camel blazer ready to add to your Closet"></section>
-    <section class="profile-setup" aria-label="Atelier setup progress"><div class="profile-section-title"><span><p class="eyebrow">Atelier setup</p><h3>Make it yours</h3></span><b>0 of 3</b></div><div class="profile-setup-list"><button onclick="go('B-01')"><span class="profile-step-index">1</span><span><b>Add a Closet piece</b><small>Unlock wardrobe-based styling</small></span>${icon("chevron-right")}</button><button onclick="openProfileTwin()"><span class="profile-step-index">2</span><span><b>Create your Style Twin</b><small>Optional, private outfit previews</small></span>${icon("chevron-right")}</button><button onclick="openProfilePreferences('style')"><span class="profile-step-index">3</span><span><b>Share your preferences</b><small>Silhouettes, colors, and fit</small></span>${icon("chevron-right")}</button></div></section>
-    <section class="profile-secondary-action"><span class="profile-secondary-icon">${icon("heart")}</span><span><b>Saving inspiration already?</b><small>Your Wishlist will keep it together.</small></span><button class="text-action" onclick="setClosetTab('wishlist')">Open</button></section>`,
-    { active: "profile" },
-  );
+  clearPendingTryOn();
+  go('H-01');
 }
 function mirrorProfile() {
-  if (!isExistingCustomer()) return newCustomerProfile();
+  const existing = isExistingCustomer();
+  const newLooks = lookCatalog.filter((look) => look.creationSource === "user" && !Object.values(canonicalLooks()).some((seed) => seed.id === look.id));
+  const hasLooks = existing || newLooks.length > 0;
+  const closetPieces = closetItems();
+  const hasCloset = existing || closetPieces.length > 0;
+  const spotlight = existing ? null : closetPieces[0];
+  const profileName = escapeMarkup(profileFullName());
   return shell(
     "My Atelier",
-    `<header class="mirror-profile-head profile-identity"><img src="${assets.profile}" alt="${escapeMarkup(profileFullName())}"><span><p class="eyebrow">My Style Profile</p><h2>${escapeMarkup(profileFullName())}</h2><small class="body">Relaxed tailoring · warm neutrals</small></span><button class="profile-edit-link" onclick="openProfilePreferences('about')" aria-label="Edit profile">Edit</button></header>
-    <section class="profile-overview" aria-label="Atelier overview"><button onclick="go('C-01')"><b>12</b><small>Closet pieces</small></button><button onclick="go('G-01')"><b>3</b><small>Saved Looks</small></button><button onclick="go('J-01')"><b>1</b><small>Upcoming trip</small></button></section>
-    <section class="mirror-section profile-looks-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button class="text-action" onclick="go('G-01')">View all ${icon("arrow-right")}</button></div><div class="mirror-outfit-rail"><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-01')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button></div></section>
-    <section class="mirror-profile-preview profile-closet-preview"><div class="profile-section-title"><span><p class="eyebrow">Closet spotlight</p><h3>Your most versatile piece</h3></span><button class="text-action" onclick="go('C-01')">Closet</button></div><div class="profile-closet-row"><img src="${assets.blazer}" alt="Camel blazer"><span><b>Camel blazer</b><small class="body">5 styling directions</small></span><button class="btn small-btn" onclick="openTodayAlternatives()">Style it</button></div></section>
-    <section class="profile-shortcuts" aria-label="Profile shortcuts"><button onclick="setClosetTab('wishlist')">${icon("heart")}<span><b>Wishlist</b><small>Pieces under review</small></span>${icon("chevron-right")}</button><button onclick="openProfileTwin()">${icon("user")}<span><b>Style Twin</b><small>Private try-on ready</small></span>${icon("chevron-right")}</button></section>
+    `<header class="mirror-profile-head profile-identity"><img src="${assets.profile}" alt="${profileName}'s profile"><span><p class="eyebrow">My Style Profile</p><h2>${profileName}</h2><small class="body">${existing ? "Relaxed tailoring · warm neutrals" : "Your style story starts here"}</small></span><button class="profile-edit-link" onclick="openProfilePreferences('about')" aria-label="Edit profile">Edit</button></header>
+    <section class="profile-overview" aria-label="Atelier overview"><button onclick="go('C-01')"><b>${existing ? 12 : closetPieces.length}</b><small>Closet pieces</small></button><button onclick="go('${hasLooks ? "G-01" : "F-01"}')"><b>${existing ? 3 : newLooks.length}</b><small>Saved Looks</small></button><button onclick="go('${existing ? "J-01" : "J-02"}')"><b>${existing ? 1 : 0}</b><small>Upcoming trip</small></button></section>
+    ${existing ? "" : styleIqSetupMarkup()}
+    <section class="mirror-section profile-looks-section"><div class="mirror-section-head"><span><p class="eyebrow">My Looks</p><h3>Outfits I return to</h3></span><button class="text-action" onclick="go('${hasLooks ? "G-01" : "F-01"}')">${hasLooks ? "View all" : "Create a Look"} ${icon("arrow-right")}</button></div><div class="mirror-outfit-rail">${existing ? `<button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look}" alt="Work outfit"><span><small>Work</small><b>Saved</b></span></button><button class="mirror-outfit-card" onclick="go('G-02')"><img src="${assets.look2}" alt="Dinner outfit"><span><small>Dinner</small><b>Worn Tue</b></span></button><button class="mirror-outfit-card" onclick="go('J-01')"><img src="${assets.look4}" alt="Weekend outfit"><span><small>Weekend</small><b>Planned</b></span></button>` : newLooks.length ? newLooks.slice(0, 3).map((look) => `<button class="mirror-outfit-card" onclick="go('G-01')"><img src="${escapeMarkup(look.image || assets.look)}" alt="${escapeMarkup(look.title || "Saved Look")}"><span><small>My Look</small><b>${escapeMarkup(look.title || "Saved")}</b></span></button>`).join("") : `<div class="profile-empty-look"><span class="profile-empty-look-icon">${icon("shirt")}</span><span><b>Your Looks will appear here</b><small>Put your first outfit together in Style Studio.</small></span><button class="text-action" onclick="go('F-01')">Create a Look ${icon("arrow-right")}</button></div>`}</div></section>
+    <section class="mirror-profile-preview profile-closet-preview"><div class="profile-section-title"><span><p class="eyebrow">Closet spotlight</p><h3>${hasCloset ? "Your most versatile piece" : "Your pieces will live here"}</h3></span><button class="text-action" onclick="go('C-01')">Closet</button></div><div class="profile-closet-row">${hasCloset ? `<img src="${escapeMarkup(spotlight?.image || assets.blazer)}" alt="${escapeMarkup(spotlight?.name || "Camel blazer")}"><span><b>${escapeMarkup(spotlight?.name || "Camel blazer")}</b><small class="body">${existing ? "5 styling directions" : "Ready to style"}</small></span><button class="btn small-btn" onclick="${existing ? "openTodayAlternatives()" : "go('F-01')"}">Style it</button>` : `<span class="profile-closet-placeholder" aria-hidden="true">${icon("shirt")}</span><span><b>No pieces yet</b><small class="body">Add something you already own.</small></span><button class="btn small-btn" onclick="go('B-01')">Add item</button>`}</div></section>
+    <section class="profile-shortcuts" aria-label="Profile shortcuts"><button onclick="setClosetTab('wishlist')">${icon("heart")}<span><b>Wishlist</b><small>${existing ? "Pieces under review" : "Save pieces you love"}</small></span>${icon("chevron-right")}</button><button onclick="openProfileTwin()">${icon("user")}<span><b>Style Twin</b><small>${twinSetup.complete ? "Private try-on ready" : "Create your private Twin"}</small></span>${icon("chevron-right")}</button></section>
     ${followedCreatorsSection()}<section class="profile-content-link" aria-label="My content"><span><p class="eyebrow">My Atelier</p><h3>Looks, Trips &amp; saved ideas</h3></span><button class="btn" onclick="go('L-03')">Open My Content</button></section>`,
     { active: "profile" },
   );
@@ -7844,9 +7919,9 @@ function validateCanonicalDemoData() {
     const runtimeCanonicalCount = closetItems().filter((item) => activeClosetIds.has(item.id)).length;
     if (runtimeCanonicalCount !== activeCanonicalClosetSeed().length)
       issues.push(`active profile: expected ${activeCanonicalClosetSeed().length} runtime canonical Closet items, found ${runtimeCanonicalCount}`);
-    if (currentId === "C-01" && document.querySelector(".closet-grid") && !closetState.query && closetState.category === "All" && closetState.collection === "All pieces") {
-      const renderedCanonicalCount = [...document.querySelectorAll(".closet-item")]
-        .filter((card) => activeClosetIds.has(card.querySelector(".closet-item-open")?.getAttribute("onclick")?.match(/'([^']+)'/)?.[1])).length;
+    if (currentId === "C-01" && document.querySelector(".closet-editorial-grid") && !closetState.query && closetState.category === "All" && closetState.collection === "All pieces") {
+      const renderedCanonicalCount = [...document.querySelectorAll(".closet-editorial-item")]
+        .filter((card) => activeClosetIds.has(card.getAttribute("onclick")?.match(/'([^']+)'/)?.[1])).length;
       if (renderedCanonicalCount !== activeCanonicalClosetSeed().length)
         issues.push(`active profile: expected ${activeCanonicalClosetSeed().length} rendered canonical Closet cards, found ${renderedCanonicalCount}`);
     }
@@ -7859,7 +7934,7 @@ function validateCanonicalDemoData() {
 }
 function canonicalDemoSnapshot() {
   const activeClosetIds = new Set(activeCanonicalClosetSeed().map((item) => item.id));
-  const renderedIds = [...document.querySelectorAll(".closet-item .closet-item-open")]
+  const renderedIds = [...document.querySelectorAll(".closet-editorial-item")]
     .map((button) => button.getAttribute("onclick")?.match(/'([^']+)'/)?.[1])
     .filter(Boolean);
   return {
@@ -8243,6 +8318,7 @@ function completeTwinSetup() {
   twinSetup.step = 3;
   twinSetup.complete = true;
   customerScenario = "existing";
+  purchasedClosetItems = readScenarioClosetItems();
   syncCustomerScenarioUrl();
   persistTwin();
   go("H-10");
@@ -8379,6 +8455,7 @@ function customerScenarioControls(id) {
 function setCustomerScenario(scenario) {
   if (!["new", "existing"].includes(scenario)) return;
   customerScenario = scenario;
+  purchasedClosetItems = readScenarioClosetItems();
   syncCustomerScenarioUrl();
   if (scenario === "existing") syncCanonicalClosetProfile();
   else closetState.size = 0;
@@ -8415,20 +8492,24 @@ function continueTryOnFromTwin() {
   if (pendingTryOn) return resumeTryOn();
   startTryOn(selectedTodayLook, { sourceType: "style-twin" });
 }
-function twinManagement() {
+function twinHome(ready) {
   const hasPending = Boolean(pendingTryOn);
   return shell(
     "Style Twin",
-    `<section class="twin-existing-hero" aria-labelledby="twin-existing-title">
-      <div class="twin-existing-visual"><img src="${assets.body}" alt="Your completed Style Twin, full body"><span>${icon("check")} Ready</span></div>
-      <div class="twin-existing-copy"><p class="eyebrow">Private Style Twin</p><h2 id="twin-existing-title">Your Twin is ready to evolve.</h2><p>${hasPending ? "Your saved Twin is ready for the Look you selected. You can continue now or fine-tune it first." : "Keep using your Twin as it is, or refine the details whenever your style or fit changes."}</p><dl><div><dt>Reference</dt><dd>2 photos</dd></div><div><dt>Fit profile</dt><dd>Regular</dd></div></dl></div>
-    </section>
-    <section class="twin-existing-actions" aria-label="Style Twin actions"><button class="btn primary wide" onclick="go('H-06')">Refine Style Twin</button><button class="btn wide" onclick="beginTwinReferenceEdit()">Edit reference photos</button></section>
-    <section class="twin-existing-shortcuts" aria-label="Use your Style Twin"><button onclick="continueTryOnFromTwin()"><span>${icon("user")}</span><b>${hasPending ? "Resume Try-On" : "Try a Look"}</b><small>${hasPending ? "Continue where you left off" : "Preview an outfit privately"}</small>${icon("chevron-right")}</button><button onclick="canvasState.mode='avatar';persist();go('F-01')"><span>${icon("spark")}</span><b>Use in Studio</b><small>Build and adjust a Look</small>${icon("chevron-right")}</button></section>
-    <button class="text-action twin-back-profile" onclick="go('L-01')">Back to Profile</button>`,
+    `<section class="twin-home" aria-labelledby="twin-home-title">
+      <div class="twin-home-visual"><img class="twin-home-main-image" src="${assets.body}" alt="${ready ? "Style Twin outfit preview in a black tailored Look" : "Example of a tailored Style Twin outfit preview"}"><img class="twin-home-next-image" src="${assets.look2}" alt="${ready ? "The same person in a second, softly tailored Look" : "Example of a second, softly tailored Look"}"><span class="twin-home-status">${ready ? `${icon("check")} Twin ready` : "Example preview · make it yours"}</span></div>
+      <div class="twin-home-copy"><p class="eyebrow">Your private Style Twin</p><h2 id="twin-home-title">${ready ? "See your next Look on you." : "See how a Look could fit you."}</h2><p>${ready ? hasPending ? "Your selected Look is waiting for a private preview." : "Try an outfit on your Twin, then adjust what feels right." : "Create a Twin with a photo reference and fit details, then preview Looks on it."}</p></div>
+      <button class="btn primary wide twin-home-primary" onclick="${ready ? "continueTryOnFromTwin()" : "startTwinSetup('photo')"}">${ready ? hasPending ? "Resume Try-On" : "Try a Look" : "Create my Style Twin"} ${icon("arrow-right")}</button>
+      <div class="twin-home-next" aria-label="${ready ? "Your Style Twin options" : "How Style Twin works"}">
+        <div><span class="twin-home-next-number">01</span><span><b>${ready ? "Your reference" : "Start with your reference"}</b><small>${ready ? "Private photos and fit details" : "Choose photos or continue without them"}</small></span></div>
+        <div><span class="twin-home-next-number">02</span><span><b>${ready ? "Your Looks" : "See a Look on your Twin"}</b><small>${ready ? "Preview a Look, then make it yours" : "Preview outfits before you decide"}</small></span></div>
+      </div>
+      <div class="twin-home-secondary">${ready ? `<button class="text-action" onclick="go('H-06')">Refine fit ${icon("arrow-right")}</button><button class="text-action" onclick="beginTwinReferenceEdit()">Edit photos ${icon("arrow-right")}</button>` : `<button class="text-action" onclick="startTwinSetup('manual')">Continue without photos ${icon("arrow-right")}</button>`}</div>
+    </section>`,
     { active: "profile", noNav: true },
   );
 }
+function twinManagement() { return twinHome(true); }
 function persistTwin() {
   localStorage.setItem("styleiqTwinSetupV2", JSON.stringify(twinSetup));
 }
@@ -8459,6 +8540,7 @@ function twinStepBar(step) {
 }
 function canonicalTwinIntro() {
   if (twinSetup.complete && twinViewMode !== "reference-edit") return twinManagement();
+  if (!twinSetup.complete) return twinHome(false);
   const editingReference = twinSetup.complete && twinViewMode === "reference-edit";
   const manual = twinSetup.method === "manual";
   const primaryCta = editingReference
@@ -9945,7 +10027,7 @@ function applyStyleIQDesignSystem() {
     else if (button.classList.contains("danger") || button.classList.contains("danger-action")) button.classList.add("siq-button--danger");
     else if (button.classList.contains("text-action") || button.classList.contains("auth-inline-link") || button.classList.contains("auth-switch-action")) button.classList.add("siq-button--ghost");
     else button.classList.add("siq-button--secondary");
-    if (button.classList.contains("icon-btn") || (button.getAttribute("aria-label") && !button.textContent.trim())) button.classList.add("siq-button--icon-only");
+    if (!button.classList.contains("closet-editorial-item") && (button.classList.contains("icon-btn") || (button.getAttribute("aria-label") && !button.textContent.trim()))) button.classList.add("siq-button--icon-only");
   });
   app.querySelectorAll(".chip,.mirror-filter,.pill").forEach((node) => node.classList.add("siq-chip"));
   app.querySelectorAll(".card,.signal-card,.profile-utility,.settings-list").forEach((node) => node.classList.add("siq-surface"));
@@ -10205,15 +10287,11 @@ function render() {
   const deviceStatus = document.getElementById("device-status");
   if (deviceStatus) {
     deviceStatus.classList.toggle("light", ["S-00", "S-01"].includes(s.id));
-    deviceStatus.remove();
   }
   const mobileIndex = document.getElementById("mobile-index");
   if (mobileIndex) mobileIndex.hidden = s.section === "S";
   app.innerHTML = renderScreen(s);
   applyStylingVisuals();
-  if (deviceStatus) {
-    app.querySelector(".screen")?.prepend(deviceStatus);
-  }
   decorateSettingsRows();
   connectPrivacySettings();
   decorateInlineEditors();
@@ -10315,7 +10393,10 @@ window.addEventListener("popstate", () => {
   const target = resolveCanonicalRoute(requestedId).canonical;
   if (!routableScreenIds.has(target) || target === currentId) return;
   const requestedScenario = new URLSearchParams(location.search).get("customer");
-  if (["new", "existing"].includes(requestedScenario)) customerScenario = requestedScenario;
+  if (["new", "existing"].includes(requestedScenario)) {
+    customerScenario = requestedScenario;
+    purchasedClosetItems = readScenarioClosetItems();
+  }
   if (pendingTryOn && currentId.startsWith("H-") && !target.startsWith("H-")) clearPendingTryOn();
   currentId = target;
   lightweightPanel = null;
@@ -10469,6 +10550,7 @@ function accountMenuV2() {
       "My Style",
       [
         ["spark", "Muse", "M-01"],
+        ["compass", "Discovery", "K-01"],
         ["user", "Profile", "L-01"],
         ["bookmark", "Saved Looks", "G-01"],
         ["heart", "Wishlist", "G-08"],
