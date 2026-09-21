@@ -61,14 +61,14 @@ const screens = [
     "id": "B-01",
     "section": "B",
     "title": "Add to Closet",
-    "detail": "Universal Closet intake: photo selection, inline processing, search, receipt, and drafts drawer.",
+    "detail": "Photo-first intake with optional season and one-tap addition. Search, receipts, and saved drafts remain available.",
     "phase": 1
   },
   {
     "id": "B-06",
     "section": "B",
-    "title": "Item review",
-    "detail": "One compact confidence review with inline correction.",
+    "title": "Add item details",
+    "detail": "Compact item preview with optional edits and season. Photo uploads add directly from Add to Closet.",
     "phase": 1
   },
   {
@@ -1183,16 +1183,16 @@ function closetDemoPiece(index) {
   return { ...activeCanonicalClosetSeed()[index] };
 }
 let closetState = {
-    size: isExistingCustomer()
-      ? localStorage.getItem("styleiqClosetSizeV1") === null
-        ? activeCanonicalClosetSeed().length
-        : Math.max(0, Number(localStorage.getItem("styleiqClosetSizeV1")) || 0)
-      : 0,
+    // New-customer and guest previews can persist zero in the legacy size key.
+    // Existing-customer previews always start with their complete profile seed.
+    size: isExistingCustomer() ? activeCanonicalClosetSeed().length : 0,
     query: "",
     category: "All",
     collection: "All pieces",
     sort: "Recently added",
-    season: localStorage.getItem("styleiqClosetSeasonV1") || "All",
+    // Start unfiltered, like category and search, so a previous visit's season
+    // cannot hide the entire wardrobe when reopening the prototype.
+    season: "All",
   },
   selectedClosetItemId = localStorage.getItem("styleiqSelectedClosetItemV1") || activeCanonicalClosetSeed()[0].id,
   closetDetailTab = "overview",
@@ -1749,7 +1749,7 @@ function closetItems() {
       lifecycle: closetLifecycle[id] || "Keep",
       location: closetLocations[id] || "",
     };
-  }).concat(purchasedClosetItems.map((item) => ({ ...stylingOwnedPiece(item), lifecycle: closetLifecycle[item.id] || "Keep", location: closetLocations[item.id] || "" })));
+  }).concat(purchasedClosetItems.map((item) => ({ ...stylingOwnedPiece(item), lifecycle: closetLifecycle[item.id] || "Keep", location: closetLocations[item.id] || "" }))).filter((item) => item.lifecycle !== "Deleted");
 }
 function stylingOwnedPiece(item) {
   if (stylingContext !== 'Menswear' || !item.image?.startsWith('images/')) return item;
@@ -1847,10 +1847,18 @@ function closeClosetDetailDialog() {
   render();
 }
 function removeSelectedClosetItem() {
-  setItemLifecycle("Archive");
+  const item = closetItems().find((piece) => piece.id === selectedClosetItemId);
+  if (!item) return;
+  // Keep a tombstone so deleted demo pieces stay deleted after reload/profile sync.
+  closetLifecycle[item.id] = "Deleted";
+  localStorage.setItem("styleiqClosetLifecycleV1", JSON.stringify(closetLifecycle));
+  purchasedClosetItems = purchasedClosetItems.filter((piece) => piece.id !== item.id);
+  persistClosetItems();
+  selectedClosetItemId = closetItems()[0]?.id || "";
+  localStorage.setItem("styleiqSelectedClosetItemV1", selectedClosetItemId);
   closetDetailDialog = null;
   go("C-01");
-  toast("Item removed from your active Closet");
+  toast("Item deleted from your Closet");
 }
 function markSelectedItemForSale() {
   setItemLifecycle("Sell");
@@ -1940,23 +1948,30 @@ function saveItemPurchase(event) {
 }
 function lifecycleItemDetail() {
   const item = selectedClosetItem(), intelligence = itemIntelligence(item),
-    states = ["Keep", "Won’t wear", "Sell", "Donate", "Rent"];
+    states = [["Keep", "In my rotation"], ["Won’t wear", "Set aside"], ["Sell", "Find a new owner"], ["Donate", "Give it away"], ["Rent", "Lend it out"]];
   const tabs = [["overview", "Overview"], ["details", "Details"], ["purchase", "Purchase Info"], ["photo", "Photos"], ["activity", "Wear History"]];
   const tabBar = AppTabs({ id: "closet-detail-tabs", label: "Closet item detail sections", variant: "secondary", items: tabs.map(([id, label]) => ({ label, selected: closetDetailTab === id, onSelect: `setClosetDetailTab('${id}')` })) });
-  const overview = `<div>${approvalCard("Ready to style", "Category and color are high confidence. Optional details stay collapsed until you need them.")}<details class="card progressive-card" open style="margin-top:12px"><summary><b>Item status</b><span class="small">${item.lifecycle} · one status at a time</span></summary><p class="body" style="margin-top:10px">Choose what you intend to do with this piece. Wear history and details stay intact.</p><div class="chips" role="group" aria-label="Item lifecycle status">${states.map((value) => `<button class="chip ${item.lifecycle === value ? "active" : ""}" aria-pressed="${item.lifecycle === value}" onclick="${value === "Sell" ? "markSelectedItemForSale()" : `setItemLifecycle(&quot;${value}&quot;)`}">${value}</button>`).join("")}</div></details><button class="btn primary wide" style="margin-top:14px" onclick="styleSelectedClosetItem()">Style this item</button></div>`;
+  const overview = `<div class="closet-item-overview">
+    <section class="closet-status" aria-labelledby="closet-status-title">
+      <header><h3 id="closet-status-title">Item status</h3><p>What’s next for this piece?</p></header>
+      <div class="closet-status-options" role="group" aria-label="Item lifecycle status">${states.map(([value, description]) => `<button type="button" class="closet-status-option" aria-pressed="${item.lifecycle === value}" onclick="${value === "Sell" ? "markSelectedItemForSale()" : `setItemLifecycle(&quot;${value}&quot;)`}"><span><strong>${value}</strong><small>${description}</small></span><span class="closet-status-check" aria-hidden="true">${item.lifecycle === value ? icon("check") : ""}</span></button>`).join("")}</div>
+      <p class="closet-status-note">Your item details and wear history stay saved.</p>
+    </section>
+    <details class="closet-wardrobe-insight"><summary><span>Useful in your wardrobe<small>${intelligence.looks.length} known ${intelligence.looks.length === 1 ? "Look" : "Looks"}</small></span>${icon("chevron-down")}</summary><p>Explore Looks using this piece, or choose Style It to build another combination.</p></details>
+  </div>`;
   const details = `<form onsubmit="saveItemDetails(event)"><div class="inline-edit-grid" style="margin-top:14px">${inlineEditRow("Name", item.name, 'required')}${inlineEditRow("Brand", item.brand)}${inlineEditRow("Category", item.category, 'required')}${closetSeasonField(item.season)}</div><button class="btn primary wide" type="submit">Save item details</button></form>${storageLocationForm(item)}`;
   const purchase = `<section class="card" style="margin-top:14px;margin-bottom:36px"><p class="eyebrow">Purchase Info</p><h3 class="title">Ownership details</h3><form onsubmit="saveItemPurchase(event)">${inlineEditRow("Purchase price", item.purchasePrice ?? '', 'type="number" min="0" step="0.01"')}${inlineEditRow("Purchase date", item.purchaseDate || '', 'type="date"')}${inlineEditRow("Retailer", item.retailer || '')}<button class="btn primary wide" type="submit" style="margin-bottom:12px">Save purchase details</button></form></section>`;
   const photo = `<section class="card" style="margin-top:14px"><p class="eyebrow">Photo tools</p><h3 class="title">Keep the item presentation current.</h3><p class="body">Replace, crop, clean the background, or return to the original. Changes are previewed before saving.</p><button class="btn primary wide" style="margin-top:12px" onclick="openLightweightPanel('image')">Edit item photo</button><button class="btn wide" style="margin-top:8px" onclick="setClosetDetailTab('overview')">Cancel</button></section>`;
   const activity = `<section class="card" style="margin-top:14px"><p class="eyebrow">Wear activity</p><h3 class="title">Useful facts about this piece</h3><div class="item-metrics"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${Number.isFinite(item.purchasePrice) && item.wears ? wishlistMoney(item.purchasePrice / item.wears) : "Not available"}</b><small>Cost / wear</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Compatible Looks</small></span></div><p class="body" style="margin-top:12px">Wear history stays intact when you update the item or its lifecycle.</p><button class="btn wide" style="margin-top:10px" onclick="setItemLifecycle('Keep')">Mark available</button></section>`;
   const body = { overview, details, purchase, photo, activity }[closetDetailTab] || overview;
   const dialog = closetDetailDialog === "remove"
-    ? `<div class="closet-detail-dialog"><button class="closet-detail-scrim" aria-label="Cancel removal" onclick="closeClosetDetailDialog()"></button><section role="alertdialog" aria-modal="true" aria-labelledby="closet-remove-title"><h3 id="closet-remove-title">Remove from your Closet?</h3><p>${escapeMarkup(item.name)} will leave your active Closet. Its details and wear history stay saved as archived.</p><button class="btn danger wide" onclick="removeSelectedClosetItem()">Remove from Closet</button><button class="btn wide" onclick="closeClosetDetailDialog()">Keep item</button></section></div>`
+    ? `<div class="closet-detail-dialog"><button class="closet-detail-scrim" aria-label="Cancel deletion" onclick="closeClosetDetailDialog()"></button><section role="alertdialog" aria-modal="true" aria-labelledby="closet-remove-title"><h3 id="closet-remove-title">Delete this item?</h3><p>${escapeMarkup(item.name)} will be deleted from your Closet. This cannot be undone.</p><button class="btn danger wide" onclick="removeSelectedClosetItem()">Delete item</button><button class="btn wide" onclick="closeClosetDetailDialog()">Keep item</button></section></div>`
     : closetDetailDialog === "sell"
       ? `<div class="closet-detail-dialog"><button class="closet-detail-scrim" aria-label="Close selling options" onclick="closeClosetDetailDialog()"></button><section role="dialog" aria-modal="true" aria-labelledby="closet-sell-title"><h3 id="closet-sell-title">Where would you like to sell?</h3><p>${escapeMarkup(item.name)} is marked for sale in your Closet. Choose a platform to create a listing there; StyleIQ won’t post it automatically.</p><a href="https://www.depop.com/sell/" target="_blank" rel="noopener noreferrer">Depop <span>Fashion resale ↗</span></a><a href="https://www.vestiairecollective.com/journal/start-selling/" target="_blank" rel="noopener noreferrer">Vestiaire Collective <span>Designer pieces ↗</span></a><a href="https://sell.ebay.com/" target="_blank" rel="noopener noreferrer">eBay <span>General resale ↗</span></a><button class="btn wide" onclick="closeClosetDetailDialog()">Done</button></section></div>`
       : "";
   return shell(
     "Item detail",
-    `<img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${escapeMarkup(item.name)}</h2></span><button class="icon-btn" aria-label="Edit item" onclick="setClosetDetailTab('details')">${icon("edit")}</button></div><div class="row" style="margin-top:12px"><button class="btn primary grow" onclick="styleSelectedClosetItem()">Style It</button><button class="btn grow" onclick="tryOnSelectedClosetItem()">Try On</button></div><div class="item-metrics" style="margin-top:14px"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${intelligence.matches}</b><small>Closet matches</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Looks ready</small></span></div><p class="small">${intelligence.looks.length ? "Known Looks: " + intelligence.looks.map(look => escapeMarkup(look.title)).join(" · ") : "Style this piece to explore new combinations."}</p><div class="closet-item-owner-actions"><button class="btn" onclick="markSelectedItemWorn()">Mark Worn</button><button class="btn" onclick="markSelectedItemForSale()">Sell item</button><button class="btn" onclick="openClosetDetailDialog('remove')">Remove from Closet</button></div>${tabBar}${AppTabPanel("closet-detail-tabs", Math.max(0, tabs.findIndex(([id]) => id === closetDetailTab)), body)}`,
+    `<img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="between" style="margin-top:14px"><span><p class="eyebrow">${item.lifecycle} · ${item.status}</p><h2 class="title">${escapeMarkup(item.name)}</h2></span><button class="icon-btn" aria-label="Edit item" onclick="setClosetDetailTab('details')">${icon("edit")}</button></div><div class="row" style="margin-top:12px"><button class="btn primary grow" onclick="styleSelectedClosetItem()">Style It</button><button class="btn grow" onclick="tryOnSelectedClosetItem()">Try On</button></div><div class="item-metrics" style="margin-top:14px"><span class="item-metric"><b>${item.wears}×</b><small>Worn</small></span><span class="item-metric"><b>${intelligence.matches}</b><small>Closet matches</small></span><span class="item-metric"><b>${intelligence.looks.length}</b><small>Looks ready</small></span></div><p class="small">${intelligence.looks.length ? "Known Looks: " + intelligence.looks.map(look => escapeMarkup(look.title)).join(" · ") : "Style this piece to explore new combinations."}</p><div class="closet-item-owner-actions"><button class="btn" onclick="markSelectedItemWorn()">Mark Worn</button><button class="btn" onclick="markSelectedItemForSale()">Sell item</button><button class="btn danger" onclick="openClosetDetailDialog('remove')">Delete item</button></div>${tabBar}${AppTabPanel("closet-detail-tabs", Math.max(0, tabs.findIndex(([id]) => id === closetDetailTab)), body)}`,
     { active: "closet", layer: dialog },
   );
 }
@@ -2030,6 +2045,7 @@ function chooseClosetSeason(mode, index) {
   if (mode === "item") {
     app.querySelector("#inline-season").value = season;
     app.querySelector("#season-field-value").textContent = season;
+    if (currentId === "B-01") addItemSeason = season;
   }
   closeClosetSeasonPicker();
   if (mode === "filter") setClosetSeason(season);
@@ -2040,7 +2056,6 @@ function closetMatchesSeason(item, season) {
 }
 function setClosetSeason(value) {
   closetState.season = value;
-  localStorage.setItem("styleiqClosetSeasonV1", value);
   render();
   app.querySelector("#closet-season")?.focus({ preventScroll: true });
 }
@@ -2077,7 +2092,6 @@ function toggleClosetFavorite(id, event) {
 }
 window.resetClosetFilters = function () {
   closetState.season = "All";
-  localStorage.setItem("styleiqClosetSeasonV1", "All");
   closetState.query = "";
   closetState.category = "All";
   closetState.collection = "All pieces";
@@ -2116,10 +2130,60 @@ function closetRecordedCost(item) {
   const amount = Number(recorded);
   return Number.isFinite(amount) && amount >= 0 ? amount : null;
 }
+function closetIQDetail(key, all, category = "") {
+  const wears = item => Math.max(0, Number(item.wears) || 0);
+  const priced = all.filter(item => closetRecordedCost(item) !== null);
+  const total = priced.reduce((sum, item) => sum + closetRecordedCost(item), 0);
+  const totalWears = priced.reduce((sum, item) => sum + wears(item), 0);
+  const definitions = {
+    worth: ["Closet worth", "The sum of recorded purchase prices for all non-archived pieces. Missing prices are excluded; this is not a resale estimate.", () => true],
+    worn: ["Worn", "Pieces worn at least once. Their recorded purchase prices make up the value in use. Pieces without prices still count as worn. Value in use (%) = recorded value of worn pieces ÷ total recorded Closet value × 100.", item => wears(item) > 0],
+    unworn: ["Never worn", "Pieces with no recorded wears. The value adds their recorded purchase prices only.", item => wears(item) === 0],
+    rare: ["Underused", "Pieces worn 1–2 times. The value adds their recorded purchase prices only.", item => wears(item) > 0 && wears(item) <= 2],
+    regular: ["Sometimes worn", "Pieces with 3–7 recorded wears.", item => wears(item) >= 3 && wears(item) < 8],
+    often: ["Well loved", "The number of pieces worn 8 or more times.", item => wears(item) >= 8],
+    cost: ["Cost per wear", `Total recorded purchase value (${wishlistMoney(total)}) ÷ all recorded wears of priced pieces (${totalWears}). Unworn priced pieces contribute to the value. Missing prices are excluded.`, item => closetRecordedCost(item) !== null],
+    score: ["Wear score", `Pieces worn at least once ÷ all ${all.length} non-archived pieces × 100. Rounded to the nearest whole percent.`, item => wears(item) > 0],
+    repeat: ["Repeat wear", `Pieces worn 3 or more times ÷ all ${all.length} non-archived pieces × 100. Rounded to the nearest whole percent.`, item => wears(item) >= 3],
+    piece: [all.find(item => item.id === category)?.name || "Piece details", "Wears are the all-time recorded count for this piece. Cost per wear = its recorded purchase price ÷ its recorded wears. No cost per wear is shown until both a price and at least one wear are recorded.", item => item.id === category],
+    category: [category, `Spending share = this category’s recorded value ÷ ${wishlistMoney(total)} total recorded value. Wear share = this category’s wears ÷ ${totalWears} total wears of priced pieces. Both are percentages; missing prices are excluded.`, item => closetRecordedCost(item) !== null && (item.category || "Other") === category],
+  };
+  const definition = definitions[key];
+  if (!definition) return null;
+  return { title: definition[0], explanation: definition[1], items: all.filter(definition[2]) };
+}
+let closetIQDetailFocus = null;
+function positionClosetIQDetails() {
+  const dialog = document.getElementById("closet-iq-detail");
+  if (!dialog) return;
+  const rect = app.getBoundingClientRect(), left = Math.max(0, rect.left), top = Math.max(0, rect.top);
+  Object.assign(dialog.style, { left: `${left}px`, top: `${top}px`, width: `${Math.max(0, Math.min(innerWidth, rect.right) - left)}px`, height: `${Math.max(0, Math.min(innerHeight, rect.bottom) - top)}px` });
+}
+function closeClosetIQDetails() {
+  window.removeEventListener("resize", positionClosetIQDetails);
+  window.removeEventListener("scroll", positionClosetIQDetails, true);
+  const dialog = document.getElementById("closet-iq-detail");
+  dialog?.close(); dialog?.remove();
+  if (closetIQDetailFocus?.isConnected) closetIQDetailFocus.focus({ preventScroll: true });
+}
+function openClosetIQDetails(key, category = "") {
+  const detail = closetIQDetail(key, closetItems().filter(item => item.lifecycle !== "Archive"), category);
+  if (!detail) return;
+  closeClosetIQDetails();
+  closetIQDetailFocus = document.activeElement;
+  app.insertAdjacentHTML("beforeend", `<dialog id="closet-iq-detail" class="closet-season-sheet iq-detail-sheet" aria-labelledby="iq-detail-title" oncancel="event.preventDefault();closeClosetIQDetails()" onclick="if(event.target===this)closeClosetIQDetails()"><div class="closet-season-sheet-body"><header class="between"><h2 id="iq-detail-title">${escapeMarkup(detail.title)}</h2><button type="button" class="icon-btn" aria-label="Close statistic details" onclick="closeClosetIQDetails()">${icon("x")}</button></header><p class="eyebrow">How it’s calculated</p><p class="iq-detail-explanation">${escapeMarkup(detail.explanation)}</p><p class="closet-iq-note">All-time recorded wears · archived pieces excluded.</p><h3>${detail.items.length} ${detail.items.length === 1 ? "piece" : "pieces"} in this group</h3><div class="iq-detail-items">${detail.items.map(item => `<button type="button" data-item-id="${escapeMarkup(item.id)}" onclick="closeClosetIQDetails();openClosetItem(this.dataset.itemId)"><img src="${closetGridImage(item)}" alt=""><span><b>${escapeMarkup(item.name)}</b><small>${Math.max(0, Number(item.wears) || 0)} wears · ${closetRecordedCost(item) === null ? "Price not recorded" : wishlistMoney(closetRecordedCost(item))}</small></span>${icon("arrow-right")}</button>`).join("") || '<p class="closet-iq-note">No pieces in this group yet.</p>'}</div></div></dialog>`);
+  const dialog = document.getElementById("closet-iq-detail");
+  positionClosetIQDetails(); dialog.showModal();
+  window.addEventListener("resize", positionClosetIQDetails);
+  window.addEventListener("scroll", positionClosetIQDetails, true);
+  dialog.querySelector("button").focus({ preventScroll: true });
+  if (window.lucide) lucide.createIcons();
+}
 function selectClosetIQCategory(button) {
   const chart = button.closest(".iq-column-plot");
   chart.querySelectorAll("button").forEach(entry => entry.setAttribute("aria-pressed", String(entry === button)));
   app.querySelector("#iq-category-readout").textContent = button.getAttribute("aria-label");
+  openClosetIQDetails("category", button.dataset.category);
 }
 function closetIQMarkup(all) {
   const wears = item => Math.max(0, Number(item?.wears) || 0);
@@ -2134,47 +2198,47 @@ function closetIQMarkup(all) {
   const money = items => items.some(item => closetRecordedCost(item) !== null)
     ? wishlistMoney(sum(items.filter(item => closetRecordedCost(item) !== null)))
     : items.length ? "—" : wishlistMoney(0);
-  const stat = (label, amount, detail, tone = "") => `<article class="closet-insight-stat ${tone}"><small>${label}</small><strong>${amount}</strong><span>${detail}</span></article>`;
-  const score = (label, amount, detail, tone) => `<article class="iq-gauge" style="--iq-tone:${tone}"><svg viewBox="0 0 120 78" role="img" aria-label="${label}: ${amount}%"><path class="iq-gauge-track" d="M12 60 A48 48 0 0 1 108 60"/><path class="iq-gauge-fill" d="M12 60 A48 48 0 0 1 108 60" pathLength="100" stroke-dasharray="${amount} 100"/><text x="60" y="57">${amount}%</text></svg><b>${label}</b><small>${detail}</small></article>`;
+  const stat = (key, label, amount, detail, tone = "") => `<button type="button" class="closet-insight-stat iq-detail-trigger ${tone}" onclick="openClosetIQDetails('${key}')"><small>${label}</small><strong>${amount}</strong><span>${detail}</span><span class="iq-detail-link">See details →</span></button>`;
+  const score = (key, label, amount, detail, tone) => `<button type="button" class="iq-gauge iq-detail-trigger" onclick="openClosetIQDetails('${key}')" style="--iq-tone:${tone}"><svg viewBox="0 0 120 78" role="img" aria-label="${label}: ${amount}%"><path class="iq-gauge-track" d="M12 60 A48 48 0 0 1 108 60"/><path class="iq-gauge-fill" d="M12 60 A48 48 0 0 1 108 60" pathLength="100" stroke-dasharray="${amount} 100"/><text x="60" y="57">${amount}%</text></svg><b>${label}</b><small>${detail}</small><span class="iq-detail-link">See details →</span></button>`;
   const categoryData = [...new Set(valued.map(item => item.category || "Other"))].map(category => {
     const items = valued.filter(item => (item.category || "Other") === category);
     return { category, spending: percent(sum(items), value), usage: percent(items.reduce((total, item) => total + wears(item), 0), valuedWears) };
   });
   const chartMax = Math.max(10, Math.ceil(Math.max(0, ...categoryData.flatMap(entry => [entry.spending, entry.usage])) / 10) * 10);
-  const groups = categoryData.map(({category, spending, usage}, index) => `<button type="button" class="iq-column-group" aria-pressed="${index === 0}" aria-label="${escapeMarkup(category)}: spending ${spending}%, wear share ${usage}%" onclick="selectClosetIQCategory(this)"><span class="iq-column-pair" aria-hidden="true"><i style="height:${spending / chartMax * 100}%"></i><i style="height:${usage / chartMax * 100}%"></i></span><span>${escapeMarkup(category)}</span></button>`).join("");
+  const groups = categoryData.map(({category, spending, usage}, index) => `<button type="button" class="iq-column-group" data-category="${escapeMarkup(category)}" aria-pressed="${index === 0}" aria-label="${escapeMarkup(category)}: spending ${spending}%, wear share ${usage}%" onclick="selectClosetIQCategory(this)"><span class="iq-column-pair" aria-hidden="true"><i style="height:${spending / chartMax * 100}%"></i><i style="height:${usage / chartMax * 100}%"></i></span><span>${escapeMarkup(category)}</span></button>`).join("");
   const wearBands = [
     {label: "Never worn", items: unused, tone: "unworn", hint: "0 wears"},
     {label: "Rarely worn", items: underused, tone: "rare", hint: "1–2 wears"},
     {label: "Sometimes worn", items: all.filter(item => wears(item) >= 3 && wears(item) < 8), tone: "regular", hint: "3–7 wears"},
     {label: "Often worn", items: all.filter(item => wears(item) >= 8), tone: "often", hint: "8+ wears"}
   ];
-  const wearOverview = wearBands.map(band => `<article class="iq-wear-group iq-wear-group--${band.tone}"><h4>${band.label}</h4><div class="iq-wear-count"><strong>${band.items.length}</strong><span>${band.items.length === 1 ? "piece" : "pieces"}</span></div><small>${band.hint}</small><div class="iq-wear-examples">${band.items.length ? band.items.slice(0, 2).map(item => `<img src="${closetGridImage(item)}" alt="${escapeMarkup(item.name)}" loading="lazy">`).join("") + (band.items.length > 2 ? `<span>+${band.items.length - 2}</span>` : "") : '<span class="iq-wear-none">No pieces here</span>'}</div></article>`).join("");
+  const wearOverview = wearBands.map(band => `<button type="button" class="iq-wear-group iq-wear-group--${band.tone} iq-detail-trigger" onclick="openClosetIQDetails('${band.tone}')"><h4>${band.label}</h4><div class="iq-wear-count"><strong>${band.items.length}</strong><span>${band.items.length === 1 ? "piece" : "pieces"}</span></div><small>${band.hint}</small><div class="iq-wear-examples">${band.items.length ? band.items.slice(0, 2).map(item => `<img src="${closetGridImage(item)}" alt="${escapeMarkup(item.name)}" loading="lazy">`).join("") + (band.items.length > 2 ? `<span>+${band.items.length - 2}</span>` : "") : '<span class="iq-wear-none">No pieces here</span>'}</div><span class="iq-detail-link">See pieces →</span></button>`).join("");
   const usedValue = sum(valued.filter(item => wears(item) > 0));
   const usedPercent = percent(usedValue, value);
   const ranked = all.filter(item => wears(item) > 0 && (closetIQRanking !== "value" || closetRecordedCost(item) !== null))
     .sort((a, b) => closetIQRanking === "value" ? closetRecordedCost(a) / wears(a) - closetRecordedCost(b) / wears(b) : wears(b) - wears(a)).slice(0, 3);
-  const ranking = ranked.map((item, index) => `<article class="closet-iq-ranked-piece"><span class="closet-iq-rank">0${index + 1}</span><img src="${closetGridImage(item)}" alt=""><b>${escapeMarkup(item.name)}</b><span>${wears(item)} wears</span><small>${closetRecordedCost(item) !== null ? `${wishlistMoney(closetRecordedCost(item) / wears(item))} / wear` : "Price not recorded"}</small></article>`).join("");
+  const ranking = ranked.map((item, index) => `<button type="button" class="closet-iq-ranked-piece iq-detail-trigger" data-item-id="${escapeMarkup(item.id)}" onclick="openClosetIQDetails('piece',this.dataset.itemId)"><span class="closet-iq-rank">0${index + 1}</span><img src="${closetGridImage(item)}" alt=""><b>${escapeMarkup(item.name)}</b><span>${wears(item)} wears</span><small>${closetRecordedCost(item) !== null ? `${wishlistMoney(closetRecordedCost(item) / wears(item))} / wear` : "Price not recorded"}</small><span class="iq-detail-link">See details →</span></button>`).join("");
   return `<button type="button" class="closet-iq-back" onclick="toggleClosetInsights()">${icon("arrow-left")} Back to items</button>
     <section class="closet-insights" aria-labelledby="closet-insights-title">
       <header><span><p class="eyebrow">Your closet, smarter</p><h2 id="closet-insights-title" tabindex="-1">Closet IQ</h2></span><small>${valued.length} of ${all.length} pieces valued</small></header>
       <p class="closet-iq-intro">Wear more. Understand what you own.</p>
       <section class="closet-iq-worth" aria-label="Closet value and usage">
-        <div><p class="eyebrow">Closet worth</p><strong>${valued.length ? wishlistMoney(value) : "—"}</strong><p class="closet-iq-note">Recorded purchase value · all pieces</p></div>
-        <div class="closet-iq-value-chart"><svg viewBox="0 0 120 120" role="img" aria-label="${value ? `${usedPercent}% of recorded value worn at least once` : "Add prices to see value usage"}"><circle class="closet-iq-ring-track" cx="60" cy="60" r="48"/><circle class="closet-iq-ring-used" cx="60" cy="60" r="48" pathLength="100" stroke-dasharray="${value ? usedValue / value * 100 : 0} 100" transform="rotate(-90 60 60)"/><text x="60" y="59">${value ? `${usedPercent}%` : "—"}</text><text class="closet-iq-ring-label" x="60" y="76">value in use</text></svg>
-        <div class="closet-iq-value-key"><span><i></i>Worn <b>${money(used)}</b><small>${used.length} pieces</small></span><span><i></i>Unworn <b>${money(unused)}</b><small>${unused.length} pieces</small></span></div></div>
+        <div><button type="button" class="iq-worth-trigger" onclick="openClosetIQDetails('worth')"><span class="eyebrow">Closet worth</span><strong>${valued.length ? wishlistMoney(value) : "—"}</strong><span class="closet-iq-note">Recorded purchase value · all pieces</span><span class="iq-detail-link">See details →</span></button></div>
+        <div class="closet-iq-value-chart"><button type="button" class="iq-ring-trigger iq-detail-trigger" aria-label="How value in use is calculated" onclick="openClosetIQDetails('worn')"><svg viewBox="0 0 120 120" role="img" aria-label="${value ? `${usedPercent}% of recorded value worn at least once` : "Add prices to see value usage"}"><circle class="closet-iq-ring-track" cx="60" cy="60" r="48"/><circle class="closet-iq-ring-used" cx="60" cy="60" r="48" pathLength="100" stroke-dasharray="${value ? usedValue / value * 100 : 0} 100" transform="rotate(-90 60 60)"/><text x="60" y="59">${value ? `${usedPercent}%` : "—"}</text><text class="closet-iq-ring-label" x="60" y="76">value in use</text></svg></button>
+        <div class="closet-iq-value-key"><button type="button" class="iq-detail-trigger" onclick="openClosetIQDetails('worn')"><i></i>Worn <b>${money(used)}</b><small>${used.length} pieces · View →</small></button><button type="button" class="iq-detail-trigger" onclick="openClosetIQDetails('unworn')"><i></i>Unworn <b>${money(unused)}</b><small>${unused.length} pieces · View →</small></button></div></div>
       </section>
       <div class="closet-insight-stats">
-        ${stat("Underused", money(underused), `${underused.length} pieces worn 1–2 times`, "closet-iq-muted")}
-        ${stat("Well loved", String(all.filter(item => wears(item) >= 8).length), "Pieces worn 8+ times")}
-        ${stat("Cost per wear", valuedWears ? wishlistMoney(value / valuedWears) : "—", "Recorded value ÷ wears of priced pieces")}
+        ${stat("rare", "Underused", money(underused), `${underused.length} pieces worn 1–2 times`, "closet-iq-muted")}
+        ${stat("often", "Well loved", String(all.filter(item => wears(item) >= 8).length), "Pieces worn 8+ times")}
+        ${stat("cost", "Cost per wear", valuedWears ? wishlistMoney(value / valuedWears) : "—", "Recorded value ÷ wears of priced pieces")}
       </div>
       <p class="closet-iq-note">Values use recorded prices, not resale estimates. ${all.length - valued.length} pieces have no price recorded. Wear counts are all-time.</p>
       <section class="closet-iq-panel iq-rotation" aria-labelledby="iq-rotation-title"><div class="iq-panel-heading"><h3 id="iq-rotation-title">How often you wear it</h3><span>${all.length} pieces</span></div>
         ${all.length ? `<div class="iq-wear-overview">${wearOverview}</div><p class="closet-iq-note">Based on all recorded wears.</p>` : '<p class="closet-iq-note">Add your first piece to see your wardrobe mix.</p>'}
       </section>
       <section class="closet-iq-panel" aria-labelledby="closet-iq-scores"><h3 id="closet-iq-scores">Make more of what you own</h3><div class="iq-gauges">
-        ${score("Wear score", percent(used.length, all.length), "Pieces worn at least once", "#738d78")}
-        ${score("Repeat wear", percent(all.filter(item => wears(item) >= 3).length, all.length), "Pieces worn 3+ times", "#869dba")}
+        ${score("score", "Wear score", percent(used.length, all.length), "Pieces worn at least once", "#738d78")}
+        ${score("repeat", "Repeat wear", percent(all.filter(item => wears(item) >= 3).length, all.length), "Pieces worn 3+ times", "#869dba")}
       </div></section>
       <section class="closet-iq-panel" aria-labelledby="closet-iq-spending"><h3 id="closet-iq-spending">Spending vs usage</h3>
         <div class="closet-iq-legend"><span>Spending share</span><span>Wear share</span></div>
@@ -4076,7 +4140,7 @@ function importReadyReceipts() {
   finishOnboardingClosetImport(); toast(`${ready.length} purchases added`);
 }
 function reviewReceiptPurchase() {
-  const item = receiptPurchases.find(item => item.ready);
+  const item = receiptPurchases.find(item => item.ready) || receiptPurchases[0];
   if (!item) return;
   closetPurchaseDraft = { ...item, source: 'receipt-import' };
   localStorage.setItem('styleiqClosetPurchaseDraftV1', JSON.stringify(closetPurchaseDraft));
@@ -4090,15 +4154,24 @@ function reviewManualReceipt(event) {
   localStorage.setItem('styleiqClosetPurchaseDraftV1', JSON.stringify(closetPurchaseDraft));
   go('B-06');
 }
-function receiptImportSurface() {
-  if (receiptState === 'idle') return `<div class="stack"><h2 class="title">Forward shopping receipts</h2><p class="body">Review purchases extracted from your receipts before adding them.</p><b>add@styleiq.app</b>${receiptPurchases.length ? '<button class="btn wide" onclick="receiptState=&quot;mixed&quot;;render()">Resume receipt import</button>' : ''}<button class="btn primary wide" onclick="setReceiptState('complete')">Preview complete receipt</button><button class="btn wide" onclick="setReceiptState('mixed')">Preview mixed receipt</button><button class="btn wide" onclick="setReceiptState('failed')">Preview failed receipt</button></div>`;
-  if (['complete', 'mixed'].includes(receiptState)) {
-    const ready = receiptPurchases.filter(item => item.ready), pending = receiptPurchases.find(item => !item.ready);
-    return `<h2 class="title">${receiptState === 'complete' ? 'Purchase detected' : `We found ${receiptPurchases.length} purchases.`}</h2><p class="body">${ready.length} are ready. ${receiptPurchases.length-ready.length} needs your help.</p>${ready.map(item => `<div class="pack-row receipt-ready-row"><span><b>${escapeMarkup(item.name)}</b><small class="body">Ready</small></span></div>`).join('')}${pending ? `<form class="card" onsubmit="saveReceiptException(event)"><label for="receipt-item-name">Missing item information</label><input id="receipt-item-name" class="input" placeholder="Enter item name" required><button class="btn wide" type="submit">Save uncertain item</button><button class="btn wide" type="button" onclick="skipReceiptException()">Skip this item</button></form>` : ''}${receiptState === 'complete' ? '<button class="btn wide" onclick="reviewReceiptPurchase()">Review purchase</button>' : ''}<button class="btn primary wide" onclick="importReadyReceipts()" ${ready.length ? '' : 'disabled'}>Add ${ready.length} ready purchases</button><button class="text-action" onclick="setReceiptState('cancel')">Cancel import</button>`;
+let receiptPhoto = "";
+function selectReceiptPhoto(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 20 * 1024 * 1024) {
+    toast("Choose a JPG, PNG or WebP under 20 MB."); return;
   }
-  const titles = { failed: 'We couldn’t read this receipt.', failedFashion: 'Could not identify a fashion purchase.', failedUnclear: 'Receipt image is unclear.', failedMissing: 'Item information is missing.', failedUnsupported: 'This receipt is unsupported.', manual: 'Enter purchase manually' };
-  return `<h2 class="title">${titles[receiptState] || titles.failed}</h2><p class="body">Your other purchase drafts remain available.</p><div class="chips">${[['failedFashion','Not fashion'],['failedUnclear','Unclear'],['failedMissing','Missing info'],['failedUnsupported','Unsupported']].map(([state,label])=>`<button class="chip" onclick="setReceiptState('${state}')">${label}</button>`).join('')}</div><div class="stack"><button class="btn wide" onclick="setReceiptState('idle')">Retry</button><button class="btn wide" onclick="setReceiptState('idle')">Upload another receipt</button><button class="btn wide" onclick="setReceiptState('manual')">Enter purchase manually</button><button class="text-action" onclick="setReceiptState('cancel')">Cancel import</button></div>${receiptState === 'manual' ? `<form class="card" onsubmit="reviewManualReceipt(event)"><label for="manual-purchase">Purchase name</label><input id="manual-purchase" class="input" required><button class="btn primary wide" type="submit">Continue manually</button></form>` : ''}`;
+  if (receiptPhoto) URL.revokeObjectURL(receiptPhoto);
+  receiptPhoto = URL.createObjectURL(file);
+  render();
 }
+function receiptImportSurface() {
+  const pick = "document.getElementById('receipt-photo').click()";
+  return `<div class="receipt-upload"><input id="receipt-photo" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose receipt image" onchange="selectReceiptPhoto(this)">
+    ${receiptPhoto ? `<img class="receipt-preview" src="${receiptPhoto}" alt="Selected receipt"><button class="text-action" onclick="${pick}">Change receipt</button><form class="add-item-search" onsubmit="reviewManualReceipt(event)"><label class="field">Item on this receipt<input id="manual-purchase" class="input" placeholder="e.g. Linen shirt" required></label><button class="btn primary wide" type="submit">Continue</button></form>` : `<button class="receipt-upload-target" onclick="${pick}"><span class="receipt-upload-icon">${icon("receipt")}</span><b>Upload a receipt</b><span>Choose a photo or screenshot</span></button><p class="add-item-hint">Attach your receipt, then add the item details.</p>`}
+    ${receiptPurchases.length ? `<button class="text-action" onclick="reviewReceiptPurchase()">Continue saved item</button>` : ""}</div>`;
+}
+
 function setOtpState(state, demo = false) {
   otpState = state;
   if (state === 'valid') otpSession.digits = '123456';
@@ -6389,20 +6462,9 @@ function singleImportResult() {
   return shell("Processed item", `<img class="hero-img" src="${assets.blazer}" alt="Processed black tailored blazer"><p class="eyebrow" style="margin-top:14px">Ready to review</p><h2 class="title">Your item is ready.</h2><p class="body">We cleaned the image and identified a black tailored blazer. Review the details before adding it to your Closet.</p><div class="row" style="margin-top:16px"><button class="btn grow" onclick="b01Mode='photos';go('B-01')">Retry photo</button><button class="btn primary grow" onclick="go('B-06')">Review item</button></div>`, { active: "closet", noNav: true });
 }
 function batchImportReview() {
-  if (!batchImportActive) return shell("Import drafts", `<h2 class="title">Continue building your Closet</h2><p class="body">Choose photos to prepare a new batch.</p><button class="btn primary wide" onclick="b01Mode='photos';go('B-01')">Choose photos</button>${savedBatchDrafts().length ? `<button class="btn wide" onclick="resumeBatchDrafts()">Resume ${savedBatchDrafts().length} saved import drafts</button>` : ""}`, { active: "closet" });
-  const candidates = batchCandidates(), readyItems = batchReadyCandidates(), exceptions = batchReviewCandidates().filter(item => !item.reviewed);
-  const ready = readyItems.length, categoryCounts = candidates.reduce((counts, item) => {
-    counts[item.category] = (counts[item.category] || 0) + 1;
-    return counts;
-  }, {});
-  const categorySummary = Object.entries(categoryCounts).map(([category, count]) => `${count} ${category.toLowerCase()}`).join(" · ");
-  const readyRows = readyItems.map((item) => `<div class="pack-row batch-ready-row"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">Ready · ${escapeMarkup(item.category)}</small></span><span class="success-badge">Ready</span></div>`).join("");
-  const exceptionRows = exceptions.map((item, index) => `<div class="pack-row batch-exception-row"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small class="body" style="display:block">Needs review · ${escapeMarkup(item.category)}</small></span>${batchUncertainResolved ? '<span class="success-badge">Ready</span>' : `<button class="btn small-btn" onclick="reviewBatchExceptions(${batchReviewCandidates().indexOf(item)})">Review</button>`}</div>`).join("");
-  return shell(
-    "Batch review",
-    `<div class="between"><span><p class="eyebrow">AI batch result</p><h2 class="title">Found ${candidates.length} pieces ✨</h2></span><span class="pill gold">${ready} ready</span></div><p class="body">${categorySummary}</p>${approvalCard(`${ready} ready · ${exceptions.length} need your help`, "Confident items are prepared for Closet. Nothing is added until you confirm the batch.")}<div class="batch-summary"><details class="card batch-result-group" open><summary><b>${ready} Ready items</b><span class="small">Prepared automatically</span></summary>${readyRows}</details><details class="card batch-result-group" ${exceptions.length && !batchUncertainResolved ? "open" : ""}><summary><b>${exceptions.length} Need your help</b><span class="small">Review exceptions only</span></summary>${!batchUncertainResolved && exceptions.length ? `<button class="btn wide" onclick="reviewBatchExceptions()">Review ${exceptions.length}</button>` : ""}${exceptionRows}</details></div><button class="btn primary wide" style="margin-top:14px" onclick="prepareBatchImportConfirmation()" ${ready ? "" : "disabled"}>Add ${ready} Ready Items</button><button class="btn wide" style="margin-top:8px" onclick="cancelBatchImport()">Cancel batch</button>`,
-    { active: "closet", noNav: true },
-  );
+  if (!batchImportActive) return shell("Add to Closet", `<button class="btn primary wide" onclick="b01Mode='photos';go('B-01')">Choose photos</button>`, { active: "closet", noNav: true });
+  const ready = batchReadyCandidates(), pending = batchReviewCandidates().filter(item => !item.reviewed);
+  return shell("Add to Closet", `<section class="add-item-batch"><h2>${batchCandidates().length} pieces</h2><div class="add-item-photo-grid">${batchCandidates().map(item => `<article class="add-item-photo"><img src="${item.image}" alt="${escapeMarkup(item.name)}">${item.confidence === "NEEDS_REVIEW" && !item.reviewed ? `<button class="add-item-fix" onclick="reviewBatchExceptions(${batchReviewCandidates().indexOf(item)})">Edit details</button>` : '<span class="add-item-check" aria-label="Ready">✓</span>'}</article>`).join("")}</div>${ready.length ? `<button class="btn primary wide" onclick="commitBatchImport()">Add ${ready.length} ${ready.length === 1 ? "item" : "items"} to Closet</button>` : ""}${pending.length ? `<p class="add-item-hint">${pending.length} ${pending.length === 1 ? "piece needs" : "pieces need"} details. You can finish later.</p>` : ""}<button class="add-item-sample" onclick="cancelBatchImport()">Back to photos</button></section>`, { active: "closet", noNav: true, surfaceClass: "add-item-screen" });
 }
 function prepareBatchImportConfirmation() {
   if (!batchReadyCandidates().length) return;
@@ -6505,6 +6567,7 @@ function confirmBatchException(event) {
   item.brand = event.currentTarget.querySelector("#uncertain-brand").value;
   item.category = event.currentTarget.querySelector("#uncertain-category").value;
   item.season = event.currentTarget.querySelector("#inline-season")?.value || "Not set";
+  item.purchasePrice = Number(event.currentTarget.querySelector("#inline-purchase-price").value);
   item.reviewed = true;
   const next = exceptions.findIndex(candidate => !candidate.reviewed);
   if (next >= 0) {
@@ -6517,15 +6580,11 @@ function confirmBatchException(event) {
   }
 }
 function confidenceImportReview() {
-  const draft = closetPurchaseDraft, batchException = batchImportActive && importConfidence === "low" ? batchReviewCandidates()[batchReviewIndex] : null, uncertain = !draft && (Boolean(batchException) || importConfidence === "low");
+  const draft = closetPurchaseDraft, batchException = batchImportActive && importConfidence === "low" ? batchReviewCandidates()[batchReviewIndex] : null;
+  const uncertain = !draft && (Boolean(batchException) || importConfidence === "low");
   const item = draft || batchException || { name: "Black tailored blazer", brand: "Balmain", category: "Outerwear", image: assets.blazer };
-  const reviewLabel = batchException ? `Review exception ${batchReviewIndex + 1} of ${batchReviewCandidates().length}` : "Two details need you";
-  return shell(
-    "Review item",
-    `<form onsubmit="${batchException ? "confirmBatchException" : "confirmReviewedClosetItem"}(event)"><img class="hero-img" src="${item.image}" alt="${escapeMarkup(item.name)}"><div class="stack" style="margin-top:14px">${approvalCard(draft ? "Purchase ready to review" : uncertain ? reviewLabel : "Processed automatically", draft ? (draft.wishlistId ? "Details came from your Wishlist product. Confirm below to add this owned piece to your Closet." : "Confirm these details before adding this purchase to your Closet.") : uncertain ? "The photo is usable, but brand and category conflict. Confirm both here once." : "Prototype preview: crop, isolation, image balance, category, and brand are high confidence.")}
-    ${closetSeasonField(item.season)}${uncertain ? `<div class="card"><div class="field"><label for="uncertain-brand">Brand</label><select id="uncertain-brand" class="input">${[...new Set([item.brand, "Balmain", "Unknown"])].map(value => `<option>${escapeMarkup(value)}</option>`).join("")}</select></div><div class="field" style="margin-top:10px"><label for="uncertain-category">Category</label><select id="uncertain-category" class="input">${[...new Set([item.category, "Tops", "Bottoms", "Outerwear", "Dresses & Suits", "Shoes", "Bags", "Accessories"])].map(value => `<option>${escapeMarkup(value)}</option>`).join("")}</select></div></div><button type="submit" class="btn primary wide">Confirm 2 details &amp; add</button>` : `<details class="card progressive-card" ${draft ? "open" : ""}><summary><b>Edit details</b><span class="small">Review before adding</span></summary><div class="inline-edit-grid" style="margin-top:12px">${inlineEditRow("Item name", item.name, 'required maxlength="120"')}${inlineEditRow("Brand", item.brand, 'maxlength="100"')}${inlineEditRow("Category", item.category, 'required')}${draft?.wishlistId ? `${inlineEditRow("Purchase price", item.purchasePrice ?? "", 'type="number" min="0" step="0.01"')}${inlineEditRow("Purchase date", item.purchaseDate, 'type="date" required')}${inlineEditRow("Retailer / source", item.retailer, 'maxlength="200"')}<p class="small">From Wishlist · ${escapeMarkup(item.name)}</p>` : ""}</div></details><button type="submit" class="btn primary wide">${batchImportActive ? "Add All to Closet" : "Looks right · Add"}</button>${draft?.wishlistId ? '<button type="button" class="btn wide" onclick="go(\'G-09\')">Keep purchased · add later</button>' : '<details class="card progressive-card"><summary><b>What StyleIQ prepared</b><span class="small">Crop · background · metadata</span></summary><p class="body" style="margin-top:10px">Garment isolated, image normalized, category classified as Outerwear, and brand matched to Balmain.</p></details>'}`}</div></form>`,
-    { noNav: true },
-  );
+  const corrections = uncertain ? `<div class="add-item-corrections"><label class="field" for="uncertain-brand">Brand<select id="uncertain-brand" class="input">${[...new Set([item.brand, "Balmain", "Unknown"])].map(value => `<option>${escapeMarkup(value)}</option>`).join("")}</select></label><label class="field" for="uncertain-category">Category<select id="uncertain-category" class="input">${[...new Set([item.category, "Tops", "Bottoms", "Outerwear", "Dresses & Suits", "Shoes", "Bags", "Accessories"])].map(value => `<option>${escapeMarkup(value)}</option>`).join("")}</select></label></div>` : `<details class="add-item-details" ${item.name ? "" : "open"}><summary>Edit details</summary><div class="inline-edit-grid">${inlineEditRow("Item name", item.name, 'required maxlength="120"')}${inlineEditRow("Brand", item.brand, 'maxlength="100"')}${inlineEditRow("Category", item.category, 'required')}${draft?.wishlistId ? `${inlineEditRow("Purchase date", item.purchaseDate, 'type="date" required')}${inlineEditRow("Retailer / source", item.retailer, 'maxlength="200"')}` : ""}</div></details>`;
+  return shell(batchException ? "Edit item" : "Add to Closet", `<form class="add-item-confirm" onsubmit="${batchException ? "confirmBatchException" : "confirmReviewedClosetItem"}(event)"><img class="add-item-preview" src="${item.image}" alt="${escapeMarkup(item.name)}"><h2>${escapeMarkup(item.name)}</h2><p class="add-item-hint">${escapeMarkup(item.brand)} · ${escapeMarkup(item.category)}</p>${closetSeasonField(item.season)}${itemPriceField(item.purchasePrice)}${corrections}<button type="submit" class="btn primary wide">${batchException ? "Save details" : "Add to Closet"}</button>${draft?.wishlistId ? '<button type="button" class="add-item-sample" onclick="go(\'G-09\')">Add later</button>' : ""}</form>`, { active: "closet", noNav: true, surfaceClass: "add-item-screen" });
 }
 function confirmReviewedClosetItem(event) {
   event.preventDefault();
@@ -6538,6 +6597,7 @@ function confirmReviewedClosetItem(event) {
       brand: app.querySelector("#uncertain-brand")?.value || value("brand", draft?.brand || "Balmain"),
       category: app.querySelector("#uncertain-category")?.value || value("category", draft?.category || "Outerwear"),
       season: value("season", "Not set"),
+      purchasePrice: Number(value("purchase-price")),
       image: draft?.image || assets.blazer,
       product_id: draft?.product_id || "",
       status: "Available",
@@ -6644,31 +6704,134 @@ function emptyState(s) {
     },
   );
 }
+// The photo intake keeps selection and season on one surface until Add is tapped.
+let addItemPhotos = [], addItemSeason = "Not set", addItemLoading = false;
+function rememberAddItemSeason() {
+  addItemSeason = app.querySelector("#inline-season")?.value || addItemSeason;
+}
+function setAddItemMode(mode) {
+  rememberAddItemSeason();
+  b01Mode = mode;
+  render();
+}
+function useSampleItemPhotos() {
+  rememberAddItemSeason();
+  addItemPhotos = [
+    { name: "Tan tailored blazer", brand: "Unknown", category: "Outerwear", image: assets.blazer },
+    { name: "Ivory silk shell", brand: "Unknown", category: "Tops", image: batchCandidateCatalog[1].image },
+    { name: "Rust tank top", brand: "Unknown", category: "Tops", image: assets.top2 },
+  ].map(item => ({ ...item, selected: true }));
+  render();
+}
+function toggleAddItemPhoto(index, button) {
+  addItemPhotos[index].selected = !addItemPhotos[index].selected;
+  button.setAttribute("aria-pressed", String(addItemPhotos[index].selected));
+  app.querySelector(`#photo-price-${index}`).disabled = !addItemPhotos[index].selected;
+  button.querySelector(".add-item-check").textContent = addItemPhotos[index].selected ? "✓" : "+";
+  const count = addItemPhotos.filter(item => item.selected).length;
+  const action = app.querySelector("#add-item-save");
+  action.disabled = !count;
+  action.textContent = count ? `Add ${count === 1 ? "item" : `${count} items`} to Closet` : "Select a photo";
+}
+async function readAddItemPhotos(input) {
+  const files = [...(input.files || [])];
+  if (!files.length || addItemLoading) return;
+  rememberAddItemSeason();
+  addItemLoading = true;
+  render();
+  const photos = [], errors = [];
+  for (const file of files) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 20 * 1024 * 1024) {
+      errors.push(file.name); continue;
+    }
+    try {
+      const image = await new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file), img = new Image();
+        img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Unreadable photo")); };
+        img.src = url;
+      });
+      const canvas = document.createElement("canvas"), scale = Math.min(1, 900 / Math.max(image.width, image.height));
+      canvas.width = Math.round(image.width * scale); canvas.height = Math.round(image.height * scale);
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#f5f3ef"; context.fillRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      photos.push({ id: newClosetItemId(), name: file.name.replace(/\.[^.]+$/, ""), brand: "Unknown", category: "Uncategorized", image: canvas.toDataURL("image/jpeg", 0.82), selected: true });
+    } catch { errors.push(file.name); }
+  }
+  addItemPhotos.push(...photos);
+  addItemLoading = false;
+  if (currentId === "B-01") render();
+  if (errors.length) toast("Some photos couldn’t be opened. Use JPG, PNG or WebP under 20 MB.");
+}
+function itemPriceField(value = "", id = "inline-purchase-price", attributes = "") {
+  return `<label class="add-item-price" for="${id}"><span>Price paid · USD</span><input id="${id}" type="number" inputmode="decimal" min="0" step="0.01" required placeholder="0.00" value="${escapeMarkup(String(value ?? ""))}" ${attributes}></label>`;
+}
+function saveAddItemPhotos() {
+  if (addItemLoading) return;
+  rememberAddItemSeason();
+  const selected = addItemPhotos.filter(item => item.selected);
+  if (!selected.length) return;
+  for (const field of app.querySelectorAll('.add-item-price input:not(:disabled)')) {
+    if (!field.reportValidity()) return;
+  }
+  const previous = purchasedClosetItems;
+  purchasedClosetItems = [...selected.map(({ selected, ...item }) => ({
+    ...item, purchasePrice: Number(item.purchasePrice), id: newClosetItemId(), season: addItemSeason, status: "Available", lifecycle: "Keep", wears: 0, source: "photo-import",
+  })), ...previous];
+  try { persistClosetItems(); }
+  catch { purchasedClosetItems = previous; toast("Storage is full. Try fewer photos; your selection is still here."); return; }
+  addItemPhotos = []; addItemSeason = "Not set";
+  finishOnboardingClosetImport("C-01");
+  toast(`${selected.length === 1 ? "Item" : `${selected.length} items`} added to your Closet`);
+}
+let addItemSourceFocus = null;
+function positionAddItemSource() {
+  const dialog = document.getElementById("add-item-source-dialog");
+  if (!dialog) return;
+  const bounds = app.getBoundingClientRect(), left = Math.max(0, bounds.left), top = Math.max(0, bounds.top);
+  Object.assign(dialog.style, { left: `${left}px`, top: `${top}px`, width: `${Math.max(0, Math.min(innerWidth, bounds.right) - left)}px`, height: `${Math.max(0, Math.min(innerHeight, bounds.bottom) - top)}px` });
+}
+function closeAddItemSource() {
+  window.removeEventListener("resize", positionAddItemSource);
+  window.removeEventListener("scroll", positionAddItemSource, true);
+  const dialog = document.getElementById("add-item-source-dialog");
+  dialog?.close(); dialog?.remove();
+  if (addItemSourceFocus?.isConnected) addItemSourceFocus.focus({ preventScroll: true });
+}
+function chooseAddItemSource(source) {
+  closeAddItemSource();
+  document.getElementById(source === "camera" ? "add-item-camera" : "add-item-library")?.click();
+}
+function openAddItemSource() {
+  closeAddItemSource();
+  addItemSourceFocus = document.activeElement;
+  app.insertAdjacentHTML("beforeend", `<dialog id="add-item-source-dialog" class="closet-season-sheet" aria-labelledby="add-item-source-title" oncancel="event.preventDefault();closeAddItemSource()" onclick="if(event.target===this)closeAddItemSource()"><div class="closet-season-sheet-body"><header class="between"><h2 id="add-item-source-title">Add photos</h2><button type="button" class="icon-btn" aria-label="Close photo options" onclick="closeAddItemSource()">${icon("x")}</button></header><div class="closet-season-choices"><button type="button" onclick="chooseAddItemSource('camera')"><span><b>Camera</b><small>Take a new photo of your piece</small></span>${icon("camera")}</button><button type="button" onclick="chooseAddItemSource('library')"><span><b>Photo library / Files</b><small>Choose one or more saved images</small></span>${icon("image")}</button></div></div></dialog>`);
+  const dialog = document.getElementById("add-item-source-dialog");
+  positionAddItemSource(); dialog.showModal();
+  window.addEventListener("resize", positionAddItemSource);
+  window.addEventListener("scroll", positionAddItemSource, true);
+  dialog.querySelector("button").focus({ preventScroll: true });
+}
+function addItemPhotoSurface() {
+  const count = addItemPhotos.filter(item => item.selected).length;
+  const inputs = `<input id="add-item-library" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" multiple aria-label="Choose garment photos" onchange="readAddItemPhotos(this)"><input id="add-item-camera" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" aria-label="Take a garment photo" onchange="readAddItemPhotos(this)">`;
+  if (addItemLoading) return `${inputs}<div class="add-item-loading" role="status"><div class="skeleton"></div><p>Opening your photos…</p></div>`;
+  const pick = "openAddItemSource()";
+  return `${inputs}${addItemPhotos.length ? `<div class="add-item-selection-head"><h2>Your photos</h2><button class="text-action" onclick="${pick}">+ Add more</button></div><div class="add-item-photo-grid" role="group" aria-label="Photos to add">${addItemPhotos.map((item, index) => `<div class="add-item-priced-photo"><button type="button" class="add-item-photo" aria-label="${escapeMarkup(item.name)}" aria-pressed="${item.selected}" onclick="toggleAddItemPhoto(${index},this)"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span class="add-item-check" aria-hidden="true">${item.selected ? "✓" : "+"}</span></button>${itemPriceField(item.purchasePrice, `photo-price-${index}`, `aria-label="Price paid for ${escapeMarkup(item.name)} in USD" oninput="addItemPhotos[${index}].purchasePrice=this.value" ${item.selected ? "" : "disabled"}`)}</div>`).join("")}</div>` : `<button class="add-item-picker" onclick="${pick}"><span class="add-item-photo-story" aria-hidden="true"><img src="${assets.top2}" alt=""><img src="${assets.blazer}" alt=""></span><span class="add-item-picker-label">${icon("image")} Upload photos</span><span class="add-item-hint">One piece or a few at once</span></button>`}
+    ${closetSeasonField(addItemSeason)}
+    ${addItemPhotos.length ? `<button id="add-item-save" class="btn primary wide" onclick="saveAddItemPhotos()" ${count ? "" : "disabled"}>${count ? `Add ${count === 1 ? "item" : `${count} items`} to Closet` : "Select a photo"}</button>` : ""}`;
+}
 function importScreen(s) {
   if (s.id === "B-01") {
-    const photos = batchCandidateCatalog;
-    batchSelectedCount = photos.length;
-    const modes = [["photos", "Photos"], ["search", "Search / URL"], ["receipt", "Receipts"]];
-    const modeTabs = AppTabs({
-      id: "closet-intake-tabs",
-      label: "Add intake source",
-      variant: "primary",
-      items: modes.map(([id, label]) => ({ label, selected: b01Mode === id, onSelect: `b01Mode='${id}';b01Processing=false;render()` })),
-    });
-    const draftButton = `<div class="between" style="margin-bottom:8px"><span class="helper">Make every piece usable with clean background isolation.</span><button class="btn small-btn" type="button" onclick="openLightweightPanel('draftImports')">Draft imports (2)</button></div>`;
+    const modes = [["photos", "Photos", "image"], ["search", "Search / URL", "search"], ["receipt", "Receipts", "receipt"]];
+    const modeTabs = AppTabs({ id: "closet-intake-tabs", label: "Add intake source", variant: "primary", className: "add-source-cards",
+      items: modes.map(([id, label, glyph]) => ({ label, content: `${icon(glyph)}<span>${label}</span>`, selected: b01Mode === id, onSelect: `setAddItemMode('${id}')` })) });
     let content = "";
-    if (b01Mode === "photos") {
-      if (b01Processing) {
-        content = `<div class="card stack" style="margin-top:14px"><p class="eyebrow">Background cleanup & detection</p><h3 class="title">Cleaning and identifying your piece.</h3><div class="skeleton" style="height:180px"></div><div class="chips" style="margin-top:10px"><span class="chip active">Uploading</span><span class="chip active">Cleaning image</span><span class="chip active">Detecting item</span><span class="chip active">Ready</span></div><p class="body">Cropping garment, removing background, and extracting brand & category.</p><button class="btn primary wide" onclick="b01Processing=false;importConfidence='high';go('B-06')">Review processed item</button><button class="btn wide" onclick="b01Processing=false;toast('Choose another photo or continue manually');render()">Photo needs help</button></div>`;
-      } else {
-        content = `<div class="mirror-upload-intro"><p class="eyebrow">Universal photo intake</p><h2 class="title">Choose garment photos</h2><p class="body">Add one photo or an entire batch. Background cleanup and item detection run automatically.</p></div><div class="batch-photo-grid" role="group" aria-label="Selected garment photos">${photos.map((item) => `<button class="batch-photo" data-candidate="${item.id}" aria-pressed="true" onclick="toggleBatchPhoto(this)"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span>Selected</span></button>`).join("")}</div><p id="batch-photo-count" class="mirror-upload-count">${photos.length} photos selected · automatic cleanup and classification</p><div class="mirror-upload-actions" style="margin-top:14px"><button id="batch-process" class="btn primary wide" onclick="startBatchImport()">Process ${photos.length} photos</button><button class="btn wide" onclick="b01Processing=true;render()">Process one photo</button><button class="btn wide" onclick="importConfidence='high';go('B-06')">Review first item</button></div>`;
-      }
-    } else if (b01Mode === "search") {
-      content = `<div class="stack"><p class="eyebrow">Product & brand lookup</p><h2 class="title">Find something you already own</h2><p class="body">Search by brand, item name, or paste a product link.</p><form onsubmit="searchOwnedItem(event)"><label class="field">Product, brand, or URL<input class="input" value="${escapeMarkup(ownedSearchQuery)}" placeholder="e.g. Balmain blazer, COS trousers, or URL" required></label><button class="btn primary wide" type="submit">Search Item</button></form><div style="margin-top:14px">${ownedSearchResults()}</div></div>`;
-    } else if (b01Mode === "receipt") {
-      content = receiptImportSurface();
-    }
-    return shell("Add to Closet", `${draftButton}${modeTabs}${AppTabPanel("closet-intake-tabs", Math.max(0, modes.findIndex(([id]) => id === b01Mode)), content)}`, { active: "closet", noNav: true });
+    if (b01Mode === "photos") content = addItemPhotoSurface();
+    else if (b01Mode === "search") content = `<form class="add-item-search" onsubmit="searchOwnedItem(event)"><label class="field">Find your item<input class="input" value="${escapeMarkup(ownedSearchQuery)}" placeholder="Brand, item or product link" required></label><button class="btn primary wide" type="submit">Search</button></form>${ownedSearchResults()}`;
+    else content = receiptImportSurface();
+    return shell("Add to Closet", `<section class="add-intake-form">${modeTabs}${AppTabPanel("closet-intake-tabs", Math.max(0, modes.findIndex(([id]) => id === b01Mode)), content)}</section>`, { active: "closet", noNav: true, surfaceClass: "add-item-screen" });
   }
   if (s.id === "B-04") return shell("Search your item", `<p class="eyebrow">Closet Search · owned item</p><h2 class="title">Find something you already own.</h2><form onsubmit="searchOwnedItem(event)"><label class="field">Product or brand<input class="input" value="${escapeMarkup(ownedSearchQuery)}" placeholder="Search products or brands" required></label><button class="btn primary wide" type="submit">Search My Item</button></form>`, { noNav: true });
   if (s.id === "B-05") return shell("Search results", ownedSearchResults(), { noNav: true });
@@ -6989,8 +7152,14 @@ function plannerDayHeroMoment(moment, index, total) {
   const title = moment.title || moment.context || moment.occasion || (moment.trip ? `Trip to ${moment.destination}` : "Planned moment");
   return `<article class="planner-day-moment${image ? '' : ' is-placeholder'}"><button onclick="${action}" aria-label="Open ${escapeMarkup(title)} details">${image ? `<img src="${image}" alt="${escapeMarkup(hasLook ? lookTitle || title : title)}">` : `<span class="planner-moment-placeholder" aria-hidden="true"><i>${escapeMarkup(kind)}</i><b>${Number(plannerSelectedDate.slice(8))}</b></span>`}<span class="planner-day-shade"></span><span class="planner-day-count">${index+1} / ${total}</span>${moment.trip ? `<span class="planner-day-trip-label">${escapeMarkup(moment.destination)} · Day ${moment.tripDay}</span>` : ''}<span class="planner-day-copy"><small>${escapeMarkup(moment.time || moment.daypart || (moment.trip ? 'Travel day' : 'All day'))} · ${kind}</small><b>${escapeMarkup(title)}</b><em${hasLook ? '' : ' class="missing"'}>${escapeMarkup(hasLook ? lookTitle : 'Look not chosen · Open plan')}</em></span>${confirmed ? '<span class="planner-day-confirmed" role="img" aria-label="Look planned">✓</span>' : ''}${moment.worn ? '<span class="planner-day-worn">Worn</span>' : ''}</button></article>`;
 }
+function plannerTripTiming(trip, today) {
+  if (!trip.startDate || !trip.endDate) return "Trip dates not set";
+  if (trip.endDate < today) return "Past trip";
+  if (trip.startDate > today) return "Upcoming trip";
+  return "Current trip";
+}
 function mirrorPlanner() {
-  const anchorValue = plannerSelectedDate || proactiveWeek[0]?.date || new Date().toISOString().slice(0,10);
+  const anchorValue = plannerSelectedDate || wearTodayKey();
   const weekStart = new Date(`${anchorValue}T12:00:00`);
   weekStart.setDate(weekStart.getDate() - (weekStart.getDay()+6)%7);
   weekStart.setDate(weekStart.getDate() + plannerWeekOffset * 7);
@@ -7003,13 +7172,14 @@ function mirrorPlanner() {
     const trip = tripState.created && tripDates(tripState.basics || tripDraft).includes(date);
     return [day.toLocaleDateString('en-US',{weekday:'short'}), day.getDate(), isToday, index, hasPlan, trip, date];
   });
-  if (!plannerSelectedDate || !days.some(day => day[6] === plannerSelectedDate)) plannerSelectedDate = days[Math.min(selectedPlannerDayIndex,6)]?.[6];
+  if (!plannerSelectedDate || !days.some(day => day[6] === plannerSelectedDate)) plannerSelectedDate = (days.find(day => day[2]) || days[Math.min(selectedPlannerDayIndex,6)])?.[6];
   selectedPlannerDayIndex = Math.max(0, days.findIndex(day => day[6] === plannerSelectedDate));
   const selectedDate = plannerSelectedDate;
   const selectedDay = new Date(`${selectedDate}T12:00:00`);
   const selectedEntries = proactiveWeek.map((entry,index) => ({...entry,index})).filter((entry) => entry.date === selectedDate);
   if (plannerEvent?.date === selectedDate) selectedEntries.unshift({ ...plannerEvent, look: plannerEvent.lookTitle, image: plannerEvent.lookImage || (plannerEvent.lookId ? plannerLook(plannerEvent.lookId).sheet : ""), index: null });
   const tripDraftForPlanner = tripState.basics || tripDraft;
+  const tripTiming = plannerTripTiming(tripDraftForPlanner, wearTodayKey());
   const tripRoute = tripState.created ? "J-08" : "J-02";
   const tripDestination = tripDraftForPlanner.destination || "Alexandria";
   const tripDuration = tripDates(tripDraftForPlanner).length || 3;
@@ -7045,7 +7215,7 @@ function mirrorPlanner() {
   plannerDynamicHeroHTML = dynamicHero;
   return shell(
     "Planner",
-    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}<span>Muse</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>Upcoming trip</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><div class="planner-trip-carousel" aria-label="Upcoming trips"><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="Upcoming ${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></div><button class="planner-view-all-trips" onclick="go('J-01')"><span>View All Trips</span>${icon("arrow-right")}</button></section><section class="planner-selected-day"><header><span class="planner-day-heading"><small>Day agenda</small><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2></span><span>${selectedEntries.length + (tripIsSelected ? 1 : 0) ? `${selectedEntries.length + (tripIsSelected ? 1 : 0)} ${selectedEntries.length + (tripIsSelected ? 1 : 0) === 1 ? 'plan' : 'plans'}` : 'No plans'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : emptyAgenda}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section>${recapTeaser}</section>`,
+    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}<span>Muse</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-selected-day"><header><span class="planner-day-heading"><small>Day agenda</small><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2></span><span>${selectedEntries.length + (tripIsSelected ? 1 : 0) ? `${selectedEntries.length + (tripIsSelected ? 1 : 0)} ${selectedEntries.length + (tripIsSelected ? 1 : 0) === 1 ? 'plan' : 'plans'}` : 'No plans'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : emptyAgenda}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>${tripTiming}</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><div class="planner-trip-carousel" aria-label="${tripTiming}"><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></div><button class="planner-view-all-trips" onclick="go('J-01')"><span>View All Trips</span>${icon("arrow-right")}</button></section>${recapTeaser}</section>`,
     { active: "planner" },
   );
 }
@@ -10959,8 +11129,6 @@ function enrichCoreScreens(s) {
   const content = app.querySelector(".content");
   if (!content) return;
   const shellIllustrations = {
-    "B-01": [screenIllustrations.addToCloset, "Add a garment to your digital Closet"],
-    "B-06": [screenIllustrations.importStatus, "Closet import progress and review"],
     "J-02": [screenIllustrations.tripSetup, "A curated wardrobe packed for a trip"],
   };
   const shellIllustration = shellIllustrations[s.id];
