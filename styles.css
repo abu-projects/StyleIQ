@@ -22592,3 +22592,144 @@ summary:focus-visible {
   line-height: 1.2;
 }
 .app .lens-sheet--capture .lens-source .icon { width: 28px; height: 28px; margin: 0; }
+
+/* Closet IQ is an optional, single view within Closet. */
+.closet-items-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #746b64; font-size: 13px; }
+.closet-iq-entry, .closet-iq-back { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #211e1c; font: inherit; font-size: 13px; cursor: pointer; }
+.closet-iq-back { justify-self: start; }
+.closet-iq-entry .icon, .closet-iq-back .icon { width: 16px; height: 16px; }
+.closet-iq-entry:focus-visible, .closet-iq-back:focus-visible { outline: 2px solid #746b64; outline-offset: 3px; }
+.closet-iq-intro { margin: 0 0 5px; color: #746b64; font-size: 13px; text-wrap: pretty; }
+.closet-iq-muted { background: #ede4de; }
+.closet-insights .closet-insight-stat { min-height: 118px; }
+.closet-insights .closet-insight-stat small { font-size: 12px; }
+.closet-insights .closet-insight-stat > span { font-size: 11px; line-height: 1.45; }
+.closet-iq-note { margin: 0; color: #746b64; font-size: 11px; line-height: 1.5; text-wrap: pretty; }
+.closet-iq-panel { display: grid; gap: 15px; padding: 17px 14px; border: 1px solid #e3d9d1; border-radius: 14px; background: #fff; }
+.closet-iq-panel h3 { margin: 0; font: 400 21px/1.2 var(--font-display); text-wrap: balance; }
+.closet-iq-score { display: grid; gap: 6px; }
+.closet-iq-score > div { display: flex; justify-content: space-between; gap: 10px; font-size: 12px; }
+.closet-iq-score strong, .closet-iq-bar-line { font-variant-numeric: tabular-nums; }
+.closet-iq-score small { color: #746b64; font-size: 11px; line-height: 1.4; }
+.closet-iq-score meter { width: 100%; height: 9px; background: #f0ece8; border: 0; border-radius: 5px; }
+.closet-iq-score meter::-webkit-meter-bar { background: #f0ece8; border: 0; }
+.closet-iq-score meter::-webkit-meter-optimum-value { background: #969c8e; }
+.closet-iq-score meter::-moz-meter-bar { background: #969c8e; }
+.closet-iq-legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 11px; color: #746b64; }
+.closet-iq-legend span::before { content: ''; display: inline-block; width: 8px; height: 8px; margin-right: 5px; border-radius: 50%; background: #b9aba0; }
+.closet-iq-legend span + span::before { background: #969c8e; }
+.closet-iq-chart-row { display: grid; gap: 5px; }
+.closet-iq-chart-row > b { font-size: 12px; font-weight: 500; }
+.closet-iq-bar-line { display: grid; grid-template-columns: minmax(0, 1fr) 35px; align-items: center; gap: 8px; font-size: 11px; color: #746b64; }
+.closet-iq-track { height: 8px; border-radius: 5px; background: #f0ece8; overflow: hidden; }
+.closet-iq-track i { display: block; height: 100%; background: #b9aba0; border-radius: inherit; }
+.closet-iq-bar-line.usage i { background: #969c8e; }
+.closet-iq-top-piece { display: flex; align-items: center; gap: 14px; min-width: 0; font-size: 13px; }
+.closet-iq-top-piece img { width: 64px; height: 75px; object-fit: contain; border-radius: 8px; background: #f5f0eb; }
+.closet-iq-top-piece p { margin: 6px 0 0; font-size: 12px; color: #746b64; }
+
+/* Visual value summary and compact rankings, scoped to Closet IQ. */
+.closet-items-tools { display: flex; align-items: center; flex-wrap: wrap; column-gap: 14px; min-width: 0; }
+.closet-items-tools > span { font-size: 12px; color: #746b64; font-variant-numeric: tabular-nums; }
+.closet-season-trigger, .closet-season-control { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; border: 0; border-radius: 0; background: transparent; color: #211e1c; font: inherit; cursor: pointer; }
+.closet-season-trigger { padding: 0; font-size: 12px; }
+.closet-season-field { display: grid; gap: 4px; padding: 12px 0; font-size: 13px; }
+.closet-season-control { width: 100%; padding: 4px 0; border-bottom: 1px solid #b9aba0; text-align: left; }
+.closet-season-sheet { position: fixed; inset: auto; box-sizing: border-box; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 38px; overflow: hidden; background: #211e1c66; color: #211e1c; }
+.closet-season-sheet[open] { display: flex; align-items: flex-end; }
+.closet-season-sheet::backdrop { background: transparent; }
+.closet-season-sheet-body { box-sizing: border-box; width: 100%; max-height: 90%; overflow-y: auto; overscroll-behavior: contain; padding: 24px 24px max(24px, env(safe-area-inset-bottom)); border-radius: 12px 12px 0 0; background: #faf8f5; box-shadow: 0 -8px 40px #211e1c18; }
+@media (max-width: 600px) { .closet-season-sheet { border-radius: 0; } }
+.closet-season-sheet h2 { margin: 0; font: 400 26px/1.2 var(--font-display); }
+.closet-season-choices { margin-top: 18px; }
+.closet-season-choices button { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 70px; padding: 14px 0; border: 0; border-bottom: 1px solid #e3d9d1; border-radius: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
+.closet-season-choices button:last-child { border-bottom: 0; }
+.closet-season-choices b { display: block; font-size: 15px; font-weight: 500; }
+.closet-season-choices small { display: block; margin-top: 5px; color: #746b64; font-size: 12px; }
+.closet-season-check { width: 22px; height: 22px; border: 1px solid #b9aba0; border-radius: 50%; text-align: center; line-height: 20px; font-size: 14px; }
+.closet-season-choices [aria-pressed="true"] .closet-season-check { background: #211e1c; color: #fff; border-color: #211e1c; }
+.closet-season-trigger:focus-visible, .closet-season-control:focus-visible, .closet-season-choices button:focus-visible { outline: 2px solid #746b64; outline-offset: 3px; }
+.closet-iq-worth { display: grid; gap: 18px; padding: 22px 18px; background: #f5f0eb; }
+.closet-iq-worth > div > strong { display: block; margin: 8px 0; font: 400 38px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.closet-iq-value-chart { display: grid; grid-template-columns: 130px minmax(0, 1fr); align-items: center; gap: 18px; }
+.closet-iq-value-chart svg { width: 100%; overflow: visible; }
+.closet-iq-value-chart circle { fill: none; stroke-width: 11; }
+.closet-iq-ring-track { stroke: #ded5ce; }
+.closet-iq-ring-used { stroke: #7e8974; }
+.closet-iq-value-chart text { fill: #211e1c; font-size: 23px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.closet-iq-value-chart .closet-iq-ring-label { font-size: 9px; fill: #746b64; }
+.closet-iq-value-key { display: grid; gap: 18px; font-size: 12px; }
+.closet-iq-value-key b { display: block; padding: 5px 0 0 14px; font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.closet-iq-value-key i { display: inline-block; width: 7px; height: 7px; margin-right: 7px; background: #7e8974; }
+.closet-iq-value-key span + span i { background: #ded5ce; }
+.closet-iq-ranking-toggle { display: flex; gap: 18px; border-bottom: 1px solid #e3d9d1; }
+.closet-iq-ranking-toggle button { min-height: 44px; padding: 8px 0; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: #746b64; font: inherit; font-size: 12px; cursor: pointer; }
+.closet-iq-ranking-toggle button[aria-pressed="true"] { border-bottom-color: #211e1c; color: #211e1c; }
+.closet-iq-ranking { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.closet-iq-ranked-piece { display: flex; flex-direction: column; gap: 7px; min-width: 0; font-size: 11px; font-variant-numeric: tabular-nums; }
+.closet-iq-rank { color: #746b64; }
+.closet-iq-ranked-piece img { width: 100%; height: 100px; object-fit: contain; }
+.closet-iq-ranked-piece b { font-size: 12px; line-height: 1.4; font-weight: 500; overflow-wrap: anywhere; }
+.closet-iq-ranked-piece small { color: #746b64; font-size: 10px; }
+.closet-iq-ranking > .closet-iq-note { grid-column: 1 / -1; }
+.closet-iq-ranking-toggle button:focus-visible, .closet-season-filter select:focus-visible { outline: 2px solid #746b64; outline-offset: 3px; }
+.closet-iq-chart-row { padding: 8px 0; }
+.closet-iq-track { height: 12px; border-radius: 0; }
+
+.closet-iq-value-key small { display: block; padding: 4px 0 0 14px; color: #746b64; font-size: 10px; }
+.closet-insights .closet-insight-stat:last-child { grid-column: 1 / -1; min-height: 100px; }
+
+/* Closet IQ: different chart forms for value, frequency and category comparison. */
+.closet-iq-worth { background: #edf1e9; border-radius: 12px; }
+.closet-iq-ring-used { stroke: #738d78; }
+.closet-insights .closet-insight-stat:nth-child(1) { background: #f4e6df; }
+.closet-insights .closet-insight-stat:nth-child(2) { background: #edf1e9; }
+.closet-insights .closet-insight-stat:nth-child(3) { background: #eaf0f6; }
+.iq-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.iq-panel-heading > span { flex-shrink: 0; font-size: 11px; color: #746b64; }
+.iq-wear-overview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.iq-wear-group { min-width: 0; padding: 14px 11px; border-radius: 8px; background: #f4e6df; }
+.iq-wear-group--rare { background: #f5eddc; }
+.iq-wear-group--regular { background: #eaf0f6; }
+.iq-wear-group--often { background: #edf1e9; }
+.iq-wear-group h4 { margin: 0 0 12px; font: 500 12px/1.4 var(--font-body, sans-serif); }
+.iq-wear-count { display: flex; align-items: baseline; gap: 5px; }
+.iq-wear-count strong { font: 400 32px/1.1 var(--font-display); font-variant-numeric: tabular-nums; }
+.iq-wear-count span, .iq-wear-group > small { font-size: 11px; color: #625b55; }
+.iq-wear-group > small { display: block; margin-top: 6px; }
+.iq-wear-examples { display: flex; align-items: center; gap: 5px; height: 42px; margin-top: 14px; }
+.iq-wear-examples img { width: 34px; height: 42px; object-fit: contain; border-radius: 3px; background: #ffffffa6; }
+.iq-wear-examples > span { font-size: 11px; color: #625b55; font-variant-numeric: tabular-nums; }
+.iq-wear-none { font-style: italic; }
+.iq-gauges { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.iq-gauge { display: grid; gap: 5px; align-content: start; text-align: center; }
+.iq-gauge svg { width: 100%; }
+.iq-gauge path { fill: none; stroke-width: 9; stroke-linecap: round; }
+.iq-gauge-track { stroke: #eeeae4; }
+.iq-gauge-fill { stroke: var(--iq-tone); }
+.iq-gauge text { fill: #211e1c; font-size: 25px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.iq-gauge b { font-size: 12px; font-weight: 500; }
+.iq-gauge small { color: #746b64; font-size: 11px; line-height: 1.4; }
+.closet-iq-legend span::before { background: #c18472; }
+.closet-iq-legend span + span::before { background: #869dba; }
+.iq-category-readout { margin: 0; min-height: 34px; font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.iq-column-chart { display: flex; gap: 8px; }
+.iq-column-axis { display: flex; flex-direction: column; justify-content: space-between; height: 150px; font-size: 9px; color: #746b64; }
+.iq-column-plot { display: flex; flex: 1; gap: 7px; overflow-x: auto; padding: 3px 3px 6px; border-bottom: 1px solid #e3d9d1; }
+.iq-column-group { flex: 1 0 60px; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: #746b64; font: inherit; cursor: pointer; }
+.iq-column-group > span:last-child { display: block; height: 32px; margin-top: 10px; font-size: 9px; line-height: 1.3; overflow-wrap: anywhere; }
+.iq-column-pair { display: flex; align-items: end; justify-content: center; gap: 4px; height: 150px; border-bottom: 1px solid #d5ccc4; }
+.iq-column-pair i { width: 14px; background: #c18472; border-radius: 3px 3px 0 0; transform-origin: bottom; }
+.iq-column-pair i + i { background: #869dba; }
+.iq-column-group[aria-pressed="true"] > span:last-child { color: #211e1c; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.iq-column-group:focus-visible { outline: 2px solid #746b64; outline-offset: 1px; }
+@media (prefers-reduced-motion: no-preference) {
+  .iq-column-pair i { animation: iq-column-enter 180ms ease-out; }
+  .iq-gauge svg { animation: iq-chart-enter 180ms ease-out; }
+  .iq-column-group:active { transform: translateY(2px); }
+}
+@keyframes iq-column-enter { from { transform: scaleY(.2); opacity: .3; } to { transform: scaleY(1); opacity: 1; } }
+@keyframes iq-chart-enter { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.closet-insights, .closet-iq-panel, .iq-column-chart, .iq-column-plot { min-width: 0; }
+
+.closet-season-trigger .icon, .closet-season-control .icon { width: 16px; height: 16px; flex-shrink: 0; }
