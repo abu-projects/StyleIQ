@@ -118,7 +118,7 @@ test('item edits and wear count persist and Try On carries the selected item', a
   await app(page).getByRole('tab',{name:'Details',exact:true}).click();
   await app(page).getByLabel('Name',{exact:true}).fill('Blue travel coat');
   await button(page,'Save item details').click();
-  await app(page).getByRole('tab',{name:'Purchase Info',exact:true}).click();
+  await expect(app(page).getByRole('tablist',{name:'Closet item detail sections'}).getByRole('tab')).toHaveCount(3);
   await app(page).getByLabel('Purchase price',{exact:true}).fill('120');
   await app(page).getByLabel('Purchase date',{exact:true}).fill('2026-08-20');
   await button(page,'Save purchase details').click();
