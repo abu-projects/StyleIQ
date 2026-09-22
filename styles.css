@@ -21753,17 +21753,21 @@ summary:focus-visible {
   font-size: 10px;
   line-height: 1.4;
 }
-.today-look-shelf > header > em {
-  display: grid;
-  place-items: center;
-  min-width: 28px;
-  height: 28px;
-  border: 1px solid rgba(76, 58, 47, .12);
-  border-radius: 50%;
-  color: #6f6056;
-  font-size: 9px;
-  font-style: normal;
-  font-weight: 750;
+.today-shelf-view-all {
+  flex: none;
+  min-height: 30px;
+  padding: 4px 0 4px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--siq-accent-strong, #6f6056);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.today-shelf-view-all:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 .today-shelf-rail {
   display: flex;

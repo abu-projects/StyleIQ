@@ -8546,7 +8546,7 @@ function swipeLooksMarkup({ id = "swipe-looks", selectedId = "", actionFor, targ
     <div class="compact-look-panel" role="tabpanel"><header><span><h3>${escapeMarkup(activeTab.label)}</h3><p>${escapeMarkup(activeTab.note)}</p></span><em>${activeTab.looks.length}</em></header><div class="today-shelf-rail compact-look-rail" role="list" aria-label="${escapeMarkup(activeTab.label)} Looks">${cards}<button class="today-look-end-card compact-look-end-card" role="listitem" onclick="${activeTab.action}"><span>${icon(activeTab.actionIcon)}</span><b>${escapeMarkup(activeTab.actionTitle)}</b><small>${escapeMarkup(activeTab.actionNote)}</small><i aria-hidden="true">→</i></button></div></div>
   </section>`;
 }
-function todayLookRailMarkup({ id, title, note, looks, selectedId, actionFor, endTitle, endNote, endIcon, endAction, discoveryStyle = false, sourceLabel = "" }) {
+function todayLookRailMarkup({ id, title, note, looks, selectedId, actionFor, viewAllAction, endTitle, endNote, endIcon, endAction, discoveryStyle = false, sourceLabel = "" }) {
   const cards = looks.map((look) => {
     const selected = look.id === selectedId;
     const action = typeof actionFor === "function" ? actionFor(look) : `applySwipeLook('${look.id}')`;
@@ -8555,7 +8555,7 @@ function todayLookRailMarkup({ id, title, note, looks, selectedId, actionFor, en
       : `<b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context || "Ready for today")}</small><em>${selected ? "Wearing today" : "Use this Look"} <span aria-hidden="true">→</span></em>`;
     return `<article class="today-shelf-card ${selected ? "selected" : ""}" role="listitem"><button class="today-shelf-card-hit" onclick="${action}" ${selected ? "disabled" : ""} aria-label="${selected ? "Current Look: " : "Use for Today: "}${escapeMarkup(look.title)}"><span class="today-shelf-card-media"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}">${selected ? '<i>Current</i>' : ""}</span><span class="today-shelf-card-copy">${cardCopy}</span></button></article>`;
   }).join("");
-  return `<section class="today-look-shelf${discoveryStyle ? " today-look-shelf--discovery" : ""}" aria-labelledby="${id}-title"><header><span><h3 id="${id}-title">${escapeMarkup(title)}</h3><p>${escapeMarkup(note)}</p></span><em>${looks.length}</em></header><div class="today-shelf-rail" role="list" aria-label="${escapeMarkup(title)}">${cards}<button class="today-look-end-card" role="listitem" onclick="${endAction}"><span>${endIcon}</span><b>${escapeMarkup(endTitle)}</b><small>${escapeMarkup(endNote)}</small><i aria-hidden="true">→</i></button></div></section>`;
+  return `<section class="today-look-shelf${discoveryStyle ? " today-look-shelf--discovery" : ""}" aria-labelledby="${id}-title"><header><span><h3 id="${id}-title">${escapeMarkup(title)}</h3><p>${escapeMarkup(note)}</p></span><button class="today-shelf-view-all" onclick="${viewAllAction}" aria-label="View all ${escapeMarkup(title)}">View All</button></header><div class="today-shelf-rail" role="list" aria-label="${escapeMarkup(title)}">${cards}<button class="today-look-end-card" role="listitem" onclick="${endAction}"><span>${endIcon}</span><b>${escapeMarkup(endTitle)}</b><small>${escapeMarkup(endNote)}</small><i aria-hidden="true">→</i></button></div></section>`;
 }
 function todaySwipeLooksMarkup({ id = "today-look-library", selectedId = "", actionFor } = {}) {
   const target = { type: "today", index: null };
@@ -8579,11 +8579,11 @@ function todaySwipeLooksMarkup({ id = "today-look-library", selectedId = "", act
     })))
     .slice(0, 3);
   return `<div class="today-look-library" aria-label="More Looks for Today">
-    ${todayLookRailMarkup({ id: `${id}-muse`, title: "Muse Picks", note: "Fresh options shaped around today.", looks: museLooks, selectedId, actionFor, endTitle: "Create New", endNote: "Ask Muse for a new direction", endIcon: icon("spark"), endAction: "openSwipeMuseCreator('today',null)", discoveryStyle: true, sourceLabel: "Muse · Picked for you" })}
-    ${todayLookRailMarkup({ id: `${id}-discover`, title: "Discover", note: "New Looks from stylists, picked for your style.", looks: discoveryLooks, selectedId, actionFor: (look) => `openCreatorLook('${look.id}')`, endTitle: "See All", endNote: "Explore more Looks, stylists and new finds", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
-    ${todayLookRailMarkup({ id: `${id}-studio`, title: "Style Studio", note: "Looks you built, ready to wear again.", looks: studioLooks, selectedId, actionFor, endTitle: "Create New", endNote: "Build a Look piece by piece", endIcon: icon("shirt"), endAction: "openSwipeStyleStudio('today',null)", discoveryStyle: true, sourceLabel: "Your Style Studio" })}
-    ${todayLookRailMarkup({ id: `${id}-ready`, title: "Ready Looks", note: "Looks prepared from inspiration and ready to wear.", looks: readyLooks, selectedId, actionFor, endTitle: "Discover", endNote: "Find a new source of inspiration", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
-    ${todayLookRailMarkup({ id: `${id}-saved`, title: "Saved Looks", note: "Looks you saved to come back to.", looks: savedLooks, selectedId, actionFor, endTitle: "View All", endNote: "Open your full Looks collection", endIcon: icon("bookmark"), endAction: "go('G-01')", discoveryStyle: true, sourceLabel: "Saved Look" })}
+    ${todayLookRailMarkup({ id: `${id}-muse`, title: "Muse Picks", note: "Fresh options shaped around today.", looks: museLooks, selectedId, actionFor, viewAllAction: "openSwipeLookPanel('today',null)", endTitle: "Create New", endNote: "Ask Muse for a new direction", endIcon: icon("spark"), endAction: "openSwipeMuseCreator('today',null)", discoveryStyle: true, sourceLabel: "Muse · Picked for you" })}
+    ${todayLookRailMarkup({ id: `${id}-discover`, title: "Discover", note: "New Looks from stylists, picked for your style.", looks: discoveryLooks, selectedId, actionFor: (look) => `openCreatorLook('${look.id}')`, viewAllAction: "go('K-01')", endTitle: "See All", endNote: "Explore more Looks, stylists and new finds", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
+    ${todayLookRailMarkup({ id: `${id}-studio`, title: "Style Studio", note: "Looks you built, ready to wear again.", looks: studioLooks, selectedId, actionFor, viewAllAction: "go('F-01')", endTitle: "Create New", endNote: "Build a Look piece by piece", endIcon: icon("shirt"), endAction: "openSwipeStyleStudio('today',null)", discoveryStyle: true, sourceLabel: "Your Style Studio" })}
+    ${todayLookRailMarkup({ id: `${id}-ready`, title: "Ready Looks", note: "Looks prepared from inspiration and ready to wear.", looks: readyLooks, selectedId, actionFor, viewAllAction: "openSwipeLookPanel('today',null,'discover')", endTitle: "Discover", endNote: "Find a new source of inspiration", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
+    ${todayLookRailMarkup({ id: `${id}-saved`, title: "Saved Looks", note: "Looks you saved to come back to.", looks: savedLooks, selectedId, actionFor, viewAllAction: "go('G-01')", endTitle: "View All", endNote: "Open your full Looks collection", endIcon: icon("bookmark"), endAction: "go('G-01')", discoveryStyle: true, sourceLabel: "Saved Look" })}
   </div>`;
 }
 function swipeLookSelectedId(target = swipeLookTarget) {
@@ -8592,9 +8592,9 @@ function swipeLookSelectedId(target = swipeLookTarget) {
   if (target.type === "trip" && Number.isInteger(target.index)) return tripState.looks?.[target.index]?.lookId || "";
   return selectedTodayLook;
 }
-function openSwipeLookPanel(type = "today", index = null) {
+function openSwipeLookPanel(type = "today", index = null, tab = "muse") {
   swipeLookTarget = { type, index };
-  swipeLookTab = "muse";
+  swipeLookTab = ["muse", "studio", "saved", "discover"].includes(tab) ? tab : "muse";
   swipeLookCreateMode = null;
   swipeMuseDraftId = null;
   swipeMuseDraftTargetKey = null;
