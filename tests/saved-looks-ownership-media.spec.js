@@ -40,15 +40,15 @@ test('My Look accepts real photo and video and keeps media controls separate', a
   await expect(app(page).getByRole('alertdialog', { name: 'Remove media?' })).toBeVisible();
 });
 
-test('Muse video generated in Studio is the same Look media in details', async ({ page }) => {
+test('Livia video generated in Studio is the same Look media in details', async ({ page }) => {
   await page.goto('/index.html?customer=existing#F-01');
-  await app(page).getByRole('button', { name: 'Generate Video with Muse' }).click();
-  await expect(app(page).getByRole('region', { name: 'Muse video' }).getByRole('status')).toContainText('Muse is creating');
-  await expect(app(page).getByLabel('Muse generated Look video')).toBeVisible({ timeout: 3000 });
+  await app(page).getByRole('button', { name: 'Generate Video with Livia' }).click();
+  await expect(app(page).getByRole('region', { name: 'Livia video' }).getByRole('status')).toContainText('Livia is creating');
+  await expect(app(page).getByLabel('Livia generated Look video')).toBeVisible({ timeout: 3000 });
   await app(page).getByRole('button', { name: 'Save' }).click();
   const dialog = app(page).getByRole('dialog');
   if (await dialog.count()) await dialog.getByRole('button', { name: /Save/i }).last().click();
   await page.goto('/index.html?customer=existing#G-01');
   await app(page).getByRole('button', { name: /Design Review/ }).click();
-  await expect(app(page).getByRole('button', { name: 'Regenerate Muse Video' })).toBeVisible();
+  await expect(app(page).getByRole('button', { name: 'Regenerate Livia Video' })).toBeVisible();
 });

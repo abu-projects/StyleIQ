@@ -12,7 +12,7 @@ test.describe("Today conditional states", () => {
   test("loading and missing-category states have real exits", async ({ page }) => {
     await page.evaluate(() => localStorage.setItem("styleiqTodayModeV1", "loading"));
     await page.reload();
-    await expect(page.locator("#app").getByRole("heading", { name: "Muse is checking the details." })).toBeVisible();
+    await expect(page.locator("#app").getByRole("heading", { name: "Livia is checking the details." })).toBeVisible();
     await page.locator("#app").getByRole("button", { name: "Show my Look" }).click();
     await page.evaluate(() => localStorage.setItem("styleiqTodayModeV1", "missing-category"));
     await page.reload();

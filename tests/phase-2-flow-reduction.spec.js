@@ -66,7 +66,7 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     await app(page).getByRole('button', { name: 'Sign in' }).first().click();
     expect(await getCanonical(page)).toBe('D-02');
     await expect(app(page).getByRole('heading', { name: 'Good morning, Amelia' })).toBeVisible();
-    await expect(app(page).getByText('Muse Starter Look')).toHaveCount(0);
+    await expect(app(page).getByText('Livia Starter Look')).toHaveCount(0);
     expect(new URL(page.url()).searchParams.get('customer')).toBe('existing');
   });
 
@@ -296,7 +296,7 @@ test.describe('StyleIQ Phase 2 Flow Reduction Architecture', () => {
     await expect(app(page).getByRole('heading', { name: 'Settings' }).first()).toBeVisible();
   });
 
-  test('Flow 21: Ask Muse contextual overlay in 1 step from any surface', async ({ page }) => {
+  test('Flow 21: Ask Livia contextual overlay in 1 step from any surface', async ({ page }) => {
     await page.goto('/index.html#D-02');
     await page.evaluate(() => window.openLightweightPanel('tripMuse'));
     await expect(app(page).locator('.lightweight-sheet')).toBeVisible();

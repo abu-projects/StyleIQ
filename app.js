@@ -12,7 +12,7 @@ const sections = {
   J: "Trips",
   K: "Inspiration & community",
   L: "Profile & settings",
-  M: "Muse stylist",
+  M: "Livia stylist",
 };
 const screens = [
   {
@@ -263,8 +263,8 @@ const screens = [
   {
     "id": "M-01",
     "section": "M",
-    "title": "Ask Muse",
-    "detail": "The single canonical Muse stylist destination: answers and wardrobe gaps inline.",
+    "title": "Ask Livia",
+    "detail": "The single canonical Livia stylist destination: answers and wardrobe gaps inline.",
     "phase": 3
   }
 ];
@@ -283,7 +283,7 @@ const compatibilityScreens = {
     id: "E-07",
     section: "E",
     title: "Make This Look Mine",
-    detail: "Muse compares an inspiration Look with the Closet and builds an honest owned adaptation.",
+    detail: "Livia compares an inspiration Look with the Closet and builds an honest owned adaptation.",
     phase: 2,
   },
 };
@@ -501,6 +501,8 @@ const legacyCreationSources = {
   "Created by Me": "user",
   "With Muse": "muse_assisted",
   "Muse Generated": "muse_generated",
+  "With Livia": "muse_assisted",
+  "Livia Generated": "muse_generated",
   "Recreated from Inspiration": "inspiration_recreated",
 };
 canvasState.creationSource =
@@ -1489,7 +1491,7 @@ function wishlistDetail() {
   return shell("Before You Buy", `<div class="wishlist-detail-media"><img src="${item.image}" alt="${escapeMarkup(item.name)}">${wishlistHeart(item)}</div><div class="wishlist-detail-heading"><p class="eyebrow">${escapeMarkup(item.brand)} · ${escapeMarkup(item.retailer || "Retailer not provided")}</p><h2 class="title">${escapeMarkup(item.name)}</h2><div class="wishlist-price"><b>${wishlistMoney(item.price)}</b>${item.previousPrice > item.price && Number.isFinite(item.price) ? `<del>${wishlistMoney(item.previousPrice)}</del><span class="small">Down ${wishlistMoney(item.previousPrice - item.price)}</span>` : ""}</div><div class="wishlist-detail-meta"><span class="pill">${status}</span><span>${escapeMarkup(item.collection)} · ${escapeMarkup(item.availability)}</span></div><p class="small">${saved ? `Saved ${wishlistDisplayDate(item.dateSaved)}` : "Not yet saved to Wishlist"}</p></div>${similarityCard}
     ${unavailable && !purchased ? '<div class="card"><b>Currently unavailable</b><p class="body">Keep the piece for a later review. Purchase and budget actions will return when it is available.</p></div>' : purchased ? `<div class="card"><b>Purchased ${wishlistDisplayDate(item.purchaseDate)}</b><p class="body">${item.closetId ? "This product is now part of your Closet." : "Your purchase is recorded. Review its details when you’re ready to add it to Closet."}</p><button class="btn primary wide" onclick="${item.closetId ? `openClosetItem('${item.closetId}')` : `prepareWishlistPurchase('${item.id}')`}">${item.closetId ? "View Closet Item" : "Prepare for Closet"}</button></div>` : `<div class="wishlist-retailer">${wishlistRetailerLink(item)}<button class="text-action" onclick="openWishlistDialog('context','${item.id}')">${saved ? "Edit saved context" : "Save for Later"}</button>${discoverClosetAction}</div>`}
     <section class="wishlist-evaluation"><h3 class="title">Does it earn its place?</h3><div class="wishlist-evaluation-row"><span>${icon("shirt")}</span><div><b>Closet compatibility${item.compatibility != null ? ` · ${item.compatibility}%` : ""}</b><p class="body">${item.outfitCount ? `Works with ${item.outfitCount} possible outfits from your Closet.` : "Explore a combination with your current Closet."}</p><button class="text-action" onclick="openWishlistDialog('outfits','${item.id}')">Explore Outfit Ideas</button></div></div><div class="wishlist-evaluation-row"><span>${icon("spark")}</span><div><b>Style alignment</b><p class="body">${escapeMarkup(item.style || "Review the color and silhouette against the pieces you wear most.")}</p></div></div><div class="wishlist-evaluation-row"><span>${icon("copy")}</span><div><b>Duplicate risk · ${escapeMarkup(item.duplicateRisk || "Not assessed")}</b><p class="body">${similar ? `Compare with your ${escapeMarkup(similar.name)}.` : "No similar Closet reference is available for this product."}</p>${similar ? `<button class="text-action" onclick="openWishlistDialog('compare','${item.id}')">Compare Similar</button>` : ""}</div></div><div class="wishlist-evaluation-row"><span>${icon("check")}</span><div><b>${escapeMarkup(item.gapValue || "Unassessed")} Gap Value${item.gap ? ` · ${escapeMarkup(item.gap)}` : ""}</b><p class="body">${item.gapValue === "High" ? "Adds a useful role to the pieces you already own." : "Consider whether your owned pieces already meet this need."}</p></div></div></section>
-    <section class="card wishlist-muse"><p class="eyebrow">Muse’s perspective</p><p class="body">${escapeMarkup(item.recommendation || "Try an outfit with owned pieces first. Check for a similar item before deciding to buy.")}</p>${item.note ? `<p class="small">Your reason: “${escapeMarkup(item.note)}”</p>` : ""}</section>
+    <section class="card wishlist-muse"><p class="eyebrow">Livia’s perspective</p><p class="body">${escapeMarkup(item.recommendation || "Try an outfit with owned pieces first. Check for a similar item before deciding to buy.")}</p>${item.note ? `<p class="small">Your reason: “${escapeMarkup(item.note)}”</p>` : ""}</section>
     ${!unavailable && !purchased ? `<details class="card progressive-card wishlist-budget"><summary><b>Budget context</b><span class="small">Optional</span></summary><p class="body">This ${wishlistMoney(item.price)} item is ${item.price <= shoppingBudget.perItem ? "within" : "above"} your ${wishlistMoney(shoppingBudget.perItem)} per-item guide. StyleIQ does not hold money, reserve funds, or make purchases.</p><button class="text-action" onclick="openShoppingBudget()">Edit shopping budget</button></details>` : ""}
     <section class="card wishlist-context"><div class="between"><h3 class="title">Saved context</h3><button class="text-action" onclick="openWishlistDialog('context','${item.id}')">${saved ? "Edit" : "Save for Later"}</button></div><dl><dt>Note</dt><dd>${escapeMarkup(item.note || "What makes this piece worth considering?")}</dd><dt>Review reminder</dt><dd>${wishlistDisplayDate(item.reminder)}</dd><dt>Collection</dt><dd>${escapeMarkup(item.collection)}</dd></dl>${saved ? `<button class="text-action" onclick="openWishlistDialog('context','${item.id}')">Move Collection</button>` : ""}</section>
     ${saved ? `<div class="wishlist-detail-actions">${!purchased ? `<div class="row"><button class="btn grow" onclick="setWishlistStatus('${item.id}','Review Later')">Review Later</button>${!unavailable ? `<button class="btn grow" onclick="setWishlistStatus('${item.id}','${item.status === "Ready to Buy" ? "Saved" : "Ready to Buy"}')">${item.status === "Ready to Buy" ? "Keep Saved" : "Ready to Buy"}</button>` : ""}</div>${!unavailable ? `<button class="btn primary wide" onclick="openWishlistDialog('purchase','${item.id}')">Mark as Purchased</button>` : ""}` : ""}<button class="danger-action" onclick="openWishlistDialog('remove','${item.id}')">Remove from Wishlist</button></div>` : ""}`, { surfaceClass: "wishlist-screen" });
@@ -2476,7 +2478,7 @@ function museReplyFor(question) {
     };
   }
   return {
-    label: "Muse suggestion",
+    label: "Livia suggestion",
     text: "I’d start with a relaxed tailored Look from your Closet, then adjust one element once you tell me how polished or comfortable you want it to feel.",
     note: "A flexible starting point from your style profile",
     looks: [
@@ -2719,26 +2721,26 @@ function head(title) {
     return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><span class="brand-lockup micro"><span class="brand-lockup-name">StyleIQ</span></span></div><span class="head-action-placeholder" style="width:40px" aria-hidden="true"></span></header>`;
   }
   if (!root || currentId === "K-01")
-    return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><h1>${title}</h1></div><button class="head-muse" aria-label="Ask Muse about this screen" onclick="openMuse()">${icon("spark")}</button></header>`;
+    return `<header class="screen-head"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button><div class="screen-head-title"><h1>${title}</h1></div><button class="head-muse" aria-label="Ask Livia about this screen" onclick="openMuse()">${icon("spark")}</button></header>`;
   const todayUsesMediaHeader = currentId === "D-02" && (closetItemCount() === 0 || !isExistingCustomer() || todayMode === "normal");
   const primaryTabs = {
     "D-02": {
       title: "Today",
       media: todayUsesMediaHeader,
       mastheadImage: assets.look,
-      museLabel: "Ask Muse about Today",
+      museLabel: "Ask Livia about Today",
       action: `<button class="root-profile-control app-tab-context-action" aria-label="Open profile" onclick="go('L-01')"><img src="${assets.profile}" alt="${escapeMarkup(profileFullName())}"><span class="notification-dot" aria-hidden="true"></span></button>`,
     },
     "C-01": {
       title: "Closet",
       mastheadImage: "images/splash-curated-wardrobe.jpg",
-      museLabel: "Ask Muse about Closet",
+      museLabel: "Ask Livia about Closet",
       action: `<button class="root-action app-tab-context-action" onclick="setClosetTab('wishlist')" aria-label="Open Wishlist">${icon("heart")}</button><button class="root-action app-tab-context-action" onclick="go('B-01')" aria-label="Add an item">${icon("plus")}</button>`,
     },
     "I-01": {
       title: "Planner",
       media: true,
-      museLabel: "Ask Muse about Planner",
+      museLabel: "Ask Livia about Planner",
       action: `<button class="root-action app-tab-context-action" onclick="beginPlannerAdd('${plannerSelectedDate || new Date().toISOString().slice(0,10)}')" aria-label="Add Event">${icon("plus")}</button>`,
     },
   };
@@ -2748,13 +2750,13 @@ function head(title) {
     const mediaCap = mode === "surface" && primaryTab.mastheadImage
       ? `<div class="app-tab-media-cap" aria-hidden="true" style="background-image:url('${primaryTab.mastheadImage}')"></div>`
       : "";
-    return `${mediaCap}<header class="screen-head root-head app-tab-head app-tab-head--${mode}"><div class="root-title-block"><h1>${primaryTab.title}</h1></div><div class="root-actions"><button class="root-action root-muse-action" aria-label="${primaryTab.museLabel}" onclick="openMuse()">${icon("spark")}<span>Muse</span></button>${primaryTab.action}</div></header>`;
+    return `${mediaCap}<header class="screen-head root-head app-tab-head app-tab-head--${mode}"><div class="root-title-block"><h1>${primaryTab.title}</h1></div><div class="root-actions"><button class="root-action root-muse-action" aria-label="${primaryTab.museLabel}" onclick="openMuse()">${icon("spark")}<span>Livia</span></button>${primaryTab.action}</div></header>`;
   }
   const configs = {
     "L-01": {
       label: "Personal profile",
       title: "My Atelier",
-      actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Muse about profile">${icon("spark")}</button><button class="root-action" onclick="go('L-11')" aria-label="Open settings">${icon("settings-2")}</button>`,
+      actions: `<button class="root-action" onclick="openMuse()" aria-label="Ask Livia about profile">${icon("spark")}</button><button class="root-action" onclick="go('L-11')" aria-label="Open settings">${icon("settings-2")}</button>`,
     },
   };
   const c = configs[currentId];
@@ -3052,7 +3054,7 @@ function plannerEventDetailMarkup(plan, look) {
   const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === activeIndex ? "active" : ""}" aria-pressed="${index === activeIndex}" aria-label="${escapeMarkup(item.label || `media ${index + 1}`)}" onclick="setPlannerDetailMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${escapeMarkup(item.label || `Media ${index + 1}`)}</small></button>`).join("")}</div>` : "";
   const piecesRail = look ? lookPiecesRailMarkup({ key: "planner-look-detail", pieces: look.pieces, source: "Closet", defaultOpen: true }) : "";
   const wearAction = look?.id ? `<button class="btn primary wide" onclick="openPlannerWearFlow('${escapeMarkup(look.id)}')">${wearRecordFor(look.id) ? '✓ Worn · Review' : 'Did you wear this look?'}</button>` : "";
-  return `<div class="lightweight-layer planner-detail-layer"><button class="lightweight-scrim" aria-label="Dismiss ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet planner-visual-detail" role="dialog" aria-modal="true" aria-labelledby="planner-detail-title"><div class="planner-detail-media-stage">${mediaSurface}<div class="planner-detail-shade"></div>${active?.type === "video" ? '<span class="planner-detail-motion">Motion</span>' : ""}<button class="planner-detail-close" aria-label="Close ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()">×</button><button class="planner-detail-share" aria-label="Share ${escapeMarkup(eventTitle)}" onclick="openLightweightPanel('sharePlan')">${icon("share-2")}</button><span class="planner-detail-position">${media.length ? `${activeIndex + 1} / ${media.length}` : "No media"}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>${lookTitle ? "Your Look" : "Plan"}</p><h2 id="planner-detail-title">${escapeMarkup(lookTitle || eventTitle)}</h2><span>${escapeMarkup(plan?.context || plan?.occasion || "Event")} · ${escapeMarkup(plan?.location || "Location not set")}</span></div></div>${mediaRail}<div class="planner-detail-content"><header><p class="eyebrow">${escapeMarkup(when)}</p><h3>${escapeMarkup(eventTitle)}</h3></header><dl class="planner-detail-list"><div><dt>Dress for</dt><dd>${escapeMarkup(plan?.context || plan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(plan?.weather || "Forecast added closer to the day")}</dd></div></dl><button class="planner-looks-swiper-cta" onclick="${changeAction}" aria-label="Open Looks Swiper for ${escapeMarkup(eventTitle)}"><span><small>Explore another direction</small><b>Looks Swiper</b><em>Muse · Style Studio · Saved · Discover</em></span><i aria-hidden="true">→</i></button><div class="planner-detail-actions planner-detail-primary-actions">${wearAction}<div class="planner-detail-secondary-actions">${lookTitle ? '<button class="btn" onclick="openPlannerFullLookDetails()">Full Look details</button>' : ""}<button class="btn" onclick="${editAction}">Edit plan</button></div></div><button class="danger-action planner-detail-remove" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove plan</button></div></section></div>`;
+  return `<div class="lightweight-layer planner-detail-layer"><button class="lightweight-scrim" aria-label="Dismiss ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()"></button><section class="lightweight-sheet planner-visual-detail" role="dialog" aria-modal="true" aria-labelledby="planner-detail-title"><div class="planner-detail-media-stage">${mediaSurface}<div class="planner-detail-shade"></div>${active?.type === "video" ? '<span class="planner-detail-motion">Motion</span>' : ""}<button class="planner-detail-close" aria-label="Close ${escapeMarkup(eventTitle)}" onclick="closeLightweightPanel()">×</button><button class="planner-detail-share" aria-label="Share ${escapeMarkup(eventTitle)}" onclick="openLightweightPanel('sharePlan')">${icon("share-2")}</button><span class="planner-detail-position">${media.length ? `${activeIndex + 1} / ${media.length}` : "No media"}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>${lookTitle ? "Your Look" : "Plan"}</p><h2 id="planner-detail-title">${escapeMarkup(lookTitle || eventTitle)}</h2><span>${escapeMarkup(plan?.context || plan?.occasion || "Event")} · ${escapeMarkup(plan?.location || "Location not set")}</span></div></div>${mediaRail}<div class="planner-detail-content"><header><p class="eyebrow">${escapeMarkup(when)}</p><h3>${escapeMarkup(eventTitle)}</h3></header><dl class="planner-detail-list"><div><dt>Dress for</dt><dd>${escapeMarkup(plan?.context || plan?.occasion || "Event")}</dd></div><div><dt>Weather</dt><dd>${escapeMarkup(plan?.weather || "Forecast added closer to the day")}</dd></div></dl><button class="planner-looks-swiper-cta" onclick="${changeAction}" aria-label="Open Looks Swiper for ${escapeMarkup(eventTitle)}"><span><small>Explore another direction</small><b>Looks Swiper</b><em>Livia · Style Studio · Saved · Discover</em></span><i aria-hidden="true">→</i></button><div class="planner-detail-actions planner-detail-primary-actions">${wearAction}<div class="planner-detail-secondary-actions">${lookTitle ? '<button class="btn" onclick="openPlannerFullLookDetails()">Full Look details</button>' : ""}<button class="btn" onclick="${editAction}">Edit plan</button></div></div><button class="danger-action planner-detail-remove" onclick="lightweightPanel='plannerRemoveConfirm';render()">Remove plan</button></div></section></div>`;
 }
 function approveLightweightPanel(kind) {
   if (kind === "plannerRemoveConfirm") { confirmPlannerEntryRemoval(); return; }
@@ -3142,10 +3144,10 @@ function approveLightweightPanel(kind) {
     shareCalendar: "Private Planner link ready",
     visibility: "Visibility kept private",
     lookManage: "Look settings updated",
-    plan: "Muse is planning from this day",
-    tripLook: "Muse is styling from the packing list",
+    plan: "Livia is planning from this day",
+    tripLook: "Livia is styling from the packing list",
     instantDetails: "Look details updated",
-    wardrobeGap: "Wardrobe insight kept with Muse",
+    wardrobeGap: "Wardrobe insight kept with Livia",
   };
   toast(messages[kind] || "Done");
 }
@@ -3169,7 +3171,7 @@ function lightweightPanelMarkup() {
     save: {
       eyebrow: "Save without leaving",
       title: "Save this Look",
-      body: `<div class="lightweight-preview">${todaySaveLook ? `<span class="today-save-preview tryon-frame-preview ${todaySaveLook.reference ? "reference" : ""} ${todaySaveLook.remote ? "remote-photo" : ""}" role="img" aria-label="${escapeMarkup(todaySaveLook.title)}" style="background-image:url('${todaySaveLook.sheet}');background-position:0 ${todaySaveLook.row * 100}%"></span>` : `<img src="${assets.look3}" alt="Look being saved">`}<span><b>${todaySaveLook ? escapeMarkup(todaySaveLook.title) : "Today’s office Look"}</b><small>Private by default · You can edit the title later.</small></span></div>${approvalCard("Ready to save", "Muse is confident about the outfit pieces and context. One tap is enough.")}`,
+      body: `<div class="lightweight-preview">${todaySaveLook ? `<span class="today-save-preview tryon-frame-preview ${todaySaveLook.reference ? "reference" : ""} ${todaySaveLook.remote ? "remote-photo" : ""}" role="img" aria-label="${escapeMarkup(todaySaveLook.title)}" style="background-image:url('${todaySaveLook.sheet}');background-position:0 ${todaySaveLook.row * 100}%"></span>` : `<img src="${assets.look3}" alt="Look being saved">`}<span><b>${todaySaveLook ? escapeMarkup(todaySaveLook.title) : "Today’s office Look"}</b><small>Private by default · You can edit the title later.</small></span></div>${approvalCard("Ready to save", "Livia is confident about the outfit pieces and context. One tap is enough.")}`,
       action: "Save Look",
     },
     image: {
@@ -3185,7 +3187,7 @@ function lightweightPanelMarkup() {
       body:
         photoLearningStage === "picker"
           ? `<p class="body">Prototype preview: these personal outfit photos are analyzed together for repeated pieces, combinations, silhouettes, and colors.</p><div class="learning-photo-row"><img src="${assets.look}" alt="Historical work outfit"><img src="${assets.look2}" alt="Historical dinner outfit"><img src="${assets.look4}" alt="Historical weekend outfit"></div><p class="small" style="margin-top:10px">3 photos selected · private Style Intelligence input</p>`
-          : `${approvalCard("4 patterns inferred", "Review or remove any signal before Muse uses it. These are style insights—not confirmed Closet items.")}<div class="chips" role="group" aria-label="Inferred photo signals" style="margin-top:14px">${["Warm neutrals", "Relaxed tailoring", "Structured layer + soft top", "Oxblood accents"].map((signal) => `<button class="chip active" data-learning-signal="${signal}" aria-pressed="true" onclick="this.classList.toggle('active');this.setAttribute('aria-pressed',String(this.getAttribute('aria-pressed')!=='true'))">${signal}</button>`).join("")}</div><details class="card progressive-card" style="margin-top:12px"><summary><b>What repeated</b><span class="small">Editable inference</span></summary><p class="body" style="margin-top:10px">A structured outer layer over a soft neutral top appeared in 2 of 3 photos. Oxblood accessories repeated twice.</p></details>`,
+          : `${approvalCard("4 patterns inferred", "Review or remove any signal before Livia uses it. These are style insights—not confirmed Closet items.")}<div class="chips" role="group" aria-label="Inferred photo signals" style="margin-top:14px">${["Warm neutrals", "Relaxed tailoring", "Structured layer + soft top", "Oxblood accents"].map((signal) => `<button class="chip active" data-learning-signal="${signal}" aria-pressed="true" onclick="this.classList.toggle('active');this.setAttribute('aria-pressed',String(this.getAttribute('aria-pressed')!=='true'))">${signal}</button>`).join("")}</div><details class="card progressive-card" style="margin-top:12px"><summary><b>What repeated</b><span class="small">Editable inference</span></summary><p class="body" style="margin-top:10px">A structured outer layer over a soft neutral top appeared in 2 of 3 photos. Oxblood accessories repeated twice.</p></details>`,
       action:
         photoLearningStage === "picker"
           ? "Learn from 3 photos"
@@ -3198,9 +3200,9 @@ function lightweightPanelMarkup() {
       action: "Save references",
     },
     feedback: {
-      eyebrow: "Help Muse learn",
+      eyebrow: "Help Livia learn",
       title: "What missed?",
-      body: `<p class="body">Choose one concise reason. You’ll stay on this Look.</p><div class="feedback-reasons" role="group" aria-label="Feedback reasons" style="margin-top:14px">${["Too Formal", "Too Casual", "Wrong Color", "Don’t Like This Item", "Not My Style", "Other"].map((reason) => `<button class="chip ${feedbackReason === reason ? "active" : ""}" aria-pressed="${feedbackReason === reason}" onclick="chooseFeedbackReason(&quot;${reason}&quot;)">${reason}</button>`).join("")}</div>${feedbackReason === "Other" ? `<div class="field" style="margin-top:14px"><label for="feedback-other">Tell Muse more <span class="helper">Optional</span></label><input id="feedback-other" class="input" placeholder="The jacket feels too structured"></div>` : ""}`,
+      body: `<p class="body">Choose one concise reason. You’ll stay on this Look.</p><div class="feedback-reasons" role="group" aria-label="Feedback reasons" style="margin-top:14px">${["Too Formal", "Too Casual", "Wrong Color", "Don’t Like This Item", "Not My Style", "Other"].map((reason) => `<button class="chip ${feedbackReason === reason ? "active" : ""}" aria-pressed="${feedbackReason === reason}" onclick="chooseFeedbackReason(&quot;${reason}&quot;)">${reason}</button>`).join("")}</div>${feedbackReason === "Other" ? `<div class="field" style="margin-top:14px"><label for="feedback-other">Tell Livia more <span class="helper">Optional</span></label><input id="feedback-other" class="input" placeholder="The jacket feels too structured"></div>` : ""}`,
       action: "Save feedback",
     },
     share: {
@@ -3230,14 +3232,14 @@ function lightweightPanelMarkup() {
     plan: {
       eyebrow: "Wednesday · 16°C",
       title: "Plan this day",
-      body: `<div class="field"><label for="planner-intent">Describe the day</label><textarea id="planner-intent" class="textarea" placeholder="Client dinner after work; polished but comfortable."></textarea><span class="helper">Prototype preview: Muse structures this sentence into occasion, time, and dress code.</span></div><div class="chips" role="group" aria-label="Occasion" style="margin-top:12px">${["Work", "Dinner", "Weekend", "Travel"].map((x, i) => `<button class="chip ${i === 0 ? "active" : ""}" aria-pressed="${i === 0}" onclick="selectChip(this)">${x}</button>`).join("")}</div><div class="choice-list" style="margin-top:12px"><button class="choice" onclick="closeLightweightPanel();go('G-01')"><span><b>Choose a saved Look</b><small class="body" style="display:block">Use something you already saved.</small></span>›</button><button class="choice" onclick="closeLightweightPanel();go('C-01')"><span><b>Start from my Closet</b><small class="body" style="display:block">Build around a piece you own.</small></span>›</button></div>`,
+      body: `<div class="field"><label for="planner-intent">Describe the day</label><textarea id="planner-intent" class="textarea" placeholder="Client dinner after work; polished but comfortable."></textarea><span class="helper">Prototype preview: Livia structures this sentence into occasion, time, and dress code.</span></div><div class="chips" role="group" aria-label="Occasion" style="margin-top:12px">${["Work", "Dinner", "Weekend", "Travel"].map((x, i) => `<button class="chip ${i === 0 ? "active" : ""}" aria-pressed="${i === 0}" onclick="selectChip(this)">${x}</button>`).join("")}</div><div class="choice-list" style="margin-top:12px"><button class="choice" onclick="closeLightweightPanel();go('G-01')"><span><b>Choose a saved Look</b><small class="body" style="display:block">Use something you already saved.</small></span>›</button><button class="choice" onclick="closeLightweightPanel();go('C-01')"><span><b>Start from my Closet</b><small class="body" style="display:block">Build around a piece you own.</small></span>›</button></div>`,
       action: "Plan from my note",
     },
     tripLook: {
       eyebrow: "Alexandria packing list",
       title: "Add a Trip Look",
       body: `<div class="choice-list"><button class="choice" onclick="closeLightweightPanel();go('G-01')"><span><b>Use a saved Look</b><small class="body" style="display:block">Keep it within the trip context.</small></span>›</button><button class="choice" onclick="closeLightweightPanel();go('F-01')"><span><b>Build from packed pieces</b><small class="body" style="display:block">Open Style Studio with trip pieces.</small></span>›</button></div>`,
-      action: "Ask Muse for a Look",
+      action: "Ask Livia for a Look",
     },
     changeLook: {
       eyebrow: swipeLookTarget.type === "trip" ? "Daily trip edit" : swipeLookTarget.type.startsWith("planner") ? "Planner alternatives" : "Alternatives for today",
@@ -3294,11 +3296,11 @@ function lightweightPanelMarkup() {
     tripAddLook: {
       eyebrow: "Trip looks",
       title: "Add a Look to Trip",
-      body: `<div class="choice-list"><button class="choice" onclick="closeLightweightPanel();tripHubTab='looks';toast('Suggested look added');render()"><span class="row"><span class="icon-wrap">${icon("sparkles")}</span><span><b>Suggested Look</b><small class="body" style="display:block">Muse recommendation from packed items</small></span></span>›</button><button class="choice" onclick="closeLightweightPanel();go('G-01')"><span class="row"><span class="icon-wrap">${icon("heart")}</span><span><b>Saved Look</b><small class="body" style="display:block">Choose from My Looks</small></span></span>›</button><button class="choice" onclick="closeLightweightPanel();openLightweightPanel('tripMuse')"><span class="row"><span class="icon-wrap">${icon("spark")}</span><span><b>Ask Muse</b><small class="body" style="display:block">Generate for a specific outing</small></span></span>›</button><button class="choice" onclick="closeLightweightPanel();go('F-01')"><span class="row"><span class="icon-wrap">${icon("shirt")}</span><span><b>Open Style Studio</b><small class="body" style="display:block">Build with trip pieces</small></span></span>›</button></div>`,
+      body: `<div class="choice-list"><button class="choice" onclick="closeLightweightPanel();tripHubTab='looks';toast('Suggested look added');render()"><span class="row"><span class="icon-wrap">${icon("sparkles")}</span><span><b>Suggested Look</b><small class="body" style="display:block">Livia recommendation from packed items</small></span></span>›</button><button class="choice" onclick="closeLightweightPanel();go('G-01')"><span class="row"><span class="icon-wrap">${icon("heart")}</span><span><b>Saved Look</b><small class="body" style="display:block">Choose from My Looks</small></span></span>›</button><button class="choice" onclick="closeLightweightPanel();openLightweightPanel('tripMuse')"><span class="row"><span class="icon-wrap">${icon("spark")}</span><span><b>Ask Livia</b><small class="body" style="display:block">Generate for a specific outing</small></span></span>›</button><button class="choice" onclick="closeLightweightPanel();go('F-01')"><span class="row"><span class="icon-wrap">${icon("shirt")}</span><span><b>Open Style Studio</b><small class="body" style="display:block">Build with trip pieces</small></span></span>›</button></div>`,
       action: "Cancel",
     },
     tripMuse: {
-      eyebrow: "Ask Muse for this Trip",
+      eyebrow: "Ask Livia for this Trip",
       title: "Trip outfit recommendation",
       body: `<p class="body">Generating outfit for <b>Day 1 · Lisbon dinner</b> using your packed items.</p><div class="lightweight-preview"><img src="${assets.look2}" alt="Trip look preview"><span><b>Dinner by the Tagus</b><small>Silk blouse + relaxed trousers + loafers</small></span></div>`,
       action: "Add to Trip schedule",
@@ -3342,7 +3344,7 @@ function lightweightPanelMarkup() {
     whyLook: {
       eyebrow: "Stylist explanation",
       title: "Why this Look works",
-      body: `<p class="body">Muse selected this Look based on your 28° office day, scheduled presentation, and preferences for relaxed tailoring and warm neutrals.</p><div class="card" style="margin-top:12px"><b>Closet balance</b><p class="small">3 of 4 pieces owned. Oxblood accent bag complements neutral tones.</p></div>`,
+      body: `<p class="body">Livia selected this Look based on your 28° office day, scheduled presentation, and preferences for relaxed tailoring and warm neutrals.</p><div class="card" style="margin-top:12px"><b>Closet balance</b><p class="small">3 of 4 pieces owned. Oxblood accent bag complements neutral tones.</p></div>`,
       action: "Got it",
     },
     instantDetails: {
@@ -3358,7 +3360,7 @@ function lightweightPanelMarkup() {
       action: swipeStudioTarget ? swipeLookContext(swipeStudioTarget.target).applyLabel : "Save Look",
     },
     wardrobeGap: {
-      eyebrow: "Muse · Wardrobe intelligence",
+      eyebrow: "Livia · Wardrobe intelligence",
       title: "Your useful wardrobe gap",
       body: `<p class="body">You don’t need another blazer. A lightweight knit would unlock six combinations across work and weekend Looks.</p><section class="wishlist-opportunity" style="margin-top:14px"><p class="eyebrow">Check an owned alternative first</p><p class="body">Compare the suggestion with the rust knit already in your wardrobe before considering a purchase.</p>${wishlistProductCard(wishlistProduct("rust-knit"))}</section><div class="choice-list" style="margin-top:12px"><button class="choice" onclick="lightweightPanel=null;openTodayAlternatives()"><span><b>Style without buying</b><small class="body" style="display:block">Build another combination from pieces you own.</small></span>›</button></div>`,
       action: "Keep this insight",
@@ -3882,7 +3884,7 @@ function exploreAsGuest() {
 const walkthroughSlides = [
   {
     image: peoplePhotos.onboardingMuse,
-    alt: "Muse arranging outfit references in a sunlit wardrobe studio",
+    alt: "Livia arranging outfit references in a sunlit wardrobe studio",
     eyebrow: "Welcome to StyleIQ",
     title: "More outfits. Less guesswork.",
     body: "Not sure what to wear? StyleIQ helps you turn the clothes you own into outfits that fit your plans and your personal style.",
@@ -3897,9 +3899,9 @@ const walkthroughSlides = [
   {
     image: peoplePhotos.coupleTravel,
     alt: "A couple packing a considered capsule wardrobe for a trip",
-    eyebrow: "Meet Muse · Your AI stylist",
+    eyebrow: "Meet Livia · Your AI stylist",
     title: "A stylist by your side.",
-    body: "Muse is StyleIQ’s AI stylist. Get outfit suggestions, help choosing between looks, and guidance shaped around your wardrobe, taste, and occasion.",
+    body: "Livia is StyleIQ’s AI stylist. Get outfit suggestions, help choosing between looks, and guidance shaped around your wardrobe, taste, and occasion.",
   },
 ];
 function setWalkthroughSlide(index) {
@@ -3934,7 +3936,7 @@ function stylingContextSurface(editing = false) {
       ["Menswear", peoplePhotos.manPortrait],
       ["Both", peoplePhotos.coupleTravel],
     ];
-  return `<section class="screen entry-screen"><div class="walkthrough-content"><div class="entry-top"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button>${brandLockup("micro")}<span></span></div><div style="margin-top:28px"><p class="eyebrow">${editing ? "Styling context" : "Personalize StyleIQ"}</p><h1 class="display">Which wardrobe should Muse style?</h1><p class="body">Choose Womenswear, Menswear, or Both. This is styling context, not an identity question.</p></div><div class="profile-choice-grid" role="group" aria-label="Styling context">${choices.map(([label, image]) => `<button class="styling-option" aria-pressed="${stylingContext === label}" onclick="chooseStylingContext('${label}','${destination}')"><img src="${image}" alt="${label} wardrobe"><b>${label}</b></button>`).join("")}</div><p class="helper" style="margin-top:14px">Your choice is saved and can be changed later from About you.</p></div></section>`;
+  return `<section class="screen entry-screen"><div class="walkthrough-content"><div class="entry-top"><button class="icon-btn" aria-label="Back" onclick="backScreen()">${icon("back")}</button>${brandLockup("micro")}<span></span></div><div style="margin-top:28px"><p class="eyebrow">${editing ? "Styling context" : "Personalize StyleIQ"}</p><h1 class="display">Which wardrobe should Livia style?</h1><p class="body">Choose Womenswear, Menswear, or Both. This is styling context, not an identity question.</p></div><div class="profile-choice-grid" role="group" aria-label="Styling context">${choices.map(([label, image]) => `<button class="styling-option" aria-pressed="${stylingContext === label}" onclick="chooseStylingContext('${label}','${destination}')"><img src="${image}" alt="${label} wardrobe"><b>${label}</b></button>`).join("")}</div><p class="helper" style="margin-top:14px">Your choice is saved and can be changed later from About you.</p></div></section>`;
 }
 function buildClosetOnboarding() {
   return `<section class="screen entry-screen">${head("StyleIQ")}<div class="content no-nav"><div class="onboard"><div class="onboard-main auth-step-main"><div class="auth-heading"><p class="eyebrow">Next, make it yours</p><h1 class="display">Build your closet</h1><p class="body">Let’s start with a few pieces. You can always add more later.</p></div><div class="choice-list" role="region" aria-label="Build your closet options"><button class="choice" onclick="b01Mode='photos';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("camera")}</span><span><b>Scan clothes</b><small class="body" style="display:block">Capture one or many pieces</small></span></span><span>›</span></button><button class="choice" onclick="b01Mode='photos';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("image-up")}</span><span><b>Add photos</b><small class="body" style="display:block">Choose garment photos from your library</small></span></span><span>›</span></button><button class="choice" onclick="b01Mode='search';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("search")}</span><span><b>Search an item</b><small class="body" style="display:block">Find a piece you own</small></span></span><span>›</span></button><button class="choice" onclick="b01Mode='receipt';beginOnboardingClosetEntry('B-01')"><span class="row"><span class="icon-wrap">${icon("bag")}</span><span><b>Import purchases</b><small class="body" style="display:block">Bring in items from receipts</small></span></span><span>›</span></button><button class="choice" onclick="completeOnboarding('D-02')"><span class="row"><span class="icon-wrap">${icon("arrow-right")}</span><span><b>Skip for now</b><small class="body" style="display:block">Explore Today first</small></span></span><span>›</span></button></div></div></div></div></section>`;
@@ -4581,7 +4583,7 @@ function lensResult() {
       eyebrow: "Purchase check · high confidence",
       title: "Useful, but close to what you own.",
       image: assets.top2,
-      body: "82% compatible · works in 6 owned Looks · high duplicate risk against your warm knit. Muse suggests comparing before buying.",
+      body: "82% compatible · works in 6 owned Looks · high duplicate risk against your warm knit. Livia suggests comparing before buying.",
       extra: `${lensWishlistAction("rust-knit")}${lensMatches()}`,
       actions: `<div class="row"><button class="btn grow primary" onclick="openWishlistDialog('compare','rust-knit')">Compare owned</button><button class="btn grow" onclick="openWishlistProduct('rust-knit')">Before You Buy</button></div>`,
     },
@@ -4599,7 +4601,7 @@ function lensResult() {
       image: assets.look,
       body: "Your owned leather loafers sharpen the proportion and suit today’s office context. No questionnaire needed.",
       extra: lensMatches(),
-      actions: `<div class="row"><button class="btn grow primary" onclick="lensDestination('F-01')">Apply in Studio</button><button class="btn grow" onclick="lensDestination('M-01')">Ask Muse</button></div>`,
+      actions: `<div class="row"><button class="btn grow primary" onclick="lensDestination('F-01')">Apply in Studio</button><button class="btn grow" onclick="lensDestination('M-01')">Ask Livia</button></div>`,
     },
     suitcase: {
       eyebrow: "Alexandria Trip · 8 categories found",
@@ -4652,8 +4654,8 @@ function decorateVisualSearchEntries() {
 }
 const lookSourceLabels = {
   user: "Created by Me",
-  muse_assisted: "With Muse",
-  muse_generated: "Muse Generated",
+  muse_assisted: "With Livia",
+  muse_generated: "Livia Generated",
   inspiration_recreated: "Recreated from Inspiration",
   creator_recreated: "Stylist Look",
   lens_recreated: "Stylist / Lens",
@@ -4681,7 +4683,7 @@ function lookSourceLabel(source) {
 function lookMatchesFilter(look, filter) {
   if (filter === "All") return true;
   if (filter === "Created by Me") return look.creationSource === "user";
-  if (filter === "With Muse")
+  if (filter === "With Livia")
     return ["muse_assisted", "muse_generated"].includes(look.creationSource);
   return lookSourceLabel(look.creationSource) === filter;
 }
@@ -5024,12 +5026,12 @@ function generateMuseVideoForLook(lookId = savedLookRecord().id, fail = false) {
   museGeneration = { lookId, state: "generating", error: "" }; render();
   setTimeout(() => {
     const look = lookCatalog.find((item) => item.id === lookId || item.title === lookId); if (!look) return;
-    if (fail) { museGeneration = { lookId, state: "failed", error: "Muse couldn’t finish this video." }; render(); return; }
+    if (fail) { museGeneration = { lookId, state: "failed", error: "Livia couldn’t finish this video." }; render(); return; }
     const current = (look.media?.length ? look.media : savedLookRecord().media).map((media) => ({ ...media }));
-    const next = { id: `muse-${Date.now()}`, type: "video", mediaType: "muse", kind: "muse", src: "videos/generated-look-motion.mp4", label: "Muse Video", generated: true };
+    const next = { id: `muse-${Date.now()}`, type: "video", mediaType: "muse", kind: "muse", src: "videos/generated-look-motion.mp4", label: "Livia Video", generated: true };
     const oldIndex = current.findIndex((media) => media.mediaType === "muse");
     if (oldIndex >= 0) current.splice(oldIndex, 1, next); else current.push(next);
-    look.media = current; museGeneration = { lookId, state: "success", error: "" }; persistOwnedLooks(); render(); toast("Muse video is ready");
+    look.media = current; museGeneration = { lookId, state: "success", error: "" }; persistOwnedLooks(); render(); toast("Livia video is ready");
   }, 900);
 }
 function removeMuseVideo() { const muse = savedLookRecord().media.find((media) => media.mediaType === "muse"); if (muse) requestRemoveLookMedia(muse.id); }
@@ -5886,7 +5888,7 @@ function makeItMineMediaSurface(look) {
   const controls = media.length > 1 ? `<div class="saved-look-media-controls"><div class="saved-look-media-dots" role="group" aria-label="Look media pages">${media.map((item, index) => `<button class="saved-look-media-dot ${index === makeItMineMediaIndex ? "active" : ""}" aria-pressed="${index === makeItMineMediaIndex}" aria-label="Go to ${escapeMarkup(item.label)}" onclick="setMakeItMineMedia(${index})"></button>`).join("")}</div><div class="saved-look-media-arrows"><button class="saved-look-media-arrow" aria-label="Previous media" onclick="stepMakeItMineMedia(-1)">‹</button><button class="saved-look-media-arrow" aria-label="Next media" onclick="stepMakeItMineMedia(1)">›</button></div></div>` : "";
   const mediaRail = media.length > 1 ? `<div class="saved-look-media-rail planner-detail-media-rail" role="group" aria-label="Look media options">${media.map((item, index) => `<button class="saved-look-media-thumb ${index === makeItMineMediaIndex ? "active" : ""}" aria-pressed="${index === makeItMineMediaIndex}" aria-label="${escapeMarkup(item.label)}" onclick="setMakeItMineMedia(${index})">${item.type === "video" ? `<video src="${item.src}" muted preload="metadata" playsinline></video><span class="media-play">▶</span>` : `<img src="${item.src}" alt="">`}<small>${escapeMarkup(item.label)}</small></button>`).join("")}</div>` : "";
   const piecesRail = lookPiecesRailMarkup({ key: "make-mine-look", pieces: look.pieces || [], source: "Closet", defaultOpen: true });
-  return `<section class="make-mine-media-block" aria-label="Look media"><div class="planner-detail-media-stage">${visual}<div class="planner-detail-shade"></div><span class="planner-detail-position">${makeItMineMediaIndex + 1} / ${media.length}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>${escapeMarkup(makeItMineState?.phase === "result" ? "Muse made it yours" : makeItMineState?.originLabel || "Original Look")}</p><h2>${escapeMarkup(look.title)}</h2><span>${escapeMarkup(look.occasion || look.context || "")}${look.creator ? ` · ${escapeMarkup(look.creator)}` : ""}</span></div></div>${mediaRail}</section>`;
+  return `<section class="make-mine-media-block" aria-label="Look media"><div class="planner-detail-media-stage">${visual}<div class="planner-detail-shade"></div><span class="planner-detail-position">${makeItMineMediaIndex + 1} / ${media.length}</span>${controls}${piecesRail}<div class="planner-detail-caption"><p>${escapeMarkup(makeItMineState?.phase === "result" ? "Livia made it yours" : makeItMineState?.originLabel || "Original Look")}</p><h2>${escapeMarkup(look.title)}</h2><span>${escapeMarkup(look.occasion || look.context || "")}${look.creator ? ` · ${escapeMarkup(look.creator)}` : ""}</span></div></div>${mediaRail}</section>`;
 }
 
 function makeItMinePieceMarkup(match) {
@@ -5906,7 +5908,7 @@ function makeItMinePieceMarkup(match) {
 
 function makeItMineEmptyScreen() {
   const source = makeItMineState.sourceLook;
-  return `<section class="make-mine-empty"><img src="${source.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(source.title)}"><p class="eyebrow">Make This Look Mine</p><h2>Your Closet is ready for its first piece.</h2><p class="body">Add a few pieces and Muse can compare this ${escapeMarkup(source.title)} honestly—without inventing matches.</p><div class="stack"><button class="btn primary wide" onclick="go('B-01')">Add to Closet</button><button class="btn wide" onclick="exitMakeItMine()">Back to Look</button></div></section>`;
+  return `<section class="make-mine-empty"><img src="${source.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(source.title)}"><p class="eyebrow">Make This Look Mine</p><h2>Your Closet is ready for its first piece.</h2><p class="body">Add a few pieces and Livia can compare this ${escapeMarkup(source.title)} honestly—without inventing matches.</p><div class="stack"><button class="btn primary wide" onclick="go('B-01')">Add to Closet</button><button class="btn wide" onclick="exitMakeItMine()">Back to Look</button></div></section>`;
 }
 
 function makeItMineResultScreen() {
@@ -5914,7 +5916,7 @@ function makeItMineResultScreen() {
   const adapted = state.adaptedLook;
   const used = adapted.usedItems;
   const missing = adapted.missingItems;
-  return `<div class="make-mine-result"><div class="make-mine-result-hero">${makeItMineMediaSurface(adapted)}<span>${escapeMarkup(adapted.context)}</span></div><section class="make-mine-result-copy"><p class="eyebrow">Muse made it yours</p><h2>${escapeMarkup(adapted.title)}</h2><p class="body">${state.matchSummary.level === "full" ? "Every piece comes from your Closet." : "This edit uses only the pieces you own and keeps every remaining gap explicit."}</p></section><section class="make-mine-used"><div class="between"><span><p class="eyebrow">From your Closet</p><h3>${used.length} ${used.length === 1 ? "piece" : "pieces"} used</h3></span><b>${state.matchSummary.matchedCount}/${state.matchSummary.total}</b></div><div class="make-mine-used-rail">${used.map((item) => `<article><img src="${item.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(item.name)}"><small>${escapeMarkup(item.role)}</small><b>${escapeMarkup(item.name)}</b></article>`).join("")}</div></section>${missing.length ? `<section class="make-mine-missing-list"><p class="eyebrow">Still missing</p><h3>${missing.length} original ${missing.length === 1 ? "piece" : "pieces"}</h3>${missing.map((item) => `<div><span>${escapeMarkup(item.role)}</span><b>${escapeMarkup(item.name)}</b></div>`).join("")}</section>` : ""}<div class="make-mine-result-actions"><button class="btn primary wide" onclick="wearMakeItMineLook()">Wear This Look</button><div class="row"><button class="btn grow" onclick="saveMakeItMineLook()">Save Look</button><button class="btn grow" onclick="planMakeItMineLook()">Add to Planner</button></div><button class="text-action make-mine-try" onclick="tryOnMakeItMineLook()">Try On with Style Twin</button></div><button class="make-mine-back-link" onclick="makeItMineState.phase='matches';render()">← Review Closet matches</button></div>`;
+  return `<div class="make-mine-result"><div class="make-mine-result-hero">${makeItMineMediaSurface(adapted)}<span>${escapeMarkup(adapted.context)}</span></div><section class="make-mine-result-copy"><p class="eyebrow">Livia made it yours</p><h2>${escapeMarkup(adapted.title)}</h2><p class="body">${state.matchSummary.level === "full" ? "Every piece comes from your Closet." : "This edit uses only the pieces you own and keeps every remaining gap explicit."}</p></section><section class="make-mine-used"><div class="between"><span><p class="eyebrow">From your Closet</p><h3>${used.length} ${used.length === 1 ? "piece" : "pieces"} used</h3></span><b>${state.matchSummary.matchedCount}/${state.matchSummary.total}</b></div><div class="make-mine-used-rail">${used.map((item) => `<article><img src="${item.image}" onerror="this.onerror=null;this.src='${assets.look2}'" alt="${escapeMarkup(item.name)}"><small>${escapeMarkup(item.role)}</small><b>${escapeMarkup(item.name)}</b></article>`).join("")}</div></section>${missing.length ? `<section class="make-mine-missing-list"><p class="eyebrow">Still missing</p><h3>${missing.length} original ${missing.length === 1 ? "piece" : "pieces"}</h3>${missing.map((item) => `<div><span>${escapeMarkup(item.role)}</span><b>${escapeMarkup(item.name)}</b></div>`).join("")}</section>` : ""}<div class="make-mine-result-actions"><button class="btn primary wide" onclick="wearMakeItMineLook()">Wear This Look</button><div class="row"><button class="btn grow" onclick="saveMakeItMineLook()">Save Look</button><button class="btn grow" onclick="planMakeItMineLook()">Add to Planner</button></div><button class="text-action make-mine-try" onclick="tryOnMakeItMineLook()">Try On with Style Twin</button></div><button class="make-mine-back-link" onclick="makeItMineState.phase='matches';render()">← Review Closet matches</button></div>`;
 }
 
 function makeItMineScreen() {
@@ -5926,7 +5928,7 @@ function makeItMineScreen() {
     return shell("Make This Look Mine", makeItMineEmptyScreen(), { noNav: true, surfaceClass: "make-mine-screen" });
   const state = makeItMineState;
   const summary = state.matchSummary;
-  return shell("Make This Look Mine", `<div class="make-mine-source">${makeItMineMediaSurface(state.sourceLook)}<div class="make-mine-source-copy"><p class="eyebrow">${escapeMarkup(state.originLabel)}</p><h2>${escapeMarkup(state.sourceLook.title)}</h2><span>${escapeMarkup(state.sourceLook.occasion)} · ${escapeMarkup(state.sourceLook.creator)}</span></div></div><section class="make-mine-summary"><div class="make-mine-score"><strong>${summary.matchedCount}<small>/${summary.total}</small></strong><span>Closet match</span></div><div><p class="eyebrow">Muse closet read</p><h3>${summary.level === "full" ? "You can wear the whole formula." : summary.level === "partial" ? "Most of the structure is already yours." : "Let’s recreate the feeling, honestly."}</h3><p>${makeItMineMuseCopy(summary)}</p></div></section><div class="make-mine-progress" aria-label="${summary.matchedCount} of ${summary.total} pieces matched"><span style="width:${Math.round(summary.matchedCount / summary.total * 100)}%"></span></div><div class="make-mine-legend"><span><i class="owned"></i>${summary.exactCount} exact</span><span><i class="similar"></i>${summary.similarCount} similar</span><span><i class="missing"></i>${summary.missingCount} missing</span></div><section class="make-mine-pieces" aria-label="Closet comparison"><div class="make-mine-section-head"><p class="eyebrow">Piece by piece</p><h3>Original → your Closet</h3></div>${state.matches.map(makeItMinePieceMarkup).join("")}</section><section class="make-mine-sticky"><small>${summary.missingCount ? `${summary.missingCount} ${summary.missingCount === 1 ? "piece stays" : "pieces stay"} marked missing` : "No missing pieces"}</small><button class="btn primary wide" onclick="createMakeItMineAdaptation()">${makeItMinePrimaryLabel(summary)}</button></section></div>`, { noNav: true, surfaceClass: "make-mine-screen" });
+  return shell("Make This Look Mine", `<div class="make-mine-source">${makeItMineMediaSurface(state.sourceLook)}<div class="make-mine-source-copy"><p class="eyebrow">${escapeMarkup(state.originLabel)}</p><h2>${escapeMarkup(state.sourceLook.title)}</h2><span>${escapeMarkup(state.sourceLook.occasion)} · ${escapeMarkup(state.sourceLook.creator)}</span></div></div><section class="make-mine-summary"><div class="make-mine-score"><strong>${summary.matchedCount}<small>/${summary.total}</small></strong><span>Closet match</span></div><div><p class="eyebrow">Livia closet read</p><h3>${summary.level === "full" ? "You can wear the whole formula." : summary.level === "partial" ? "Most of the structure is already yours." : "Let’s recreate the feeling, honestly."}</h3><p>${makeItMineMuseCopy(summary)}</p></div></section><div class="make-mine-progress" aria-label="${summary.matchedCount} of ${summary.total} pieces matched"><span style="width:${Math.round(summary.matchedCount / summary.total * 100)}%"></span></div><div class="make-mine-legend"><span><i class="owned"></i>${summary.exactCount} exact</span><span><i class="similar"></i>${summary.similarCount} similar</span><span><i class="missing"></i>${summary.missingCount} missing</span></div><section class="make-mine-pieces" aria-label="Closet comparison"><div class="make-mine-section-head"><p class="eyebrow">Piece by piece</p><h3>Original → your Closet</h3></div>${state.matches.map(makeItMinePieceMarkup).join("")}</section><section class="make-mine-sticky"><small>${summary.missingCount ? `${summary.missingCount} ${summary.missingCount === 1 ? "piece stays" : "pieces stay"} marked missing` : "No missing pieces"}</small><button class="btn primary wide" onclick="createMakeItMineAdaptation()">${makeItMinePrimaryLabel(summary)}</button></section></div>`, { noNav: true, surfaceClass: "make-mine-screen" });
 }
 
 function tryOnCreatorLook(lookId = activeCreatorLookId) {
@@ -6025,7 +6027,7 @@ function studioStartState() {
     `<div class="studio-start-intro">
       <p class="eyebrow" style="text-align:center;color:var(--gold,#9e733c);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.04em">Creative Workspace</p>
       <h2 class="title" style="margin:2px 0 0;font-size:24px;text-align:center">Start Your Look</h2>
-      <p class="body studio-start-sub">Build outfits from your wardrobe, co-create with Muse, or discover stylist looks to make your own.</p>
+      <p class="body studio-start-sub">Build outfits from your wardrobe, co-create with Livia, or discover stylist looks to make your own.</p>
     </div>
     ${
       hasDraft
@@ -6063,7 +6065,7 @@ function studioStartState() {
       <button class="studio-start-card" onclick="openMuse(museContextFor('F-01'))">
         <span class="studio-start-icon-wrap">${icon("spark")}</span>
         <span class="studio-start-card-text">
-          <b>Ask Muse</b>
+          <b>Ask Livia</b>
           <small class="body">Co-create an outfit guided by your personal stylist intelligence.</small>
         </span>
         <span class="studio-start-arrow">›</span>
@@ -6388,11 +6390,11 @@ function creatorLookDetailScreen() {
       </div>
     </section>
 
-    <section class="card creator-muse-card" aria-label="Muse interpretation">
+    <section class="card creator-muse-card" aria-label="Livia interpretation">
       <div class="creator-muse-head">
         <span class="muse-badge-icon">${icon("spark")}</span>
         <div>
-          <p class="eyebrow" style="color:var(--gold,#9e733c)">Muse Styling Note</p>
+          <p class="eyebrow" style="color:var(--gold,#9e733c)">Livia Styling Note</p>
           <h4 class="title" style="margin:2px 0 0;font-size:15px">Why This Look Works</h4>
         </div>
       </div>
@@ -6472,7 +6474,7 @@ function decorateInspirationProfile() {
     ).length;
   content.insertAdjacentHTML(
     "beforeend",
-    `<section class="card" style="margin-top:12px" aria-label="My Looks summary"><p class="eyebrow">My Looks</p><h3 class="title">${lookCatalog.length} Looks</h3><div class="profile-insight-grid"><button class="profile-insight" onclick="lookFilter='All';go('G-01')"><b>${lookCatalog.length}</b><small>Total</small></button><button class="profile-insight" onclick="lookFilter='Created by Me';go('G-01')"><b>${byMe}</b><small>Created by me</small></button><button class="profile-insight" onclick="lookFilter='With Muse';go('G-01')"><b>${withMuse}</b><small>With Muse</small></button></div></section>`,
+    `<section class="card" style="margin-top:12px" aria-label="My Looks summary"><p class="eyebrow">My Looks</p><h3 class="title">${lookCatalog.length} Looks</h3><div class="profile-insight-grid"><button class="profile-insight" onclick="lookFilter='All';go('G-01')"><b>${lookCatalog.length}</b><small>Total</small></button><button class="profile-insight" onclick="lookFilter='Created by Me';go('G-01')"><b>${byMe}</b><small>Created by me</small></button><button class="profile-insight" onclick="lookFilter='With Livia';go('G-01')"><b>${withMuse}</b><small>With Livia</small></button></div></section>`,
   );
 }
 function decorateLookProvenance() {
@@ -6942,7 +6944,7 @@ function importScreen(s) {
   if (s.id === "B-11")
     return shell(
       "Added",
-      `<section class="closet-success" aria-labelledby="closet-success-title"><div class="success-icon-wrap"><span>${icon("check")}</span></div><p class="success-kicker">${icon("check")} Closet updated</p><h2 id="closet-success-title">Added to your Closet</h2><p class="body">Muse can now build Looks around your newest piece.</p><div class="success-item-card"><img src="${assets.blazer}" alt="Black tailored blazer"><span><b>Black tailored blazer</b><small>Balmain · Outerwear · Ready to style</small></span><span class="success-badge">${icon("check")} Added</span></div><button class="btn primary wide success-action" onclick="go('D-02')">See what changed</button></section>`,
+      `<section class="closet-success" aria-labelledby="closet-success-title"><div class="success-icon-wrap"><span>${icon("check")}</span></div><p class="success-kicker">${icon("check")} Closet updated</p><h2 id="closet-success-title">Added to your Closet</h2><p class="body">Livia can now build Looks around your newest piece.</p><div class="success-item-card"><img src="${assets.blazer}" alt="Black tailored blazer"><span><b>Black tailored blazer</b><small>Balmain · Outerwear · Ready to style</small></span><span class="success-badge">${icon("check")} Added</span></div><button class="btn primary wide success-action" onclick="go('D-02')">See what changed</button></section>`,
       { active: "closet" },
     );
   return emptyState(s);
@@ -6955,7 +6957,7 @@ function homeScreen(s) {
   if (s.id === "D-02")
     return shell(
       "Today",
-      `<section class="home-greeting"><div><p class="eyebrow">Good morning</p><h2 class="display">${escapeMarkup(profileFirstName())}</h2></div><button class="muse-entry" onclick="go('M-01')"><img src="${assets.muse}" alt="Muse"><span>Ask<br>Muse</span></button></section><div class="home-context"><b>28°</b><span>Office</span><span>Light breeze</span></div><section class="daily-look" aria-label="Muse daily recommendation"><img src="${assets.look3}" alt="Tailored espresso, ivory, and black outfit for an office day in Cairo"><span class="daily-look-badge">28° · Office · Cairo</span><button class="daily-look-save" aria-label="Save this Look" onclick="openLightweightPanel('save')">${icon("heart")}</button><span class="daily-look-count">1 / 3</span></section><div class="closet-strip" aria-label="Pieces in this Look">${[
+      `<section class="home-greeting"><div><p class="eyebrow">Good morning</p><h2 class="display">${escapeMarkup(profileFirstName())}</h2></div><button class="muse-entry" onclick="go('M-01')"><img src="${assets.muse}" alt="Livia"><span>Ask<br>Livia</span></button></section><div class="home-context"><b>28°</b><span>Office</span><span>Light breeze</span></div><section class="daily-look" aria-label="Livia daily recommendation"><img src="${assets.look3}" alt="Tailored espresso, ivory, and black outfit for an office day in Cairo"><span class="daily-look-badge">28° · Office · Cairo</span><button class="daily-look-save" aria-label="Save this Look" onclick="openLightweightPanel('save')">${icon("heart")}</button><span class="daily-look-count">1 / 3</span></section><div class="closet-strip" aria-label="Pieces in this Look">${[
         ["Blazer", assets.blazer, "Owned"],
         ["Ivory top", assets.top, "Owned"],
         ["Black trousers", assets.bottom, "Owned"],
@@ -7117,7 +7119,7 @@ function mirrorToday() {
       <div class="today-hero-scrim" aria-hidden="true"></div>
       <header class="today-morning">
         <div class="today-morning-body"><h2 aria-label="Good morning, ${escapeMarkup(profileFirstName())}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${escapeMarkup(profileFirstName())}</span></h2></div>
-        <aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p></aside>
+        <aside class="today-muse-note" aria-label="Livia’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Livia’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p></aside>
         <div class="today-morning-foot"><div class="today-morning-meta" aria-label="Today’s context"><span>${icon("calendar")}Sunday</span><i aria-hidden="true">·</i><span>${icon("map-pin")}Cairo</span><i aria-hidden="true">·</i><span>${icon("briefcase")}Office</span><i aria-hidden="true">·</i><span>${icon("sun")}<b>18°C</b></span></div></div>
       </header>
       <div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3></div>
@@ -7161,23 +7163,23 @@ function todayBeforeClosetState() {
     `<section class="today-hero today-hero--empty" aria-label="Today’s Look is not ready yet">
       <div class="today-empty-image" aria-hidden="true"></div><div class="today-hero-scrim" aria-hidden="true"></div>
       <header class="today-morning"><div class="today-morning-body"><h2 aria-label="Good morning, ${firstName}"><span class="today-salutation">Good morning,</span><span class="today-first-name">${firstName}</span></h2></div>
-        <aside class="today-muse-note"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">Your style starts with what you own.</p></aside>
+        <aside class="today-muse-note"><span class="today-muse-note-label">${icon("spark")}Livia’s note</span><p class="today-muse-note-title">Your style starts with what you own.</p></aside>
         <div class="today-morning-foot"><div class="today-morning-meta"><span>${icon("calendar")}Today</span><i aria-hidden="true">·</i><span>${icon("map-pin")}Cairo</span></div></div>
       </header>
       <div class="today-hero-panel"><span>Today’s Look</span><h3>Ready when you are.</h3></div>
     </section>
     <div class="today-closet-line"><b>${hasCloset ? `${closetItemCount()} ${closetItemCount() === 1 ? "piece" : "pieces"} in your Closet` : "Your Closet is empty"}</b><button onclick="go('C-01')">View Closet</button></div>
-    <div class="today-actions"><button class="btn primary" onclick="${next?.action || "go('G-01')"}">${next?.label || "View your Looks"} ${icon("arrow-right")}</button><button class="btn" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started with Looks from my Closet.', origin: 'D-02' })">${icon("spark")} Ask Muse</button></div>
+    <div class="today-actions"><button class="btn primary" onclick="${next?.action || "go('G-01')"}">${next?.label || "View your Looks"} ${icon("arrow-right")}</button><button class="btn" onclick="openMuse({ label: 'Getting started', prompt: 'Help me get started with Looks from my Closet.', origin: 'D-02' })">${icon("spark")} Ask Livia</button></div>
     ${styleIqSetupMarkup(tasks)}
     <section class="today-empty-looks" aria-labelledby="today-empty-looks-title"><header><span><p class="eyebrow">More Looks for Today</p><h3 id="today-empty-looks-title">${createdLook ? "Your Looks are taking shape." : "Your Looks will live here."}</h3></span></header><p>${createdLook ? "Find the Look you created and keep building from your Closet." : "Once you create or save a Look, you’ll find it here alongside new styling ideas."}</p><button class="text-action" onclick="go('${createdLook ? "G-01" : "F-01"}')">${createdLook ? "View your Looks" : "Explore Style Studio"} ${icon("arrow-right")}</button></section>`,
     { active: "home", surfaceClass: "image-first-surface" }
   );
 }
 function todayLoadingState() {
-  return shell("Today", `<div class="stack"><p class="eyebrow">Preparing your day</p><h2 class="title">Muse is checking the details.</h2><div class="skeleton" style="height:280px"></div><p class="body">Considering weather, calendar context, and the pieces you wear most.</p><button class="btn primary wide" onclick="setTodayMode('normal')">Show my Look</button></div>`, { active: "home" });
+  return shell("Today", `<div class="stack"><p class="eyebrow">Preparing your day</p><h2 class="title">Livia is checking the details.</h2><div class="skeleton" style="height:280px"></div><p class="body">Considering weather, calendar context, and the pieces you wear most.</p><button class="btn primary wide" onclick="setTodayMode('normal')">Show my Look</button></div>`, { active: "home" });
 }
 function todayMissingCategoryState() {
-  return shell("Today", `<div class="empty"><div><p class="eyebrow">One useful gap</p><h2 class="title">This Look needs a complete base.</h2><p class="body">Muse found a strong layer and top, but no available pair of compatible shoes.</p><div class="card" style="margin-top:16px"><b>Continue with the partial Look</b><p class="body">See the direction now, then fill the gap when you’re ready.</p></div><button class="btn primary wide" style="margin-top:14px" onclick="setTodayMode('normal')">Continue with this Look</button><button class="btn wide" style="margin-top:8px" onclick="go('C-01')">Add or review shoes</button></div></div>`, { active: "home" });
+  return shell("Today", `<div class="empty"><div><p class="eyebrow">One useful gap</p><h2 class="title">This Look needs a complete base.</h2><p class="body">Livia found a strong layer and top, but no available pair of compatible shoes.</p><div class="card" style="margin-top:16px"><b>Continue with the partial Look</b><p class="body">See the direction now, then fill the gap when you’re ready.</p></div><button class="btn primary wide" style="margin-top:14px" onclick="setTodayMode('normal')">Continue with this Look</button><button class="btn wide" style="margin-top:8px" onclick="go('C-01')">Add or review shoes</button></div></div>`, { active: "home" });
 }
 function todayCarouselState() {
   return shell("Today", `<div class="today-visual-head"><span><p class="eyebrow">Prepared directions</p><h2 class="title">Choose today’s Look</h2></span></div>${todaySwipeLooksMarkup({ id: "today-choice", selectedId: selectedTodayLook, actionFor: (look) => `useSwipeLookForToday('${look.id}');setTodayMode('normal')` })}`, { active: "home" });
@@ -7286,7 +7288,7 @@ function mirrorPlanner() {
   plannerDynamicHeroHTML = dynamicHero;
   return shell(
     "Planner",
-    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Muse about Planner">${icon("spark")}<span>Muse</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-selected-day"><header><span class="planner-day-heading"><small>Day agenda</small><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2></span><span>${selectedEntries.length + (tripIsSelected ? 1 : 0) ? `${selectedEntries.length + (tripIsSelected ? 1 : 0)} ${selectedEntries.length + (tripIsSelected ? 1 : 0) === 1 ? 'plan' : 'plans'}` : 'No plans'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : emptyAgenda}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>${tripTiming}</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><div class="planner-trip-carousel" aria-label="${tripTiming}"><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></div><button class="planner-view-all-trips" onclick="go('J-01')"><span>View All Trips</span>${icon("arrow-right")}</button></section>${recapTeaser}</section>`,
+    `<section class="planner-visual-hero"><video autoplay muted loop playsinline preload="metadata" poster="images/look-evening-cairo.png" aria-hidden="true"><source src="app videos/woman.mp4" type="video/mp4"></video><img class="planner-hero-fallback" src="images/look-evening-cairo.png" alt="Editorial tailored look for the week"><span class="planner-hero-shade"></span><div class="planner-root-actions"><button onclick="openMuse()" aria-label="Ask Livia about Planner">${icon("spark")}<span>Livia</span></button><button onclick="go('I-04')" aria-label="Add Event">${icon("plus")}</button></div><div class="planner-hero-copy"><h1>Planner</h1><p>Your week, styled.</p></div><div class="planner-hero-calendar"><span class="planner-week-nav"><button aria-label="Previous week" onclick="changePlannerWeek(-1)">‹</button><small>${weekStart.toLocaleDateString('en-US',{month:'short',year:'numeric'})}</small><button aria-label="Next week" onclick="changePlannerWeek(1)">›</button></span><div>${days.map(([d,n,isToday,i,hasPlan,trip]) => `<button class="${i === selectedPlannerDayIndex ? 'active' : ''}" aria-label="${d} ${n}${trip ? ', trip' : ''}${hasPlan ? ', look planned' : ''}" onclick="selectedPlannerDayIndex=${i};render()"><span>${d}</span><b>${n}</b>${trip||hasPlan?`<i class="${trip?'trip':'planned'}"></i>`:'<i class="planner-day-no-marker" aria-hidden="true"></i>'}</button>`).join('')}</div></div></section><section class="planner-home-body"><section class="planner-selected-day"><header><span class="planner-day-heading"><small>Day agenda</small><h2>${selectedDay.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</h2></span><span>${selectedEntries.length + (tripIsSelected ? 1 : 0) ? `${selectedEntries.length + (tripIsSelected ? 1 : 0)} ${selectedEntries.length + (tripIsSelected ? 1 : 0) === 1 ? 'plan' : 'plans'}` : 'No plans'}</span></header><div class="planner-look-grid">${visualPlans}${tripMoment}${selectedEntries.length || tripMoment ? '' : emptyAgenda}</div>${!proactiveWeek.length ? `<button class="planner-plan-week" onclick="planMyWeek()">Plan My Week</button>` : ''}</section><section class="planner-upcoming-trip"><div class="planner-section-label"><span><small>${tripTiming}</small><h2>${escapeMarkup(tripDestination)}</h2><p>${tripDateLabel(tripDraftForPlanner)} · ${tripDuration} days</p></span></div><div class="planner-trip-carousel" aria-label="${tripTiming}"><button class="planner-trip-feature" onclick="go('${tripRoute}')"><img src="${tripsHeroMedia.poster}" alt="${escapeMarkup(tripDestination)} trip"><span class="planner-trip-shade"></span><span class="planner-trip-thumbs">${[assets.look,assets.look2,assets.look3].map((image,i)=>`<img src="${image}" alt="${escapeMarkup(tripDestination)} capsule look ${i+1}">`).join('')}</span><span class="planner-trip-meta"><b>${tripPackingItems().length} pieces · ${Math.max(tripState.looks?.length || 0,tripDuration)} looks</b><strong>View Trip →</strong></span></button></div><button class="planner-view-all-trips" onclick="go('J-01')"><span>View All Trips</span>${icon("arrow-right")}</button></section>${recapTeaser}</section>`,
     { active: "planner" },
   );
 }
@@ -7389,7 +7391,7 @@ function tripSummary() {
   const lookCount = tripState.looks.length;
   return `${tripDates(draft).length} days · ${tripPackingItems().length} pieces · ${lookCount} ${lookCount === 1 ? 'look' : 'looks'}`;
 }
-// Keep the Trips list hero on the same uninterrupted, full-frame film language as Muse.
+// Keep the Trips list hero on the same uninterrupted, full-frame film language as Livia.
 const tripsHeroMedia = { video: "app videos/trips.mp4", poster: "images/trip-packing-cairo.png" };
 function tripDateLabel(draft = tripState.basics || tripDraft) {
   const format = (value) => {
@@ -7399,7 +7401,7 @@ function tripDateLabel(draft = tripState.basics || tripDraft) {
   return `${format(draft.startDate)} — ${format(draft.endDate)}`;
 }
 function tripEditorialTopbar(backAction = "backScreen()", label = "Trips", showAddTrip = false) {
-  return `<header class="trip-editorial-topbar${showAddTrip ? " has-add-trip" : ""}" aria-label="${label} navigation"><button type="button" aria-label="Back" onclick="${backAction}">${icon("back")}</button><button type="button" class="trip-editorial-wordmark" aria-label="Go to Today" onclick="go('D-02')">StyleIQ</button><div class="trip-editorial-actions">${showAddTrip ? `<button type="button" class="trip-add-action" aria-label="Plan a new trip" onclick="startNewTrip()">${icon("plus")}<span>Trip</span></button>` : ""}<button type="button" aria-label="Ask Muse about ${label}" onclick="openMuse()">${icon("spark")}</button></div></header>`;
+  return `<header class="trip-editorial-topbar${showAddTrip ? " has-add-trip" : ""}" aria-label="${label} navigation"><button type="button" aria-label="Back" onclick="${backAction}">${icon("back")}</button><button type="button" class="trip-editorial-wordmark" aria-label="Go to Today" onclick="go('D-02')">StyleIQ</button><div class="trip-editorial-actions">${showAddTrip ? `<button type="button" class="trip-add-action" aria-label="Plan a new trip" onclick="startNewTrip()">${icon("plus")}<span>Trip</span></button>` : ""}<button type="button" aria-label="Ask Livia about ${label}" onclick="openMuse()">${icon("spark")}</button></div></header>`;
 }
 function tripsEditorialHero() {
 return `<section class="trips-hero" aria-label="Trips overview"><video class="trips-hero-video" autoplay muted loop playsinline preload="metadata" poster="${tripsHeroMedia.poster}" aria-hidden="true"><source src="${tripsHeroMedia.video}" type="video/mp4"></video><img class="trips-hero-fallback" src="${tripsHeroMedia.poster}" alt="A considered travel wardrobe laid out for packing"><div class="trips-hero-shade"></div><div class="trips-hero-copy"><p>The wardrobe edit</p><small>Your destinations, outfits, and packing plans. Together.</small></div></section>`;
@@ -7432,7 +7434,7 @@ function tripIntentScreen() {
     }, 450);
     return shell(
       "Building Trip",
-      `<div class="trip-building"><img src="${tripsHeroMedia.poster}" alt="Travel wardrobe being prepared"><div><p class="eyebrow">Muse is editing your capsule</p><h2 class="title">Building your trip to ${escapeMarkup(tripDraft.destination)}</h2><div class="trip-build-line" aria-hidden="true"><span></span></div><p class="body">Balancing your schedule, weather, and pieces you own.</p><button class="btn primary wide" onclick="tripState.building=false;tripState.created=true;tripHubSaved=true;persistTrip();go('J-08')">Open completed trip</button></div></div>`,
+      `<div class="trip-building"><img src="${tripsHeroMedia.poster}" alt="Travel wardrobe being prepared"><div><p class="eyebrow">Livia is editing your capsule</p><h2 class="title">Building your trip to ${escapeMarkup(tripDraft.destination)}</h2><div class="trip-build-line" aria-hidden="true"><span></span></div><p class="body">Balancing your schedule, weather, and pieces you own.</p><button class="btn primary wide" onclick="tripState.building=false;tripState.created=true;tripHubSaved=true;persistTrip();go('J-08')">Open completed trip</button></div></div>`,
       { active: "profile" },
     );
   }
@@ -7443,7 +7445,7 @@ function tripIntentScreen() {
 
   return shell(
     "Trip Setup",
-      `<form class="trip-setup" onsubmit="handleBuildTrip(event)"><div class="trip-setup-visual">${tripEditorialTopbar("go('J-01')", "Trip setup")}<img src="${tripsHeroMedia.poster}" alt="Travel wardrobe inspiration"><span class="trip-setup-visual-shade" aria-hidden="true"></span><div class="trip-setup-hero-copy"><small>Travel edit · 01 / 03</small><h1>Plan around<br>the moments.</h1><p>Your Closet first. Muse will shape the capsule.</p></div></div><div class="trip-setup-body"><div class="trip-setup-intro"><span>Trip brief</span><p>Three details are enough to create a considered travel wardrobe.</p></div><section class="trip-setup-section"><div class="trip-section-heading"><span>01</span><div><p class="eyebrow">Destination</p><h2>Where are you going?</h2></div></div><div class="field"><label class="sr-only" for="trip-destination">Destination</label><input class="input trip-destination-input" id="trip-destination" name="destination" value="${escapeMarkup(d.destination || "")}" placeholder="City or destination" required></div></section><section class="trip-setup-section"><div class="trip-section-heading"><span>02</span><div><p class="eyebrow">Dates &amp; duration</p><h2>When?</h2></div></div><div class="trip-date-grid"><div class="field"><label for="trip-start-date">From</label><input class="input" id="trip-start-date" name="startDate" type="date" value="${escapeMarkup(d.startDate || "")}" required></div><div class="field"><label for="trip-end-date">Until</label><input class="input" id="trip-end-date" name="endDate" type="date" value="${escapeMarkup(d.endDate || "")}" required></div></div></section><section class="trip-setup-section"><div class="trip-section-heading"><span>03</span><div><p class="eyebrow">Occasion profile</p><h2>What will you be doing?</h2></div></div><div class="trip-occasion-grid" role="group" aria-label="Activities">${occasions.map(x => `<button type="button" class="trip-occasion ${d.occasions.includes(x) ? "active" : ""}" aria-pressed="${d.occasions.includes(x)}" onclick="toggleTripOccasion('${x}')"><span>${x}</span><b aria-hidden="true">${d.occasions.includes(x) ? "✓" : "+"}</b></button>`).join("")}</div></section><section class="trip-context-line" aria-label="Trip context"><span><small>Weather</small><b>Added from destination</b></span><span><small>Luggage</small><select aria-label="Luggage context" onchange="tripDraft.luggage=this.value;localStorage.setItem('styleiqTripDraftV2',JSON.stringify(tripDraft))">${luggage.map(x => `<option ${d.luggage === x ? "selected" : ""}>${x}</option>`).join("")}</select></span></section><details class="trip-notes"><summary><span><small>Optional</small><b>Must-bring pieces &amp; notes</b></span><i aria-hidden="true">+</i></summary><div><label for="trip-must-bring">Must bring</label><input id="trip-must-bring" class="input" placeholder="Black blazer, comfortable loafers"><label for="trip-notes">Notes for Muse</label><input id="trip-notes" class="input" name="notes" value="${escapeMarkup(d.notes || "")}" placeholder="One dressy evening option"></div></details><div class="trip-muse-note">${icon("spark")}<p><b>Muse plans with what you own.</b><span>Weather and occasion refine the edit; they never replace your taste.</span></p></div><button class="btn primary wide trip-build-cta" type="submit"><span>Create my trip edit</span><b aria-hidden="true">↗</b></button><button class="trip-save-link" type="button" onclick="saveTripDetails(event);toast('Trip preferences saved')">Save as draft</button></div></form>`,
+      `<form class="trip-setup" onsubmit="handleBuildTrip(event)"><div class="trip-setup-visual">${tripEditorialTopbar("go('J-01')", "Trip setup")}<img src="${tripsHeroMedia.poster}" alt="Travel wardrobe inspiration"><span class="trip-setup-visual-shade" aria-hidden="true"></span><div class="trip-setup-hero-copy"><small>Travel edit · 01 / 03</small><h1>Plan around<br>the moments.</h1><p>Your Closet first. Livia will shape the capsule.</p></div></div><div class="trip-setup-body"><div class="trip-setup-intro"><span>Trip brief</span><p>Three details are enough to create a considered travel wardrobe.</p></div><section class="trip-setup-section"><div class="trip-section-heading"><span>01</span><div><p class="eyebrow">Destination</p><h2>Where are you going?</h2></div></div><div class="field"><label class="sr-only" for="trip-destination">Destination</label><input class="input trip-destination-input" id="trip-destination" name="destination" value="${escapeMarkup(d.destination || "")}" placeholder="City or destination" required></div></section><section class="trip-setup-section"><div class="trip-section-heading"><span>02</span><div><p class="eyebrow">Dates &amp; duration</p><h2>When?</h2></div></div><div class="trip-date-grid"><div class="field"><label for="trip-start-date">From</label><input class="input" id="trip-start-date" name="startDate" type="date" value="${escapeMarkup(d.startDate || "")}" required></div><div class="field"><label for="trip-end-date">Until</label><input class="input" id="trip-end-date" name="endDate" type="date" value="${escapeMarkup(d.endDate || "")}" required></div></div></section><section class="trip-setup-section"><div class="trip-section-heading"><span>03</span><div><p class="eyebrow">Occasion profile</p><h2>What will you be doing?</h2></div></div><div class="trip-occasion-grid" role="group" aria-label="Activities">${occasions.map(x => `<button type="button" class="trip-occasion ${d.occasions.includes(x) ? "active" : ""}" aria-pressed="${d.occasions.includes(x)}" onclick="toggleTripOccasion('${x}')"><span>${x}</span><b aria-hidden="true">${d.occasions.includes(x) ? "✓" : "+"}</b></button>`).join("")}</div></section><section class="trip-context-line" aria-label="Trip context"><span><small>Weather</small><b>Added from destination</b></span><span><small>Luggage</small><select aria-label="Luggage context" onchange="tripDraft.luggage=this.value;localStorage.setItem('styleiqTripDraftV2',JSON.stringify(tripDraft))">${luggage.map(x => `<option ${d.luggage === x ? "selected" : ""}>${x}</option>`).join("")}</select></span></section><details class="trip-notes"><summary><span><small>Optional</small><b>Must-bring pieces &amp; notes</b></span><i aria-hidden="true">+</i></summary><div><label for="trip-must-bring">Must bring</label><input id="trip-must-bring" class="input" placeholder="Black blazer, comfortable loafers"><label for="trip-notes">Notes for Livia</label><input id="trip-notes" class="input" name="notes" value="${escapeMarkup(d.notes || "")}" placeholder="One dressy evening option"></div></details><div class="trip-muse-note">${icon("spark")}<p><b>Livia plans with what you own.</b><span>Weather and occasion refine the edit; they never replace your taste.</span></p></div><button class="btn primary wide trip-build-cta" type="submit"><span>Create my trip edit</span><b aria-hidden="true">↗</b></button><button class="trip-save-link" type="button" onclick="saveTripDetails(event);toast('Trip preferences saved')">Save as draft</button></div></form>`,
     { active: "profile" },
   );
 }
@@ -7539,7 +7541,7 @@ function confirmTripCreation() {
 function buildingTripScreen() {
   return shell(
     "Building Trip",
-    `<div class="card stack" style="margin-top:16px"><p class="eyebrow">Generating with Muse</p><h2 class="title">Trip to ${escapeMarkup(tripDraft.destination)} is ready</h2><p class="body">Outfits and packing list generated.</p><button class="btn primary wide" style="margin-top:18px" onclick="completeTripBuild()">Open completed trip</button></div>`,
+    `<div class="card stack" style="margin-top:16px"><p class="eyebrow">Generating with Livia</p><h2 class="title">Trip to ${escapeMarkup(tripDraft.destination)} is ready</h2><p class="body">Outfits and packing list generated.</p><button class="btn primary wide" style="margin-top:18px" onclick="completeTripBuild()">Open completed trip</button></div>`,
     { active: "profile" },
   );
 }
@@ -7612,7 +7614,7 @@ function tripHub(tab = tripHubTab || "packing") {
   if (packing) {
     tabContent = `<section class="trip-capsule-head"><p class="eyebrow">Packing capsule</p><h3>${tripPackingItems().length} pieces</h3><span>${tripDates(draft).length} days · Tap a piece to mark it packed</span></section><div class="trip-capsule-grid">${tripPackingItems().map(item => `<button class="trip-capsule-piece" aria-pressed="${Boolean(tripState.packed[item.name])}" onclick="toggleTripItem(${escapeMarkup(JSON.stringify(item.name))})"><img src="${item.image}" alt="${escapeMarkup(item.name)}"><span><b>${escapeMarkup(item.name)}</b><small>From your Closet</small><em>${tripState.packed[item.name] ? '✓ Packed' : 'Tap to pack'}</em></span></button>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openLightweightPanel('tripAddLook')">Add piece</button><button class="btn primary" onclick="toast('Packing list ready')">Packing ready</button></div>`;
   } else {
-    tabContent = `<div class="trip-daily-looks">${tripState.looks.map((look, index) => `<article class="trip-day"><div><p>Day ${String(index + 1).padStart(2,'0')}</p><span>${escapeMarkup(draft.occasions?.[index % Math.max(draft.occasions?.length || 1, 1)] || 'Travel')}</span></div><img src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}"><h3>${escapeMarkup(look.title)}</h3><small>Styled from your travel capsule</small><footer><button onclick="openSwipeLookPanel('trip',${index})">Change Look</button><button onclick="startTryOn('${look.lookId || tryOnLooks.office.id}', { sourceType: 'trip' })">Try On</button></footer></article>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openSwipeLookPanel('trip',${activeLookIndex})">Change Look</button><button class="btn primary" onclick="openLightweightPanel('tripMuse')">Ask Muse</button></div>`;
+    tabContent = `<div class="trip-daily-looks">${tripState.looks.map((look, index) => `<article class="trip-day"><div><p>Day ${String(index + 1).padStart(2,'0')}</p><span>${escapeMarkup(draft.occasions?.[index % Math.max(draft.occasions?.length || 1, 1)] || 'Travel')}</span></div><img src="${look.image || assets.look}" alt="${escapeMarkup(look.title)}"><h3>${escapeMarkup(look.title)}</h3><small>Styled from your travel capsule</small><footer><button onclick="openSwipeLookPanel('trip',${index})">Change Look</button><button onclick="startTryOn('${look.lookId || tryOnLooks.office.id}', { sourceType: 'trip' })">Try On</button></footer></article>`).join('')}</div><div class="trip-plan-footer"><button class="btn" onclick="openSwipeLookPanel('trip',${activeLookIndex})">Change Look</button><button class="btn primary" onclick="openLightweightPanel('tripMuse')">Ask Livia</button></div>`;
   }
 
   return shell(
@@ -7807,7 +7809,7 @@ function plannerEventForm() {
     : "";
   return shell(
     "Add Event",
-    `<form class="stack" onsubmit="submitPlannerEvent(event)"><p class="eyebrow">Planner · new event</p><h2 class="title">What are you dressing for?</h2><p class="body">An Event belongs to one day. Muse will plan one Look around it.</p><button class="planner-trip-bridge" type="button" onclick="startNewTrip()"><span><small>Going away for several days?</small><b>Plan a Trip instead</b></span><span aria-hidden="true">→</span></button>${validationAlert}<div class="field"><label for="planner-event-title">What are you dressing for?</label><input class="input" id="planner-event-title" name="title" value="${escapeMarkup(d.title || "")}" placeholder="e.g. Client presentation and dinner" required></div><div class="row"><div class="field grow"><label for="planner-event-date">Date</label><input class="input" id="planner-event-date" name="date" type="date" value="${escapeMarkup(d.date || new Date().toISOString().slice(0, 10))}"></div><div class="field grow"><label for="planner-event-time">Time</label><input class="input" id="planner-event-time" name="time" type="time" value="${escapeMarkup(d.time || "")}"></div></div><div class="field"><label for="planner-event-occasion">Occasion / dress code</label><select class="input" id="planner-event-occasion" name="occasion">${["Work", "Dinner", "Weekend", "Single-day travel", "Special occasion"].map((x) => `<option value="${x}" ${d.occasion === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><details class="card progressive-card" style="margin-top:8px"><summary><b>More details</b><span class="small">Daypart · location · notes</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label for="planner-event-daypart">Daypart</label><select class="input" id="planner-event-daypart" name="daypart"><option value="">Choose daypart</option>${["Morning", "Afternoon", "Evening", "All day"].map((x) => `<option value="${x}" ${d.daypart === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-location">Location</label><input class="input" id="planner-event-location" name="location" value="${escapeMarkup(d.location || "")}" placeholder="e.g. Downtown · indoors"></div><div class="field"><label for="planner-event-weather">Weather</label><input class="input" id="planner-event-weather" name="weather" value="${escapeMarkup(d.weather || "")}" placeholder="e.g. 26°C · sunny"></div></div></details><button class="btn primary wide auth-primary" type="submit" style="margin-top:16px">${proactiveEditIndex !== null ? "Review event" : "Plan My Look"}</button></form>`,
+    `<form class="stack" onsubmit="submitPlannerEvent(event)"><p class="eyebrow">Planner · new event</p><h2 class="title">What are you dressing for?</h2><p class="body">An Event belongs to one day. Livia will plan one Look around it.</p><button class="planner-trip-bridge" type="button" onclick="startNewTrip()"><span><small>Going away for several days?</small><b>Plan a Trip instead</b></span><span aria-hidden="true">→</span></button>${validationAlert}<div class="field"><label for="planner-event-title">What are you dressing for?</label><input class="input" id="planner-event-title" name="title" value="${escapeMarkup(d.title || "")}" placeholder="e.g. Client presentation and dinner" required></div><div class="row"><div class="field grow"><label for="planner-event-date">Date</label><input class="input" id="planner-event-date" name="date" type="date" value="${escapeMarkup(d.date || new Date().toISOString().slice(0, 10))}"></div><div class="field grow"><label for="planner-event-time">Time</label><input class="input" id="planner-event-time" name="time" type="time" value="${escapeMarkup(d.time || "")}"></div></div><div class="field"><label for="planner-event-occasion">Occasion / dress code</label><select class="input" id="planner-event-occasion" name="occasion">${["Work", "Dinner", "Weekend", "Single-day travel", "Special occasion"].map((x) => `<option value="${x}" ${d.occasion === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><details class="card progressive-card" style="margin-top:8px"><summary><b>More details</b><span class="small">Daypart · location · notes</span></summary><div class="stack" style="margin-top:12px"><div class="field"><label for="planner-event-daypart">Daypart</label><select class="input" id="planner-event-daypart" name="daypart"><option value="">Choose daypart</option>${["Morning", "Afternoon", "Evening", "All day"].map((x) => `<option value="${x}" ${d.daypart === x ? "selected" : ""}>${x}</option>`).join("")}</select></div><div class="field"><label for="planner-event-location">Location</label><input class="input" id="planner-event-location" name="location" value="${escapeMarkup(d.location || "")}" placeholder="e.g. Downtown · indoors"></div><div class="field"><label for="planner-event-weather">Weather</label><input class="input" id="planner-event-weather" name="weather" value="${escapeMarkup(d.weather || "")}" placeholder="e.g. 26°C · sunny"></div></div></details><button class="btn primary wide auth-primary" type="submit" style="margin-top:16px">${proactiveEditIndex !== null ? "Review event" : "Plan My Look"}</button></form>`,
     { active: "planner" },
   );
 }
@@ -7866,7 +7868,7 @@ function tripsList() {
   if (!tripState.created)
     return shell(
       "Trips",
-      `${tripsEditorialHero()}${collectionHeader}<section class="trips-empty-editorial"><div class="trips-empty-lead"><p class="eyebrow">No trips yet</p><h3>A destination.<br>A wardrobe to match.</h3><p>Choose your destination and dates. Muse brings together outfits from your Closet and a packing checklist for your trip.</p></div></section>`,
+      `${tripsEditorialHero()}${collectionHeader}<section class="trips-empty-editorial"><div class="trips-empty-lead"><p class="eyebrow">No trips yet</p><h3>A destination.<br>A wardrobe to match.</h3><p>Choose your destination and dates. Livia brings together outfits from your Closet and a packing checklist for your trip.</p></div></section>`,
       { active: "profile" },
     );
   const draft = tripState.basics || tripDraft;
@@ -7947,7 +7949,7 @@ async function discoverLoadMuse() {
       items:(outfit.item_ids || []).map(id => closet.find(item => String(item.id) === String(id))).filter(Boolean),
     }))).filter(look => look.items.length);
     if (currentId === 'K-01') render();
-  } catch (error) { discoverError = 'Muse recommendations are unavailable right now.'; if (currentId === 'K-01') render(); }
+  } catch (error) { discoverError = 'Livia recommendations are unavailable right now.'; if (currentId === 'K-01') render(); }
 }
 async function discoverSearchLocal(query = discoverProductQuery) {
   if (!discoverApiBase) { render(); return; }
@@ -8126,7 +8128,7 @@ function discoverProductsForPiece(products, piece) {
 }
 function discoverMuseCard(look) {
   const images = look.items.slice(0,4).map(item => `<img src="${escapeMarkup(item.photo_url || item.image_url || item.image || '')}" alt="${escapeMarkup(item.name || item.title || 'Closet piece')}">`).join('');
-  return `<article class="discover-muse-card"><button class="discover-muse-media" onclick="discoverSelectedMuse='${escapeMarkup(look.id)}';render()" aria-label="View ${escapeMarkup(look.title)}"><span class="discover-muse-collage">${images}</span></button><div><small>Muse · From your Closet</small><h4>${escapeMarkup(look.title)}</h4><p>${escapeMarkup(look.rationale)}</p><div class="discover-muse-actions"><button class="text-action" onclick="discoverSelectedMuse='${escapeMarkup(look.id)}';render()">View Look ${icon('arrow-right')}</button><button class="text-action" onclick="discoverSaveMuse('${escapeMarkup(look.id)}')">Save</button></div></div></article>`;
+  return `<article class="discover-muse-card"><button class="discover-muse-media" onclick="discoverSelectedMuse='${escapeMarkup(look.id)}';render()" aria-label="View ${escapeMarkup(look.title)}"><span class="discover-muse-collage">${images}</span></button><div><small>Livia · From your Closet</small><h4>${escapeMarkup(look.title)}</h4><p>${escapeMarkup(look.rationale)}</p><div class="discover-muse-actions"><button class="text-action" onclick="discoverSelectedMuse='${escapeMarkup(look.id)}';render()">View Look ${icon('arrow-right')}</button><button class="text-action" onclick="discoverSaveMuse('${escapeMarkup(look.id)}')">Save</button></div></div></article>`;
 }
 const discoverLookImages = Object.fromEntries([
   'maya-work', 'maya-weekend', 'maya-dinner', 'maya-travel',
@@ -8147,7 +8149,7 @@ function discoverLooks() {
   const eligible = looks.filter(look => matchesStyle(look) && matchesQuery(look));
   const followed = eligible.filter(look => isCreatorFollowed(look.creator.id));
   const feed = discoverFeedMode === 'Following' ? followed : discoverFeedMode === 'Trending' ? [...eligible].reverse() : eligible;
-  const matchingMuse = discoverMuseLooks.filter(look => !query || `${look.title} ${look.occasion || ''} Muse`.toLowerCase().includes(query));
+  const matchingMuse = discoverMuseLooks.filter(look => !query || `${look.title} ${look.occasion || ''} Livia`.toLowerCase().includes(query));
   const museCards = discoverStyle === 'All' && matchingMuse.length ? `<div class="discover-muse-stack">${matchingMuse.slice(0,2).map(discoverMuseCard).join('')}</div>` : '';
   const intro = discoverFeedMode === 'Following' ? 'From stylists you follow' : discoverFeedMode === 'Trending' ? 'Trending Looks' : 'For You';
   const editorial = (discoverFeedMode === 'Trending' || discoverFeedMode === 'For You') && discoverStyle === 'All' && (!query || 'tailored ease editorial trending'.includes(query)) ? `<section class="mirror-section discover-feed-section"><div class="mirror-section-head"><span><p class="eyebrow">StyleIQ Editorial</p><h3>Trending Looks</h3></span></div><button class="discover-feature-look discover-feature-look--compact" onclick="openCommunityLook('coffee')"><img src="${assets.look3}" alt="Tailored ease editorial Look"><span><small>StyleIQ Editorial</small><b>Tailored ease</b><em>Explore Look</em></span></button></section>` : '';
@@ -8161,7 +8163,7 @@ function discoverLooks() {
 function discoverMuseDetail() {
   const look = discoverMuseLooks.find(item => item.id === discoverSelectedMuse);
   if (!look) return '';
-  return `<div class="discover-look-overlay"><button class="discover-look-scrim" aria-label="Close Look" onclick="discoverSelectedMuse=null;render()"></button><section class="discover-look-sheet" role="dialog" aria-label="${escapeMarkup(look.title)}"><button class="icon-btn" aria-label="Close Look" onclick="discoverSelectedMuse=null;render()">×</button><p class="eyebrow">Muse · From your Closet</p><h2>${escapeMarkup(look.title)}</h2><p class="body">${escapeMarkup(look.rationale)}</p><div class="discover-muse-items">${look.items.map(item => `<div><img src="${escapeMarkup(item.photo_url || item.image_url || item.image || '')}" alt=""><span>${escapeMarkup(item.name || item.title || 'Closet piece')}</span></div>`).join('')}</div><button class="btn primary wide" onclick="discoverWearMuse('${escapeMarkup(look.id)}')">Wear This</button><button class="btn wide" onclick="discoverSaveMuse('${escapeMarkup(look.id)}')">Save Look</button></section></div>`;
+  return `<div class="discover-look-overlay"><button class="discover-look-scrim" aria-label="Close Look" onclick="discoverSelectedMuse=null;render()"></button><section class="discover-look-sheet" role="dialog" aria-label="${escapeMarkup(look.title)}"><button class="icon-btn" aria-label="Close Look" onclick="discoverSelectedMuse=null;render()">×</button><p class="eyebrow">Livia · From your Closet</p><h2>${escapeMarkup(look.title)}</h2><p class="body">${escapeMarkup(look.rationale)}</p><div class="discover-muse-items">${look.items.map(item => `<div><img src="${escapeMarkup(item.photo_url || item.image_url || item.image || '')}" alt=""><span>${escapeMarkup(item.name || item.title || 'Closet piece')}</span></div>`).join('')}</div><button class="btn primary wide" onclick="discoverWearMuse('${escapeMarkup(look.id)}')">Wear This</button><button class="btn wide" onclick="discoverSaveMuse('${escapeMarkup(look.id)}')">Save Look</button></section></div>`;
 }
 function discoverMuseRecord(id) {
   const look = discoverMuseLooks.find(item => item.id === id);
@@ -8262,9 +8264,9 @@ let twinViewMode = "manage";
 // Look formula + renderer manifest. Production renderers can supply per-Twin assets here.
 let tryOnLooks = canonicalLooks();
 const swipeLookOrigins = {
-  party: ["muse_generated", "Muse"],
+  party: ["muse_generated", "Livia"],
   workout: ["user", "Style Studio"],
-  office: ["muse_assisted", "Muse"],
+  office: ["muse_assisted", "Livia"],
   dinner: ["inspiration_recreated", "Inspiration"],
 };
 let swipeGeneratedLooks = [];
@@ -8273,7 +8275,7 @@ function swipeLookCandidates() {
     ...look,
     ...(wearLookOverrides[look.id] || {}),
     creationSource: swipeLookOrigins[look.key]?.[0] || look.creationSource,
-    sourceLabel: swipeLookOrigins[look.key]?.[1] || "Muse",
+    sourceLabel: swipeLookOrigins[look.key]?.[1] || "Livia",
   }));
   const saved = lookCatalog.slice(0, 5).map((record, index) => {
     const template = canonicalLook(record.id);
@@ -8387,7 +8389,7 @@ function swipeLookContext(target = swipeLookTarget) {
       label: `Trip · Day ${target.index + 1}`,
       applyLabel: `Use for Day ${target.index + 1}`,
       detail: `${occasion}${tripState.basics?.destination ? ` in ${tripState.basics.destination}` : ""}`,
-      reason: `Muse balanced ${occasion.toLowerCase()}, destination weather, and the pieces already in your trip capsule.`,
+      reason: `Livia balanced ${occasion.toLowerCase()}, destination weather, and the pieces already in your trip capsule.`,
     };
   }
   if (target.type === "planner" && Number.isInteger(target.index)) {
@@ -8396,7 +8398,7 @@ function swipeLookContext(target = swipeLookTarget) {
       label: "Planner",
       applyLabel: "Use for this plan",
       detail: entry.title || entry.context || "your planned day",
-      reason: `Muse considered ${String(entry.title || entry.context || "the plan").toLowerCase()}, its timing, and your usual styling preferences.`,
+      reason: `Livia considered ${String(entry.title || entry.context || "the plan").toLowerCase()}, its timing, and your usual styling preferences.`,
     };
   }
   if (target.type === "planner-event") {
@@ -8405,14 +8407,14 @@ function swipeLookContext(target = swipeLookTarget) {
       label: "Planner",
       applyLabel: "Use for this event",
       detail: entry.title || entry.occasion || "your event",
-      reason: `Muse considered ${String(entry.title || entry.occasion || "the event").toLowerCase()}, the time, and the pieces available in your Closet.`,
+      reason: `Livia considered ${String(entry.title || entry.occasion || "the event").toLowerCase()}, the time, and the pieces available in your Closet.`,
     };
   }
   return {
     label: "Today",
     applyLabel: "Use for Today",
     detail: "today’s schedule",
-    reason: "Muse considered today’s weather, your schedule, and the pieces available in your Closet.",
+    reason: "Livia considered today’s weather, your schedule, and the pieces available in your Closet.",
   };
 }
 function swipeTargetKey(target = swipeLookTarget) {
@@ -8457,17 +8459,17 @@ function createSwipeMuseLook(type = "today", index = null) {
   const generated = {
     ...base,
     id: `muse-${Date.now()}`,
-    title: note ? `Muse · ${note.slice(0, 34)}` : `Muse’s ${context.detail} edit`,
+    title: note ? `Livia · ${note.slice(0, 34)}` : `Livia’s ${context.detail} edit`,
     context: note || context.detail,
     creationSource: "muse_generated",
-    sourceLabel: "Muse",
+    sourceLabel: "Livia",
   };
   swipeGeneratedLooks.unshift(generated);
   swipeMuseDraftId = generated.id;
   swipeMuseDraftTargetKey = swipeTargetKey();
   swipeLookCreateMode = null;
   render();
-  toast("Muse created a Look for this moment");
+  toast("Livia created a Look for this moment");
 }
 function openSwipeStyleStudio(type = "today", index = null) {
   setSwipeTarget({ type, index });
@@ -8505,17 +8507,17 @@ function swipeLooksMarkup({ id = "swipe-looks", selectedId = "", actionFor, targ
     ? swipeLookRecord(swipeMuseDraftId)
     : swipeMusePick(normalizedTarget, selectedId);
   if (swipeLookCreateMode === "muse" && swipeTargetKey(normalizedTarget) === swipeTargetKey()) {
-    return `<section class="swipe-looks swipe-muse-create" aria-labelledby="${id}-title"><button class="swipe-create-back" onclick="closeSwipeLookCreator()">${icon("back")} Back to Looks</button><header><p class="eyebrow">Create with Muse · ${escapeMarkup(context.label)}</p><h3 id="${id}-title">What should Muse change?</h3><p>Muse already has the context. Add a direction only if you want one.</p></header><div class="field"><label for="swipe-muse-direction">Optional direction</label><textarea id="swipe-muse-direction" class="textarea" placeholder="More relaxed, add colour, or use my saved inspiration…"></textarea></div><details class="swipe-inspiration-detail"><summary>Add inspiration</summary><p>Saved inspiration will guide the mood, while Muse still builds the Look from your Closet first.</p><button class="btn" onclick="go('K-01')">Choose from Discover</button></details><button class="btn primary wide" onclick="createSwipeMuseLook(${targetArgs})">Create this Look</button></section>`;
+    return `<section class="swipe-looks swipe-muse-create" aria-labelledby="${id}-title"><button class="swipe-create-back" onclick="closeSwipeLookCreator()">${icon("back")} Back to Looks</button><header><p class="eyebrow">Create with Livia · ${escapeMarkup(context.label)}</p><h3 id="${id}-title">What should Livia change?</h3><p>Livia already has the context. Add a direction only if you want one.</p></header><div class="field"><label for="swipe-muse-direction">Optional direction</label><textarea id="swipe-muse-direction" class="textarea" placeholder="More relaxed, add colour, or use my saved inspiration…"></textarea></div><details class="swipe-inspiration-detail"><summary>Add inspiration</summary><p>Saved inspiration will guide the mood, while Livia still builds the Look from your Closet first.</p><button class="btn" onclick="go('K-01')">Choose from Discover</button></details><button class="btn primary wide" onclick="createSwipeMuseLook(${targetArgs})">Create this Look</button></section>`;
   }
   const uniqueByTitle = (items) => items.filter((look, index, list) => list.findIndex((candidate) => candidate.title === look.title) === index);
   const savedLooks = uniqueByTitle(allLooks.filter((look) => look.id.startsWith("library-")));
   const activeLooks = allLooks.filter((look) => !look.id.startsWith("library-"));
   const tabs = {
     muse: {
-      label: "Muse",
+      label: "Livia",
       note: `Personal picks for ${context.detail}.`,
       looks: uniqueByTitle([musePick, ...activeLooks.filter((look) => ["muse_assisted", "muse_generated"].includes(look.creationSource))].filter(Boolean)),
-      actionTitle: "Create with Muse",
+      actionTitle: "Create with Livia",
       actionNote: "Ask for a fresh suggestion",
       actionIcon: "spark",
       action: `openSwipeMuseCreator(${targetArgs})`,
@@ -8593,7 +8595,7 @@ function todaySwipeLooksMarkup({ id = "today-look-library", selectedId = "", act
     })))
     .slice(0, 3);
   return `<div class="today-look-library" aria-label="More Looks for Today">
-    ${todayLookRailMarkup({ id: `${id}-muse`, title: "Muse Picks", note: "Fresh options shaped around today.", looks: museLooks, selectedId, actionFor, viewAllAction: "openSwipeLookPanel('today',null)", endTitle: "Create New", endNote: "Ask Muse for a new direction", endIcon: icon("spark"), endAction: "openSwipeMuseCreator('today',null)", discoveryStyle: true, sourceLabel: "Muse · Picked for you" })}
+    ${todayLookRailMarkup({ id: `${id}-muse`, title: "Livia Picks", note: "Fresh options shaped around today.", looks: museLooks, selectedId, actionFor, viewAllAction: "openSwipeLookPanel('today',null)", endTitle: "Create New", endNote: "Ask Livia for a new direction", endIcon: icon("spark"), endAction: "openSwipeMuseCreator('today',null)", discoveryStyle: true, sourceLabel: "Livia · Picked for you" })}
     ${todayLookRailMarkup({ id: `${id}-discover`, title: "Discover", note: "New Looks from stylists, picked for your style.", looks: discoveryLooks, selectedId, actionFor: (look) => `openCreatorLook('${look.id}')`, viewAllAction: "go('K-01')", endTitle: "See All", endNote: "Explore more Looks, stylists and new finds", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
     ${todayLookRailMarkup({ id: `${id}-studio`, title: "Style Studio", note: "Looks you built, ready to wear again.", looks: studioLooks, selectedId, actionFor, viewAllAction: "go('F-01')", endTitle: "Create New", endNote: "Build a Look piece by piece", endIcon: icon("shirt"), endAction: "go('F-01')", discoveryStyle: true, sourceLabel: "Your Style Studio" })}
     ${todayLookRailMarkup({ id: `${id}-ready`, title: "Ready Looks", note: "Looks prepared from inspiration and ready to wear.", looks: readyLooks, selectedId, actionFor, viewAllAction: "openSwipeLookPanel('today',null,'discover')", endTitle: "Discover", endNote: "Find a new source of inspiration", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
@@ -8610,7 +8612,7 @@ function todayFeatureIndexMarkup() {
     { id: "trips", label: "Trips", title: tripDestination, note: "Plan a capsule for the journey", route: "J-01", image: tripState.looks?.[0]?.image || assets.look4, iconName: "bag" },
     { id: "wishlist", label: "Wishlist", title: wishlistPreview?.name || "Keep what catches your eye", note: `${wishlistItems.filter((item) => item.status !== "Purchased").length} pieces to consider`, route: "G-08", image: wishlistPreview ? wishlistProductImage(wishlistPreview) : "", iconName: "heart" },
     { id: "twin", label: "Style Twin", title: "See the Look on you", note: "Explore your personal fit", route: twinSetup.complete ? "H-10" : "H-01", image: "", iconName: "user" },
-    { id: "muse", label: "Muse", title: "A little styling help", note: "Ask your personal stylist", action: "openMuse()", image: "", iconName: "spark" },
+    { id: "muse", label: "Livia", title: "A little styling help", note: "Ask your personal stylist", action: "openMuse()", image: "", iconName: "spark" },
   ];
   return `<section class="today-feature-index" aria-labelledby="today-feature-index-title"><header><p class="eyebrow">Your StyleIQ</p><h2 id="today-feature-index-title">Explore your world</h2><p>Everything you need to make the most of what you own.</p></header><div class="today-feature-grid">${features.map((feature) => {
     const action = feature.action || `go('${feature.route}')`;
@@ -8858,7 +8860,7 @@ function makeLookMine(look = swipeLookRecord(selectedTodayLook) || tryOnLooks.of
 function makeTodayLookMine(id = selectedTodayLook) {
   const look = swipeLookRecord(id) || tryOnLooks[id] || canonicalLook(id);
   makeLookMine(look, {
-    creator: "Muse",
+    creator: "Livia",
     originLabel: "From Today",
     returnScreen: "D-02",
   });
@@ -9217,7 +9219,7 @@ function wearSheetContent() {
   }
   if (flow.step === 'edit-save') return `${intro}<p class="body">Choose whether this correction updates the saved wear or represents another occasion.</p><div class="wear-actions"><button class="btn primary wide" onclick="resolveWearRecordEdit('update')">Update Current</button><button class="btn wide" onclick="resolveWearRecordEdit('new')">Save as New</button><button class="text-action" onclick="resolveWearRecordEdit('discard')">Discard Changes</button></div>`;
   if (flow.step === 'context') return `${intro}<div class="wear-chips">${wearContextOptions(look).map((value, index) => `<button class="chip" onclick="chooseWearContext(${index})">${escapeMarkup(value)}</button>`).join('')}<button class="chip" onclick="wearFlow.context='other';mountWearSheet()">Something else</button></div>${flow.context === 'other' ? `<label class="field">What did you wear it for?<input id="wear-other-context" class="input" maxlength="80"></label><button class="btn wide" onclick="saveWearContext(document.getElementById('wear-other-context').value.trim())">Save context</button>` : ''}<button class="text-action" onclick="saveWearContext(null)">Skip</button>`;
-  if (flow.step === 'feedback') return `<p class="body">Optional · help Muse understand this wear.</p><div class="wear-chips">${['Loved it', 'Comfortable', 'Would wear again', 'Too warm', 'Too cold', 'Too formal', 'Too casual'].map(value => `<button class="chip" onclick="saveWearFeedback('${value}')">${value}</button>`).join('')}</div><button class="text-action" onclick="saveWearFeedback(null)">Skip</button>`;
+  if (flow.step === 'feedback') return `<p class="body">Optional · help Livia understand this wear.</p><div class="wear-chips">${['Loved it', 'Comfortable', 'Would wear again', 'Too warm', 'Too cold', 'Too formal', 'Too casual'].map(value => `<button class="chip" onclick="saveWearFeedback('${value}')">${value}</button>`).join('')}</div><button class="text-action" onclick="saveWearFeedback(null)">Skip</button>`;
   if (flow.step === 'save') return `${intro}<p class="body">You wore an edited version. How should StyleIQ keep the Look?</p><div class="wear-actions"><button class="btn primary wide" onclick="resolveWearLook('new')">Save it as a new Look</button><button class="btn wide" onclick="resolveWearLook('keep')">Keep this wear only</button><button class="btn wide" onclick="resolveWearLook('original')">Change original Look</button></div>`;
   if (flow.step === 'review') return `${intro}<p class="body">${flow.items.filter(item => item.worn).length} pieces recorded${record?.context ? ` · ${escapeMarkup(record.context)}` : ''}</p><div class="wear-actions"><button class="btn primary wide" onclick="wearFlow.step='edit';mountWearSheet()">Edit actual items</button><button class="btn wide" onclick="wearFlow.step='context';mountWearSheet()">Edit context</button><button class="btn wide" onclick="wearFlow.step='feedback';mountWearSheet()">Edit feedback</button><button class="text-action" onclick="startAnotherWear()">Log another wear</button></div>`;
   return `${intro}<p class="body">${flow.items.filter(item => item.worn).length} pieces added to your wear history.</p><button class="btn primary wide" onclick="closeWearFlow()">Done</button>`;
@@ -9365,7 +9367,7 @@ function leanSavedLook() {
     : `<section class="look-detail-decision look-owner-actions" aria-label="My Look actions"><button class="btn primary" onclick="selectLookForWear(savedLookRecord())">${wearActionLabel(record.id)}</button><button class="btn" onclick="planSavedLook()">Add to Planner</button><button class="btn" data-look-more aria-haspopup="dialog" onclick="setSavedLookActionSheet('more')">More ···</button>${failed ? `<p class="muse-generation-error" role="alert">${escapeMarkup(museGeneration.error)} <button onclick="generateMuseVideoForLook('${record.id}')">Retry</button></p>` : ""}</section>`;
   const moreSheet = !inspiration && savedLookActionSheet ? `<div class="look-media-action-layer"><button class="look-media-scrim" aria-label="Close Look actions" onclick="setSavedLookActionSheet(null)"></button><section class="look-media-action-sheet saved-look-actions-sheet" data-look-actions-dialog role="${savedLookActionSheet === 'delete' ? 'alertdialog' : 'dialog'}" aria-modal="true" aria-labelledby="look-actions-title"><span></span>${savedLookActionSheet === "delete"
     ? `<header class="look-sheet-header"><button aria-label="Close delete Look" onclick="setSavedLookActionSheet(null)">${icon("x")}</button><h3 id="look-actions-title">Delete this Look?</h3></header><p>This removes the saved Look and its media from your library. Your closet items will stay. This can’t be undone.</p><button class="danger-action" onclick="removeSavedLook()">${icon("trash-2")} Delete Look</button>`
-    : `<header class="look-sheet-header"><button aria-label="Close Look actions" onclick="setSavedLookActionSheet(null)">${icon("x")}</button><h3 id="look-actions-title">Look actions</h3></header><button onclick="runSavedLookAction('media')">${icon("images")} Manage Media</button><button onclick="runSavedLookAction('video')" ${generating ? "disabled" : ""}>${icon("video")} ${generating ? "Muse is creating…" : record.media?.some((media) => media.mediaType === "muse") ? "Regenerate Muse Video" : "Generate Video with Muse"}</button><button class="look-actions-edit" onclick="runSavedLookAction('edit')">${icon("pencil")} Edit Look</button>${mutableSavedLook() ? `<button class="danger-action" onclick="setSavedLookActionSheet('delete')">${icon("trash-2")} Delete Look</button>` : ""}`}</section></div>` : "";
+    : `<header class="look-sheet-header"><button aria-label="Close Look actions" onclick="setSavedLookActionSheet(null)">${icon("x")}</button><h3 id="look-actions-title">Look actions</h3></header><button onclick="runSavedLookAction('media')">${icon("images")} Manage Media</button><button onclick="runSavedLookAction('video')" ${generating ? "disabled" : ""}>${icon("video")} ${generating ? "Livia is creating…" : record.media?.some((media) => media.mediaType === "muse") ? "Regenerate Livia Video" : "Generate Video with Livia"}</button><button class="look-actions-edit" onclick="runSavedLookAction('edit')">${icon("pencil")} Edit Look</button>${mutableSavedLook() ? `<button class="danger-action" onclick="setSavedLookActionSheet('delete')">${icon("trash-2")} Delete Look</button>` : ""}`}</section></div>` : "";
   const mediaSheet = lookMediaSheetOpen ? `<div class="look-media-action-layer"><button class="look-media-scrim" aria-label="Close Manage Media" onclick="closeLookMediaSheet()"></button><section class="look-media-action-sheet saved-look-actions-sheet" data-look-media-dialog role="dialog" aria-modal="true" aria-labelledby="manage-media-title"><span></span><header class="look-sheet-header"><button aria-label="Close Manage Media" onclick="closeLookMediaSheet()">${icon("x")}</button><h3 id="manage-media-title">Manage Media</h3></header><div class="look-media-upload-actions"><button onclick="chooseLookMedia('camera')">${icon("camera")} Take Photo</button><button onclick="chooseLookMedia('photo')">${icon("image-plus")} Upload Photo</button><button onclick="chooseLookMedia('video')">${icon("video")} Upload Video</button></div><div class="look-managed-media-grid">${record.media?.length ? record.media.map((media, index) => `<article class="look-managed-media-card">${media.type === "video" ? `<video src="${escapeMarkup(media.src)}" controls playsinline preload="metadata" aria-label="${escapeMarkup(media.label || 'Video')}"></video>` : `<img src="${escapeMarkup(media.src)}" alt="${escapeMarkup(media.label || 'Look image')}">`}<div class="look-managed-media-footer"><p>${escapeMarkup(media.label || `Media ${index + 1}`)}${media.primary ? `<small>Primary</small>` : ""}</p><div class="look-managed-media-actions">${media.type === "image" ? `<button class="${media.primary ? 'is-primary' : ''}" onclick="setPrimaryLookMedia(savedLookRecord().media[${index}].id)" aria-label="${media.primary ? 'Primary image' : `Set image ${index + 1} as primary`}" aria-pressed="${Boolean(media.primary)}" title="${media.primary ? 'Primary image' : 'Set as primary'}">${icon("star")}</button>` : ""}<button class="danger-action" onclick="requestRemoveLookMedia(savedLookRecord().media[${index}].id)" aria-label="Delete media ${index + 1}" title="Delete media">${icon("trash-2")}</button></div></div></article>`).join("") : `<p class="look-media-empty">No media yet. Add a photo or video above.</p>`}</div></section></div>` : "";
   const deleteConfirm = lookMediaDeleteId ? `<div class="look-media-action-layer"><button class="look-media-scrim" aria-label="Cancel media removal" onclick="cancelRemoveLookMedia()"></button><section class="look-media-action-sheet media-delete-confirm" data-look-media-confirm role="alertdialog" aria-modal="true" aria-label="Remove media?"><header class="look-sheet-header"><button aria-label="Close media removal" onclick="cancelRemoveLookMedia()">${icon("x")}</button><h3>Remove this media?</h3></header><p>The Look and its other media will stay.</p><button class="danger-action" onclick="confirmRemoveLookMedia()">${icon("trash-2")} Remove media</button></section></div>` : "";
   return `<section class="screen look-detail-screen"><input id="look-camera-upload" class="sr-only" type="file" accept="image/*" capture="environment" onchange="addLookMedia(this,'photo')"><input id="look-photo-upload" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" onchange="addLookMedia(this,'photo')"><input id="look-video-upload" class="sr-only" type="file" accept="video/*" onchange="addLookMedia(this,'video')"><div class="lightweight-layer planner-detail-layer look-detail-route-layer"><section class="lightweight-sheet planner-visual-detail" aria-label="${inspiration ? "Inspiration Look details" : "My Look details"}">${savedLookMediaSurface(record)}</section>${decision}</div>${moreSheet}${mediaSheet}${deleteConfirm}${accountMenuV2()}${notificationsPanel()}${logoutDialog()}${lightweightPanelMarkup()}${lensLayerMarkup()}</section>`;
@@ -9705,7 +9707,7 @@ function studioPreview() {
   canvasState.items = canvasState.items.map((piece) => ({ ...piece, role: normalizeStudioRole(piece) }));
   const visible = canvasState.items.filter((x) => x.visible !== false);
   if (!canvasState.items.length)
-    return `<section class="studio-starter" aria-label="Start your Look"><div class="studio-starter-art">${studioPieceArt({ name: "Eyelet shirt" })}${studioPieceArt({ name: "Black trousers" })}${studioPieceArt({ name: "Tan suede loafers" })}</div><h3>Start your Look</h3><p>One piece is all you need.</p><button class="btn primary wide" onclick="openStudioSources()">Add first piece</button><div class="studio-starter-actions"><button onclick="studioUI.source='Owned';persistStudioUI();studioRefresh()">Start from Closet</button><button onclick="openStudioLens()">Use Lens</button><button onclick="openMuse(museContextFor('F-01'))">Ask Muse</button></div></section>`;
+    return `<section class="studio-starter" aria-label="Start your Look"><div class="studio-starter-art">${studioPieceArt({ name: "Eyelet shirt" })}${studioPieceArt({ name: "Black trousers" })}${studioPieceArt({ name: "Tan suede loafers" })}</div><h3>Start your Look</h3><p>One piece is all you need.</p><button class="btn primary wide" onclick="openStudioSources()">Add first piece</button><div class="studio-starter-actions"><button onclick="studioUI.source='Owned';persistStudioUI();studioRefresh()">Start from Closet</button><button onclick="openStudioLens()">Use Lens</button><button onclick="openMuse(museContextFor('F-01'))">Ask Livia</button></div></section>`;
   if (canvasState.mode === "avatar") {
     const match = studioMatchingRender(),
       cached = studioCachedRender();
@@ -10066,15 +10068,15 @@ function ensureStudioLookForMedia() {
 function generateStudioMuseVideo() { const look = ensureStudioLookForMedia(); generateMuseVideoForLook(look.id); }
 function removeStudioMuseVideo() {
   const look = ensureStudioLookForMedia(), muse = look.media?.find((media) => media.mediaType === "muse");
-  if (!muse || !confirm("Remove this Muse video? The Look will stay.")) return;
-  look.media = look.media.filter((media) => media.id !== muse.id); persistOwnedLooks(); render(); toast("Muse video removed");
+  if (!muse || !confirm("Remove this Livia video? The Look will stay.")) return;
+  look.media = look.media.filter((media) => media.id !== muse.id); persistOwnedLooks(); render(); toast("Livia video removed");
 }
 function studioMuseVideoMarkup() {
   const look = lookCatalog.find((item) => item.id === canvasState.savedLookId || item.title === canvasState.title);
   const muse = look?.media?.find((media) => media.mediaType === "muse");
   const generating = museGeneration.lookId === look?.id && museGeneration.state === "generating";
   const failed = museGeneration.lookId === look?.id && museGeneration.state === "failed";
-  return `<section class="studio-muse-video" aria-label="Muse video"><div><span>${icon("spark")}</span><p><b>Muse Video</b><small>AI visualization saved with this Look</small></p></div>${muse ? `<video src="${muse.src}" controls playsinline aria-label="Muse generated Look video"></video>` : ""}${generating ? `<div class="muse-video-progress" role="status"><i></i><span>Muse is creating your video…</span></div>` : ""}${failed ? `<p class="muse-generation-error" role="alert">${escapeMarkup(museGeneration.error)}</p>` : ""}<div class="studio-muse-actions"><button class="btn" onclick="generateStudioMuseVideo()" ${generating ? "disabled" : ""}>${generating ? "Generating…" : muse ? "Regenerate" : failed ? "Retry" : "Generate Video with Muse"}</button>${muse ? `<button class="text-action" onclick="removeStudioMuseVideo()">Remove</button>` : ""}</div></section>`;
+  return `<section class="studio-muse-video" aria-label="Livia video"><div><span>${icon("spark")}</span><p><b>Livia Video</b><small>AI visualization saved with this Look</small></p></div>${muse ? `<video src="${muse.src}" controls playsinline aria-label="Livia generated Look video"></video>` : ""}${generating ? `<div class="muse-video-progress" role="status"><i></i><span>Livia is creating your video…</span></div>` : ""}${failed ? `<p class="muse-generation-error" role="alert">${escapeMarkup(museGeneration.error)}</p>` : ""}<div class="studio-muse-actions"><button class="btn" onclick="generateStudioMuseVideo()" ${generating ? "disabled" : ""}>${generating ? "Generating…" : muse ? "Regenerate" : failed ? "Retry" : "Generate Video with Livia"}</button>${muse ? `<button class="text-action" onclick="removeStudioMuseVideo()">Remove</button>` : ""}</div></section>`;
 }
 function saveInstantLook() {
   lightweightPanel = 'instantSave';
@@ -10981,7 +10983,7 @@ function searchStyleIQ(value) {
     ["Planner", "I-01"],
     ["Discover", "K-01"],
     ["Trips", "J-01"],
-    ["Muse", "M-01"],
+    ["Livia", "M-01"],
     [`${profileFullName()} · Profile`, "L-01"],
     ["Style Twin", "H-01"],
     ["About you", "L-04"],
@@ -11010,7 +11012,7 @@ function accountMenuV2() {
     [
       "My Style",
       [
-        ["spark", "Muse", "M-01"],
+        ["spark", "Livia", "M-01"],
         ["compass", "Discovery", "K-01"],
         ["user", "Profile", "L-01"],
         ["bookmark", "Saved Looks", "G-01"],
@@ -11067,7 +11069,7 @@ function profileScreen(s) {
   if (idx === 1)
     return shell(
       "My Atelier",
-      `<div class="profile-kicker"><h2 class="title">My Style Profile</h2><button class="profile-control" aria-label="Profile settings" onclick="go('L-11')">${icon("gear")}</button></div><section class="profile-editorial"><img src="${assets.profile}" alt="${escapeMarkup(profileFullName())}"><span><p class="eyebrow">My style profile</p><h3 class="title">${escapeMarkup(profileFullName())}</h3><p class="body">Relaxed tailoring · warm neutrals</p></span><button class="profile-control" aria-label="Ask Muse about my profile" onclick="go('M-01')">${icon("spark")}</button></section><div class="profile-looks-head"><div><p class="eyebrow">My Looks</p><h3 class="title">Outfits I return to</h3></div><button class="text-action" onclick="go('G-01')">View all</button></div><div class="profile-look-rail"><button class="profile-look" onclick="go('G-02')"><img src="${assets.look}" alt="Espresso work Look"><span>Work<b>${canvasState.title}</b></span></button><button class="profile-look" onclick="go('G-02')"><img src="${assets.look3}" alt="Cairo office Look"><span>Office<b>Worn Tuesday</b></span></button><button class="profile-look" onclick="go('J-01')"><img src="${assets.look4}" alt="Alexandria travel Look"><span>Travel<b>Alexandria</b></span></button></div><section class="profile-closet"><p class="eyebrow">My Closet</p><h3 class="title">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Black tailored blazer"><span><b>Black tailored blazer</b><small class="body" style="display:block">1 piece · 5 styling directions</small></span><button class="btn" onclick="openTodayAlternatives()">Style</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.bag}" alt="Oxblood crescent bag on Wishlist"><b>Wishlist</b><small>1 saved piece to review</small></button><button class="profile-utility" onclick="go('H-01')"><img src="${assets.body}" alt="Optional Style Twin preview"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
+      `<div class="profile-kicker"><h2 class="title">My Style Profile</h2><button class="profile-control" aria-label="Profile settings" onclick="go('L-11')">${icon("gear")}</button></div><section class="profile-editorial"><img src="${assets.profile}" alt="${escapeMarkup(profileFullName())}"><span><p class="eyebrow">My style profile</p><h3 class="title">${escapeMarkup(profileFullName())}</h3><p class="body">Relaxed tailoring · warm neutrals</p></span><button class="profile-control" aria-label="Ask Livia about my profile" onclick="go('M-01')">${icon("spark")}</button></section><div class="profile-looks-head"><div><p class="eyebrow">My Looks</p><h3 class="title">Outfits I return to</h3></div><button class="text-action" onclick="go('G-01')">View all</button></div><div class="profile-look-rail"><button class="profile-look" onclick="go('G-02')"><img src="${assets.look}" alt="Espresso work Look"><span>Work<b>${canvasState.title}</b></span></button><button class="profile-look" onclick="go('G-02')"><img src="${assets.look3}" alt="Cairo office Look"><span>Office<b>Worn Tuesday</b></span></button><button class="profile-look" onclick="go('J-01')"><img src="${assets.look4}" alt="Alexandria travel Look"><span>Travel<b>Alexandria</b></span></button></div><section class="profile-closet"><p class="eyebrow">My Closet</p><h3 class="title">Start with what you own</h3><div class="profile-closet-row"><img src="${assets.blazer}" alt="Black tailored blazer"><span><b>Black tailored blazer</b><small class="body" style="display:block">1 piece · 5 styling directions</small></span><button class="btn" onclick="openTodayAlternatives()">Style</button></div></section><div class="profile-utility-grid"><button class="profile-utility" onclick="setClosetTab('wishlist')"><img src="${assets.bag}" alt="Oxblood crescent bag on Wishlist"><b>Wishlist</b><small>1 saved piece to review</small></button><button class="profile-utility" onclick="go('H-01')"><img src="${assets.body}" alt="Optional Style Twin preview"><b>Style Twin</b><small>Optional private try-on</small></button></div>`,
       { active: "profile" },
     );
   if (idx === 2)
@@ -11088,7 +11090,7 @@ function profileScreen(s) {
   if (idx === 4 || idx === 5 || idx === 6) {
     return shell(
       "Profile & Style Preferences",
-      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Muse follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack preferences-form" style="margin-top:16px"><details class="card progressive-card" open><summary><b>About you</b><span class="small">Photo · name · location</span></summary><div class="stack preferences-form-fields" style="margin-top:12px">${profilePhotoEditor()}<div class="field"><label>Display name</label><input class="input" value="${escapeMarkup(profileFullName())}"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" open><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" open><summary><b>Brands &amp; Fit</b><span class="small">Favorites · sizes · fit notes</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div><div class="row"><div class="field grow"><label>Top size</label><input class="input" value="M · EU 38"></div><div class="field grow"><label>Bottom size</label><input class="input" value="EU 40 · W30"></div></div><div class="field"><label>Shoe size</label><input class="input" value="EU 39"></div><div class="field"><label>Brand fit notes</label><textarea class="textarea">COS outerwear runs relaxed; A.P.C. trousers fit snug at the waist.</textarea></div></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
+      `<div class="mirror-upload-intro"><p class="eyebrow">Personalize StyleIQ</p><h2 class="title">Profile &amp; Style Preferences</h2><p class="body">Set the guidelines Livia follows when selecting daily looks and wardrobe recommendations.</p></div><div class="stack preferences-form" style="margin-top:16px"><details class="card progressive-card" open><summary><b>About you</b><span class="small">Photo · name · location</span></summary><div class="stack preferences-form-fields" style="margin-top:12px">${profilePhotoEditor()}<div class="field"><label>Display name</label><input class="input" value="${escapeMarkup(profileFullName())}"></div><div class="field"><label>Location</label><input class="input" value="Cairo, Egypt"></div><div class="field"><label>Wardrobe context</label><input class="input" value="Tailoring, warm neutrals"></div></div></details><details class="card progressive-card" open><summary><b>Style preferences</b><span class="small">Silhouettes · rules</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Preferred aesthetic</label><input class="input" value="Tailoring, warm neutrals, quiet luxury"></div><div class="field"><label>Style rules</label><input class="input" value="No low-rise fits, prefer structured layers"></div></div></details><details class="card progressive-card" open><summary><b>Brands &amp; Fit</b><span class="small">Favorites · sizes · fit notes</span></summary><div class="stack preferences-form-fields" style="margin-top:12px"><div class="field"><label>Favorite brands</label><input class="input" value="A.P.C., AMI Paris, COS, Balmain"></div><div class="row"><div class="field grow"><label>Top size</label><input class="input" value="M · EU 38"></div><div class="field grow"><label>Bottom size</label><input class="input" value="EU 40 · W30"></div></div><div class="field"><label>Shoe size</label><input class="input" value="EU 39"></div><div class="field"><label>Brand fit notes</label><textarea class="textarea">COS outerwear runs relaxed; A.P.C. trousers fit snug at the waist.</textarea></div></div></details></div><button class="btn primary wide auth-primary" type="button" style="margin-top:18px" onclick="go('L-01');toast('Preferences updated')">Save Preferences</button>`,
       { active: "profile" },
     );
   }
@@ -11172,10 +11174,10 @@ function profileScreen(s) {
           <section class="settings-card" aria-labelledby="settings-muse-title">
             <div class="settings-card-head">
               <span class="settings-card-icon">${icon("spark")}</span>
-              <span class="grow"><h3 id="settings-muse-title">Muse</h3><p>Choose how your stylist replies</p></span>
+              <span class="grow"><h3 id="settings-muse-title">Livia</h3><p>Choose how your stylist replies</p></span>
             </div>
             <div class="settings-card-body">
-              <div class="settings-choice-row"><span><b>Reply style</b><small>Voice playback with text, or text only</small></span><div class="settings-segmented settings-segmented--two" role="group" aria-label="Muse reply style">${["Voice + text", "Text only"].map((option) => `<button type="button" class="${settingsPreferences.museReplyMode === option ? "selected" : ""}" aria-pressed="${settingsPreferences.museReplyMode === option}" onclick="updateMuseReplyMode('${option}', this)">${option}</button>`).join("")}</div></div>
+              <div class="settings-choice-row"><span><b>Reply style</b><small>Voice playback with text, or text only</small></span><div class="settings-segmented settings-segmented--two" role="group" aria-label="Livia reply style">${["Voice + text", "Text only"].map((option) => `<button type="button" class="${settingsPreferences.museReplyMode === option ? "selected" : ""}" aria-pressed="${settingsPreferences.museReplyMode === option}" onclick="updateMuseReplyMode('${option}', this)">${option}</button>`).join("")}</div></div>
             </div>
           </section>
 
@@ -11207,7 +11209,7 @@ function profileScreen(s) {
       ["Get styled", "D-02"],
       ["Save a Look", "G-01"],
       ["Create a Style Twin", "H-01"],
-      ["Train Muse with feedback", "M-01"],
+      ["Train Livia with feedback", "M-01"],
     ]
       .map(
         ([label, id]) =>
@@ -11233,7 +11235,7 @@ function enrichCoreScreens(s) {
   if (s.id === "L-01") {
     content.insertAdjacentHTML(
       "beforeend",
-      `<section class="muse-profile"><div class="muse-profile-head"><img src="${assets.muse}" alt="Muse"><span class="grow"><p class="eyebrow">What Muse has learned</p><h3 class="title">Your style, in focus</h3></span><button class="btn small-btn" onclick="openProfilePreferences('style')">Refine</button></div><p class="body">You lean toward warm neutrals, clean lines, and relaxed tailoring. You save structured layers but wear softer combinations most often.</p><div class="palette" aria-label="Your learned color palette"><i style="background:#241f1b"></i><i style="background:#8d623d"></i><i style="background:#d7c4a5"></i><i style="background:#eee7db"></i><i style="background:#788071"></i></div><button class="btn primary wide" onclick="go('M-01')">Open Muse profile</button></section><section class="card" style="margin-top:12px"><div class="between"><span><p class="eyebrow">Style evolution</p><b>Relaxed tailoring is up 18%</b></span><span class="pill gold">This month</span></div><div class="evolution-bar"><span></span></div><p class="body" style="margin-top:10px">Muse found 3 new combinations around your blazer without adding another purchase.</p><button class="btn wide" style="margin-top:12px" onclick="openLightweightPanel('whyLook')">See the wardrobe insight</button></section>`,
+      `<section class="muse-profile"><div class="muse-profile-head"><img src="${assets.muse}" alt="Livia"><span class="grow"><p class="eyebrow">What Livia has learned</p><h3 class="title">Your style, in focus</h3></span><button class="btn small-btn" onclick="openProfilePreferences('style')">Refine</button></div><p class="body">You lean toward warm neutrals, clean lines, and relaxed tailoring. You save structured layers but wear softer combinations most often.</p><div class="palette" aria-label="Your learned color palette"><i style="background:#241f1b"></i><i style="background:#8d623d"></i><i style="background:#d7c4a5"></i><i style="background:#eee7db"></i><i style="background:#788071"></i></div><button class="btn primary wide" onclick="go('M-01')">Open Livia profile</button></section><section class="card" style="margin-top:12px"><div class="between"><span><p class="eyebrow">Style evolution</p><b>Relaxed tailoring is up 18%</b></span><span class="pill gold">This month</span></div><div class="evolution-bar"><span></span></div><p class="body" style="margin-top:10px">Livia found 3 new combinations around your blazer without adding another purchase.</p><button class="btn wide" style="margin-top:12px" onclick="openLightweightPanel('whyLook')">See the wardrobe insight</button></section>`,
     );
   }
 }
@@ -11279,7 +11281,7 @@ function playMuseReply(button) {
     active.classList.remove("is-playing");
     const control = active.querySelector("button");
     control.textContent = "▶";
-    control.setAttribute("aria-label", "Play Muse voice reply");
+    control.setAttribute("aria-label", "Play Livia voice reply");
   });
   if (wasPlaying) return;
   const speech = new SpeechSynthesisUtterance(button.dataset.text);
@@ -11287,16 +11289,16 @@ function playMuseReply(button) {
   speech.onend = speech.onerror = () => {
     card.classList.remove("is-playing");
     button.textContent = "▶";
-    button.setAttribute("aria-label", "Play Muse voice reply");
+    button.setAttribute("aria-label", "Play Livia voice reply");
   };
   card.classList.add("is-playing");
   button.textContent = "■";
-  button.setAttribute("aria-label", "Stop Muse voice reply");
+  button.setAttribute("aria-label", "Stop Livia voice reply");
   speechSynthesis.speak(speech);
 }
 function museResponseMarkup(entry) {
   const reply = entry.reply;
-  return `<article class="muse-exchange"><div class="muse-user-message">${entry.imageAttachment ? `<img class="muse-user-attachment" src="${entry.imageAttachment.src}" alt="Attached image: ${escapeMarkup(entry.imageAttachment.name)}">` : ""}${entry.voiceUrl ? `<audio controls src="${entry.voiceUrl}" aria-label="Your voice note"></audio><small>Voice note · ${entry.voiceSeconds}s</small>` : ""}<p>${escapeMarkup(entry.question)}</p><time>${entry.time || ""}</time></div><div class="muse-answer"><div class="muse-answer-head"><img src="${assets.muse}" alt=""><span><b>Muse</b><small>${escapeMarkup(reply.label)}</small></span></div><p class="muse-answer-copy">${escapeMarkup(reply.text)}</p><p class="muse-answer-note">${icon("spark")} ${escapeMarkup(reply.note)}</p><div class="muse-look-rail" aria-label="Suggested Looks">${reply.looks.map(([image, title, detail]) => `<button class="muse-look-card" onclick="go('F-01')"><img src="${image}" alt="${escapeMarkup(title)}"><span><b>${escapeMarkup(title)}</b><small>${escapeMarkup(detail)}</small><b>View Full Look →</b></span></button>`).join("")}</div>${settingsPreferences.museReplyMode === "Voice + text" ? `<div class="muse-voice-reply"><button type="button" aria-label="Play Muse voice reply" data-text="${escapeMarkup(reply.text)}" onclick="playMuseReply(this)">▶</button><span class="muse-waveform" aria-hidden="true">${[8,12,19,14,25,34,22,13,28,40,31,18,10,17,29,21,12,8,15,24,36,26,16,11,20,32,23,14,9,18,27,19,12,16,10,6].map((height, index) => `<i style="--bar-height:${height}px;--bar-delay:${-(index % 9) * .12}s"></i>`).join("")}</span><small>Voice reply</small><p>${escapeMarkup(reply.text)}</p></div>` : ""}<div class="muse-refinements" aria-label="Refine Muse's suggestion">${["Show another option", "Use only my Closet", "Dress it up"].map(label => `<button type="button" data-question="${escapeMarkup(label)}" onclick="askMusePreset(this.dataset.question)">${escapeMarkup(label)}</button>`).join("")}</div></div></article>`;
+  return `<article class="muse-exchange"><div class="muse-user-message">${entry.imageAttachment ? `<img class="muse-user-attachment" src="${entry.imageAttachment.src}" alt="Attached image: ${escapeMarkup(entry.imageAttachment.name)}">` : ""}${entry.voiceUrl ? `<audio controls src="${entry.voiceUrl}" aria-label="Your voice note"></audio><small>Voice note · ${entry.voiceSeconds}s</small>` : ""}<p>${escapeMarkup(entry.question)}</p><time>${entry.time || ""}</time></div><div class="muse-answer"><div class="muse-answer-head"><img src="${assets.muse}" alt=""><span><b>Livia</b><small>${escapeMarkup(reply.label)}</small></span></div><p class="muse-answer-copy">${escapeMarkup(reply.text)}</p><p class="muse-answer-note">${icon("spark")} ${escapeMarkup(reply.note)}</p><div class="muse-look-rail" aria-label="Suggested Looks">${reply.looks.map(([image, title, detail]) => `<button class="muse-look-card" onclick="go('F-01')"><img src="${image}" alt="${escapeMarkup(title)}"><span><b>${escapeMarkup(title)}</b><small>${escapeMarkup(detail)}</small><b>View Full Look →</b></span></button>`).join("")}</div>${settingsPreferences.museReplyMode === "Voice + text" ? `<div class="muse-voice-reply"><button type="button" aria-label="Play Livia voice reply" data-text="${escapeMarkup(reply.text)}" onclick="playMuseReply(this)">▶</button><span class="muse-waveform" aria-hidden="true">${[8,12,19,14,25,34,22,13,28,40,31,18,10,17,29,21,12,8,15,24,36,26,16,11,20,32,23,14,9,18,27,19,12,16,10,6].map((height, index) => `<i style="--bar-height:${height}px;--bar-delay:${-(index % 9) * .12}s"></i>`).join("")}</span><small>Voice reply</small><p>${escapeMarkup(reply.text)}</p></div>` : ""}<div class="muse-refinements" aria-label="Refine Livia's suggestion">${["Show another option", "Use only my Closet", "Dress it up"].map(label => `<button type="button" data-question="${escapeMarkup(label)}" onclick="askMusePreset(this.dataset.question)">${escapeMarkup(label)}</button>`).join("")}</div></div></article>`;
 }
 
 function museScreen(s) {
@@ -11307,5 +11309,5 @@ function museScreen(s) {
     ["Plan a Trip", "Outfit ideas for your destination", assets.look2, "Help me pack lighter for a seaside trip"],
     ["Check a Piece", "Find ways to style it", assets.top2, "Help me style a knit top from my Closet"]
   ];
-  return shell("Muse", `<div class="muse-assistant ${active ? "is-conversation" : "is-intro"}"><div class="muse-hero" aria-label="Muse curating a wardrobe"><video src="app%20videos/muse.mp4" autoplay muted loop playsinline preload="metadata" poster="images/meet-muse-poster.jpg"></video></div>${!active ? `<section class="muse-welcome"><p class="eyebrow">STYLEIQ</p><h2>Meet Muse</h2><p>Your visual stylist for real life.<br>I use your closet, plans, and context to create looks that fit your day.</p></section>` : ""}<div class="muse-context-strip"><span>${icon("sun")}</span><p><small>Styling from</small><b>${escapeMarkup(!museContext.origin || museContext.origin.startsWith("M-") ? "Today’s look and weather" : museContext.label)}</b><small>Closet · plans · weather</small></p>${active ? `<button onclick="clearMuseConversation()">New chat</button>` : ""}</div>${active ? `<div class="muse-thread" aria-live="polite">${museConversation.map(museResponseMarkup).join("")}</div>` : `<div class="muse-entry-cards" aria-label="Start styling with Muse">${actions.map(([title, detail, image, question]) => `<button type="button" data-question="${escapeMarkup(question)}" onclick="askMusePreset(this.dataset.question)"><img src="${image}" alt=""><span><b>${title}</b>${detail ? `<small>${detail}</small>` : ""}</span></button>`).join("")}</div>`}<form class="muse-composer" onsubmit="submitMuseQuestion(event)"><input class="sr-only" id="muse-image-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose an image to attach" onchange="attachMuseImage(this)"><button class="muse-attach-button" type="button" aria-label="Attach image" onclick="document.getElementById('muse-image-input')?.click()">${icon("image-plus")}</button><label class="sr-only" for="muse-natural-language">Ask Muse in your own words or add your voice transcript</label><textarea id="muse-natural-language" rows="1" placeholder="Ask Muse anything about your style…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.requestSubmit()}"></textarea><button type="button" aria-label="Record voice note" onclick="toggleMuseRecording(this)"><i data-lucide="mic" class="icon"></i></button><button type="submit" aria-label="Send to Muse">↑</button>${museImageAttachment ? `<div class="muse-attachment-preview"><img src="${museImageAttachment.src}" alt=""><span><b>${escapeMarkup(museImageAttachment.name)}</b><small>Ready to send</small></span><button type="button" aria-label="Remove attached image" onclick="removeMuseImageAttachment()">×</button></div>` : ""}<small>${settingsPreferences.museReplyMode === "Voice + text" ? "Replies can be voice + text." : "Replies are text only."}</small></form></div>`, { active: "home", surfaceClass: "muse-visual-screen" });
+  return shell("Livia", `<div class="muse-assistant ${active ? "is-conversation" : "is-intro"}"><div class="muse-hero" aria-label="Livia curating a wardrobe"><video src="app%20videos/muse.mp4" autoplay muted loop playsinline preload="metadata" poster="images/meet-muse-poster.jpg"></video></div>${!active ? `<section class="muse-welcome"><p class="eyebrow">STYLEIQ</p><h2>Meet Livia</h2><p>Your visual stylist for real life.<br>I use your closet, plans, and context to create looks that fit your day.</p></section>` : ""}<div class="muse-context-strip"><span>${icon("sun")}</span><p><small>Styling from</small><b>${escapeMarkup(!museContext.origin || museContext.origin.startsWith("M-") ? "Today’s look and weather" : museContext.label)}</b><small>Closet · plans · weather</small></p>${active ? `<button onclick="clearMuseConversation()">New chat</button>` : ""}</div>${active ? `<div class="muse-thread" aria-live="polite">${museConversation.map(museResponseMarkup).join("")}</div>` : `<div class="muse-entry-cards" aria-label="Start styling with Livia">${actions.map(([title, detail, image, question]) => `<button type="button" data-question="${escapeMarkup(question)}" onclick="askMusePreset(this.dataset.question)"><img src="${image}" alt=""><span><b>${title}</b>${detail ? `<small>${detail}</small>` : ""}</span></button>`).join("")}</div>`}<form class="muse-composer" onsubmit="submitMuseQuestion(event)"><input class="sr-only" id="muse-image-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Choose an image to attach" onchange="attachMuseImage(this)"><button class="muse-attach-button" type="button" aria-label="Attach image" onclick="document.getElementById('muse-image-input')?.click()">${icon("image-plus")}</button><label class="sr-only" for="muse-natural-language">Ask Livia in your own words or add your voice transcript</label><textarea id="muse-natural-language" rows="1" placeholder="Ask Livia anything about your style…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();this.form.requestSubmit()}"></textarea><button type="button" aria-label="Record voice note" onclick="toggleMuseRecording(this)"><i data-lucide="mic" class="icon"></i></button><button type="submit" aria-label="Send to Livia">↑</button>${museImageAttachment ? `<div class="muse-attachment-preview"><img src="${museImageAttachment.src}" alt=""><span><b>${escapeMarkup(museImageAttachment.name)}</b><small>Ready to send</small></span><button type="button" aria-label="Remove attached image" onclick="removeMuseImageAttachment()">×</button></div>` : ""}<small>${settingsPreferences.museReplyMode === "Voice + text" ? "Replies can be voice + text." : "Replies are text only."}</small></form></div>`, { active: "home", surfaceClass: "muse-visual-screen" });
 }

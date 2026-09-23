@@ -59,7 +59,7 @@ test.describe("Green Phase 1 onboarding (Phase 2 Canonical Alignment)", () => {
     await expect(app).toHaveAttribute("data-canonical-screen", "D-02");
     await expect(app.getByRole("heading", { name: /An easy direction to begin with|Your first Look starts with one piece/ })).toBeVisible();
     await expect(app.getByRole("button", { name: /Add First Item|Add an item/ })).toBeVisible();
-    await expect(app.getByRole("button", { name: "Ask Muse" })).toBeVisible();
+    await expect(app.getByRole("button", { name: "Ask Livia" })).toBeVisible();
     await expect(app.getByRole("button", { name: /See Another Direction|Browse inspiration/ })).toBeVisible();
     await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem("styleiqClosetItemsV1") || "[]").length)).toBe(0);
   });
