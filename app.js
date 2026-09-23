@@ -2967,6 +2967,13 @@ function closeLightweightPanel() {
   lightweightPanel = null;
   render();
 }
+function runTodayAction(action) {
+  const lookId = selectedTodayLook;
+  lightweightPanel = null;
+  if (action === "tryOn") return startTryOn(lookId);
+  if (action === "makeMine") return makeTodayLookMine(lookId);
+  if (action === "closet") return go("C-01");
+}
 function selectChip(button) {
   const group = button.closest('[role="group"],.chips,.mirror-filters');
   group?.querySelectorAll("button").forEach((option) => {
@@ -3151,11 +3158,18 @@ function lightweightPanelMarkup() {
     ? selectedPlan?.lookId ? plannerLook(selectedPlan.lookId) : null
     : plannerEvent?.lookId ? plannerLook(plannerEvent.lookId) : null;
   const selectedRepeat = recurringEvents.find((event) => event.id === selectedRecurringEventId);
+  const todaySaveLook = currentId === "D-02" ? swipeLookRecord(selectedTodayLook) : null;
   const panels = {
+    todayActions: {
+      eyebrow: "Today’s Look",
+      title: "More actions",
+      body: `<div class="choice-list today-action-list"><button class="choice" onclick="openLightweightPanel('save')"><span class="row"><span class="icon-wrap">${icon("bookmark")}</span><b>Save Look</b></span><span aria-hidden="true">›</span></button><button class="choice" onclick="runTodayAction('tryOn')"><span class="row"><span class="icon-wrap">${icon("user")}</span><b>Try On</b></span><span aria-hidden="true">›</span></button><button class="choice" onclick="runTodayAction('makeMine')"><span class="row"><span class="icon-wrap">${icon("shirt")}</span><b>Make it mine</b></span><span aria-hidden="true">›</span></button><button class="choice" onclick="runTodayAction('closet')"><span class="row"><span class="icon-wrap">${icon("shirt")}</span><b>View Closet</b></span><span aria-hidden="true">›</span></button></div>`,
+      action: null,
+    },
     save: {
       eyebrow: "Save without leaving",
       title: "Save this Look",
-      body: `<div class="lightweight-preview"><img src="${assets.look3}" alt="Look being saved"><span><b>Today’s office Look</b><small>Private by default · You can edit the title later.</small></span></div>${approvalCard("Ready to save", "Muse is confident about the outfit pieces and context. One tap is enough.")}`,
+      body: `<div class="lightweight-preview">${todaySaveLook ? `<span class="today-save-preview tryon-frame-preview ${todaySaveLook.reference ? "reference" : ""} ${todaySaveLook.remote ? "remote-photo" : ""}" role="img" aria-label="${escapeMarkup(todaySaveLook.title)}" style="background-image:url('${todaySaveLook.sheet}');background-position:0 ${todaySaveLook.row * 100}%"></span>` : `<img src="${assets.look3}" alt="Look being saved">`}<span><b>${todaySaveLook ? escapeMarkup(todaySaveLook.title) : "Today’s office Look"}</b><small>Private by default · You can edit the title later.</small></span></div>${approvalCard("Ready to save", "Muse is confident about the outfit pieces and context. One tap is enough.")}`,
       action: "Save Look",
     },
     image: {
@@ -7106,8 +7120,8 @@ function mirrorToday() {
         <aside class="today-muse-note" aria-label="Muse’s note for today’s look"><span class="today-muse-note-label">${icon("spark")}Muse’s note</span><p class="today-muse-note-title">${escapeMarkup(morningNote[0])}</p></aside>
         <div class="today-morning-foot"><div class="today-morning-meta" aria-label="Today’s context"><span>${icon("calendar")}Sunday</span><i aria-hidden="true">·</i><span>${icon("map-pin")}Cairo</span><i aria-hidden="true">·</i><span>${icon("briefcase")}Office</span><i aria-hidden="true">·</i><span>${icon("sun")}<b>18°C</b></span></div></div>
       </header>
-      <div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3><button class="today-save" aria-label="Save outfit" onclick="openLightweightPanel('save')">${icon("bookmark")}</button></div>
-    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b><button onclick="go('C-01')">View Closet</button></div><div class="today-actions"><button class="btn primary" onclick="selectLookForWear(wearLook('${look.id}'))">${wearActionLabel(look.id)}</button><button class="btn" onclick="startTryOn()">${icon("user")} Try On</button><button class="btn" onclick="makeTodayLookMine('${look.id}')">${icon("shirt")} Make it mine</button></div>${todayWearHistoryMarkup()}${todaySwipeLooksMarkup({ id: "today-swipe-looks", selectedId: look.id, actionFor: (candidate) => `useSwipeLookForToday('${candidate.id}')` })}`,
+      <div class="today-hero-panel"><span>Today’s Look</span><h3>${look.title}</h3></div>
+    </section><div class="today-closet-line"><b>${look.pieces.length} pieces · from your Closet first</b></div><div class="today-actions today-actions--compact"><button class="btn primary today-wear-action" onclick="selectLookForWear(wearLook('${look.id}'))">${wearActionLabel(look.id)}</button><button class="btn today-look-switcher" type="button" aria-haspopup="dialog" onclick="openSwipeLookPanel('today')"><span aria-hidden="true">⇄</span> Change Look</button><button class="btn today-more-actions" type="button" aria-label="More actions for today’s Look" aria-haspopup="dialog" onclick="openLightweightPanel('todayActions')">${icon("more")}<span>More</span></button></div>${todayWearHistoryMarkup()}${todaySwipeLooksMarkup({ id: "today-swipe-looks", selectedId: look.id })}${todayFeatureIndexMarkup()}`,
     { active: "home", surfaceClass: "image-first-surface" },
   );
 }
@@ -8549,11 +8563,11 @@ function swipeLooksMarkup({ id = "swipe-looks", selectedId = "", actionFor, targ
 function todayLookRailMarkup({ id, title, note, looks, selectedId, actionFor, viewAllAction, endTitle, endNote, endIcon, endAction, discoveryStyle = false, sourceLabel = "" }) {
   const cards = looks.map((look) => {
     const selected = look.id === selectedId;
-    const action = typeof actionFor === "function" ? actionFor(look) : `applySwipeLook('${look.id}')`;
+    const action = typeof actionFor === "function" ? actionFor(look) : `openTodayLookDetails('${look.id}')`;
     const cardCopy = discoveryStyle
       ? `<small>${escapeMarkup(sourceLabel || look.sourceLabel || "StyleIQ")}</small><b>${escapeMarkup(look.title)}</b>`
-      : `<b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context || "Ready for today")}</small><em>${selected ? "Wearing today" : "Use this Look"} <span aria-hidden="true">→</span></em>`;
-    return `<article class="today-shelf-card ${selected ? "selected" : ""}" role="listitem"><button class="today-shelf-card-hit" onclick="${action}" ${selected ? "disabled" : ""} aria-label="${selected ? "Current Look: " : "Use for Today: "}${escapeMarkup(look.title)}"><span class="today-shelf-card-media"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}">${selected ? '<i>Current</i>' : ""}</span><span class="today-shelf-card-copy">${cardCopy}</span></button></article>`;
+      : `<b>${escapeMarkup(look.title)}</b><small>${escapeMarkup(look.context || "Ready for today")}</small><em>View details <span aria-hidden="true">→</span></em>`;
+    return `<article class="today-shelf-card ${selected ? "selected" : ""}" role="listitem"><button class="today-shelf-card-hit" onclick="${action}" aria-label="View details for ${escapeMarkup(look.title)}"><span class="today-shelf-card-media"><img src="${look.sheet}" alt="${escapeMarkup(look.title)}">${selected ? '<i>Current</i>' : ""}</span><span class="today-shelf-card-copy">${cardCopy}</span></button></article>`;
   }).join("");
   return `<section class="today-look-shelf${discoveryStyle ? " today-look-shelf--discovery" : ""}" aria-labelledby="${id}-title"><header><span><h3 id="${id}-title">${escapeMarkup(title)}</h3><p>${escapeMarkup(note)}</p></span><button class="today-shelf-view-all" onclick="${viewAllAction}" aria-label="View all ${escapeMarkup(title)}">View All</button></header><div class="today-shelf-rail" role="list" aria-label="${escapeMarkup(title)}">${cards}<button class="today-look-end-card" role="listitem" onclick="${endAction}"><span>${endIcon}</span><b>${escapeMarkup(endTitle)}</b><small>${escapeMarkup(endNote)}</small><i aria-hidden="true">→</i></button></div></section>`;
 }
@@ -8581,10 +8595,28 @@ function todaySwipeLooksMarkup({ id = "today-look-library", selectedId = "", act
   return `<div class="today-look-library" aria-label="More Looks for Today">
     ${todayLookRailMarkup({ id: `${id}-muse`, title: "Muse Picks", note: "Fresh options shaped around today.", looks: museLooks, selectedId, actionFor, viewAllAction: "openSwipeLookPanel('today',null)", endTitle: "Create New", endNote: "Ask Muse for a new direction", endIcon: icon("spark"), endAction: "openSwipeMuseCreator('today',null)", discoveryStyle: true, sourceLabel: "Muse · Picked for you" })}
     ${todayLookRailMarkup({ id: `${id}-discover`, title: "Discover", note: "New Looks from stylists, picked for your style.", looks: discoveryLooks, selectedId, actionFor: (look) => `openCreatorLook('${look.id}')`, viewAllAction: "go('K-01')", endTitle: "See All", endNote: "Explore more Looks, stylists and new finds", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
-    ${todayLookRailMarkup({ id: `${id}-studio`, title: "Style Studio", note: "Looks you built, ready to wear again.", looks: studioLooks, selectedId, actionFor, viewAllAction: "go('F-01')", endTitle: "Create New", endNote: "Build a Look piece by piece", endIcon: icon("shirt"), endAction: "openSwipeStyleStudio('today',null)", discoveryStyle: true, sourceLabel: "Your Style Studio" })}
+    ${todayLookRailMarkup({ id: `${id}-studio`, title: "Style Studio", note: "Looks you built, ready to wear again.", looks: studioLooks, selectedId, actionFor, viewAllAction: "go('F-01')", endTitle: "Create New", endNote: "Build a Look piece by piece", endIcon: icon("shirt"), endAction: "go('F-01')", discoveryStyle: true, sourceLabel: "Your Style Studio" })}
     ${todayLookRailMarkup({ id: `${id}-ready`, title: "Ready Looks", note: "Looks prepared from inspiration and ready to wear.", looks: readyLooks, selectedId, actionFor, viewAllAction: "openSwipeLookPanel('today',null,'discover')", endTitle: "Discover", endNote: "Find a new source of inspiration", endIcon: icon("compass"), endAction: "go('K-01')", discoveryStyle: true })}
     ${todayLookRailMarkup({ id: `${id}-saved`, title: "Saved Looks", note: "Looks you saved to come back to.", looks: savedLooks, selectedId, actionFor, viewAllAction: "go('G-01')", endTitle: "View All", endNote: "Open your full Looks collection", endIcon: icon("bookmark"), endAction: "go('G-01')", discoveryStyle: true, sourceLabel: "Saved Look" })}
   </div>`;
+}
+function todayFeatureIndexMarkup() {
+  const closetPreview = closetItems().find((item) => item.lifecycle === "Keep" && item.status === "Available");
+  const wishlistPreview = wishlistItems.find((item) => item.status !== "Purchased");
+  const tripDestination = tripState.basics?.destination || "Your next trip";
+  const features = [
+    { id: "closet", label: "Closet", title: closetPreview?.name || "Your wardrobe starts here", note: `${closetItemCount()} ${closetItemCount() === 1 ? "piece" : "pieces"} to style`, route: "C-01", image: closetPreview ? closetGridImage(closetPreview) : "", iconName: "shirt" },
+    { id: "planner", label: "Planner", title: "Make room for what’s next", note: "Looks for your calendar", route: "I-01", image: assets.look3, iconName: "calendar" },
+    { id: "trips", label: "Trips", title: tripDestination, note: "Plan a capsule for the journey", route: "J-01", image: tripState.looks?.[0]?.image || assets.look4, iconName: "bag" },
+    { id: "wishlist", label: "Wishlist", title: wishlistPreview?.name || "Keep what catches your eye", note: `${wishlistItems.filter((item) => item.status !== "Purchased").length} pieces to consider`, route: "G-08", image: wishlistPreview ? wishlistProductImage(wishlistPreview) : "", iconName: "heart" },
+    { id: "twin", label: "Style Twin", title: "See the Look on you", note: "Explore your personal fit", route: twinSetup.complete ? "H-10" : "H-01", image: "", iconName: "user" },
+    { id: "muse", label: "Muse", title: "A little styling help", note: "Ask your personal stylist", action: "openMuse()", image: "", iconName: "spark" },
+  ];
+  return `<section class="today-feature-index" aria-labelledby="today-feature-index-title"><header><p class="eyebrow">Your StyleIQ</p><h2 id="today-feature-index-title">Explore your world</h2><p>Everything you need to make the most of what you own.</p></header><div class="today-feature-grid">${features.map((feature) => {
+    const action = feature.action || `go('${feature.route}')`;
+    const media = feature.image ? `<img src="${escapeMarkup(feature.image)}" alt="">` : `<span class="today-feature-icon" aria-hidden="true">${icon(feature.iconName)}</span>`;
+    return `<section class="today-feature-card" aria-labelledby="today-feature-${feature.id}"><div class="today-feature-media">${media}</div><div class="today-feature-copy"><span>${escapeMarkup(feature.label)}</span><h3 id="today-feature-${feature.id}">${escapeMarkup(feature.title)}</h3><p>${escapeMarkup(feature.note)}</p><button type="button" onclick="${action}" aria-label="View all ${escapeMarkup(feature.label)}">View All ${icon("arrow-right")}</button></div></section>`;
+  }).join("")}</div></section>`;
 }
 function swipeLookSelectedId(target = swipeLookTarget) {
   if (target.type === "planner" && Number.isInteger(target.index)) return proactiveWeek[target.index]?.lookId || "";

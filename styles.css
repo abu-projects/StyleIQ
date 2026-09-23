@@ -21435,14 +21435,9 @@ summary:focus-visible {
 .app[data-screen="D-02"] .today-empty-looks { margin-top: 16px; margin-bottom: 28px; }
 .app[data-screen="D-02"] .today-empty-looks .text-action { margin-top: 16px; }
 .app[data-screen="D-02"] .today-hero .today-hero-panel {
-  display: grid;
-  grid-template-columns: minmax(0, max-content) 46px;
-  align-items: end;
-  gap: 4px 12px;
-  max-width: calc(100% - 132px);
+  max-width: calc(100% - 48px);
 }
 .app[data-screen="D-02"] .today-hero .today-hero-panel > span:first-child {
-  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -21473,14 +21468,59 @@ summary:focus-visible {
   .app[data-screen="D-02"] .today-morning-meta { gap: 5px; }
   .app[data-screen="D-02"] .today-hero .today-hero-panel {
     left: 18px;
-    grid-template-columns: minmax(0, 128px) 42px;
-    gap: 4px 9px;
+    max-width: calc(100% - 36px);
   }
   .app[data-screen="D-02"] .today-hero .today-hero-panel h3 { font-size: 22px; }
-  .app[data-screen="D-02"] .today-hero .today-save {
-    width: 44px;
-    height: 44px;
-  }
+}
+
+/* Keep the primary decision clear and group secondary Look actions in a sheet. */
+.app[data-screen="D-02"] .today-actions--compact {
+  grid-template-columns: minmax(0, 1fr) 96px;
+  gap: 10px;
+}
+.app[data-screen="D-02"] .today-actions--compact .today-wear-action {
+  grid-column: 1 / -1;
+}
+.app[data-screen="D-02"] .today-look-switcher {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 0;
+}
+.app[data-screen="D-02"] .today-look-switcher > span { font-size: 24px; line-height: 1; font-weight: 400; }
+.app[data-screen="D-02"] .today-more-actions { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.app[data-screen="D-02"] .today-more-actions .icon { width: 18px; height: 18px; }
+.today-action-list { margin-top: 16px; }
+.today-action-list .choice { min-height: 58px; }
+.today-action-list .choice .row { gap: 12px; }
+.lightweight-preview .today-save-preview { width: 72px; height: 82px; border-radius: 13px; background-color: #e6ddd5; }
+
+.today-feature-index { margin: 32px 24px 48px; }
+.today-feature-index > header { margin-bottom: 18px; }
+.today-feature-index > header .eyebrow { margin: 0 0 6px; }
+.today-feature-index > header h2 { margin: 0; font: 700 28px/1.04 var(--font-display); letter-spacing: -.035em; }
+.today-feature-index > header > p:last-child { margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+.today-feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.today-feature-card { min-width: 0; overflow: hidden; border: 1px solid rgba(77,60,48,.12); border-radius: 18px; background: #fff; }
+.today-feature-media { position: relative; display: grid; place-items: center; height: 116px; overflow: hidden; background: #ede6de; }
+.today-feature-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.today-feature-card:first-child .today-feature-media img { object-fit: contain; }
+.today-feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid rgba(77,60,48,.25); border-radius: 50%; color: #6d594b; }
+.today-feature-icon .icon { width: 24px; height: 24px; }
+.today-feature-copy { padding: 13px; }
+.today-feature-copy > span { color: #9b7746; font-size: 9px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.today-feature-copy h3 { min-height: 36px; margin: 6px 0 3px; font: 600 17px/1.08 var(--font-display); }
+.today-feature-copy p { min-height: 28px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.35; }
+.today-feature-copy button { display: inline-flex; align-items: center; gap: 6px; min-height: 38px; margin-top: 8px; padding: 0; border: 0; background: transparent; color: #4f3e33; font-size: 10px; font-weight: 750; cursor: pointer; }
+.today-feature-copy button .icon { width: 13px; height: 13px; }
+.today-feature-copy button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@container styleiq-phone (max-width: 350px) {
+  .app[data-screen="D-02"] .today-actions--compact { grid-template-columns: minmax(0, 1fr) 84px; }
+  .app[data-screen="D-02"] .today-more-actions { gap: 3px; }
+  .today-feature-index { margin-inline: 18px; }
+  .today-feature-grid { gap: 9px; }
+  .today-feature-copy { padding: 10px; }
 }
 
 /* Secondary overlays keep their behavior, but share the same inset and close control. */
